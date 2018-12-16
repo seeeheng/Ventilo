@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">VENTILO</string>
+
+    <!-- Bottom Navigation Menu -->
+    <string name="btm_nav_menu_map">MAP</string>
+    <!--<string name="btm_nav_menu_chat">CHAT</string>-->
+    <string name="btm_nav_menu_timeline">TIMELINE</string>
+    <string name="btm_nav_menu_stream">STREAM</string>
+    <string name="btm_nav_menu_report">REPORT</string>
+    <string name="btm_nav_menu_notification">NOTIFICATION</string>
+
+    <string name="app">ToyVPN</string>
+    <string name="address">Server Address:</string>
+    <string name="port">Server Port:</string>
+    <string name="secret">Shared Secret:</string>
+    <string name="connect">Connect!</string>
+    <string name="disconnect">Disconnect!</string>
+    <string name="connecting">ToyVPN is connecting...</string>
+    <string name="connected">ToyVPN is connected!</string>
+    <string name="disconnected">ToyVPN is disconnected!</string>
+</resources>

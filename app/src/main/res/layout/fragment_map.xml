@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="100">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="15"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_mic_speak"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Speak" />
+
+        <TextView
+            android:id="@+id/tv_mic_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Text will be here" />
+
+        <!--<ListView-->
+        <!--android:id="@+id/timeline_listView"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:divider="@null"-->
+        <!--android:dividerHeight="0dp" />-->
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="45"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <dsta.sg.com.ventilo.PinView
+            android:id="@+id/img_map_main"
+            android:layout_width="1000px"
+            android:layout_height="848px"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter" />
+
+        <!--<ImageView-->
+        <!--android:id="@+id/img_map_main"-->
+        <!--android:layout_width="717px"-->
+        <!--android:layout_height="518px"-->
+        <!--android:src="@drawable/map_platform_deck_30_4m_x_21_9m">-->
+        <!--</ImageView>-->
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="20">
+
+        <org.apache.cordova.CordovaWebView
+            android:id="@+id/mapview_cesium_map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </org.apache.cordova.CordovaWebView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="20">
+
+        <com.esri.arcgisruntime.mapping.view.MapView
+            android:id="@+id/mapview_arcgis_map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></com.esri.arcgisruntime.mapping.view.MapView>
+
+    </LinearLayout>
+
+</LinearLayout>
