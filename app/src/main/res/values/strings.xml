@@ -129,7 +129,7 @@
     <string name="sitrep_D">D</string>
 
     <!-- Video Stream Fragment -->
-    <string name="first_video_stream_URL_Title">Enter 1st URL Link: </string>
-    <string name="second_video_stream_URL_Title">Enter 2nd URL Link: </string>
+    <string name="first_video_stream_URL_Title">1st Video URL: </string>
+    <string name="second_video_stream_URL_Title">2nd Video URL: </string>
     <string name="error_empty_video_ur_link_detail">Please enter URL Link</string>
 </resources>

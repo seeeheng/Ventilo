@@ -293,16 +293,20 @@ public class TaskInnerDetailFragment extends Fragment {
                         mSpinnerDropdownTitle.setSelection(mSpinnerDropdownTitle.getAdapter().getCount() - 1);
                         mEtvTitleDetail.setText(title);
                         mEtvTitleDetail.setVisibility(View.VISIBLE);
+                        mEtvTitleDetail.setEnabled(false);
                     } else {
                         mEtvTitleDetail.setText("");
                         mEtvTitleDetail.setVisibility(View.GONE);
                     }
+
+                    mSpinnerDropdownTitle.setEnabled(false);
                 }
 
                 if (mEtvDescriptionDetail != null) {
                     String description = bundle.getString(
                             ReportFragmentConstants.KEY_TASK_DESCRIPTION, ReportFragmentConstants.EMPTY_STRING);
                     mEtvDescriptionDetail.setText(description);
+                    mEtvDescriptionDetail.setEnabled(false);
                 }
             }
 

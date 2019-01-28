@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId 'sg.gov.dsta.mobileC3.ventilo'
+        applicationId "sg.gov.dsta.mobileC3.ventilo"
         minSdkVersion 22
         targetSdkVersion 28
         versionCode 1

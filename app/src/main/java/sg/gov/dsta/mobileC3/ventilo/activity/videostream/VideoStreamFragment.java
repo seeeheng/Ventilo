@@ -1,20 +1,26 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.videostream;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.util.CustomKeyboard;
 import sg.gov.dsta.mobileC3.ventilo.util.ValidationUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicLightEditTextView;
 
@@ -25,6 +31,8 @@ public class VideoStreamFragment extends Fragment {
     private VideoView mVideoViewTwo;
     private C2LatoItalicLightEditTextView mEtvFirstVideoURLLink;
     private C2LatoItalicLightEditTextView mEtvSecondVideoURLLink;
+    private LinearLayout mLinearLayoutFirstVideoConfirm;
+    private LinearLayout mLinearLayoutSecondVideoConfirm;
     private ImageButton mImgBtnFirstVideoConfirm;
     private ImageButton mImgBtnSecondVideoConfirm;
 
@@ -41,27 +49,66 @@ public class VideoStreamFragment extends Fragment {
 
     private void initUI(View rootVideoStreamView) {
         initURLLinkUI(rootVideoStreamView);
-
-        mVideoViewOne = rootVideoStreamView.findViewById(R.id.video_view_stream_one);
-        mVideoViewTwo = rootVideoStreamView.findViewById(R.id.video_view_stream_two);
+        initVideoOneStream(rootVideoStreamView);
+        initVideoTwoStream(rootVideoStreamView);
     }
 
     private void initURLLinkUI(View rootVideoStreamView) {
         mEtvFirstVideoURLLink = rootVideoStreamView.findViewById(R.id.etv_first_video_url_title_detail);
+        mEtvFirstVideoURLLink.addTextChangedListener(firstVideoTextWatcher);
+        mEtvFirstVideoURLLink.requestFocus();
+        CustomKeyboard.showKeyboard(getActivity());
+
+        mLinearLayoutFirstVideoConfirm = rootVideoStreamView.findViewById(R.id.layout_first_video_confirm);
         mImgBtnFirstVideoConfirm = rootVideoStreamView.findViewById(R.id.img_btn_first_video_url_confirm);
         mImgBtnFirstVideoConfirm.setOnClickListener(onFirstVideoConfirmClickListener);
 
         mEtvSecondVideoURLLink = rootVideoStreamView.findViewById(R.id.etv_second_video_url_title_detail);
+        mEtvSecondVideoURLLink.addTextChangedListener(secondVideoTextWatcher);
+        mLinearLayoutSecondVideoConfirm = rootVideoStreamView.findViewById(R.id.layout_second_video_confirm);
         mImgBtnSecondVideoConfirm = rootVideoStreamView.findViewById(R.id.img_btn_second_video_url_confirm);
         mImgBtnSecondVideoConfirm.setOnClickListener(onSecondVideoConfirmClickListener);
     }
+
+    private TextWatcher firstVideoTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            mLinearLayoutFirstVideoConfirm.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+        }
+    };
+
+    private TextWatcher secondVideoTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            mLinearLayoutSecondVideoConfirm.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+        }
+    };
 
     private View.OnClickListener onFirstVideoConfirmClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             if (ValidationUtil.validateEditTextField(mEtvFirstVideoURLLink,
                     getString(R.string.error_empty_video_ur_link_detail))) {
-                initVideoOneStream(mEtvFirstVideoURLLink.getText().toString().trim());
+                setVideoOneStreamURL(mEtvFirstVideoURLLink.getText().toString().trim());
+                mLinearLayoutFirstVideoConfirm.setVisibility(View.GONE);
+                mEtvFirstVideoURLLink.clearFocus();
+                CustomKeyboard.hideKeyboard(getActivity(), mEtvFirstVideoURLLink);
             }
         }
     };
@@ -71,18 +118,28 @@ public class VideoStreamFragment extends Fragment {
         public void onClick(View view) {
             if (ValidationUtil.validateEditTextField(mEtvSecondVideoURLLink,
                     getString(R.string.error_empty_video_ur_link_detail))) {
-                initVideoTwoStream(mEtvSecondVideoURLLink.getText().toString().trim());
+                setVideoTwoStreamURL(mEtvSecondVideoURLLink.getText().toString().trim());
+                mLinearLayoutSecondVideoConfirm.setVisibility(View.GONE);
+                mEtvSecondVideoURLLink.clearFocus();
+                CustomKeyboard.hideKeyboard(getActivity(), mEtvSecondVideoURLLink);
             }
         }
     };
 
-    // Test URL is "rtsp://184.72.239.149/vod/mp4:BigBuckBunny_175k.mov"
-    private void initVideoOneStream(String urlLink) {
+    private void initVideoOneStream(View rootVideoStreamView) {
+        mVideoViewOne = rootVideoStreamView.findViewById(R.id.video_view_stream_one);
         mMediaControllerOne = new MediaController(getActivity());
-//        mediaControllerOne.setAnchorView(mVideoViewOne);
-//        mediaControllerOne.setMediaPlayer(mVideoViewOne);
         mVideoViewOne.setMediaController(mMediaControllerOne);
+    }
 
+    private void initVideoTwoStream(View rootVideoStreamView) {
+        mVideoViewTwo = rootVideoStreamView.findViewById(R.id.video_view_stream_two);
+        mMediaControllerOne = new MediaController(getActivity());
+        mVideoViewOne.setMediaController(mMediaControllerOne);
+    }
+
+    // Test URL is "rtsp://184.72.239.149/vod/mp4:BigBuckBunny_175k.mov"
+    private void setVideoOneStreamURL(String urlLink) {
         try {
             Uri video = Uri.parse(urlLink);
 
@@ -91,7 +148,7 @@ public class VideoStreamFragment extends Fragment {
             mVideoViewOne.post(new Runnable() {
                 @Override
                 public void run() {
-                    mMediaControllerOne.show(0);
+//                    mMediaControllerOne.show(0);
                 }
             });
         } catch (RuntimeException e) {
@@ -102,7 +159,7 @@ public class VideoStreamFragment extends Fragment {
     }
 
     // Test URL is "http://archive.org/download/SampleMpeg4_201307/sample_mpeg4.mp4"
-    private void initVideoTwoStream(String urlLink) {
+    private void setVideoTwoStreamURL(String urlLink) {
         mMediaControllerTwo = new MediaController(getActivity());
         mVideoViewTwo.setMediaController(mMediaControllerTwo);
 
@@ -113,7 +170,7 @@ public class VideoStreamFragment extends Fragment {
             mVideoViewTwo.post(new Runnable() {
                 @Override
                 public void run() {
-                    mMediaControllerTwo.show(0);
+//                    mMediaControllerTwo.show(0);
                 }
             });
         } catch (RuntimeException e) {
