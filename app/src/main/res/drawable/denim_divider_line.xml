@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <!-- draw a 5dp width border around the rectangle shape -->
+            <stroke android:color="@color/background_3rd_level_chinese_silver" android:width="5dp"/>
+        </shape>
+    </item>
+    <!--
+        hide left, top and right side border using ultra dark blue
+        by padding 5dp bottom side
+    -->
+    <item android:bottom="5dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/background_main_black"/>
+        </shape>
+    </item>
+</layer-list>

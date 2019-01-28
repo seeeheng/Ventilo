@@ -4,31 +4,31 @@
     <item
         android:id="@+id/btn_nav_action_map"
         android:enabled="true"
-        android:icon="@drawable/btm_nav_menu_chat_btn"
+        android:icon="@drawable/btm_nav_menu_map_btn"
         android:title="@string/btm_nav_menu_map"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/btn_nav_action_timeline"
         android:enabled="true"
-        android:icon="@drawable/btm_nav_menu_chat_btn"
+        android:icon="@drawable/btm_nav_menu_timeline_btn"
         android:title="@string/btm_nav_menu_timeline"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/btn_nav_action_report"
         android:enabled="true"
-        android:icon="@drawable/btm_nav_menu_chat_btn"
+        android:icon="@drawable/btm_nav_menu_report_btn"
         android:title="@string/btm_nav_menu_report"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/btn_nav_action_notification"
         android:enabled="true"
-        android:icon="@drawable/btm_nav_menu_chat_btn"
+        android:icon="@drawable/btm_nav_menu_notification_btn"
         android:title="@string/btm_nav_menu_notification"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/btn_nav_action_stream"
         android:enabled="true"
-        android:icon="@drawable/btm_nav_menu_chat_btn"
+        android:icon="@drawable/btm_nav_menu_video_stream_btn"
         android:title="@string/btm_nav_menu_stream"
         app:showAsAction="ifRoom" />
 </menu>

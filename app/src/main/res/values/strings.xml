@@ -18,4 +18,118 @@
     <string name="connecting">ToyVPN is connecting...</string>
     <string name="connected">ToyVPN is connected!</string>
     <string name="disconnected">ToyVPN is disconnected!</string>
+
+    <!-- Login -->
+    <string name="email">EMAIL</string>
+    <string name="password">PASSWORD</string>
+    <string name="sign_up">SIGN UP</string>
+    <string name="forgot_password">FORGOT PASSWORD</string>
+    <string name="error_invalid_email">This email is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
+
+    <!-- Report Fragment -->
+    <string name="tab_layout_tabs_incident_title">INCIDENT</string>
+    <string name="tab_layout_tabs_task_title">TASK</string>
+    <string name="tab_layout_tabs_sitrep_title">SIT REP</string>
+
+    <!-- Incident Inner Fragment -->
+    <string name="incident_title_header">Title</string>
+
+    <string-array name="incident_title_items">
+        <item>Select Incident...</item>
+        <item>Found Explosive</item>
+        <item>Casualty</item>
+        <item>Others</item>
+    </string-array>
+
+    <string name="incident_title_detail_hint">Enter title here...</string>
+    <string name="incident_description_header">Description</string>
+    <string name="incident_description_detail_hint">Enter description here...</string>
+    <string name="error_empty_incident_title_detail">Please enter incident title</string>
+    <string name="error_empty_incident_description_detail">Please enter incident description</string>
+
+    <!-- Task Inner Fragment -->
+    <string name="task_title_header">Title</string>
+
+    <string-array name="task_title_items">
+        <item>Select Task...</item>
+        <item>Deactivate IAD</item>
+        <item>Rescue Hostage</item>
+        <item>Secure Nuclear Weapon</item>
+        <item>Others</item>
+    </string-array>
+
+    <string name="task_title_detail_hint">Enter title here...</string>
+    <string name="task_description_header">Description</string>
+    <string name="task_description_detail_hint">Enter description here...</string>
+    <string name="error_empty_task_title_detail">Please enter task title</string>
+    <string name="error_empty_task_description_detail">Please enter task description</string>
+
+    <!-- Sitrep Inner Fragment -->
+    <string-array name="sitrep_location_items">
+        <item>Select Location...</item>
+        <item>AUDI</item>
+        <item>BEDOK</item>
+        <item>BALESTIER</item>
+        <item>CHANGI</item>
+        <item>CLARKE QUAY</item>
+        <item>DOVER</item>
+        <item>DARK KNIGHT</item>
+        <item>EAST COAST</item>
+        <item>FUJI</item>
+        <item>FORD</item>
+        <item>FARRER</item>
+        <item>FERRARI</item>
+        <item>ISTANA</item>
+        <item>KONICA</item>
+        <item>LIMO</item>
+        <item>MAZDA</item>
+        <item>MARINA</item>
+        <item>MERCEDES</item>
+        <item>OLYMPUS</item>
+        <item>PROTON</item>
+        <item>PEUGEOT</item>
+        <item>PUNGGOL</item>
+        <item>ROMEO</item>
+        <item>SUZUKI</item>
+        <item>SYDNEY</item>
+        <item>STARLING</item>
+        <item>SENG KANG</item>
+        <item>SEMBAWANG</item>
+        <item>TANGO</item>
+        <item>WALLIS</item>
+    </string-array>
+
+    <string-array name="sitrep_activity_items">
+        <item>Select Activity...</item>
+        <item>Fire Fighting</item>
+    </string-array>
+
+    <string-array name="sitrep_next_coa_items">
+        <item>Select Next COA...</item>
+        <item>Inform HQ</item>
+    </string-array>
+
+    <string-array name="sitrep_request_items">
+        <item>Select Request...</item>
+        <item>Additional MP</item>
+    </string-array>
+
+    <string name="sitrep_team">Team</string>
+    <string name="sitrep_location">Location</string>
+    <string name="sitrep_activity">Activity</string>
+    <string name="sitrep_personnel">Personnel</string>
+    <string name="sitrep_next_coa">Next Course of Action</string>
+    <string name="sitrep_request">Request</string>
+    <string name="sitrep_T">T</string>
+    <string name="sitrep_S">S</string>
+    <string name="sitrep_D">D</string>
+
+    <!-- Video Stream Fragment -->
+    <string name="first_video_stream_URL_Title">Enter 1st URL Link: </string>
+    <string name="second_video_stream_URL_Title">Enter 2nd URL Link: </string>
+    <string name="error_empty_video_ur_link_detail">Please enter URL Link</string>
 </resources>

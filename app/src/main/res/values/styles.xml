@@ -10,7 +10,7 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowBackground">@color/background_main_dark_steel_blue</item>
+        <item name="android:windowBackground">@color/background_main_black</item>
     </style>
 
     <style name="item">
@@ -23,6 +23,22 @@
     <!-- Bottom Navigation View -->
     <style name="Widget.BottomNavigationView" parent="Widget.Design.BottomNavigationView">
         <item name="fontFamily">@font/lato_regular</item>
+    </style>
+
+    <!-- Recycler View Header Text -->
+    <style name="RecyclerViewHeaderText">
+        <item name="fontFamily">@font/lato_regular</item>
+        <item name="android:textColor">@color/primary_text_white</item>
+        <item name="android:textSize">@dimen/recycler_row_header_title_text_size</item>
+    </style>
+
+    <!-- Floating Action Button -->
+    <style name="FloatingActionButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_marginRight">@dimen/vertical_3rd_level_margin</item>
+        <item name="android:scaleType">fitCenter</item>
     </style>
 
 </resources>

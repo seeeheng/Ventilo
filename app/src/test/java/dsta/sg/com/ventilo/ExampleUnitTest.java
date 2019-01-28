@@ -1,4 +1,4 @@
-package dsta.sg.com.ventilo;
+package sg.gov.dsta.mobileC3.ventilo;
 
 import org.junit.Test;
 

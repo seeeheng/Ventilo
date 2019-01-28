@@ -1,4 +1,4 @@
-package dsta.sg.com.ventilo;
+package sg.gov.dsta.mobileC3.ventilo;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("dsta.sg.com.ventilo", appContext.getPackageName());
+        assertEquals("sg.gov.dsta.mobileC3.ventilo", appContext.getPackageName());
     }
 }

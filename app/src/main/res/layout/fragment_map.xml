@@ -8,7 +8,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="15"
+        android:layout_weight="0"
         android:orientation="vertical">
 
         <Button
@@ -34,11 +34,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="45"
+        android:layout_weight="0"
         android:gravity="center"
         android:orientation="vertical">
 
-        <dsta.sg.com.ventilo.PinView
+        <sg.gov.dsta.mobileC3.ventilo.PinView
             android:id="@+id/img_map_main"
             android:layout_width="1000px"
             android:layout_height="848px"
@@ -54,30 +54,123 @@
 
     </LinearLayout>
 
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="0dp"-->
+        <!--android:layout_weight="0">-->
+
+        <!--<com.google.android.gms.maps.MapView-->
+            <!--android:id="@+id/map_view_google_map"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent" />-->
+
+    <!--</LinearLayout>-->
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="20">
+        android:layout_weight="100">
 
-        <org.apache.cordova.CordovaWebView
-            android:id="@+id/mapview_cesium_map"
+        <!--<org.apache.cordova.CordovaWebView-->
+            <!--android:id="@+id/mapview_cesium_map"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent">-->
+
+        <!--</org.apache.cordova.CordovaWebView>-->
+
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        </org.apache.cordova.CordovaWebView>
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/map_view_google_map"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <com.nutiteq.MapView
+                android:id="@+id/mapview_nutiteq"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"/>
+
+            <RelativeLayout
+                android:layout_width="105dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true">
+
+                <Button
+                    android:id="@+id/btn_mqtt_subscribe"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Subscribe"/>
+
+                <Button
+                    android:id="@+id/btn_mqtt_share_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/btn_mqtt_subscribe"
+                    android:text="Share Location"/>
+
+            </RelativeLayout>
+
+            <!--<Button-->
+                <!--android:id="@+id/btn_mqtt_publish"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_toEndOf="@+id/btn_mqtt_subscribe"-->
+                <!--android:text="Publish"/>-->
+
+            <!--<Button-->
+                <!--android:id="@+id/btn_mqtt_publish_two"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_toEndOf="@+id/btn_mqtt_publish"-->
+                <!--android:text="Publish Two"/>-->
+
+            <RelativeLayout
+                android:layout_width="105dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true">
+
+                <Button
+                    android:id="@+id/btn_map_top_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Top"/>
+
+                <Button
+                    android:id="@+id/btn_map_port_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/btn_map_top_view"
+                    android:text="Port"/>
+
+                <Button
+                    android:id="@+id/btn_map_sb_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/btn_map_port_view"
+                    android:text="Starboard"/>
+
+            </RelativeLayout>
+
+        </RelativeLayout>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="20">
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="0dp"-->
+        <!--android:layout_weight="0">-->
 
-        <com.esri.arcgisruntime.mapping.view.MapView
-            android:id="@+id/mapview_arcgis_map"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"></com.esri.arcgisruntime.mapping.view.MapView>
+        <!--<com.esri.arcgisruntime.mapping.view.MapView-->
+            <!--android:id="@+id/mapview_arcgis_map"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"></com.esri.arcgisruntime.mapping.view.MapView>-->
 
-    </LinearLayout>
+    <!--</LinearLayout>-->
 
 </LinearLayout>

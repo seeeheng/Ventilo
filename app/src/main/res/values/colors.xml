@@ -4,18 +4,35 @@
     <!--<color name="colorPrimaryDark">#303F9F</color>-->
     <!--<color name="colorAccent">#FF4081</color>-->
 
-    <color name="background_main_ultra_dark_blue">#242633</color>
-    <color name="background_main_dark_steel_blue">#152538</color>
-    <color name="background_2nd_level_pacific_blue">#253d51</color>
-    <color name="background_3rd_level_denim">#47637A</color>
+    <!--<color name="background_main_ultra_dark_blue">#242633</color>-->
+    <!--<color name="background_main_dark_steel_blue">#152538</color>-->
+    <!--<color name="background_2nd_level_pacific_blue">#253d51</color>-->
+    <!--<color name="background_3rd_level_denim">#47637A</color>-->
+    <!--<color name="dark_cyan">#008B8B</color>-->
+    <!--<color name="primary_highlight_cyan">#00DCFF</color>-->
+
+    <!--<color name="background_main_black">#FFFFFF</color>-->
+    <!--<color name="background_main_dark_charcoal">#333333</color>-->
+    <!--<color name="background_2nd_level_gray">#BBBBBB</color>-->
+    <!--<color name="background_3rd_level_chinese_silver">#CCCCCC</color>-->
+
+    <color name="background_main_black">#000000</color>
+    <color name="background_main_dark_charcoal">#333333</color>
+    <color name="background_2nd_level_gray">#BBBBBB</color>
+    <color name="background_3rd_level_chinese_silver">#CCCCCC</color>
+    <color name="dark_cyan">#008B8B</color>
     <color name="primary_highlight_cyan">#00DCFF</color>
     <color name="primary_text_white">#FFFFFF</color>
     <color name="image_white">#FFFFFF</color>
+    <color name="translucent">#00000000</color>
     <color name="circle_image_border_grey">#808080</color>
+
 
     <!-- Home -->
     <!--<color name="background_2nd_level_pacific_blue_translucent">#BF253D51</color>-->
 
     <!-- Bottom Navigation View -->
-    <color name="btm_nav_menu_background_blue_corn">#0B1E30</color>
+    <!--<color name="background_main_dark_charcoal">#0B1E30</color>-->
+
+    <color name="cursor_white">#FFFFFF</color>
 </resources>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/login_outermost_padding"
+    tools:context=".activity.login.LoginActivity">
+
+    <!-- Login progress -->
+    <ProgressBar
+        android:id="@+id/login_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal">
+
+        <LinearLayout
+            android:id="@+id/inner_login_form"
+            android:layout_width="@dimen/login_input_length"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/app_logo"
+                android:src="@drawable/login_dsta_logo"
+                android:layout_width="@dimen/login_app_logo_width"
+                android:layout_height="@dimen/login_app_logo_height"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/horizontal_1st_level_margin" />
+
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView
+                android:id="@+id/tv_email"
+                android:layout_width="@dimen/login_input_length"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginTop="@dimen/horizontal_2nd_level_margin"
+                android:layout_marginLeft="@dimen/minor_margin"
+                android:text="@string/email"
+                android:textSize="@dimen/login_misc_text_size"
+                android:textColor="@color/primary_highlight_cyan" />
+
+            <!--<android.support.design.widget.TextInputLayout-->
+                <!--android:layout_width="@dimen/login_input_length"-->
+                <!--android:layout_height="wrap_content">-->
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackEditTextView
+                    android:id="@+id/et_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textCursorDrawable="@drawable/color_cursor"
+                    android:backgroundTint="@color/primary_text_white"
+                    android:textColor="@color/primary_text_white" />
+
+            <!--</android.support.design.widget.TextInputLayout>-->
+
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView
+                android:id="@+id/tv_login_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginTop="@dimen/horizontal_3rd_level_margin"
+                android:layout_marginLeft="@dimen/minor_margin"
+                android:text="@string/password"
+                android:textSize="@dimen/login_misc_text_size"
+                android:textColor="@color/primary_highlight_cyan" />
+
+            <!--<android.support.design.widget.TextInputLayout-->
+                <!--android:layout_width="@dimen/login_input_length"-->
+                <!--android:layout_height="wrap_content">-->
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackEditTextView
+                    android:id="@+id/et_login_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeActionId="6"
+                    android:imeActionLabel="@string/password"
+                    android:imeOptions="actionUnspecified"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textCursorDrawable="@drawable/color_cursor"
+                    android:backgroundTint="@color/primary_text_white"
+                    android:textColor="@color/primary_text_white" />
+
+            <!--</android.support.design.widget.TextInputLayout>-->
+
+            <ImageView
+                android:id="@+id/img_btn_sign_in"
+                android:src="@drawable/login_sign_in_btn"
+                android:layout_width="@dimen/login_sign_in_width"
+                android:layout_height="@dimen/login_sign_in_height"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/horizontal_2nd_level_margin"
+                android:background="?android:selectableItemBackground" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/login_footer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/vertical_2nd_level_margin">
+
+        <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView
+            android:id="@+id/tv_login_forgot_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/forgot_password"
+            android:textSize="@dimen/login_misc_text_size"
+            android:textColor="@color/primary_text_white" />
+
+    </RelativeLayout>
+
+</RelativeLayout>
