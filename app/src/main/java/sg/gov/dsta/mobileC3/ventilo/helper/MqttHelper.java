@@ -58,6 +58,14 @@ public class MqttHelper implements Serializable {
         NOT_CONNECTED_DATA_DISABLED          // can't connect because the user has disabled data access
     }
 
+    // constants used to define MQTT topic
+    public enum MqttTopic {
+        TASK,
+        INCIDENT,
+        SITREP,
+        NOTIFICATION
+    }
+
     public static MqttHelper getInstance() {
         if (mMqttHelper == null) {
             mMqttHelper = new MqttHelper();

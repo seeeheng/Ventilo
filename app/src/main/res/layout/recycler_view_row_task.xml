@@ -37,6 +37,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:minHeight="@dimen/recycler_avatar_height"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -54,15 +55,16 @@
                                 android:id="@+id/circle_img_view_recycler_task_avatar"
                                 android:layout_width="@dimen/recycler_avatar_width"
                                 android:layout_height="@dimen/recycler_avatar_height"
-                                android:src="@drawable/bft_5"
+                                android:src="@drawable/default_soldier_icon"
                                 app:civ_border_color="@color/circle_image_border_grey"
-                                app:civ_border_width="@dimen/circle_img_border_width" />
+                                app:civ_border_width="@dimen/circle_img_border_width"
+                                app:civ_circle_background_color="@color/background_2nd_level_gray" />
 
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:gravity="center_vertical"
                             android:orientation="vertical">
 
@@ -90,20 +92,50 @@
 
                     </LinearLayout>
 
-                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
-                        android:id="@+id/tv_recycler_task_assignee"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp"
                         android:layout_marginTop="@dimen/minor_margin"
-                        android:text="Assignee: Jack (C04)" />
+                        android:orientation="horizontal">
 
-                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
-                        android:id="@+id/tv_recycler_task_reported_datetime"
-                        android:layout_width="wrap_content"
+                        <android.support.v7.widget.AppCompatImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="@dimen/minor_margin"
+                            android:scaleType="fitXY"
+                            app:srcCompat="@drawable/assignee_icon" />
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
+                            android:id="@+id/tv_recycler_task_assignee"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
+                            android:text="Assignee: Jack (C04)" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/minor_margin"
-                        android:text="Date Time"
-                        android:textColor="@color/primary_text_white" />
+                        android:orientation="horizontal">
+
+                        <android.support.v7.widget.AppCompatImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="@dimen/minor_margin"
+                            android:scaleType="fitXY"
+                            app:srcCompat="@drawable/created_time_icon" />
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
+                            android:id="@+id/tv_recycler_task_reported_datetime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:text="Date Time"
+                            android:textColor="@color/primary_text_white" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 

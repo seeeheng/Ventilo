@@ -1,0 +1,3516 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+  <!-- Begin Style Definitions -->
+  <Style id="line1">
+    <LineStyle>
+      <color>FF000000</color>
+      <width>1</width>
+    </LineStyle>
+  </Style>
+  <Folder>
+    <name>Line Features</name>
+    <description>Line Features</description>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578976363,1.3187493560,0
+          103.6579533115,1.3187574132,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579533115,1.3187574132,0
+          103.6580090839,1.3187650657,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580090839,1.3187650657,0
+          103.6580649486,1.3187723130,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580649486,1.3187723130,0
+          103.6581209005,1.3187791544,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6581209005,1.3187791544,0
+          103.6581769346,1.3187855893,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6581769346,1.3187855893,0
+          103.6582330458,1.3187916171,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6582330458,1.3187916171,0
+          103.6582493574,1.3187932488,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6582892291,1.3187972372,0
+          103.6583454795,1.3188024492,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6583454795,1.3188024492,0
+          103.6584017919,1.3188072526,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584017919,1.3188072526,0
+          103.6584581611,1.3188116469,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584581611,1.3188116469,0
+          103.6585145823,1.3188156318,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6585145823,1.3188156318,0
+          103.6585710502,1.3188192069,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578976362,1.3185414481,0
+          103.6580452724,1.3186126311,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6582493574,1.3187932488,0
+          103.6582892291,1.3187972372,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6582493569,1.3187110303,0
+          103.6582493574,1.3187889337,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578976362,1.3185414481,0
+          103.6580446343,1.3183891225,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578716539,1.3185683719,0
+          103.6578976362,1.3185414481,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578976363,1.3187493560,0
+          103.6578948056,1.3187343354,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578948056,1.3187343354,0
+          103.6578920957,1.3187193016,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578920957,1.3187193016,0
+          103.6578895065,1.3187042554,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578895065,1.3187042554,0
+          103.6578870383,1.3186891973,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578870383,1.3186891973,0
+          103.6578846909,1.3186741278,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578846909,1.3186741278,0
+          103.6578824647,1.3186590476,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578824647,1.3186590476,0
+          103.6578803596,1.3186439571,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578803596,1.3186439571,0
+          103.6578783757,1.3186288570,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578783757,1.3186288570,0
+          103.6578765131,1.3186137479,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578765131,1.3186137479,0
+          103.6578747719,1.3185986303,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578747719,1.3185986303,0
+          103.6578731521,1.3185835048,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578731521,1.3185835048,0
+          103.6578716539,1.3185683719,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578976362,1.3185414481,0
+          103.6578983649,1.3185588767,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578983649,1.3185588767,0
+          103.6578993915,1.3185762965,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6578993915,1.3185762965,0
+          103.6579000283,1.3185846695,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579007156,1.3185937045,0
+          103.6579023370,1.3186110978,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579023370,1.3186110978,0
+          103.6579042555,1.3186284733,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579042555,1.3186284733,0
+          103.6579064707,1.3186458282,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579064707,1.3186458282,0
+          103.6579089822,1.3186631593,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579089822,1.3186631593,0
+          103.6579117897,1.3186804638,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579117897,1.3186804638,0
+          103.6579148926,1.3186977387,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579148926,1.3186977387,0
+          103.6579182905,1.3187149810,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579182905,1.3187149810,0
+          103.6579219826,1.3187321877,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579219826,1.3187321877,0
+          103.6579259684,1.3187493560,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579259684,1.3187493560,0
+          103.6579528197,1.3187531036,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579528197,1.3187531036,0
+          103.6579796902,1.3187567697,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579796902,1.3187567697,0
+          103.6580065795,1.3187603542,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580065795,1.3187603542,0
+          103.6580334871,1.3187638570,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580334871,1.3187638570,0
+          103.6580343897,1.3187639717,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580604126,1.3187672781,0
+          103.6580873556,1.3187706175,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580873556,1.3187706175,0
+          103.6581143157,1.3187738750,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6581143157,1.3187738750,0
+          103.6581412924,1.3187770507,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6581412924,1.3187770507,0
+          103.6581682854,1.3187801444,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6581682854,1.3187801444,0
+          103.6581952941,1.3187831562,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6581952941,1.3187831562,0
+          103.6582223183,1.3187860860,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6582223183,1.3187860860,0
+          103.6582493574,1.3187889337,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6582493574,1.3187889337,0
+          103.6582493574,1.3187932488,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580343897,1.3187639717,0
+          103.6580604126,1.3187672781,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580343897,1.3187639717,0
+          103.6580343895,1.3186990592,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579000283,1.3185846695,0
+          103.6579007156,1.3185937045,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580343894,1.3186494519,0
+          103.6580205059,1.3186427580,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579758744,1.3186212389,0
+          103.6579000283,1.3185846695,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579758744,1.3186212389,0
+          103.6579758746,1.3186990593,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6579758746,1.3186990593,0
+          103.6580343895,1.3186990592,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580343895,1.3186990592,0
+          103.6580343894,1.3186494519,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580343895,1.3186990592,0
+          103.6580799187,1.3186990592,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580799184,1.3186293357,0
+          103.6582493569,1.3187110303,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580799187,1.3186990592,0
+          103.6580799184,1.3186293357,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580205059,1.3186427580,0
+          103.6579758744,1.3186212389,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580452724,1.3186126311,0
+          103.6580799184,1.3186293357,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580205059,1.3186427580,0
+          103.6580452724,1.3186126311,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580446343,1.3183891225,0
+          103.6580446343,1.3183616723,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580446343,1.3183616723,0
+          103.6580880964,1.3183552110,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580880964,1.3183552110,0
+          103.6581316507,1.3183491244,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6581316507,1.3183491244,0
+          103.6581752917,1.3183434135,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6581752917,1.3183434135,0
+          103.6582190138,1.3183380788,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6582190138,1.3183380788,0
+          103.6582628114,1.3183331212,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6582628114,1.3183331212,0
+          103.6583066791,1.3183285412,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6583066791,1.3183285412,0
+          103.6583506113,1.3183243393,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6583506113,1.3183243393,0
+          103.6583946025,1.3183205162,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6583946025,1.3183205162,0
+          103.6584386470,1.3183170723,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584386470,1.3183170723,0
+          103.6584811751,1.3183141168,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584827393,1.3183140081,0
+          103.6585268738,1.3183113239,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6585268738,1.3183113239,0
+          103.6585710449,1.3183090201,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580446343,1.3183616723,0
+          103.6580446342,1.3183225597,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6585710449,1.3183090201,0
+          103.6585271493,1.3183093248,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6585271493,1.3183093248,0
+          103.6584832558,1.3183097794,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584832558,1.3183097794,0
+          103.6584393654,1.3183103838,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584393654,1.3183103838,0
+          103.6583954789,1.3183111379,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6583954789,1.3183111379,0
+          103.6583515973,1.3183120417,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6583515973,1.3183120417,0
+          103.6583077214,1.3183130953,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6583077214,1.3183130953,0
+          103.6582638520,1.3183142986,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6582638520,1.3183142986,0
+          103.6582199901,1.3183156515,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6582199901,1.3183156515,0
+          103.6581761365,1.3183171542,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6581761365,1.3183171542,0
+          103.6581322920,1.3183188064,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6581322920,1.3183188064,0
+          103.6580884576,1.3183206083,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580884576,1.3183206083,0
+          103.6580446342,1.3183225597,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580446343,1.3183891225,0
+          103.6580848325,1.3184024738,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6580848325,1.3184024738,0
+          103.6582478186,1.3184024733,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6582478186,1.3184024733,0
+          103.6582478185,1.3183891220,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6582478185,1.3183891220,0
+          103.6583199335,1.3183891217,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6583199335,1.3183891217,0
+          103.6583199333,1.3183608607,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6583199333,1.3183608607,0
+          103.6583763695,1.3183608605,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6583763695,1.3183608605,0
+          103.6584811754,1.3183430359,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584811754,1.3183430359,0
+          103.6584811751,1.3183141168,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584811751,1.3183141168,0
+          103.6584827393,1.3183140081,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584811751,1.3183141168,0
+          103.6584811751,1.3183140081,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6585702650,1.3185016189,0
+          103.6584811768,1.3185016194,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584811768,1.3185016194,0
+          103.6584124753,1.3185263022,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6583763709,1.3185392736,0
+          103.6583763712,1.3185828130,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6583763712,1.3185828130,0
+          103.6584124758,1.3185998546,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584124753,1.3185263022,0
+          103.6583763709,1.3185392736,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584124758,1.3185998546,0
+          103.6584811780,1.3186322822,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584124753,1.3185263022,0
+          103.6584124758,1.3185998546,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584811780,1.3186322822,0
+          103.6585702668,1.3186743323,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6584811780,1.3186322822,0
+          103.6584811768,1.3185016194,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6585702668,1.3186743323,0
+          103.6588577797,1.3186743302,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6590905501,1.3188192025,0
+          103.6585710502,1.3188192069,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6585710449,1.3183090201,0
+          103.6590905409,1.3183090157,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6590905433,1.3184415957,0
+          103.6589720132,1.3184415969,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6585702650,1.3185016189,0
+          103.6586632141,1.3185016183,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6586632141,1.3185016183,0
+          103.6586632139,1.3184827447,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6586632139,1.3184827447,0
+          103.6586887616,1.3184785521,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6586887616,1.3184785521,0
+          103.6587143473,1.3184744977,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6587143473,1.3184744977,0
+          103.6587399697,1.3184705817,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6587399697,1.3184705817,0
+          103.6587656276,1.3184668044,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6587656276,1.3184668044,0
+          103.6587913196,1.3184631658,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6587913196,1.3184631658,0
+          103.6588170446,1.3184596663,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6588170446,1.3184596663,0
+          103.6588428012,1.3184563059,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6588428012,1.3184563059,0
+          103.6588685881,1.3184530848,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6588685881,1.3184530848,0
+          103.6588944040,1.3184500032,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6588944040,1.3184500032,0
+          103.6589202477,1.3184470613,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6589202477,1.3184470613,0
+          103.6589461179,1.3184442591,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6589461179,1.3184442591,0
+          103.6589720132,1.3184415969,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6586632141,1.3185016183,0
+          103.6586632142,1.3185094695,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6586632142,1.3185094695,0
+          103.6588577773,1.3185094680,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6588577797,1.3186743302,0
+          103.6590905475,1.3186743280,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6588577773,1.3185094680,0
+          103.6590905445,1.3185094658,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6588577797,1.3186743302,0
+          103.6588577773,1.3185094680,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6590905409,1.3183090157,0
+          103.6590905419,1.3183628608,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6590905501,1.3188192025,0
+          103.6611355871,1.3188191630,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6611355626,1.3183089761,0
+          103.6590905409,1.3183090157,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6590905475,1.3186743280,0
+          103.6590905492,1.3187703736,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6590905433,1.3184415957,0
+          103.6590905445,1.3185094658,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6590905445,1.3185094658,0
+          103.6590905475,1.3186743280,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6611355871,1.3188191630,0
+          103.6612026957,1.3188185940,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6612026957,1.3188185940,0
+          103.6612697794,1.3188170837,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6612697794,1.3188170837,0
+          103.6613368157,1.3188146328,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6613368157,1.3188146328,0
+          103.6614037822,1.3188112418,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6614037822,1.3188112418,0
+          103.6614706564,1.3188069121,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6614706564,1.3188069121,0
+          103.6615374157,1.3188016451,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6615374157,1.3188016451,0
+          103.6616040379,1.3187954424,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6616040379,1.3187954424,0
+          103.6616705006,1.3187883063,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6616705006,1.3187883063,0
+          103.6617367814,1.3187802391,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6617367814,1.3187802391,0
+          103.6618028582,1.3187712435,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618028582,1.3187712435,0
+          103.6618687087,1.3187613225,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618687087,1.3187613225,0
+          103.6619343109,1.3187504795,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6611355626,1.3183089761,0
+          103.6612026707,1.3183095413,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6612026707,1.3183095413,0
+          103.6612697541,1.3183110477,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6612697541,1.3183110477,0
+          103.6613367902,1.3183134947,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6613367902,1.3183134947,0
+          103.6614037566,1.3183168816,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6614037566,1.3183168816,0
+          103.6614706307,1.3183212072,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6614706307,1.3183212072,0
+          103.6615373901,1.3183264700,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6615373901,1.3183264700,0
+          103.6616040126,1.3183326684,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6616040126,1.3183326684,0
+          103.6616704756,1.3183398002,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6616704756,1.3183398002,0
+          103.6617367569,1.3183478631,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6617367569,1.3183478631,0
+          103.6618028343,1.3183568542,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618028343,1.3183568542,0
+          103.6618686855,1.3183667707,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618686855,1.3183667707,0
+          103.6619342886,1.3183776092,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619343109,1.3187504795,0
+          103.6619343099,1.3187343762,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619343109,1.3187504795,0
+          103.6619343134,1.3187921091,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619342886,1.3183776092,0
+          103.6619342862,1.3183359796,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628097244,1.3185854172,0
+          103.6628149822,1.3185832914,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628149822,1.3185832914,0
+          103.6628195939,1.3185804175,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628195939,1.3185804175,0
+          103.6628233806,1.3185769070,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628233806,1.3185769070,0
+          103.6628261953,1.3185728963,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628261953,1.3185728963,0
+          103.6628279289,1.3185685408,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628279289,1.3185685408,0
+          103.6628285141,1.3185640096,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628285141,1.3185640096,0
+          103.6628279283,1.3185594784,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628279283,1.3185594784,0
+          103.6628261940,1.3185551231,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628261940,1.3185551231,0
+          103.6628233787,1.3185511126,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628233787,1.3185511126,0
+          103.6628195915,1.3185476025,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628195915,1.3185476025,0
+          103.6628149794,1.3185447290,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628149794,1.3185447290,0
+          103.6628097213,1.3185426035,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6611355871,1.3188191630,0
+          103.6614684583,1.3188191531,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6611355626,1.3183089761,0
+          103.6614684314,1.3183089663,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6614684314,1.3183089663,0
+          103.6615839950,1.3183106126,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6615839950,1.3183106126,0
+          103.6616993981,1.3183155565,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6616993981,1.3183155565,0
+          103.6618144805,1.3183237911,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618144805,1.3183237911,0
+          103.6619290822,1.3183353048,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619290822,1.3183353048,0
+          103.6619342862,1.3183359796,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6620430439,1.3183500818,0
+          103.6621562073,1.3183681015,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6621562073,1.3183681015,0
+          103.6622684151,1.3183893389,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6622684151,1.3183893389,0
+          103.6623795114,1.3184137644,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6623795114,1.3184137644,0
+          103.6624893418,1.3184413441,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624893418,1.3184413441,0
+          103.6625977536,1.3184720397,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625977536,1.3184720397,0
+          103.6627045963,1.3185058085,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627045963,1.3185058085,0
+          103.6628097213,1.3185426035,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619342862,1.3183359796,0
+          103.6619342861,1.3183353883,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619342862,1.3183359796,0
+          103.6620430439,1.3183500818,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6614684583,1.3188191531,0
+          103.6615840226,1.3188174995,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6615840226,1.3188174995,0
+          103.6616994261,1.3188125481,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6616994261,1.3188125481,0
+          103.6618145084,1.3188043059,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618145084,1.3188043059,0
+          103.6619291095,1.3187927842,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619291095,1.3187927842,0
+          103.6619343134,1.3187921091,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6620430702,1.3187779991,0
+          103.6621562320,1.3187599712,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6621562320,1.3187599712,0
+          103.6622684377,1.3187387254,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6622684377,1.3187387254,0
+          103.6623795313,1.3187142914,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6623795313,1.3187142914,0
+          103.6624893584,1.3186867031,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624893584,1.3186867031,0
+          103.6625977664,1.3186559988,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625977664,1.3186559988,0
+          103.6627046046,1.3186222212,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627046046,1.3186222212,0
+          103.6628097244,1.3185854172,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619343134,1.3187921091,0
+          103.6619343134,1.3187927003,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619343134,1.3187921091,0
+          103.6620430702,1.3187779991,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6595092116,1.3187183345,0
+          103.6591475892,1.3187183391,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6591475892,1.3187183391,0
+          103.6591475833,1.3184074322,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6591475833,1.3184074322,0
+          103.6595092041,1.3184074276,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6595092041,1.3184074276,0
+          103.6595092116,1.3187183345,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6595347000,1.3186921899,0
+          103.6595347007,1.3187183342,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6595347007,1.3187183342,0
+          103.6597482785,1.3187183309,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6597482785,1.3187183309,0
+          103.6597482778,1.3186921866,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6597482778,1.3186921866,0
+          103.6595347000,1.3186921899,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6595346930,1.3184074272,0
+          103.6597482699,1.3184074240,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6597482699,1.3184074240,0
+          103.6597482714,1.3184636067,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6597482714,1.3184636067,0
+          103.6596054729,1.3184636089,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6595346935,1.3184259458,0
+          103.6595346930,1.3184074272,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6595346935,1.3184259458,0
+          103.6596054729,1.3184636089,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6597659949,1.3184074237,0
+          103.6597659994,1.3185707913,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6597660035,1.3187183306,0
+          103.6607576355,1.3187183101,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6607576355,1.3187183101,0
+          103.6607576223,1.3184074032,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6607576223,1.3184074032,0
+          103.6597659949,1.3184074237,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6600537447,1.3185707862,0
+          103.6600137016,1.3185707870,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6597660022,1.3186695162,0
+          103.6598039797,1.3186695155,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6600537479,1.3186695111,0
+          103.6600537447,1.3185707862,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6597659994,1.3185707913,0
+          103.6597660022,1.3186695162,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6597660022,1.3186695162,0
+          103.6597660035,1.3187183306,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6598607022,1.3184569462,0
+          103.6598607051,1.3185554465,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6598607051,1.3185554465,0
+          103.6598989541,1.3185554458,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6605216945,1.3185554333,0
+          103.6605216907,1.3184569330,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6605216907,1.3184569330,0
+          103.6600136980,1.3184569435,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6600137016,1.3185707870,0
+          103.6599802591,1.3185707876,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599179123,1.3186695136,0
+          103.6600537479,1.3186695111,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6600137016,1.3185707870,0
+          103.6599802602,1.3186052538,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6600136980,1.3184569435,0
+          103.6599754490,1.3184569442,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6601062619,1.3185554420,0
+          103.6605216945,1.3185554333,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6600136980,1.3184569435,0
+          103.6600599799,1.3185061928,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6598419572,1.3186695149,0
+          103.6598799348,1.3186695142,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6598419544,1.3185707900,0
+          103.6598039769,1.3185707907,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6598419572,1.3186695149,0
+          103.6598419544,1.3185707900,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6598039797,1.3186695155,0
+          103.6598419572,1.3186695149,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6598039769,1.3185707907,0
+          103.6597659994,1.3185707913,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6598039797,1.3186695155,0
+          103.6598039769,1.3185707907,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6598799348,1.3186695142,0
+          103.6599133772,1.3186695137,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6598799318,1.3185707894,0
+          103.6598419544,1.3185707900,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6598799348,1.3186695142,0
+          103.6598799318,1.3185707894,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599468167,1.3185707882,0
+          103.6599133743,1.3185707888,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599468188,1.3186397207,0
+          103.6599179123,1.3186695136,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599468167,1.3185707882,0
+          103.6599468188,1.3186397207,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599802591,1.3185707876,0
+          103.6599468167,1.3185707882,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599802602,1.3186052538,0
+          103.6599468188,1.3186397207,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599802591,1.3185707876,0
+          103.6599802602,1.3186052538,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599133743,1.3185707888,0
+          103.6598799318,1.3185707894,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599133772,1.3186695137,0
+          103.6599179123,1.3186695136,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599133743,1.3185707888,0
+          103.6599133772,1.3186695137,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599372001,1.3184569449,0
+          103.6598989512,1.3184569456,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599372031,1.3185554452,0
+          103.6599754521,1.3185554445,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599372001,1.3184569449,0
+          103.6599372031,1.3185554452,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6598989512,1.3184569456,0
+          103.6598607022,1.3184569462,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6598989541,1.3185554458,0
+          103.6599372031,1.3185554452,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6598989512,1.3184569456,0
+          103.6598989541,1.3185554458,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599754490,1.3184569442,0
+          103.6599372001,1.3184569449,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599754521,1.3185554445,0
+          103.6600137011,1.3185554438,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6599754490,1.3184569442,0
+          103.6599754521,1.3185554445,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6600137011,1.3185554438,0
+          103.6600599815,1.3185554429,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6600136980,1.3184569435,0
+          103.6600137011,1.3185554438,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6600599815,1.3185554429,0
+          103.6601062619,1.3185554420,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6600599799,1.3185061928,0
+          103.6601062619,1.3185554420,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6600599815,1.3185554429,0
+          103.6600599799,1.3185061928,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6590905492,1.3187703736,0
+          103.6590905501,1.3188192025,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6590905492,1.3187703736,0
+          103.6608060939,1.3187703429,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6590905419,1.3183628608,0
+          103.6590905433,1.3184415957,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6590905419,1.3183628608,0
+          103.6608239643,1.3183628295,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6616708689,1.3187703177,0
+          103.6618900634,1.3187343778,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618900634,1.3187343778,0
+          103.6618900436,1.3183987301,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618900436,1.3183987301,0
+          103.6616708461,1.3183628049,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6610333321,1.3184073960,0
+          103.6610333465,1.3187183030,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6610333465,1.3187183030,0
+          103.6618139824,1.3187182791,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618139644,1.3184073721,0
+          103.6610333321,1.3184073960,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618139824,1.3187182791,0
+          103.6618200542,1.3187176667,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618200542,1.3187176667,0
+          103.6618257121,1.3187158716,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618257121,1.3187158716,0
+          103.6618305706,1.3187130163,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618305706,1.3187130163,0
+          103.6618342986,1.3187092952,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618342986,1.3187092952,0
+          103.6618366420,1.3187049620,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618366420,1.3187049620,0
+          103.6618374411,1.3187003119,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618374411,1.3187003119,0
+          103.6618366415,1.3186956620,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618366415,1.3186956620,0
+          103.6618342976,1.3186913289,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618342976,1.3186913289,0
+          103.6618305692,1.3186876081,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618305692,1.3186876081,0
+          103.6618257103,1.3186847531,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618257103,1.3186847531,0
+          103.6618200522,1.3186829584,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618200522,1.3186829584,0
+          103.6618139803,1.3186823464,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618139803,1.3186823464,0
+          103.6618139664,1.3184433047,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618139664,1.3184433047,0
+          103.6618200382,1.3184426924,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618200382,1.3184426924,0
+          103.6618256961,1.3184408973,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618256961,1.3184408973,0
+          103.6618305546,1.3184380420,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618305546,1.3184380420,0
+          103.6618342826,1.3184343209,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618342826,1.3184343209,0
+          103.6618366260,1.3184299877,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618366260,1.3184299877,0
+          103.6618374251,1.3184253376,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618374251,1.3184253376,0
+          103.6618366254,1.3184206876,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618366254,1.3184206876,0
+          103.6618342816,1.3184163546,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618342816,1.3184163546,0
+          103.6618305532,1.3184126338,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618305532,1.3184126338,0
+          103.6618256943,1.3184097788,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618256943,1.3184097788,0
+          103.6618200362,1.3184079841,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6618200362,1.3184079841,0
+          103.6618139644,1.3184073721,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6610131339,1.3186744692,0
+          103.6609194825,1.3186744717,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6607768706,1.3186744754,0
+          103.6607768612,1.3184541097,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6607768612,1.3184541097,0
+          103.6608060802,1.3184541089,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6610131237,1.3184541035,0
+          103.6610131339,1.3186744692,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6608060897,1.3186744746,0
+          103.6608060939,1.3187703429,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6609194868,1.3187703399,0
+          103.6609194825,1.3186744717,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6608060939,1.3187703429,0
+          103.6609194868,1.3187703399,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6608060897,1.3186744746,0
+          103.6607768706,1.3186744754,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6609194825,1.3186744717,0
+          103.6608060897,1.3186744746,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6609194868,1.3187703399,0
+          103.6616708689,1.3187703177,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6608239643,1.3183628295,0
+          103.6608239682,1.3184541085,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6609194726,1.3184541060,0
+          103.6609194685,1.3183628270,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6608239643,1.3183628295,0
+          103.6609194685,1.3183628270,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6609194685,1.3183628270,0
+          103.6616708461,1.3183628049,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6609194726,1.3184541060,0
+          103.6610131237,1.3184541035,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6608060897,1.3186744746,0
+          103.6608060802,1.3184541089,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6608060802,1.3184541089,0
+          103.6608239682,1.3184541085,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6609194726,1.3184541060,0
+          103.6609194825,1.3186744717,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6608239682,1.3184541085,0
+          103.6609194726,1.3184541060,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619343099,1.3187343762,0
+          103.6619342899,1.3183987286,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619343099,1.3187343762,0
+          103.6624461364,1.3186241304,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619342899,1.3183987286,0
+          103.6619342886,1.3183776092,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619342899,1.3183987286,0
+          103.6624461283,1.3185039022,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627626405,1.3185761498,0
+          103.6627653414,1.3185747908,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627653414,1.3185747908,0
+          103.6627676811,1.3185730836,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627676811,1.3185730836,0
+          103.6627695842,1.3185710833,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627695842,1.3185710833,0
+          103.6627709892,1.3185688545,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627709892,1.3185688545,0
+          103.6627718506,1.3185664691,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627718506,1.3185664691,0
+          103.6627721408,1.3185640042,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627721408,1.3185640042,0
+          103.6627718503,1.3185615393,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627718503,1.3185615393,0
+          103.6627709885,1.3185591539,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627709885,1.3185591539,0
+          103.6627695832,1.3185569252,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627695832,1.3185569252,0
+          103.6627676798,1.3185549251,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627676798,1.3185549251,0
+          103.6627653398,1.3185532181,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627653398,1.3185532181,0
+          103.6627626387,1.3185518594,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624461364,1.3186241304,0
+          103.6624461381,1.3186497553,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624461381,1.3186497553,0
+          103.6627653414,1.3185747908,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624461283,1.3185039022,0
+          103.6624461266,1.3184782733,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624461266,1.3184782733,0
+          103.6627626387,1.3185518594,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>DECK 2ND</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624461283,1.3185039022,0
+          103.6624461364,1.3186241304,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+  </Folder>
+</Document>
+</kml>

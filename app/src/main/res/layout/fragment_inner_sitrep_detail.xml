@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_main_black">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView
+            android:id="@+id/sitrep_detail_tv_sitrep_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:gravity="center"
+            android:text="@string/sitrep_detail_situation_report"
+            android:textSize="@dimen/sub_header_text_size" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="15dp"
+            android:background="@drawable/divider_line_thick" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/side_margin"
+            android:orientation="vertical">
+
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
+                android:id="@+id/tv_sitrep_detail_report"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="@string/sitrep_location"
+                android:textColor="@color/primary_text_white"
+                android:textSize="@dimen/sub_header_text_size" />
+
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+                android:id="@+id/btn_sitrep_detail_send"
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/horizontal_3rd_level_margin"
+                android:background="@drawable/img_btn_background"
+                android:foreground="?android:selectableItemBackground"
+                android:text="@string/btn_send" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

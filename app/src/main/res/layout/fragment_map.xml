@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_map_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -100,18 +101,24 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentStart="true">
 
-                <Button
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
                     android:id="@+id/btn_mqtt_subscribe"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Subscribe"/>
+                    android:layout_gravity="center"
+                    android:foreground="?android:selectableItemBackground"
+                    android:background="@drawable/img_btn_background"
+                    android:text="@string/btn_map_subscribe"/>
 
-                <Button
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
                     android:id="@+id/btn_mqtt_share_location"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:foreground="?android:selectableItemBackground"
+                    android:background="@drawable/img_btn_background"
                     android:layout_below="@+id/btn_mqtt_subscribe"
-                    android:text="Share Location"/>
+                    android:text="@string/btn_map_share_location"/>
 
             </RelativeLayout>
 
@@ -135,25 +142,34 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentEnd="true">
 
-                <Button
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
                     android:id="@+id/btn_map_top_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Top"/>
+                    android:layout_gravity="center"
+                    android:foreground="?android:selectableItemBackground"
+                    android:background="@drawable/img_btn_background"
+                    android:text="@string/btn_map_top"/>
 
-                <Button
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
                     android:id="@+id/btn_map_port_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:foreground="?android:selectableItemBackground"
+                    android:background="@drawable/img_btn_background"
                     android:layout_below="@+id/btn_map_top_view"
-                    android:text="Port"/>
+                    android:text="@string/btn_map_port"/>
 
-                <Button
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
                     android:id="@+id/btn_map_sb_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:foreground="?android:selectableItemBackground"
+                    android:background="@drawable/img_btn_background"
                     android:layout_below="@+id/btn_map_port_view"
-                    android:text="Starboard"/>
+                    android:text="@string/btn_map_starboard"/>
 
             </RelativeLayout>
 

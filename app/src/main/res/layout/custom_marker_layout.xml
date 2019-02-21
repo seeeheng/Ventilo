@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/custom_marker_view"
+    android:layout_width="52dp"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="50dp"
+        android:layout_height="59dp"
+        android:background="@drawable/icon_marker"
+        android:backgroundTint="@color/steel_blue">
+
+        <TextView
+            android:id="@+id/tv_marker_vessel_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:alpha="0.8"
+            android:gravity="center"
+            android:textColor="#FFF"
+            android:textSize="7sp" />
+
+    </RelativeLayout>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/circle_img_view_vessel_marker_icon"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="4dp"
+        android:contentDescription="@null"
+        android:src="@drawable/icon_vessel"
+        app:civ_border_color="@color/steel_blue"
+        app:civ_border_width="@dimen/minor_margin"
+        app:civ_circle_background_color="@color/image_white" />
+
+</RelativeLayout>

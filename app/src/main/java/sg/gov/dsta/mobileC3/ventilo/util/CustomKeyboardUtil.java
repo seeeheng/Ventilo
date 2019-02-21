@@ -4,7 +4,7 @@ import android.content.Context;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-public class CustomKeyboard {
+public class CustomKeyboardUtil {
 
     public static void showKeyboard(Context context) {
         InputMethodManager imm = (InputMethodManager)  context.getSystemService(Context.INPUT_METHOD_SERVICE);

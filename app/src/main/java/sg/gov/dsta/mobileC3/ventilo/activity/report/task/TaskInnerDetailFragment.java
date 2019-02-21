@@ -1,32 +1,47 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.report.task;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.res.ResourcesCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Calendar;
+
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.activity.report.ReportStatePagerAdapter;
+import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
 import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicLightEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.ReportFragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
 
 public class TaskInnerDetailFragment extends Fragment {
+
+    private static final String TAG = "TaskInnerDetailFragment";
 
     private C2LatoBlackTextView mTvTitleHeader;
     private C2LatoItalicLightEditTextView mEtvTitleDetail;
@@ -35,11 +50,7 @@ public class TaskInnerDetailFragment extends Fragment {
 
     private Spinner mSpinnerDropdownTitle;
 
-    private ImageButton mImgBtnConfirm;
-
-    private enum fragmentType {
-        VIEW, ADD
-    }
+    private C2LatoBlackButton mBtnReport;
 
     @Nullable
     @Override
@@ -74,9 +85,9 @@ public class TaskInnerDetailFragment extends Fragment {
         String descriptionDetailDisabledHint = getString(R.string.task_description_detail_hint);
         mEtvDescriptionDetail.setHint(descriptionDetailDisabledHint);
 
-        mImgBtnConfirm = rootView.findViewById(R.id.img_btn_task_confirm);
-        mImgBtnConfirm.setOnClickListener(onConfirmClickListener);
-        mImgBtnConfirm.bringToFront();
+        mBtnReport = rootView.findViewById(R.id.btn_task_detail_report);
+        mBtnReport.setOnClickListener(onReportClickListener);
+        mBtnReport.bringToFront();
 
     }
 
@@ -222,14 +233,36 @@ public class TaskInnerDetailFragment extends Fragment {
         };
     }
 
-    private View.OnClickListener onConfirmClickListener = new View.OnClickListener() {
+    private View.OnClickListener onReportClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            validateTask();
+            if (validateTask()) {
+                TaskInnerFragment taskInnerFragment = (TaskInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
+                        get(ReportFragmentConstants.REPORT_TAB_TITLE_TASK_ID);
+
+                if(taskInnerFragment != null) {
+                    String titleDetail;
+                    if (mSpinnerDropdownTitle.getSelectedItemPosition() ==
+                            mSpinnerDropdownTitle.getAdapter().getCount() - 1) {
+                        titleDetail = mEtvTitleDetail.getText().toString().trim();
+                    } else {
+                        titleDetail = mSpinnerDropdownTitle.getSelectedItem().toString();
+                    }
+
+                    String descriptionDetail = mEtvDescriptionDetail.getText().toString().trim();
+                    publishTaskAdd(titleDetail, descriptionDetail);
+//                    taskInnerFragment.refreshData();
+
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    fragmentManager.popBackStack();
+//                    taskInnerFragment.getAdapter().addItem(titleDetail, descriptionDetail);
+
+                }
+            };
         }
     };
 
-    private void validateTask() {
+    private boolean validateTask() {
         String titleDetail = mEtvTitleDetail.getText().toString().trim();
         String descriptionDetail = mEtvDescriptionDetail.getText().toString().trim();
         boolean isValidateSuccess = true;
@@ -246,7 +279,10 @@ public class TaskInnerDetailFragment extends Fragment {
             }
 
             mEtvDescriptionDetail.setError(getString(R.string.error_empty_task_description_detail));
+            isValidateSuccess = false;
         }
+
+        return isValidateSuccess;
     }
 
     private void resetToDefaultUI() {
@@ -278,7 +314,7 @@ public class TaskInnerDetailFragment extends Fragment {
             if (bundle != null) {
                 if (mEtvTitleDetail != null) {
                     String title = bundle.getString(
-                            ReportFragmentConstants.KEY_TASK_TITLE, ReportFragmentConstants.EMPTY_STRING);
+                            ReportFragmentConstants.KEY_TASK_TITLE, ReportFragmentConstants.DEFAULT_STRING);
                     boolean isSpinnerOption = false;
 
                     for (int i = 0; i < mSpinnerDropdownTitle.getAdapter().getCount(); i++) {
@@ -304,16 +340,70 @@ public class TaskInnerDetailFragment extends Fragment {
 
                 if (mEtvDescriptionDetail != null) {
                     String description = bundle.getString(
-                            ReportFragmentConstants.KEY_TASK_DESCRIPTION, ReportFragmentConstants.EMPTY_STRING);
+                            ReportFragmentConstants.KEY_TASK_DESCRIPTION, ReportFragmentConstants.DEFAULT_STRING);
                     mEtvDescriptionDetail.setText(description);
                     mEtvDescriptionDetail.setEnabled(false);
                 }
             }
 
-            mImgBtnConfirm.setVisibility(View.GONE);
+            mBtnReport.setVisibility(View.GONE);
         } else {
             resetToDefaultUI();
         }
+    }
+
+    private void publishTaskAdd(String titleDetail, String descriptionDetail) {
+        Bundle bundle = this.getArguments();
+        int numberOfTasks = bundle.getInt(
+                ReportFragmentConstants.KEY_TASK_TOTAL_NUMBER, ReportFragmentConstants.DEFAULT_INT);
+
+        JSONObject newTaskJSON = new JSONObject();
+        try {
+            newTaskJSON.put("key", ReportFragmentConstants.KEY_TASK_ADD);
+            newTaskJSON.put("id", String.valueOf(numberOfTasks));
+            newTaskJSON.put("assigner", "King (K44)");
+            newTaskJSON.put("assignee", "George (A33)");
+            newTaskJSON.put("assigneeAvatarId", "default");
+            newTaskJSON.put("title", titleDetail);
+            newTaskJSON.put("description", descriptionDetail);
+            newTaskJSON.put("status", EStatus.NEW.toString());
+            newTaskJSON.put("date", String.valueOf(Calendar.getInstance().getTime()));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//        SharedPreferences.Editor editor = pref.edit();
+//
+//        String totalNumberOfTasksKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+//                concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER);
+//        editor.putInt(totalNumberOfTasksKey, numberOfTasks + 1);
+//
+//        String taskInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+//                concat(SharedPreferenceConstants.HEADER_TASK).concat(SharedPreferenceConstants.SEPARATOR).
+//                concat(String.valueOf(numberOfTasks));
+//
+//        editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_ID), numberOfTasks);
+//        editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNER), "King (K44)");
+//        editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE), "George (A33)");
+//        editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE_AVATAR_ID), R.drawable.default_soldier_icon);
+//        editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_TITLE), titleDetail);
+//        editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_DESCRIPTION), descriptionDetail);
+//        editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_STATUS), EStatus.NEW.toString());
+//        editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_DATE), String.valueOf(Calendar.getInstance().getTime()));
+//
+//        editor.apply();
+
+        MqttHelper.getInstance().publishMessage(newTaskJSON.toString());
     }
 
     @Override

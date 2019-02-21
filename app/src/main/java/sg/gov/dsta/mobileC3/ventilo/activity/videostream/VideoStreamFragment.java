@@ -1,27 +1,24 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.videostream;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.util.CustomKeyboard;
+import sg.gov.dsta.mobileC3.ventilo.util.CustomKeyboardUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.ValidationUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicLightEditTextView;
 
 public class VideoStreamFragment extends Fragment {
@@ -33,11 +30,13 @@ public class VideoStreamFragment extends Fragment {
     private C2LatoItalicLightEditTextView mEtvSecondVideoURLLink;
     private LinearLayout mLinearLayoutFirstVideoConfirm;
     private LinearLayout mLinearLayoutSecondVideoConfirm;
-    private ImageButton mImgBtnFirstVideoConfirm;
-    private ImageButton mImgBtnSecondVideoConfirm;
+    private C2LatoBlackButton mImgBtnFirstVideoConfirm;
+    private C2LatoBlackButton mImgBtnSecondVideoConfirm;
 
     private MediaController mMediaControllerOne;
     private MediaController mMediaControllerTwo;
+
+    private boolean mIsVisibleToUser;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -56,17 +55,15 @@ public class VideoStreamFragment extends Fragment {
     private void initURLLinkUI(View rootVideoStreamView) {
         mEtvFirstVideoURLLink = rootVideoStreamView.findViewById(R.id.etv_first_video_url_title_detail);
         mEtvFirstVideoURLLink.addTextChangedListener(firstVideoTextWatcher);
-        mEtvFirstVideoURLLink.requestFocus();
-        CustomKeyboard.showKeyboard(getActivity());
 
         mLinearLayoutFirstVideoConfirm = rootVideoStreamView.findViewById(R.id.layout_first_video_confirm);
-        mImgBtnFirstVideoConfirm = rootVideoStreamView.findViewById(R.id.img_btn_first_video_url_confirm);
+        mImgBtnFirstVideoConfirm = rootVideoStreamView.findViewById(R.id.btn_first_video_stream_link);
         mImgBtnFirstVideoConfirm.setOnClickListener(onFirstVideoConfirmClickListener);
 
         mEtvSecondVideoURLLink = rootVideoStreamView.findViewById(R.id.etv_second_video_url_title_detail);
         mEtvSecondVideoURLLink.addTextChangedListener(secondVideoTextWatcher);
         mLinearLayoutSecondVideoConfirm = rootVideoStreamView.findViewById(R.id.layout_second_video_confirm);
-        mImgBtnSecondVideoConfirm = rootVideoStreamView.findViewById(R.id.img_btn_second_video_url_confirm);
+        mImgBtnSecondVideoConfirm = rootVideoStreamView.findViewById(R.id.btn_second_video_stream_link);
         mImgBtnSecondVideoConfirm.setOnClickListener(onSecondVideoConfirmClickListener);
     }
 
@@ -107,8 +104,7 @@ public class VideoStreamFragment extends Fragment {
                     getString(R.string.error_empty_video_ur_link_detail))) {
                 setVideoOneStreamURL(mEtvFirstVideoURLLink.getText().toString().trim());
                 mLinearLayoutFirstVideoConfirm.setVisibility(View.GONE);
-                mEtvFirstVideoURLLink.clearFocus();
-                CustomKeyboard.hideKeyboard(getActivity(), mEtvFirstVideoURLLink);
+                hideKeyboard();
             }
         }
     };
@@ -120,8 +116,7 @@ public class VideoStreamFragment extends Fragment {
                     getString(R.string.error_empty_video_ur_link_detail))) {
                 setVideoTwoStreamURL(mEtvSecondVideoURLLink.getText().toString().trim());
                 mLinearLayoutSecondVideoConfirm.setVisibility(View.GONE);
-                mEtvSecondVideoURLLink.clearFocus();
-                CustomKeyboard.hideKeyboard(getActivity(), mEtvSecondVideoURLLink);
+                hideKeyboard();
             }
         }
     };
@@ -178,5 +173,50 @@ public class VideoStreamFragment extends Fragment {
         }
 
         mVideoViewTwo.start();
+    }
+
+    private void onVisible() {
+        mEtvFirstVideoURLLink.requestFocus();
+        CustomKeyboardUtil.showKeyboard(getActivity());
+    }
+
+    private void onInvisible() {
+        hideKeyboard();
+    }
+
+    private void hideKeyboard() {
+        mEtvFirstVideoURLLink.clearFocus();
+        mEtvSecondVideoURLLink.clearFocus();
+        CustomKeyboardUtil.hideKeyboard(getActivity(), mEtvFirstVideoURLLink);
+        CustomKeyboardUtil.hideKeyboard(getActivity(), mEtvSecondVideoURLLink);
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        mIsVisibleToUser = isVisibleToUser;
+        if (isResumed()) { // fragment has been created at this point
+            if (mIsVisibleToUser) {
+                onVisible();
+            } else {
+                onInvisible();
+            }
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (mIsVisibleToUser) {
+            onVisible();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mIsVisibleToUser) {
+            onInvisible();
+        }
     }
 }

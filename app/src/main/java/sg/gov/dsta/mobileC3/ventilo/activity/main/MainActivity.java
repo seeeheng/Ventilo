@@ -6,9 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -31,23 +34,38 @@ import com.esri.arcgisruntime.mapping.view.MapView;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import sg.gov.dsta.mobileC3.ventilo.NoSwipeViewPager;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.map.MapFragment;
+import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
+import sg.gov.dsta.mobileC3.ventilo.activity.report.ReportStatePagerAdapter;
+import sg.gov.dsta.mobileC3.ventilo.activity.report.task.TaskInnerFragment;
 import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
 import sg.gov.dsta.mobileC3.ventilo.network.NetworkConnectivity;
 import sg.gov.dsta.mobileC3.ventilo.network.NetworkService;
 import sg.gov.dsta.mobileC3.ventilo.network.NetworkServiceBinder;
+import sg.gov.dsta.mobileC3.ventilo.util.JSONUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.ReportFragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
+
+    // MQTT
+    private static final String MQTT_TOPIC_TASK = "Task";
+    private static final String MQTT_TOPIC_INCIDENT = "Incident";
 
     private Intent mMqttIntent;
 
     private NetworkService mNetworkService;
-    private NetworkConnectivity mNetworkConnectivity;
+//    private NetworkConnectivity mNetworkConnectivity;
     private MqttHelper mMqttHelper;
+    private BottomNavigationView mBottomNavigationView;
     private TextView mDataReceived;
     private Button mBtnPublish;
 
@@ -70,15 +88,15 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(mainStatePagerAdapter);
         viewPager.setPagingEnabled(false);
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.btm_nav_view_main_nav);
+        mBottomNavigationView = findViewById(R.id.btm_nav_view_main_nav);
 
         NoSwipeViewPager.OnPageChangeListener viewPagerPageChangeListener =
-                setPageChangeListener(bottomNavigationView);
+                setPageChangeListener(mBottomNavigationView);
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
 
         BottomNavigationView.OnNavigationItemSelectedListener
                 navigationItemSelectedListener = setNavigationItemSelectedListener(viewPager);
-        bottomNavigationView.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
+        mBottomNavigationView.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
 
         mDataReceived = findViewById(R.id.dataReceived);
         mBtnPublish = findViewById(R.id.btn_mqtt_publish);
@@ -191,6 +209,71 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
                 Log.w("Debug", mqttMessage.toString());
+
+                System.out.println("Received new mqttMessage");
+                String mqttMessageString = mqttMessage.toString();
+                boolean isJSON = false;
+
+
+                if (JSONUtil.isJSONValid(mqttMessageString)) {
+                    try {
+                        JSONObject mqttMessageJSON = new JSONObject(mqttMessageString);
+                        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplication().getApplicationContext());
+                        SharedPreferences.Editor editor = pref.edit();
+
+                        System.out.println("Received valid mqttMessage");
+                        if (ReportFragmentConstants.KEY_TASK_ADD.equalsIgnoreCase(mqttMessageJSON.getString("key"))) {
+
+                            int totalNumberOfTasks = pref.getInt(SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                    concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER), 0);
+                            String totalNumberOfTasksKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                    concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER);
+                            editor.putInt(totalNumberOfTasksKey, totalNumberOfTasks + 1);
+
+                            String taskInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                    concat(SharedPreferenceConstants.HEADER_TASK).concat(SharedPreferenceConstants.SEPARATOR).
+                                    concat(String.valueOf(totalNumberOfTasks));
+
+                            editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_ID), mqttMessageJSON.getInt("id"));
+                            editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNER), mqttMessageJSON.getString("assigner"));
+                            editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE), mqttMessageJSON.getString("assignee"));
+                            editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE_AVATAR_ID), R.drawable.default_soldier_icon);
+                            editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_TITLE), mqttMessageJSON.getString("title"));
+                            editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_DESCRIPTION), mqttMessageJSON.getString("description"));
+                            editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_STATUS), mqttMessageJSON.getString("status"));
+                            editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_DATE), mqttMessageJSON.getString("date"));
+
+                            editor.apply();
+
+                            TaskInnerFragment taskInnerFragment = (TaskInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
+                                    get(ReportFragmentConstants.REPORT_TAB_TITLE_TASK_ID);
+
+                            if(taskInnerFragment != null) {
+                                System.out.println("Refreshes");
+                                taskInnerFragment.refreshData();
+                                taskInnerFragment.addItemInRecycler();
+                            }
+                        }
+
+                        isJSON = true;
+
+                    } catch (JSONException ex) {
+
+                    }
+
+                }
+                //
+                checkMqttTaskTopic(topic, mqttMessage.toString());
+                checkMqttIncidentTopic(topic, mqttMessage.toString());
+
 //                mDataReceived.setText(mqttMessage.toString());
 
 //                if (mqttMessage.toString().contains("PAYLOAD")) {
@@ -198,18 +281,19 @@ public class MainActivity extends AppCompatActivity {
 //                    MapFragment.coordString = mqttMessage.toString();
 //                    System.out.println("message arrived is " + mqttMessage.toString());
 //                }
-//
-                if (mqttMessage.toString().contains("publish")) {
-                    MapFragment.isTrackAllies = true;
-                    MapFragment.coordString = mqttMessage.toString();
-                    System.out.println("message arrived is " + mqttMessage.toString());
-                }
+
+                if (!isJSON) {
+                    if (mqttMessage.toString().contains("publish")) {
+                        MapFragment.isTrackAllies = true;
+                        MapFragment.coordString = mqttMessage.toString();
+                        System.out.println("message arrived is " + mqttMessage.toString());
+                    }
 
 
-                if (mqttMessage.toString().contains("Coords:")) {
-                    System.out.println("GOT THE STRING --> " + mqttMessage.toString());
-                    MapFragment.isTrackAllies = true;
-                    MapFragment.coordString = mqttMessage.toString();
+                    if (mqttMessage.toString().contains("Coords:")) {
+                        System.out.println("GOT THE STRING --> " + mqttMessage.toString());
+                        MapFragment.isTrackAllies = true;
+                        MapFragment.coordString = mqttMessage.toString();
 
 //                    Intent i = new Intent(MainActivity.this, MapFragment.class);
 //                    i.putExtra("mapCoord", mqttMessage.toString());
@@ -217,6 +301,7 @@ public class MainActivity extends AppCompatActivity {
 
 //                    Bundle bundle = new Bundle();
 //                    bundle.putCharSequence("mapCoord", mqttMessage.toString());
+                    }
                 }
             }
 
@@ -225,6 +310,23 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void checkMqttTaskTopic(String topic, String message) {
+        if (MQTT_TOPIC_TASK.equalsIgnoreCase(topic)) {
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = pref.edit();
+
+            String subHeaderTaskKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_TITLE);
+            editor.putString(subHeaderTaskKey, message);
+        }
+    }
+
+    private void checkMqttIncidentTopic(String topic, String message) {
+        if (MQTT_TOPIC_INCIDENT.equalsIgnoreCase(topic)) {
+
+        }
     }
 
 //    private void startMqtt() {
@@ -328,8 +430,27 @@ public class MainActivity extends AppCompatActivity {
             // Go to login page
             super.onBackPressed();
         } else {
-//        FragmentManager.BackStackEntry backStackEntryAt = getSupportFragmentManager().getBackStackEntryAt(count-1);
-//        String name = backStackEntryAt.getName();
+            String taggedName = getSupportFragmentManager().getBackStackEntryAt(
+                    getSupportFragmentManager().getBackStackEntryCount() - 1).getName();
+
+            Log.d(TAG, "returned fragment matches" + taggedName);
+
+            if (getSupportFragmentManager().findFragmentByTag(taggedName) instanceof MapShipBlueprintFragment) {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                mBottomNavigationView.setVisibility(View.VISIBLE);
+            } else if (getSupportFragmentManager().findFragmentByTag(taggedName) instanceof TaskInnerFragment) {
+                TaskInnerFragment returnedFragment = (TaskInnerFragment) getSupportFragmentManager().findFragmentByTag(taggedName);
+                returnedFragment.refreshData();
+            }
+
+//            String fragmentTag = fragmentManager.getBackStackEntryAt(fragmentManager.getBackStackEntryCount() - 1).getName();
+//            Log.d(TAG, "fragmentTag is " + fragmentTag);
+//            if (TaskInnerFragment.class.getSimpleName().equalsIgnoreCase(fragmentTag)) {
+//
+//                TaskInnerFragment returnedFragment = (TaskInnerFragment) fragmentManager.findFragmentByTag(fragmentTag);
+//                returnedFragment.refreshUI();
+//            }
+
             getSupportFragmentManager().popBackStack();
         }
     }

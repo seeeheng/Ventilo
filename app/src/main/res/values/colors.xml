@@ -17,12 +17,20 @@
     <!--<color name="background_3rd_level_chinese_silver">#CCCCCC</color>-->
 
     <color name="background_main_black">#000000</color>
-    <color name="background_main_dark_charcoal">#333333</color>
+    <!--<color name="background_main_dark_charcoal">#333333</color>-->
     <color name="background_2nd_level_gray">#BBBBBB</color>
     <color name="background_3rd_level_chinese_silver">#CCCCCC</color>
     <color name="dark_cyan">#008B8B</color>
     <color name="primary_highlight_cyan">#00DCFF</color>
     <color name="primary_text_white">#FFFFFF</color>
+    <!--<color name="img_btn_space_blue">#1D2951</color>-->
+    <!--<color name="prussian_blue">#003152</color>-->
+    <!--<color name="independence_blue">#4C516D</color>-->
+    <color name="steel_blue">#152538</color>
+    <color name="background_main_dark_charcoal">#152538</color>
+    <!--<color name="img_btn_steel_blue">#4286B4</color>-->
+    <!--<color name="img_btn_yale_blue">#0E4D92</color>-->
+    <!--<color name="img_btn_carolina_blue">#57A0D3</color>-->
     <color name="image_white">#FFFFFF</color>
     <color name="translucent">#00000000</color>
     <color name="circle_image_border_grey">#808080</color>

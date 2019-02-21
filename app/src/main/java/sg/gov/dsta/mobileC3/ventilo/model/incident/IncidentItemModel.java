@@ -2,6 +2,8 @@ package sg.gov.dsta.mobileC3.ventilo.model.incident;
 
 import android.graphics.drawable.Drawable;
 
+import java.util.Date;
+
 import lombok.Data;
 import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
 
@@ -12,4 +14,5 @@ public class IncidentItemModel {
     private Drawable reporterAvatar;
     private String title;
     private String description;
+    private Date reportedDateTime;
 }

@@ -37,6 +37,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:minHeight="@dimen/recycler_avatar_height"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -49,15 +50,17 @@
                                 android:id="@+id/circle_img_view_recycler_incident_avatar"
                                 android:layout_width="@dimen/recycler_avatar_width"
                                 android:layout_height="@dimen/recycler_avatar_height"
-                                android:src="@drawable/bft_5"
+                                android:src="@drawable/default_soldier_icon"
                                 app:civ_border_color="@color/circle_image_border_grey"
-                                app:civ_border_width="@dimen/circle_img_border_width" />
+                                app:civ_border_width="@dimen/circle_img_border_width"
+                                app:civ_circle_background_color="@color/background_2nd_level_gray" />
 
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="@dimen/side_margin"
                             android:gravity="center_vertical"
                             android:orientation="vertical">
 
@@ -66,31 +69,59 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
-                                android:layout_marginStart="@dimen/side_margin"
                                 android:text="Task: Deactivate IAD"
                                 android:textSize="@dimen/sub_header_text_size" />
 
-                            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicBlackTextView
-                                android:id="@+id/tv_recycler_incident_reported_by"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center_vertical"
-                                android:layout_marginStart="@dimen/side_margin"
-                                android:text="Reported By: Jack (C04)"
-                                android:textColor="@color/primary_highlight_cyan"
-                                android:textSize="@dimen/hint_text_size" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="20dp"
+                                android:layout_marginTop="@dimen/minor_margin"
+                                android:orientation="horizontal">
+
+                                <android.support.v7.widget.AppCompatImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_marginEnd="@dimen/minor_margin"
+                                    android:scaleType="fitXY"
+                                    app:srcCompat="@drawable/assignee_icon" />
+
+                                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicBlackTextView
+                                    android:id="@+id/tv_recycler_incident_reported_by"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:layout_gravity="center_vertical"
+                                    android:text="Reported By: Jack (C04)"
+                                    android:textColor="@color/primary_highlight_cyan"
+                                    android:textSize="@dimen/hint_text_size" />
+
+                            </LinearLayout>
 
                         </LinearLayout>
 
                     </LinearLayout>
 
-                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
-                        android:id="@+id/tv_recycler_incident_reported_datetime"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/minor_margin"
-                        android:text="Date Time"
-                        android:textColor="@color/primary_text_white"/>
+                        android:orientation="horizontal">
+
+                        <android.support.v7.widget.AppCompatImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="@dimen/minor_margin"
+                            android:scaleType="fitXY"
+                            app:srcCompat="@drawable/created_time_icon" />
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
+                            android:id="@+id/tv_recycler_incident_reported_datetime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:text="Date Time"
+                            android:textColor="@color/primary_text_white" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -102,68 +133,68 @@
                     android:orientation="horizontal">
 
                     <!--<de.hdodenhof.circleimageview.CircleImageView-->
-                        <!--android:id="@+id/circle_img_view_recyler_task_status"-->
-                        <!--android:layout_width="@dimen/recycler_avatar_width"-->
-                        <!--android:layout_height="@dimen/recycler_avatar_height"-->
-                        <!--android:src="@drawable/task_in_progress"-->
-                        <!--app:civ_border_color="@color/translucent"-->
-                        <!--app:civ_border_width="@dimen/circle_img_border_width" />-->
+                    <!--android:id="@+id/circle_img_view_recyler_task_status"-->
+                    <!--android:layout_width="@dimen/recycler_avatar_width"-->
+                    <!--android:layout_height="@dimen/recycler_avatar_height"-->
+                    <!--android:src="@drawable/task_in_progress"-->
+                    <!--app:civ_border_color="@color/translucent"-->
+                    <!--app:civ_border_width="@dimen/circle_img_border_width" />-->
 
                 </LinearLayout>
 
             </LinearLayout>
 
             <!--<RelativeLayout-->
-                <!--android:id="@+id/layout_recycler_task_delete"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
-                <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
-                <!--android:background="@drawable/recycler_item_delete_background"-->
-                <!--android:gravity="center"-->
-                <!--android:padding="@dimen/recycler_row_outermost_padding">-->
+            <!--android:id="@+id/layout_recycler_task_delete"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
+            <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
+            <!--android:background="@drawable/recycler_item_delete_background"-->
+            <!--android:gravity="center"-->
+            <!--android:padding="@dimen/recycler_row_outermost_padding">-->
 
-                <!--<android.support.v7.widget.AppCompatImageView-->
-                    <!--android:id="@+id/img_task_delete"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:src="@drawable/icon_delete" />-->
-
-            <!--</RelativeLayout>-->
-
-            <!--<RelativeLayout-->
-                <!--android:id="@+id/layout_recycler_task_start"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
-                <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
-                <!--android:background="@drawable/recycler_item_start_background"-->
-                <!--android:gravity="center"-->
-                <!--android:padding="@dimen/recycler_row_outermost_padding">-->
-
-                <!--<android.support.v7.widget.AppCompatImageView-->
-                    <!--android:id="@+id/img_task_start"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:src="@drawable/icon_in_progress" />-->
+            <!--<android.support.v7.widget.AppCompatImageView-->
+            <!--android:id="@+id/img_task_delete"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@drawable/icon_delete" />-->
 
             <!--</RelativeLayout>-->
 
             <!--<RelativeLayout-->
-                <!--android:id="@+id/layout_recycler_task_done"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
-                <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
-                <!--android:background="@drawable/recycler_item_done_background"-->
-                <!--android:gravity="center"-->
-                <!--android:padding="@dimen/recycler_row_outermost_padding">-->
+            <!--android:id="@+id/layout_recycler_task_start"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
+            <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
+            <!--android:background="@drawable/recycler_item_start_background"-->
+            <!--android:gravity="center"-->
+            <!--android:padding="@dimen/recycler_row_outermost_padding">-->
 
-                <!--<android.support.v7.widget.AppCompatImageView-->
-                    <!--android:id="@+id/img_task_done"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:src="@drawable/icon_done" />-->
+            <!--<android.support.v7.widget.AppCompatImageView-->
+            <!--android:id="@+id/img_task_start"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@drawable/icon_in_progress" />-->
+
+            <!--</RelativeLayout>-->
+
+            <!--<RelativeLayout-->
+            <!--android:id="@+id/layout_recycler_task_done"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
+            <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
+            <!--android:background="@drawable/recycler_item_done_background"-->
+            <!--android:gravity="center"-->
+            <!--android:padding="@dimen/recycler_row_outermost_padding">-->
+
+            <!--<android.support.v7.widget.AppCompatImageView-->
+            <!--android:id="@+id/img_task_done"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@drawable/icon_done" />-->
 
             <!--</RelativeLayout>-->
 

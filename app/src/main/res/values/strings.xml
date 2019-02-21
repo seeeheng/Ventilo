@@ -19,9 +19,21 @@
     <string name="connected">ToyVPN is connected!</string>
     <string name="disconnected">ToyVPN is disconnected!</string>
 
+    <!-- Button -->
+    <string name="btn_confirm">Confirm</string>
+    <string name="btn_report">Report</string>
+    <string name="btn_send">Send</string>
+    <string name="btn_stream">Stream</string>
+
+    <string name="btn_map_subscribe">Subscribe</string>
+    <string name="btn_map_share_location">Share Location</string>
+    <string name="btn_map_top">Top</string>
+    <string name="btn_map_port">Port</string>
+    <string name="btn_map_starboard">Starboard</string>
+
     <!-- Login -->
-    <string name="email">EMAIL</string>
-    <string name="password">PASSWORD</string>
+    <string name="login_username">USERNAME</string>
+    <string name="login_password">PASSWORD</string>
     <string name="sign_up">SIGN UP</string>
     <string name="forgot_password">FORGOT PASSWORD</string>
     <string name="error_invalid_email">This email is invalid</string>
@@ -29,6 +41,10 @@
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
+
+    <!-- Timeline Fragment -->
+    <string name="timeline_ago">ago</string>
+    <string name="timeline_commencing_in">Commencing in</string>
 
     <!-- Report Fragment -->
     <string name="tab_layout_tabs_incident_title">INCIDENT</string>
@@ -128,8 +144,37 @@
     <string name="sitrep_S">S</string>
     <string name="sitrep_D">D</string>
 
+    <!-- Sitrep Inner Detail Fragment -->
+    <string name="sitrep_detail_situation_report">Situation Report</string>
+
     <!-- Video Stream Fragment -->
     <string name="first_video_stream_URL_Title">1st Video URL: </string>
     <string name="second_video_stream_URL_Title">2nd Video URL: </string>
     <string name="error_empty_video_ur_link_detail">Please enter URL Link</string>
+
+    <!-- Map Fragment -->
+    <string name="callsign">Callsign</string>
+    <string name="logsloc">Logs Location</string>
+    <string name="mqhost">MQ Host</string>
+    <string name="mqport">MQ Port</string>
+    <string name="mqTopic">MQ Topic</string>
+    <string name="mqUser">MQ User</string>
+    <string name="mqPassword">MQ Password</string>
+    <string name="Deck7offset">Deck 7 Offset</string>
+    <string name="Deck6offset">Deck 6 Offset</string>
+    <string name="Deck5offset">Deck 5 Offset</string>
+    <string name="Deck4offset">Deck 4 Offset</string>
+    <string name="Deck3offset">Deck 3 Offset</string>
+    <string name="Deck2offset">Deck 2 Offset</string>
+    <string name="DeckTweenoffset">Tween Deck Offset</string>
+    <string name="DeckMainoffset">Main Deck Offset</string>
+    <string name="Deck2ndoffset">2nd Deck Offset</string>
+    <string name="Deck3rdoffset">3rd Deck Offset</string>
+    <string name="DeckPlatformoffset">Platform Deck Offset</string>
+    <string name="realheight">Real height</string>
+    <string name="mapheight">Map height</string>
+
+    <string name="estimoteId">Estimote App ID</string>
+    <string name="estimoteToken">Estimote App Token</string>
+    <string name="estimoteDist">Estimote Proximity activation distance (m))</string>
 </resources>

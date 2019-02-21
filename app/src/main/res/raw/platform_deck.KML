@@ -1,0 +1,2256 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+  <!-- Begin Style Definitions -->
+  <Style id="line1">
+    <LineStyle>
+      <color>FF000000</color>
+      <width>1</width>
+    </LineStyle>
+  </Style>
+  <Folder>
+    <name>Line Features</name>
+    <description>Line Features</description>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628189373,1.3185538432,0
+          103.6628189982,1.3185538636,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628189373,1.3185538432,0
+          103.6628189264,1.3185538384,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628992895,1.3185382483,0
+          103.6629002085,1.3185386291,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628992895,1.3185382483,0
+          103.6628991068,1.3185381523,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625502185,1.3185403542,0
+          103.6625533769,1.3185349725,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625533769,1.3185349725,0
+          103.6625579233,1.3185302090,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625579233,1.3185302090,0
+          103.6625636602,1.3185262707,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625636602,1.3185262707,0
+          103.6625703385,1.3185233286,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625703385,1.3185233286,0
+          103.6625776680,1.3185215105,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625776680,1.3185215105,0
+          103.6625853304,1.3185208953,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625853304,1.3185208953,0
+          103.6625929929,1.3185215098,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625929929,1.3185215098,0
+          103.6626003227,1.3185233274,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626003227,1.3185233274,0
+          103.6626070014,1.3185262689,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626070014,1.3185262689,0
+          103.6626127389,1.3185302068,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626127389,1.3185302068,0
+          103.6626172859,1.3185349699,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626172859,1.3185349699,0
+          103.6626204451,1.3185403514,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625502234,1.3186122195,0
+          103.6625533826,1.3186176009,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625533826,1.3186176009,0
+          103.6625579296,1.3186223640,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625579296,1.3186223640,0
+          103.6625636671,1.3186263019,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625636671,1.3186263019,0
+          103.6625703458,1.3186292435,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625703458,1.3186292435,0
+          103.6625776756,1.3186310610,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625776756,1.3186310610,0
+          103.6625853381,1.3186316755,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625853381,1.3186316755,0
+          103.6625930005,1.3186310604,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625930005,1.3186310604,0
+          103.6626003301,1.3186292423,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626003301,1.3186292423,0
+          103.6626070083,1.3186263001,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626070083,1.3186263001,0
+          103.6626127453,1.3186223618,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626127453,1.3186223618,0
+          103.6626172917,1.3186175983,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626172917,1.3186175983,0
+          103.6626204501,1.3186122166,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625502234,1.3186122195,0
+          103.6625502185,1.3185403542,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626204451,1.3185403514,0
+          103.6626204501,1.3186122166,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396478,1.3183931159,0
+          103.6619444072,1.3183931157,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619715704,1.3183931147,0
+          103.6619715695,1.3183784992,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619715695,1.3183784992,0
+          103.6619676891,1.3183784993,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619560486,1.3183931153,0
+          103.6619599290,1.3183931152,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619560477,1.3183784997,0
+          103.6619521673,1.3183784998,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619560486,1.3183931153,0
+          103.6619560477,1.3183784997,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619482877,1.3183931156,0
+          103.6619521681,1.3183931154,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619482868,1.3183785000,0
+          103.6619444064,1.3183785001,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619482868,1.3183785000,0
+          103.6619482877,1.3183931156,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619638095,1.3183931150,0
+          103.6619676899,1.3183931149,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619638086,1.3183784994,0
+          103.6619599282,1.3183784996,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619638095,1.3183931150,0
+          103.6619638086,1.3183784994,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619444072,1.3183931157,0
+          103.6619482877,1.3183931156,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619444064,1.3183785001,0
+          103.6619396470,1.3183785003,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619444072,1.3183931157,0
+          103.6619444064,1.3183785001,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619521673,1.3183784998,0
+          103.6619482868,1.3183785000,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619521681,1.3183931154,0
+          103.6619560486,1.3183931153,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619521673,1.3183784998,0
+          103.6619521681,1.3183931154,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619599290,1.3183931152,0
+          103.6619638095,1.3183931150,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619599282,1.3183784996,0
+          103.6619560477,1.3183784997,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619599290,1.3183931152,0
+          103.6619599282,1.3183784996,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619676891,1.3183784993,0
+          103.6619638086,1.3183784994,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619676899,1.3183931149,0
+          103.6619715704,1.3183931147,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619676891,1.3183784993,0
+          103.6619676899,1.3183931149,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619717585,1.3185984753,0
+          103.6619396601,1.3185984764,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619259858,1.3185520340,0
+          103.6619396573,1.3185520335,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619717557,1.3185520324,0
+          103.6619717585,1.3185984753,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619259886,1.3185984769,0
+          103.6619259858,1.3185520340,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619629524,1.3187579718,0
+          103.6619590720,1.3187579720,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619590728,1.3187725876,0
+          103.6619590720,1.3187579720,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619590728,1.3187725876,0
+          103.6619629533,1.3187725874,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619629533,1.3187725874,0
+          103.6619629524,1.3187579718,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619474314,1.3187725880,0
+          103.6619513119,1.3187725878,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619513110,1.3187579723,0
+          103.6619513119,1.3187725878,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619513110,1.3187579723,0
+          103.6619474306,1.3187579724,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619474306,1.3187579724,0
+          103.6619474314,1.3187725880,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619474306,1.3187579724,0
+          103.6619435501,1.3187579725,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619435510,1.3187725881,0
+          103.6619435501,1.3187579725,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619435510,1.3187725881,0
+          103.6619474314,1.3187725880,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619629533,1.3187725874,0
+          103.6619668338,1.3187725873,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619668329,1.3187579717,0
+          103.6619668338,1.3187725873,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619668329,1.3187579717,0
+          103.6619629524,1.3187579718,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619707134,1.3187579716,0
+          103.6619668329,1.3187579717,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619668338,1.3187725873,0
+          103.6619707143,1.3187725872,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619707143,1.3187725872,0
+          103.6619707134,1.3187579716,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619551924,1.3187725877,0
+          103.6619590728,1.3187725876,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619590720,1.3187579720,0
+          103.6619551915,1.3187579721,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619551924,1.3187725877,0
+          103.6619551915,1.3187579721,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396705,1.3187725883,0
+          103.6619435510,1.3187725881,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619435501,1.3187579725,0
+          103.6619396696,1.3187579727,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619551915,1.3187579721,0
+          103.6619513110,1.3187579723,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619513119,1.3187725878,0
+          103.6619551924,1.3187725877,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396696,1.3187579727,0
+          103.6619396705,1.3187725883,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396705,1.3187725883,0
+          103.6619396737,1.3188269620,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396601,1.3185984764,0
+          103.6619396623,1.3186356419,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396573,1.3185520335,0
+          103.6619717557,1.3185520324,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396601,1.3185984764,0
+          103.6619259886,1.3185984769,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396573,1.3185520335,0
+          103.6619396552,1.3185164669,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619405242,1.3183502816,0
+          103.6619396453,1.3183501589,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396470,1.3183785003,0
+          103.6619396453,1.3183501589,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396478,1.3183931159,0
+          103.6619396470,1.3183785003,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619715704,1.3183931147,0
+          103.6619749084,1.3183931146,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619849226,1.3183931143,0
+          103.6619849217,1.3183784987,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619849217,1.3183784987,0
+          103.6619815837,1.3183784988,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619782456,1.3183784989,0
+          103.6619749076,1.3183784990,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619782465,1.3183931145,0
+          103.6619815846,1.3183931144,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619782456,1.3183784989,0
+          103.6619782465,1.3183931145,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619749084,1.3183931146,0
+          103.6619782465,1.3183931145,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619749076,1.3183784990,0
+          103.6619715695,1.3183784992,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619749084,1.3183931146,0
+          103.6619749076,1.3183784990,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619815837,1.3183784988,0
+          103.6619782456,1.3183784989,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619815846,1.3183931144,0
+          103.6619849226,1.3183931143,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619815837,1.3183784988,0
+          103.6619815846,1.3183931144,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619707143,1.3187725872,0
+          103.6619742721,1.3187725870,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619849455,1.3187725867,0
+          103.6619849446,1.3187579711,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619849446,1.3187579711,0
+          103.6619813868,1.3187579712,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619778290,1.3187579713,0
+          103.6619742712,1.3187579714,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619778299,1.3187725869,0
+          103.6619813877,1.3187725868,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619778290,1.3187579713,0
+          103.6619778299,1.3187725869,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619742721,1.3187725870,0
+          103.6619778299,1.3187725869,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619742712,1.3187579714,0
+          103.6619707134,1.3187579716,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619742721,1.3187725870,0
+          103.6619742712,1.3187579714,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619813868,1.3187579712,0
+          103.6619778290,1.3187579713,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619813877,1.3187725868,0
+          103.6619849455,1.3187725867,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619813868,1.3187579712,0
+          103.6619813877,1.3187725868,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396453,1.3183501589,0
+          103.6619396439,1.3183264339,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628946247,1.3186095725,0
+          103.6629010072,1.3186055991,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629010072,1.3186055991,0
+          103.6629064724,1.3186008913,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629064724,1.3186008913,0
+          103.6629108779,1.3185955718,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629108779,1.3185955718,0
+          103.6629141090,1.3185897790,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629141090,1.3185897790,0
+          103.6629160818,1.3185836636,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629160818,1.3185836636,0
+          103.6629167449,1.3185773849,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629167449,1.3185773849,0
+          103.6629160809,1.3185711062,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629160809,1.3185711062,0
+          103.6629141072,1.3185649910,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629141072,1.3185649910,0
+          103.6629108752,1.3185591985,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629108752,1.3185591985,0
+          103.6629064689,1.3185538794,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629064689,1.3185538794,0
+          103.6629010031,1.3185491721,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629010031,1.3185491721,0
+          103.6628946200,1.3185451992,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396439,1.3183264339,0
+          103.6620230290,1.3183322135,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6620230290,1.3183322135,0
+          103.6621060839,1.3183403154,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6621060839,1.3183403154,0
+          103.6621886983,1.3183507290,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6621886983,1.3183507290,0
+          103.6622707625,1.3183634404,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6622707625,1.3183634404,0
+          103.6623521677,1.3183784327,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6623521677,1.3183784327,0
+          103.6624328058,1.3183956860,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624328058,1.3183956860,0
+          103.6624469703,1.3183991473,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625125697,1.3184151775,0
+          103.6625913537,1.3184368812,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625913537,1.3184368812,0
+          103.6626690530,1.3184607684,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626690530,1.3184607684,0
+          103.6627455645,1.3184868073,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627455645,1.3184868073,0
+          103.6628207868,1.3185149633,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628207868,1.3185149633,0
+          103.6628946200,1.3185451992,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629010072,1.3186055991,0
+          103.6628275342,1.3186375448,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628275342,1.3186375448,0
+          103.6627524216,1.3186671700,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627524216,1.3186671700,0
+          103.6626757944,1.3186944255,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626757944,1.3186944255,0
+          103.6625977799,1.3187192659,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625977799,1.3187192659,0
+          103.6625185080,1.3187416499,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625185080,1.3187416499,0
+          103.6624469945,1.3187593424,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624381103,1.3187615404,0
+          103.6623567207,1.3187789041,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6623567207,1.3187789041,0
+          103.6622744743,1.3187937124,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6622744743,1.3187937124,0
+          103.6621915080,1.3188059404,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6621915080,1.3188059404,0
+          103.6621079598,1.3188155680,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6621079598,1.3188155680,0
+          103.6620239685,1.3188225791,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6620239685,1.3188225791,0
+          103.6619396737,1.3188269620,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6620099858,1.3184900033,0
+          103.6620099862,1.3184971303,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6620099963,1.3186632344,0
+          103.6623846956,1.3186632204,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6623846956,1.3186632204,0
+          103.6623846841,1.3184899893,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6623846841,1.3184899893,0
+          103.6620099858,1.3184900033,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619586588,1.3186791993,0
+          103.6619952184,1.3186913252,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619952184,1.3186913252,0
+          103.6624714080,1.3186913074,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624714080,1.3186913074,0
+          103.6624714056,1.3186560036,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624713949,1.3184971130,0
+          103.6624713925,1.3184618092,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624713925,1.3184618092,0
+          103.6619952045,1.3184618271,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619952045,1.3184618271,0
+          103.6619586465,1.3184739556,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619586465,1.3184739556,0
+          103.6619586472,1.3184858134,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619586472,1.3184858134,0
+          103.6619952066,1.3184971309,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619586588,1.3186791993,0
+          103.6619586581,1.3186673415,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619586581,1.3186673415,0
+          103.6619952162,1.3186560214,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6620099959,1.3186560209,0
+          103.6620099963,1.3186632344,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619952162,1.3186560214,0
+          103.6620099959,1.3186560209,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6620099862,1.3184971303,0
+          103.6620099959,1.3186560209,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619952066,1.3184971309,0
+          103.6620099862,1.3184971303,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624714056,1.3186560036,0
+          103.6624651738,1.3186560038,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624651738,1.3186560038,0
+          103.6624651631,1.3184971132,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624651631,1.3184971132,0
+          103.6624713949,1.3184971130,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396531,1.3184809003,0
+          103.6619396478,1.3183931159,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396531,1.3184809003,0
+          103.6619123577,1.3184809012,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619123577,1.3184809012,0
+          103.6619123598,1.3185164679,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396645,1.3186728074,0
+          103.6619396696,1.3187579727,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619123691,1.3186728083,0
+          103.6619396645,1.3186728074,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619123669,1.3186356429,0
+          103.6619123691,1.3186728083,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396623,1.3186356419,0
+          103.6619396645,1.3186728074,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619123669,1.3186356429,0
+          103.6619396623,1.3186356419,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619123598,1.3185164679,0
+          103.6619123669,1.3186356429,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619396552,1.3185164669,0
+          103.6619396531,1.3184809003,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6619123598,1.3185164679,0
+          103.6619396552,1.3185164669,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629129946,1.3186223008,0
+          103.6629211200,1.3186164223,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629211200,1.3186164223,0
+          103.6629280248,1.3186096905,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629280248,1.3186096905,0
+          103.6629335582,1.3186022526,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629335582,1.3186022526,0
+          103.6629375991,1.3185942712,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629375991,1.3185942712,0
+          103.6629400593,1.3185859208,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629400593,1.3185859208,0
+          103.6629408849,1.3185773839,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629408849,1.3185773839,0
+          103.6629400580,1.3185688470,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629400580,1.3185688470,0
+          103.6629375966,1.3185604968,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629375966,1.3185604968,0
+          103.6629335545,1.3185525157,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629335545,1.3185525157,0
+          103.6629280200,1.3185450783,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629280200,1.3185450783,0
+          103.6629211142,1.3185383472,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6629211142,1.3185383472,0
+          103.6629129880,1.3185324693,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624676282,1.3187706312,0
+          103.6625065873,1.3187618896,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625065873,1.3187618896,0
+          103.6625452766,1.3187524711,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625452766,1.3187524711,0
+          103.6625836759,1.3187423806,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625836759,1.3187423806,0
+          103.6626217653,1.3187316233,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626217653,1.3187316233,0
+          103.6626595250,1.3187202048,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626595250,1.3187202048,0
+          103.6626969356,1.3187081310,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626969356,1.3187081310,0
+          103.6627339777,1.3186954082,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627339777,1.3186954082,0
+          103.6627706319,1.3186820429,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627706319,1.3186820429,0
+          103.6628068794,1.3186680421,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628068794,1.3186680421,0
+          103.6628427014,1.3186534131,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628427014,1.3186534131,0
+          103.6628780792,1.3186381633,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628780792,1.3186381633,0
+          103.6629129946,1.3186223008,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624676021,1.3183841759,0
+          103.6625065646,1.3183929092,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625065646,1.3183929092,0
+          103.6625452571,1.3184023204,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625452571,1.3184023204,0
+          103.6625836593,1.3184124046,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6625836593,1.3184124046,0
+          103.6626217515,1.3184231565,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626217515,1.3184231565,0
+          103.6626595138,1.3184345706,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626595138,1.3184345706,0
+          103.6626969265,1.3184466410,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6626969265,1.3184466410,0
+          103.6627339702,1.3184593613,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627339702,1.3184593613,0
+          103.6627706258,1.3184727250,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6627706258,1.3184727250,0
+          103.6628068741,1.3184867250,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628068741,1.3184867250,0
+          103.6628426962,1.3185013542,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628426962,1.3185013542,0
+          103.6628780737,1.3185166050,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6628780737,1.3185166050,0
+          103.6629129880,1.3185324693,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624469703,1.3183991473,0
+          103.6625125697,1.3184151775,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624676021,1.3183841759,0
+          103.6624469703,1.3183991473,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624469945,1.3187593424,0
+          103.6624381103,1.3187615404,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+    <Placemark>
+      <description>PLATFORM DECK</description>
+      <styleUrl>#line1</styleUrl>
+      <LineString>
+        <coordinates>
+          103.6624676282,1.3187706312,0
+          103.6624469945,1.3187593424,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+  </Folder>
+</Document>
+</kml>

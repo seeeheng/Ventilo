@@ -1,12 +1,14 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.report.incident;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -14,6 +16,7 @@ import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.report.task.TaskViewHolder;
 import sg.gov.dsta.mobileC3.ventilo.model.incident.IncidentItemModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskItemModel;
+import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
 
 public class IncidentRecyclerAdapter extends RecyclerView.Adapter<IncidentViewHolder> {
@@ -46,36 +49,13 @@ public class IncidentRecyclerAdapter extends RecyclerView.Adapter<IncidentViewHo
         String title = "Title: ".concat(item.getTitle());
         itemViewHolder.getTvTitle().setText(title);
 
-//        String status = item.getStatus().toString();
-//        String statusFullText = "Status: ".concat(status);
-//        itemViewHolder.getTvStatus().setText(statusFullText);
-
-//        if (status.equalsIgnoreCase(EStatus.NEW.toString())) {
-//            itemViewHolder.getTvStatus().setTextColor(
-//                    mContext.getResources().getColor(R.color.primary_text_white));
-//            itemViewHolder.getCircleImgStatus().
-//                    setImageDrawable(mContext.getDrawable(R.drawable.task_new));
-//        } else if (status.equalsIgnoreCase(EStatus.IN_PROGRESS.toString())) {
-//            itemViewHolder.getTvStatus().setTextColor(
-//                    mContext.getResources().getColor(android.R.color.holo_orange_light));
-//            itemViewHolder.getCircleImgStatus().
-//                    setImageDrawable(mContext.getDrawable(R.drawable.task_in_progress));
-//        } else {
-//            itemViewHolder.getTvStatus().setTextColor(
-//                    mContext.getResources().getColor(android.R.color.holo_green_light));
-//            itemViewHolder.getCircleImgStatus().
-//                    setImageDrawable(mContext.getDrawable(R.drawable.task_done));
-//        }
-
         // Other RelativeLayouts
 //        itemViewHolder.getRelativeLayoutDeleteIcon().setVisibility(View.GONE);
 //        itemViewHolder.getRelativeLayoutStartIcon().setVisibility(View.GONE);
 //        itemViewHolder.getRelativeLayoutDoneIcon().setVisibility(View.GONE);
 
-        SimpleDateFormat currentDateFormat = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
-        String currentTimeString = currentDateFormat.format(new Date());
-        currentTimeString = "Reported Time: ".concat(currentTimeString);
-        itemViewHolder.getTvDateTime().setText(currentTimeString);
+        String dateTimeString = "Reported Time: ".concat(DateTimeUtil.getTimeDifference(mContext, item.getReportedDateTime()));
+        itemViewHolder.getTvDateTime().setText(dateTimeString);
 
 //        itemViewHolder.get().setText(item.getCreatedBy());
 //        itemViewHolder.getMNumCommentTV().setText(String.valueOf(item.getComments().size()));
@@ -93,6 +73,20 @@ public class IncidentRecyclerAdapter extends RecyclerView.Adapter<IncidentViewHo
 //                context.startActivity(intent);
 //            }
 //        });
+    }
+
+    public void addItem(String title, String description) {
+        IncidentItemModel newTaskItemModel = new IncidentItemModel();
+        newTaskItemModel.setId(String.valueOf(mIncidentListItems.size() + 1));
+        newTaskItemModel.setReporter("Desmond (D01)");
+        newTaskItemModel.setReporterAvatar(mContext.getDrawable(R.drawable.default_soldier_icon));
+        newTaskItemModel.setTitle(title);
+        newTaskItemModel.setDescription(description);
+        Date currentDateTime = Calendar.getInstance().getTime();
+        newTaskItemModel.setReportedDateTime(currentDateTime);
+
+        mIncidentListItems.add(newTaskItemModel);
+        notifyDataSetChanged();
     }
 
     @Override

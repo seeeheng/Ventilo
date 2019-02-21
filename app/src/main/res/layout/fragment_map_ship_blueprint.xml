@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_map_ship_blueprint_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <WebView
+        android:id="@+id/bft_webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="110dp">
+
+            <ImageButton
+                android:id="@+id/img_btn_ship_blueprint_upButton"
+                app:srcCompat="@android:drawable/arrow_up_float"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="right"
+                android:layout_marginTop="20dp" />
+
+            <ImageButton
+                android:id="@+id/img_btn_ship_blueprint_zeroButton"
+                app:srcCompat="@android:drawable/presence_invisible"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="right"
+                android:layout_marginTop="60dp" />
+
+            <ImageButton
+                android:id="@+id/img_btn_ship_blueprint_downButton"
+                app:srcCompat="@android:drawable/arrow_down_float"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="right"
+                android:layout_marginTop="100dp" />
+
+            <ImageButton
+                android:id="@+id/img_btn_ship_blueprint_beaconButton"
+                app:srcCompat="@android:drawable/ic_delete"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="right"
+                android:layout_marginTop="200dp" />
+
+            <EditText
+                android:id="@+id/img_btn_ship_blueprint_textXYZ"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginTop="200dp"
+                android:text="Loading coordinates"
+                android:textColor="#ffffff" />
+
+            <EditText
+                android:id="@+id/img_btn_ship_blueprint_textBearing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginTop="220dp"
+                android:text="Loading Bearing"
+                android:textColor="#ffffff" />
+
+            <EditText
+                android:id="@+id/img_btn_ship_blueprint_textAction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginTop="240dp"
+                android:text="Loading status"
+                android:textColor="#ffffff" />
+
+        </FrameLayout>
+
+    </WebView>
+
+</android.support.constraint.ConstraintLayout>

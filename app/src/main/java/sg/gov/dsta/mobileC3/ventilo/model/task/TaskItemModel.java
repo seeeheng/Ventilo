@@ -2,18 +2,21 @@ package sg.gov.dsta.mobileC3.ventilo.model.task;
 
 import android.graphics.drawable.Drawable;
 
+import java.util.Date;
+
 import lombok.Data;
 import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
 
 @Data
 public class TaskItemModel {
-    private String id;
+    private int id;
     private String assignee;
     private Drawable assigneeAvatar;
     private String assigner;
     private String title;
     private String description;
     private EStatus status; // NEW, IN PROGRESS, DONE
+    private Date createdDateTime;
 
 //    private String id;
 //    private String createdBy; // ic

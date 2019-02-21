@@ -27,13 +27,19 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/app_logo"
-                android:src="@drawable/login_dsta_logo"
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/app_logo_top"
+                android:src="@drawable/login_c3_logo_top"
                 android:layout_width="@dimen/login_app_logo_width"
-                android:layout_height="@dimen/login_app_logo_height"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="@dimen/horizontal_1st_level_margin" />
+                android:layout_height="90dp"
+                android:layout_gravity="center_horizontal" />
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/app_logo_bottom"
+                android:src="@drawable/login_c3_logo_bottom"
+                android:layout_width="120dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center_horizontal" />
 
             <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView
                 android:id="@+id/tv_email"
@@ -42,7 +48,7 @@
                 android:layout_gravity="left"
                 android:layout_marginTop="@dimen/horizontal_2nd_level_margin"
                 android:layout_marginLeft="@dimen/minor_margin"
-                android:text="@string/email"
+                android:text="@string/login_username"
                 android:textSize="@dimen/login_misc_text_size"
                 android:textColor="@color/primary_highlight_cyan" />
 
@@ -69,7 +75,7 @@
                 android:layout_gravity="left"
                 android:layout_marginTop="@dimen/horizontal_3rd_level_margin"
                 android:layout_marginLeft="@dimen/minor_margin"
-                android:text="@string/password"
+                android:text="@string/login_password"
                 android:textSize="@dimen/login_misc_text_size"
                 android:textColor="@color/primary_highlight_cyan" />
 
@@ -82,7 +88,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:imeActionId="6"
-                    android:imeActionLabel="@string/password"
+                    android:imeActionLabel="@string/login_password"
                     android:imeOptions="actionUnspecified"
                     android:inputType="textPassword"
                     android:maxLines="1"

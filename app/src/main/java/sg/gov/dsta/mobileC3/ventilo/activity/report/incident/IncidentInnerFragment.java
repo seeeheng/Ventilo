@@ -13,17 +13,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.activity.report.task.TaskRecyclerAdapter;
 import sg.gov.dsta.mobileC3.ventilo.model.incident.IncidentItemModel;
+import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.ReportFragmentConstants;
 
 public class IncidentInnerFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mRecyclerAdapter;
+    private IncidentRecyclerAdapter mRecyclerAdapter;
     private RecyclerView.LayoutManager mRecyclerLayoutManager;
     private FloatingActionButton mFabAddIncident;
 
@@ -193,29 +198,40 @@ public class IncidentInnerFragment extends Fragment {
 //        });
 //    }
 
+    public IncidentRecyclerAdapter getAdapter() {
+        return mRecyclerAdapter;
+    }
+
     private void setUpDummyData() {
         mIncidentListItems = new ArrayList<>();
 
         IncidentItemModel incidentItemModel1 = new IncidentItemModel();
         incidentItemModel1.setId("1");
         incidentItemModel1.setReporter("Andy (A22)");
-        incidentItemModel1.setReporterAvatar(getContext().getDrawable(R.drawable.bft_1));
+        incidentItemModel1.setReporterAvatar(getContext().getDrawable(R.drawable.default_soldier_icon));
         incidentItemModel1.setTitle("Found Explosive");
         incidentItemModel1.setDescription("IAD is located in the Engine Room. Beware of enemy intruders in adjacent rooms.");
+        Date date1 = DateTimeUtil.getSpecifiedDate(2016, Calendar.DECEMBER, 29,
+                Calendar.AM, 11, 30, 30);
+        incidentItemModel1.setReportedDateTime(date1);
 
         IncidentItemModel incidentItemModel2 = new IncidentItemModel();
         incidentItemModel2.setId("2");
         incidentItemModel2.setReporter("Bastian (B22)");
-        incidentItemModel2.setReporterAvatar(getContext().getDrawable(R.drawable.bft_2));
+        incidentItemModel2.setReporterAvatar(getContext().getDrawable(R.drawable.default_soldier_icon));
         incidentItemModel2.setTitle("Casualty");
         incidentItemModel2.setDescription("Casualty found in the Heli Deck. Beware of enemy intruders in adjacent rooms.");
+        Date date2 = DateTimeUtil.getSpecifiedDateByMonth(Calendar.JANUARY);
+        incidentItemModel2.setReportedDateTime(date2);
 
         IncidentItemModel incidentItemModel3 = new IncidentItemModel();
         incidentItemModel3.setId("3");
         incidentItemModel3.setReporter("Cassie (C22)");
-        incidentItemModel3.setReporterAvatar(getContext().getDrawable(R.drawable.bft_5));
+        incidentItemModel3.setReporterAvatar(getContext().getDrawable(R.drawable.default_soldier_icon));
         incidentItemModel3.setTitle("Found Unidentified Object");
         incidentItemModel3.setDescription("Unidentified object is located in the Bridge. Beware of enemy intruders in adjacent rooms.");
+        Date date3 = DateTimeUtil.getSpecifiedDateByDayOfMonth(1);
+        incidentItemModel3.setReportedDateTime(date3);
 
         mIncidentListItems.add(incidentItemModel1);
         mIncidentListItems.add(incidentItemModel2);

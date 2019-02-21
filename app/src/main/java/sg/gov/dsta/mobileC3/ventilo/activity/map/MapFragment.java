@@ -1,6 +1,7 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.map;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import android.speech.SpeechRecognizer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +26,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -33,7 +35,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.geometry.Point;
-import com.google.maps.android.data.kml.KmlGroundOverlay;
 import com.google.maps.android.data.kml.KmlLayer;
 import com.nutiteq.MapView;
 import com.nutiteq.components.Components;
@@ -60,11 +61,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import sg.gov.dsta.mobileC3.ventilo.PinView;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
+import sg.gov.dsta.mobileC3.ventilo.util.CustomKeyboardUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.CustomMapTileProvider;
 import sg.gov.dsta.mobileC3.ventilo.util.CustomRasterDataSource;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.VoiceCommands;
@@ -74,7 +75,7 @@ import sg.gov.dh.trackers.NavisensLocalTracker;
 import sg.gov.dh.trackers.TrackerListener;
 import sg.gov.dsta.mobileC3.ventilo.util.map.MapUtil;
 
-public class MapFragment extends Fragment implements RecognitionListener, OnMapReadyCallback {
+public class MapFragment extends Fragment implements RecognitionListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     public static final int RESULT_SPEECH = 100;
     public static boolean isShareLocation;
     public static boolean isTrackAllies;
@@ -88,6 +89,9 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
     private static final double OWN_MARKER_LAT_COORD = 1.2944446;
     private static final double OWN_MARKER_LON_COORD = 103.6537337;
     private static final String SPACE = " ";
+
+    private View mRootMapView;
+    private Bundle mSavedInstanceState;
 
     private MqttHelper mMqttHelper;
     // Map
@@ -129,11 +133,20 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
     private PinView mPinView;
     private PointF mOffsetLocationPoint;
 
+    private boolean mIsVisibleToUser;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootMapView = inflater.inflate(R.layout.fragment_map, container, false);
+        mRootMapView = inflater.inflate(R.layout.fragment_map, container, false);
 //        mCesiumMapView = rootMapView.findViewById(R.id.mapview_cesium_map);
+        mSavedInstanceState = savedInstanceState;
 
+//        initUI(mRootMapView, mSavedInstanceState);
+
+        return mRootMapView;
+    }
+
+    private void initUI(View rootMapView, Bundle savedInstanceState) {
         // Using 2D Blueprint
 //        init2DBlueprint(rootMapView);
 
@@ -144,10 +157,8 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
 //        initArcGISMap(rootMapView);
 
         initVoiceRecognition(rootMapView);
-        initNutiteqMap(rootMapView);
+//        initNutiteqMap(rootMapView);
         initButtons(rootMapView);
-
-        return rootMapView;
     }
 
     private void initGoogleMap(View rootMapView, @Nullable Bundle savedInstanceState) {
@@ -167,10 +178,15 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mGoogleMap = googleMap;
-        System.out.println("Map Ready");
+        if (getContext() != null) {
+            mGoogleMap = googleMap;
+            googleMap.setOnMarkerClickListener(this);
+
+            System.out.println("Map Ready");
 //        initLocationService(googleMap);
-        setMapStyle(mGoogleMap);
+
+            setMapStyle(mGoogleMap);
+        }
 
     }
 
@@ -217,15 +233,25 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
 //        final ViewGroup googleLogo = (ViewGroup) getView().findViewById(R.id.map_view_google_map).findViewWithTag("GoogleWatermark").getParent();
 //        googleLogo.setVisibility(View.GONE);
 
-        addKMLLayer(mGoogleMap);
+
+        System.out.println("first lat lon is " + MapUtil.toWgs84(0, 0));
+        System.out.println("second lat lon is " + MapUtil.toWgs84(1, 1));
+//        8.983152840993819E-6
+
+//        addKMLLayer(mGoogleMap, R.raw.deck_2nd);
+//        addKMLLayer(mGoogleMap, R.raw.deck_3);
+//        addKMLLayer(mGoogleMap, R.raw.main_deck);
+//        addKMLLayer(mGoogleMap, R.raw.platform_deck);
+//        addKMLLayer(mGoogleMap, R.raw.tween_deck);
+        addKMLLayer(mGoogleMap, R.raw.main_deck_projected);
         addOwnMarker(OWN_MARKER_LAT_COORD, OWN_MARKER_LON_COORD);
     }
 
     // Add KML Layer onto google map
-    private void addKMLLayer(GoogleMap map) {
+    private void addKMLLayer(GoogleMap map, int imgID) {
         KmlLayer kmlLayer = null;
         try {
-            kmlLayer = new KmlLayer(map, R.raw.main_deck_projected, getActivity().getApplicationContext());
+            kmlLayer = new KmlLayer(map, imgID, getActivity().getApplicationContext());
 //            mGoogleMap.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider()));
             kmlLayer.addLayerToMap();
 
@@ -263,7 +289,11 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
         markerOptions.position(markerLatLng);
         markerOptions.title("Position");
 //        markerOptions.snippet("Latitude:" + point.latitude + "," + "Longitude:" + point.longitude);
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+//        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(
+                MapUtil.createCustomMarker(getActivity(), R.drawable.icon_vessel, "Avatar")));
+
         mOwnGoogleMapMarker = mGoogleMap.addMarker(markerOptions);
     }
 
@@ -294,7 +324,7 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
 
     private void initButtons(View rootMapView) {
         initMQTTButtons(rootMapView);
-        initNutiteqMapButtons(rootMapView);
+        initMapButtons(rootMapView);
     }
 
     private void initMQTTButtons(View rootMapView) {
@@ -319,7 +349,7 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
         mBtnShareLocation.setOnClickListener(shareLocationOnClickListener());
     }
 
-    private void initNutiteqMapButtons(View rootMapView) {
+    private void initMapButtons(View rootMapView) {
         mBtnTopView = rootMapView.findViewById(R.id.btn_map_top_view);
         mBtnTopView.setOnClickListener(mapTopOnClickListener());
 
@@ -950,7 +980,7 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
                         count++;
                         if (count > 4) {
 //                            MqttHelper.getInstance().publishMessage("PAYLOAD_RELOADED_2");
-                        MqttHelper.getInstance().publishMessage(sb.toString());
+                            MqttHelper.getInstance().publishMessage(sb.toString());
                             count = 0;
                         }
                     } else if (isTrackAllies) {
@@ -988,9 +1018,7 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
 //                            updateHumanModelCoord(coords);
 //                        }
 
-                    } else
-
-                    {
+                    } else {
                         System.out.println("none");
                         updateOwnMarkerPos(coords.getX(), coords.getY(), coords.getBearing());
                     }
@@ -1071,6 +1099,86 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
 //
 //    }
 
+//    @Override
+//    public void setUserVisibleHint(boolean isVisibleToUser) {
+//        super.setUserVisibleHint(isVisibleToUser);
+//        if(isVisibleToUser) {
+//            Activity a = getActivity();
+//            if(a != null) a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//        }
+//    }
+
+//    @Override
+//    public void onHiddenChanged(boolean hidden) {
+//        super.onHiddenChanged(hidden);
+//        if (hidden) {
+//            Log.d(TAG, ((Object) this).getClass().getSimpleName() + " is NOT on screen");
+//        }
+//        else
+//        {
+//            Log.d(TAG, ((Object) this).getClass().getSimpleName() + " is on screen");
+//            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//        }
+//
+////        System.out.println("mapFragment onResume");
+////        if (this != null && this.isVisible()) {
+////            System.out.println("mapFragment visible");
+////            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+////        }
+////        else {
+////            //Whatever
+////        }
+//    }
+
+    @Override
+    public boolean onMarkerClick(com.google.android.gms.maps.model.Marker marker) {
+        if (marker.equals(mOwnGoogleMapMarker)) {
+            dispose();
+
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+            Fragment mapShipBlueprintFragment = new MapShipBlueprintFragment();
+
+            FragmentManager fm = getActivity().getSupportFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
+            ft.replace(R.id.layout_map_fragment, mapShipBlueprintFragment,
+                    mapShipBlueprintFragment.getClass().getSimpleName());
+            ft.addToBackStack(mapShipBlueprintFragment.getClass().getSimpleName());
+            ft.commit();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private void onVisible() {
+        if (mGoogleMapView != null) {
+            mGoogleMapView.setVisibility(View.VISIBLE);
+            mGoogleMapView.onResume();
+        } else {
+            initUI(mRootMapView, mSavedInstanceState);
+        }
+    }
+
+    private void onInvisible() {
+        dispose();
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        mIsVisibleToUser = isVisibleToUser;
+        if (isResumed()) { // fragment has been created at this point
+            if (mIsVisibleToUser) {
+                onVisible();
+            } else {
+                onInvisible();
+            }
+        }
+    }
+
     @Override
     public void onPause() {
         super.onPause();
@@ -1084,7 +1192,23 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
             mNutiteqMapView.stopMapping();
         }
 
-        stopBFTTracking();
+//        stopBFTTracking();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (mIsVisibleToUser) {
+            onVisible();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mIsVisibleToUser) {
+            onInvisible();
+        }
     }
 
     @Override
@@ -1096,19 +1220,11 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
         }
 
         // To resume map rendering when the activity returns to the foreground.
-        if (mNutiteqMapView != null) {
-            mNutiteqMapView.startMapping();
-        }
+//        if (mNutiteqMapView != null) {
+//            mNutiteqMapView.startMapping();
+//        }
 
-        startBFTTracking();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mGoogleMapView != null) {
-            mGoogleMapView.onStop();
-        }
+//        startBFTTracking();
     }
 
     @Override
@@ -1117,10 +1233,17 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
         dispose();
     }
 
-    private void dispose() {
+    private synchronized void dispose() {
         if (mGoogleMapView != null) {
-            mGoogleMapView.onDestroy();
+            mGoogleMapView.setVisibility(View.GONE);
         }
+
+        // To suspend map rendering while the activity is paused, which can save battery usage.
+        if (mNutiteqMapView != null) {
+            mNutiteqMapView.stopMapping();
+        }
+
+//        stopBFTTracking();
 
         mNutiteqMapView = null;
         mProj = null;
@@ -1128,7 +1251,6 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
         mHumanModel = null;
         mOwnMarker = null;
     }
-
 //    @Override
 //    public void onInitMQTT(MqttHelper mqttHelper) {
 //        mMqttHelper = mqttHelper;

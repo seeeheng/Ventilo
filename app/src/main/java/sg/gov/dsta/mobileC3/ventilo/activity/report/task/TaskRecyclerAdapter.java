@@ -7,11 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskItemModel;
+import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
 
 public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskViewHolder> {
@@ -70,10 +72,11 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         itemViewHolder.getRelativeLayoutStartIcon().setVisibility(View.GONE);
         itemViewHolder.getRelativeLayoutDoneIcon().setVisibility(View.GONE);
 
-        SimpleDateFormat currentDateFormat = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
-        String currentTimeString = currentDateFormat.format(new Date());
-        currentTimeString = "Created Time: ".concat(currentTimeString);
-        itemViewHolder.getTvDateTime().setText(currentTimeString);
+//        SimpleDateFormat currentDateFormat = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
+//        String currentTimeString = currentDateFormat.format(new Date());
+//        currentTimeString = "Created Time: ".concat(currentTimeString);
+        String dateTimeString = "Created Time: ".concat(DateTimeUtil.getTimeDifference(mContext, item.getCreatedDateTime()));
+        itemViewHolder.getTvDateTime().setText(dateTimeString);
 
 //        itemViewHolder.get().setText(item.getCreatedBy());
 //        itemViewHolder.getMNumCommentTV().setText(String.valueOf(item.getComments().size()));
@@ -91,6 +94,22 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 //                context.startActivity(intent);
 //            }
 //        });
+    }
+
+    public void addItem(String title, String description) {
+        TaskItemModel newTaskItemModel = new TaskItemModel();
+        newTaskItemModel.setId(mTaskListItems.size() + 1);
+        newTaskItemModel.setAssigner("Desmond (D01)");
+        newTaskItemModel.setAssignee("Derrick (D22)");
+        newTaskItemModel.setAssigneeAvatar(mContext.getDrawable(R.drawable.default_soldier_icon));
+        newTaskItemModel.setTitle(title);
+        newTaskItemModel.setDescription(description);
+        newTaskItemModel.setStatus(EStatus.NEW);
+        Date currentDateTime = Calendar.getInstance().getTime();
+        newTaskItemModel.setCreatedDateTime(currentDateTime);
+
+        mTaskListItems.add(newTaskItemModel);
+        notifyDataSetChanged();
     }
 
     @Override

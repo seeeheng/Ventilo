@@ -16,12 +16,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.activity.report.ReportStatePagerAdapter;
 import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicLightEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.ReportFragmentConstants;
@@ -35,7 +36,7 @@ public class IncidentInnerDetailFragment extends Fragment {
 
     private Spinner mSpinnerDropdownTitle;
 
-    private ImageButton mImgBtnConfirm;
+    private C2LatoBlackButton mBtnReport;
 
     @Nullable
     @Override
@@ -70,9 +71,9 @@ public class IncidentInnerDetailFragment extends Fragment {
 
         initTitleSpinner(rootView);
 
-        mImgBtnConfirm = rootView.findViewById(R.id.img_btn_incident_confirm);
-        mImgBtnConfirm.setOnClickListener(onConfirmClickListener);
-        mImgBtnConfirm.bringToFront();
+        mBtnReport = rootView.findViewById(R.id.btn_incident_detail_report);
+        mBtnReport.setOnClickListener(onConfirmClickListener);
+        mBtnReport.bringToFront();
     }
 
     private TextWatcher titleDetailTextWatcher = new TextWatcher() {
@@ -220,11 +221,28 @@ public class IncidentInnerDetailFragment extends Fragment {
     private View.OnClickListener onConfirmClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            validateIncident();
+            if (validateIncident()) {
+                IncidentInnerFragment incidentInnerFragment = (IncidentInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
+                        get(ReportFragmentConstants.REPORT_TAB_TITLE_INCIDENT_ID);
+
+                if(incidentInnerFragment != null) {
+                    String titleDetail;
+                    if (mSpinnerDropdownTitle.getSelectedItemPosition() ==
+                            mSpinnerDropdownTitle.getAdapter().getCount() - 1) {
+                        titleDetail = mEtvTitleDetail.getText().toString().trim();
+                    } else {
+                        titleDetail = mSpinnerDropdownTitle.getSelectedItem().toString();
+                    }
+
+                    String descriptionDetail = mEtvDescriptionDetail.getText().toString().trim();
+                    incidentInnerFragment.getAdapter().addItem(titleDetail, descriptionDetail);
+                    getFragmentManager().popBackStack();
+                }
+            };
         }
     };
 
-    private void validateIncident() {
+    private boolean validateIncident() {
         String titleDetail = mEtvTitleDetail.getText().toString().trim();
         String descriptionDetail = mEtvDescriptionDetail.getText().toString().trim();
         boolean isValidateSuccess = true;
@@ -241,7 +259,10 @@ public class IncidentInnerDetailFragment extends Fragment {
             }
 
             mEtvDescriptionDetail.setError(getString(R.string.error_empty_incident_description_detail));
+            isValidateSuccess = false;
         }
+
+        return isValidateSuccess;
     }
 
     private void resetToDefaultUI() {
@@ -273,7 +294,7 @@ public class IncidentInnerDetailFragment extends Fragment {
             if (bundle != null) {
                 if (mEtvTitleDetail != null) {
                     String title = bundle.getString(
-                            ReportFragmentConstants.KEY_INCIDENT_TITLE, ReportFragmentConstants.EMPTY_STRING);
+                            ReportFragmentConstants.KEY_INCIDENT_TITLE, ReportFragmentConstants.DEFAULT_STRING);
                     boolean isSpinnerOption = false;
 
                     for (int i = 0; i < mSpinnerDropdownTitle.getAdapter().getCount(); i++) {
@@ -299,13 +320,13 @@ public class IncidentInnerDetailFragment extends Fragment {
 
                 if (mEtvDescriptionDetail != null) {
                     String description = bundle.getString(
-                            ReportFragmentConstants.KEY_INCIDENT_DESCRIPTION, ReportFragmentConstants.EMPTY_STRING);
+                            ReportFragmentConstants.KEY_INCIDENT_DESCRIPTION, ReportFragmentConstants.DEFAULT_STRING);
                     mEtvDescriptionDetail.setText(description);
                     mEtvDescriptionDetail.setEnabled(false);
                 }
             }
 
-            mImgBtnConfirm.setVisibility(View.GONE);
+            mBtnReport.setVisibility(View.GONE);
         } else {
             resetToDefaultUI();
         }

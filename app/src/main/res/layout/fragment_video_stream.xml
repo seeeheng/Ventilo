@@ -45,13 +45,14 @@
             android:layout_margin="@dimen/elements_vertical_margin_spacing"
             android:gravity="center">
 
-            <ImageButton
-                android:id="@+id/img_btn_first_video_url_confirm"
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+                android:id="@+id/btn_first_video_stream_link"
                 android:layout_width="200dp"
                 android:layout_height="40dp"
-                android:background="?android:selectableItemBackground"
-                android:scaleType="fitXY"
-                android:src="@drawable/btn_confirm" />
+                android:layout_gravity="center"
+                android:foreground="?android:selectableItemBackground"
+                android:background="@drawable/img_btn_background"
+                android:text="@string/btn_stream"/>
 
         </LinearLayout>
 
@@ -105,13 +106,14 @@
             android:layout_margin="@dimen/elements_vertical_margin_spacing"
             android:gravity="center">
 
-            <ImageButton
-                android:id="@+id/img_btn_second_video_url_confirm"
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+                android:id="@+id/btn_second_video_stream_link"
                 android:layout_width="200dp"
                 android:layout_height="40dp"
-                android:background="?android:selectableItemBackground"
-                android:scaleType="fitXY"
-                android:src="@drawable/btn_confirm" />
+                android:layout_gravity="center"
+                android:foreground="?android:selectableItemBackground"
+                android:background="@drawable/img_btn_background"
+                android:text="@string/btn_stream"/>
 
         </LinearLayout>
 

@@ -5,13 +5,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -20,8 +21,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
 import sg.gov.dsta.mobileC3.ventilo.util.ValidationUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoLightEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.ReportFragmentConstants;
 
 public class SitRepInnerFragment extends Fragment {
 
@@ -52,7 +55,7 @@ public class SitRepInnerFragment extends Fragment {
     private CircleImageView mCircleBtnReduceS;
     private CircleImageView mCircleBtnAddD;
     private CircleImageView mCircleBtnReduceD;
-    private ImageButton mImgBtnConfirm;
+    private C2LatoBlackButton mBtnConfirm;
 
     // Spinners
     private Spinner mSpinnerDropdownLocation;
@@ -150,9 +153,9 @@ public class SitRepInnerFragment extends Fragment {
         mCircleBtnReduceD.bringToFront();
         mCircleBtnReduceD.setOnClickListener(onReduceDClickListener);
 
-        mImgBtnConfirm = rootView.findViewById(R.id.btn_sitrep_confirm);
-        mImgBtnConfirm.setOnClickListener(onConfirmClickListener);
-        mImgBtnConfirm.setVisibility(View.GONE);
+        mBtnConfirm = rootView.findViewById(R.id.btn_sitrep_confirm);
+        mBtnConfirm.setOnClickListener(onConfirmClickListener);
+        mBtnConfirm.setVisibility(View.GONE);
     }
 
     private View.OnClickListener onAddTClickListener = new View.OnClickListener() {
@@ -438,7 +441,7 @@ public class SitRepInnerFragment extends Fragment {
             // First item is disable and it is used for hint
             if (position > 0) {
                 // Notify the selected item text
-                mImgBtnConfirm.setVisibility(View.VISIBLE);
+                mBtnConfirm.setVisibility(View.VISIBLE);
             }
         }
 
@@ -451,7 +454,26 @@ public class SitRepInnerFragment extends Fragment {
     private View.OnClickListener onConfirmClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            Fragment sitRepInnerDetailFragment = new SitRepInnerDetailFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString(ReportFragmentConstants.KEY_SITREP_LOCATION, mSpinnerDropdownLocation.getSelectedItem().toString());
+            bundle.putString(ReportFragmentConstants.KEY_SITREP_ACTIVITY, mSpinnerDropdownActivity.getSelectedItem().toString());
+            bundle.putString(ReportFragmentConstants.KEY_SITREP_PERSONNEL_T, mEtvT.getText().toString().trim());
+            bundle.putString(ReportFragmentConstants.KEY_SITREP_PERSONNEL_S, mEtvS.getText().toString().trim());
+            bundle.putString(ReportFragmentConstants.KEY_SITREP_PERSONNEL_D, mEtvD.getText().toString().trim());
+            bundle.putString(ReportFragmentConstants.KEY_SITREP_NEXT_COA, mSpinnerDropdownNextCoa.getSelectedItem().toString());
+            bundle.putString(ReportFragmentConstants.KEY_SITREP_REQUEST, mSpinnerDropdownRequest.getSelectedItem().toString());
+            sitRepInnerDetailFragment.setArguments(bundle);
 
+            // Pass info to fragment
+            FragmentManager fm = getActivity().getSupportFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right,
+                    R.anim.slide_in_from_right, R.anim.slide_out_to_right);
+            ft.replace(R.id.layout_sitrep_inner_fragment, sitRepInnerDetailFragment,
+                    sitRepInnerDetailFragment.getClass().getSimpleName());
+            ft.addToBackStack(sitRepInnerDetailFragment.getClass().getSimpleName());
+            ft.commit();
         }
     };
 }

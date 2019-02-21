@@ -74,13 +74,14 @@
             android:layout_marginBottom="@dimen/vertical_2nd_level_margin"
             android:gravity="center">
 
-            <ImageButton
-                android:id="@+id/img_btn_task_confirm"
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+                android:id="@+id/btn_task_detail_report"
                 android:layout_width="200dp"
                 android:layout_height="40dp"
-                android:background="?android:selectableItemBackground"
-                android:scaleType="fitXY"
-                android:src="@drawable/btn_confirm" />
+                android:layout_gravity="center"
+                android:foreground="?android:selectableItemBackground"
+                android:background="@drawable/img_btn_background"
+                android:text="@string/btn_report"/>
 
         </RelativeLayout>
 
