@@ -20,6 +20,8 @@ import java.util.LinkedList;
 
 import sg.gov.dsta.mobileC3.ventilo.constants.ActivityResultConstants;
 import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
+import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
+import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQ;
 
 import static android.support.v4.app.ActivityCompat.startActivityForResult;
 
@@ -32,6 +34,7 @@ public class NetworkService extends IntentService {
     private ConnectionStateMonitor mConnectionStateMonitor;
 
     private static MqttHelper mqttHelper;
+    private static RabbitMQHelper rabbitMQHelper;
 
     //checks if the service is trying to connect, to prevent race conditions between startService and dataEnabledReceiver
     private boolean tryingToConnect;
@@ -46,11 +49,14 @@ public class NetworkService extends IntentService {
     }
 
     private void createConnection() {
-        mqttHelper = MqttHelper.getInstance();
-        mqttHelper.connectionStatus = MqttHelper.MQTTConnectionStatus.INITIAL;
+//        mqttHelper = MqttHelper.getInstance();
+//        mqttHelper.connectionStatus = MqttHelper.MQTTConnectionStatus.INITIAL;
         // register to be notified whenever the user changes their preferences
         //  relating to background data use - so that we can respect the current
         //  preference
+
+        rabbitMQHelper = RabbitMQHelper.getInstance();
+        rabbitMQHelper.connectionStatus = RabbitMQHelper.RabbitMQConnectionStatus.INITIAL;
     }
 
     private boolean isOnline() {
@@ -60,7 +66,11 @@ public class NetworkService extends IntentService {
 
     public void deactivate() {
         // disconnect immediately
-        mqttHelper.disconnectFromBroker();
+//        mqttHelper.disconnectFromBroker();
+
+        if (rabbitMQHelper != null) {
+            rabbitMQHelper.closeConnection();
+        }
 //        for (LinkedList<NotificationMessage> msg : notificationMap.values()) {
 ////            msg = new LinkedList<>();
 ////        }
@@ -94,10 +104,19 @@ public class NetworkService extends IntentService {
             public void run() {
                 tryingToConnect = true;
 
-                if (mqttHelper != null) {
-                    boolean isMqttConnected = mqttHelper.handleStart();
-                    if (isMqttConnected) {
-                        notifyMqttConnectedBroadcastIntent();
+//                if (mqttHelper != null) {
+//                    boolean isMqttConnected = mqttHelper.handleStart();
+//                    if (isMqttConnected) {
+//                        notifyMqttConnectedBroadcastIntent();
+//                    }
+//                }
+
+                if (rabbitMQHelper != null) {
+                    System.out.println("rabbitMQHelper not null");
+                    boolean isRabbitMQConnected = rabbitMQHelper.startRabbitMQWithDefaultSetting();
+                    if (isRabbitMQConnected) {
+                        System.out.println("rabbitMQHelper notify");
+                        notifyRabbitMQConnectedBroadcastIntent();
                     }
                 }
 
@@ -115,12 +134,24 @@ public class NetworkService extends IntentService {
         // return START_NOT_STICKY - we want this Service to be left running
         //  unless explicitly stopped, and it's process is killed, we want it to
         //  be restarted
-        return START_STICKY;
+        return START_NOT_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     private void notifyMqttConnectedBroadcastIntent() {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(MqttHelper.MQTT_CONNECT_INTENT_ACTION);
+//        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+    }
+
+    private void notifyRabbitMQConnectedBroadcastIntent() {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION);
 //        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
     }
@@ -157,25 +188,25 @@ public class NetworkService extends IntentService {
             wl.acquire();
 
 //            Log.d("SharedSense", "MQTT Connection: Background Data changed!");
-            if (isOnline()) {
-                if (!tryingToConnect && (mqttHelper.getMqttClient() == null
-                        || !mqttHelper.getMqttClient().isConnected()) ) {
-                    // user has allowed background data - we start again - picking
-                    //  up where we left off in handleStart before
-                    mqttHelper.connectionStatus = MqttHelper.MQTTConnectionStatus.INITIAL;
-                    mqttHelper.defineConnectionToBroker();
-
-                    boolean isMqttConnected = mqttHelper.handleStart();
-                    if (isMqttConnected) {
-                        notifyMqttConnectedBroadcastIntent();
-                    }
-                }
-            } else {
-                // user has disabled background data
-                mqttHelper.connectionStatus = MqttHelper.MQTTConnectionStatus.NOT_CONNECTED_DATA_DISABLED;
-                // disconnect from the broker
-                mqttHelper.disconnectFromBroker();
-            }
+//            if (isOnline()) {
+//                if (!tryingToConnect && (mqttHelper.getMqttClient() == null
+//                        || !mqttHelper.getMqttClient().isConnected()) ) {
+//                    // user has allowed background data - we start again - picking
+//                    //  up where we left off in handleStart before
+//                    mqttHelper.connectionStatus = MqttHelper.MQTTConnectionStatus.INITIAL;
+//                    mqttHelper.defineConnectionToBroker();
+//
+//                    boolean isMqttConnected = mqttHelper.handleStart();
+//                    if (isMqttConnected) {
+//                        notifyMqttConnectedBroadcastIntent();
+//                    }
+//                }
+//            } else {
+//                // user has disabled background data
+//                mqttHelper.connectionStatus = MqttHelper.MQTTConnectionStatus.NOT_CONNECTED_DATA_DISABLED;
+//                // disconnect from the broker
+//                mqttHelper.disconnectFromBroker();
+//            }
 
             // we're finished - if the phone is switched off, it's okay for the CPU
             //  to sleep now

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/img_split_screens"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/split_screen_concept_lateral_view" />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/img_radio_link_status"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/img_radio_link_status" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_task_change"
+        style="@style/FloatingActionButton_StyleOne"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/horizontal_3rd_level_margin"
+        android:src="@drawable/fab_split_screen"
+        app:fabSize="mini" />
+
+</RelativeLayout>

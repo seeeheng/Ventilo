@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_sitrep_inner_add_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_main_black">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
+                android:id="@+id/sitrep_tv_team"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:gravity="center"
+                android:text="@string/sitrep_team"
+                android:textColor="@color/primary_text_white"
+                android:textSize="@dimen/sub_header_text_size" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="15dp"
+                android:background="@drawable/divider_line_thick" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/side_margin"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/layout_sitrep_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
+                        android:id="@+id/sitrep_tv_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:text="@string/sitrep_location"
+                        android:textColor="@color/primary_text_white"
+                        android:textSize="@dimen/sub_header_text_size" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="10dp" />
+
+                    <Spinner
+                        android:id="@+id/spinner_sitrep_location"
+                        android:layout_width="230dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignEnd="@+id/sitrep_tv_location"
+                        android:background="@drawable/spinner_rect"
+                        android:gravity="center_vertical"
+                        android:spinnerMode="dropdown" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="4dp"
+                        android:layout_marginStart="@dimen/divider_margin"
+                        android:layout_marginTop="18dp"
+                        android:layout_marginEnd="@dimen/divider_margin"
+                        android:background="@drawable/divider_line_normal" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_sitrep_activity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="18dp" />
+
+                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
+                        android:id="@+id/sitrep_tv_activity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:text="@string/sitrep_activity"
+                        android:textColor="@color/primary_text_white"
+                        android:textSize="@dimen/sub_header_text_size" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="10dp" />
+
+                    <Spinner
+                        android:id="@+id/spinner_sitrep_activity"
+                        android:layout_width="230dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/spinner_rect"
+                        android:gravity="center_vertical"
+                        android:spinnerMode="dropdown" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="4dp"
+                        android:layout_marginStart="@dimen/divider_margin"
+                        android:layout_marginTop="18dp"
+                        android:layout_marginEnd="@dimen/divider_margin"
+                        android:background="@drawable/divider_line_normal" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_sitrep_personnel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="18dp" />
+
+                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
+                        android:id="@+id/sitrep_tv_personnel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:text="@string/sitrep_personnel"
+                        android:textColor="@color/primary_text_white"
+                        android:textSize="@dimen/sub_header_text_size" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <!-- Threat -->
+                        <RelativeLayout
+                            android:layout_width="30dp"
+                            android:layout_height="70dp">
+
+                            <LinearLayout
+                                android:id="@+id/add_T_spacing"
+                                android:layout_width="wrap_content"
+                                android:layout_height="30dp"
+                                android:orientation="horizontal" />
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/circle_img_view_add_T"
+                                android:layout_width="30dp"
+                                android:layout_height="40dp"
+                                android:layout_below="@+id/add_T_spacing"
+                                android:clickable="true"
+                                android:src="@drawable/btn_add"
+                                app:civ_border_color="@color/circle_image_border_grey"
+                                app:civ_border_width="@dimen/circle_img_border_width" />
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="30dp"
+                            android:layout_height="70dp">
+
+                            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoLightTextView
+                                android:id="@+id/sitrep_tv_T"
+                                android:layout_width="match_parent"
+                                android:layout_height="30dp"
+                                android:gravity="center"
+                                android:text="T"
+                                android:textSize="@dimen/sub_header_text_size" />
+
+                            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoLightEditTextView
+                                android:id="@+id/sitrep_etv_T"
+                                android:layout_width="30dp"
+                                android:layout_height="40dp"
+                                android:layout_below="@+id/sitrep_tv_T"
+                                android:gravity="center_horizontal"
+                                android:inputType="number" />
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="30dp"
+                            android:layout_height="70dp">
+
+                            <LinearLayout
+                                android:id="@+id/reduce_T_spacing"
+                                android:layout_width="wrap_content"
+                                android:layout_height="30dp"
+                                android:orientation="horizontal" />
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/circle_img_view_reduce_T"
+                                android:layout_width="30dp"
+                                android:layout_height="40dp"
+                                android:layout_below="@+id/reduce_T_spacing"
+                                android:clickable="true"
+                                android:src="@drawable/btn_reduce"
+                                app:civ_border_color="@color/circle_image_border_grey"
+                                app:civ_border_width="@dimen/circle_img_border_width" />
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="30dp"
+                            android:layout_height="70dp" />
+
+                        <!-- Suspect -->
+                        <RelativeLayout
+                            android:layout_width="30dp"
+                            android:layout_height="70dp">
+
+                            <LinearLayout
+                                android:id="@+id/add_S_spacing"
+                                android:layout_width="match_parent"
+                                android:layout_height="30dp"
+                                android:orientation="horizontal" />
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/circle_img_view_add_S"
+                                android:layout_width="30dp"
+                                android:layout_height="40dp"
+                                android:layout_below="@+id/add_S_spacing"
+                                android:clickable="true"
+                                android:src="@drawable/btn_add"
+                                app:civ_border_color="@color/circle_image_border_grey"
+                                app:civ_border_width="@dimen/circle_img_border_width" />
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="30dp"
+                            android:layout_height="70dp">
+
+                            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoLightTextView
+                                android:id="@+id/sitrep_tv_S"
+                                android:layout_width="match_parent"
+                                android:layout_height="30dp"
+                                android:gravity="center"
+                                android:text="S"
+                                android:textSize="@dimen/sub_header_text_size" />
+
+                            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoLightEditTextView
+                                android:id="@+id/sitrep_etv_S"
+                                android:layout_width="30dp"
+                                android:layout_height="40dp"
+                                android:layout_below="@+id/sitrep_tv_S"
+                                android:gravity="center_horizontal"
+                                android:inputType="number" />
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="30dp"
+                            android:layout_height="70dp">
+
+                            <LinearLayout
+                                android:id="@+id/reduce_S_spacing"
+                                android:layout_width="match_parent"
+                                android:layout_height="30dp"
+                                android:orientation="horizontal" />
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/circle_img_view_reduce_S"
+                                android:layout_width="30dp"
+                                android:layout_height="40dp"
+                                android:layout_below="@+id/reduce_S_spacing"
+                                android:clickable="true"
+                                android:src="@drawable/btn_reduce"
+                                app:civ_border_color="@color/circle_image_border_grey"
+                                app:civ_border_width="@dimen/circle_img_border_width" />
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="30dp"
+                            android:layout_height="70dp" />
+
+                        <!-- Detained -->
+                        <RelativeLayout
+                            android:layout_width="30dp"
+                            android:layout_height="70dp">
+
+                            <LinearLayout
+                                android:id="@+id/add_D_spacing"
+                                android:layout_width="match_parent"
+                                android:layout_height="30dp"
+                                android:orientation="horizontal" />
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/circle_img_view_add_D"
+                                android:layout_width="30dp"
+                                android:layout_height="40dp"
+                                android:layout_below="@+id/add_D_spacing"
+                                android:clickable="true"
+                                android:src="@drawable/btn_add"
+                                app:civ_border_color="@color/circle_image_border_grey"
+                                app:civ_border_width="@dimen/circle_img_border_width" />
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="30dp"
+                            android:layout_height="70dp">
+
+                            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoLightTextView
+                                android:id="@+id/sitrep_tv_D"
+                                android:layout_width="match_parent"
+                                android:layout_height="30dp"
+                                android:gravity="center"
+                                android:text="D"
+                                android:textSize="@dimen/sub_header_text_size" />
+
+                            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoLightEditTextView
+                                android:id="@+id/sitrep_etv_D"
+                                android:layout_width="30dp"
+                                android:layout_height="40dp"
+                                android:layout_below="@+id/sitrep_tv_D"
+                                android:gravity="center_horizontal"
+                                android:inputType="number" />
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="30dp"
+                            android:layout_height="70dp">
+
+                            <LinearLayout
+                                android:id="@+id/reduce_D_spacing"
+                                android:layout_width="match_parent"
+                                android:layout_height="30dp"
+                                android:orientation="horizontal" />
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/circle_img_view_reduce_D"
+                                android:layout_width="30dp"
+                                android:layout_height="40dp"
+                                android:layout_below="@+id/reduce_D_spacing"
+                                android:clickable="true"
+                                android:src="@drawable/btn_reduce"
+                                app:civ_border_color="@color/circle_image_border_grey"
+                                app:civ_border_width="@dimen/circle_img_border_width" />
+
+                        </RelativeLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="4dp"
+                        android:layout_marginStart="@dimen/divider_margin"
+                        android:layout_marginTop="18dp"
+                        android:layout_marginEnd="@dimen/divider_margin"
+                        android:background="@drawable/divider_line_normal" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_sitrep_next_coa"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="18dp" />
+
+                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
+                        android:id="@+id/sitrep_tv_next_coa"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:text="@string/sitrep_next_coa"
+                        android:textColor="@color/primary_text_white"
+                        android:textSize="@dimen/sub_header_text_size" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="10dp" />
+
+                    <Spinner
+                        android:id="@+id/spinner_sitrep_next_coa"
+                        android:layout_width="230dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/spinner_rect"
+                        android:gravity="center_vertical"
+                        android:spinnerMode="dropdown" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="4dp"
+                        android:layout_marginStart="@dimen/divider_margin"
+                        android:layout_marginTop="18dp"
+                        android:layout_marginEnd="@dimen/divider_margin"
+                        android:background="@drawable/divider_line_normal" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_sitrep_request"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="18dp" />
+
+                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
+                        android:id="@+id/sitrep_tv_request"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:text="@string/sitrep_request"
+                        android:textColor="@color/primary_text_white"
+                        android:textSize="@dimen/sub_header_text_size" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="10dp" />
+
+                    <Spinner
+                        android:id="@+id/spinner_sitrep_request"
+                        android:layout_width="230dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/spinner_rect"
+                        android:gravity="center_vertical"
+                        android:spinnerMode="dropdown" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="4dp"
+                        android:layout_marginStart="@dimen/divider_margin"
+                        android:layout_marginTop="18dp"
+                        android:layout_marginEnd="@dimen/divider_margin"
+                        android:background="@drawable/divider_line_normal" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="18dp" />
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+                    android:id="@+id/btn_sitrep_confirm"
+                    android:layout_width="200dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/img_btn_background"
+                    android:foreground="?android:selectableItemBackground"
+                    android:text="@string/btn_confirm" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</android.support.constraint.ConstraintLayout>

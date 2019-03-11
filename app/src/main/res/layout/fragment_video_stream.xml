@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -9,126 +10,207 @@
         android:orientation="vertical">
 
         <LinearLayout
+            android:layout_width="300dp"
+            android:layout_height="200dp"
+            android:background="@color/image_white"
+            android:layout_gravity="center">
+
+            <!--<com.google.android.exoplayer2.ui.PlayerView-->
+                <!--android:id="@+id/video_view_stream_one_exo"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:layout_margin="@dimen/thin_line_margin" />-->
+
+            <!--<ProgressBar-->
+                <!--android:id="@+id/loading"-->
+                <!--android:layout_width="70dp"-->
+                <!--android:layout_height="70dp"-->
+                <!--android:layout_gravity="center"/>-->
+
+            <SurfaceView
+                android:id="@+id/surface_view_stream_one"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/thin_line_margin" />
+
+            <!--<VideoView-->
+                <!--android:id="@+id/video_view_stream_one"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_margin="@dimen/thin_line_margin"/>-->
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/side_margin"
+            android:layout_marginBottom="@dimen/side_margin"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:weightSum="100">
 
-            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
-                android:id="@+id/tv_first_video_url_title_header"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/side_margin"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:text="@string/first_video_stream_URL_Title"
-                android:textColor="@color/dark_cyan"
-                android:textSize="@dimen/hint_text_size" />
+            <!--<sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView-->
+            <!--android:id="@+id/tv_first_video_url_title_header"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginEnd="@dimen/side_margin"-->
+            <!--android:focusable="true"-->
+            <!--android:focusableInTouchMode="true"-->
+            <!--android:text="@string/first_video_stream_URL_Title"-->
+            <!--android:textColor="@color/dark_cyan"-->
+            <!--android:textSize="@dimen/hint_text_size" />-->
 
             <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicLightEditTextView
                 android:id="@+id/etv_first_video_url_title_detail"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/side_margin"
+                android:layout_weight="80"
                 android:background="@drawable/rounded_edit_text"
+                android:hint="@string/first_video_stream_URL_hint"
                 android:padding="@dimen/side_margin"
                 android:textColor="@color/background_main_black"
                 android:textColorHint="@color/circle_image_border_grey"
                 android:textSize="@dimen/hint_text_size" />
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/layout_first_video_confirm"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/elements_vertical_margin_spacing"
-            android:gravity="center">
-
-            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
-                android:id="@+id/btn_first_video_stream_link"
-                android:layout_width="200dp"
+            <RelativeLayout
+                android:layout_width="0dp"
                 android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:foreground="?android:selectableItemBackground"
-                android:background="@drawable/img_btn_background"
-                android:text="@string/btn_stream"/>
+                android:layout_weight="20">
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+                    android:id="@+id/btn_first_video_stream_link"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:background="@drawable/img_btn_background"
+                    android:foreground="?android:selectableItemBackground"
+                    android:text="@string/btn_stream" />
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+                    android:id="@+id/btn_first_video_edit_link"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:background="@drawable/img_btn_background"
+                    android:foreground="?android:selectableItemBackground"
+                    android:text="Edit"
+                    android:visibility="gone" />
+
+            </RelativeLayout>
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:gravity="center">
+        <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="200dp"-->
+        <!--android:gravity="center">-->
 
-            <VideoView
-                android:id="@+id/video_view_stream_one"
+        <!--<SurfaceView-->
+        <!--android:id="@+id/surface_view_stream_one"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
+
+        <!--</LinearLayout>-->
+
+        <LinearLayout
+            android:layout_width="300dp"
+            android:layout_height="200dp"
+            android:background="@color/image_white"
+            android:layout_gravity="center">
+
+            <SurfaceView
+                android:id="@+id/surface_view_stream_two"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/thin_line_margin" />
+
+            <!--<VideoView-->
+                <!--android:id="@+id/video_view_stream_two"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_margin="@dimen/thin_line_margin"/>-->
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/side_margin"
             android:gravity="center"
             android:orientation="horizontal">
 
-            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
-                android:id="@+id/tv_second_video_url_title_header"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/side_margin"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:gravity="center"
-                android:text="@string/second_video_stream_URL_Title"
-                android:textColor="@color/dark_cyan"
-                android:textSize="@dimen/hint_text_size" />
+            <!--<sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView-->
+            <!--android:id="@+id/tv_second_video_url_title_header"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginEnd="@dimen/side_margin"-->
+            <!--android:focusable="true"-->
+            <!--android:focusableInTouchMode="true"-->
+            <!--android:gravity="center"-->
+            <!--android:text="@string/second_video_stream_URL_Title"-->
+            <!--android:textColor="@color/dark_cyan"-->
+            <!--android:textSize="@dimen/hint_text_size" />-->
 
             <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicLightEditTextView
                 android:id="@+id/etv_second_video_url_title_detail"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/side_margin"
+                android:layout_weight="80"
                 android:background="@drawable/rounded_edit_text"
+                android:hint="@string/second_video_stream_URL_hint"
                 android:padding="@dimen/side_margin"
                 android:textColor="@color/background_main_black"
                 android:textColorHint="@color/circle_image_border_grey"
                 android:textSize="@dimen/hint_text_size" />
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/layout_second_video_confirm"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/elements_vertical_margin_spacing"
-            android:gravity="center">
-
-            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
-                android:id="@+id/btn_second_video_stream_link"
-                android:layout_width="200dp"
+            <RelativeLayout
+                android:layout_width="0dp"
                 android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:foreground="?android:selectableItemBackground"
-                android:background="@drawable/img_btn_background"
-                android:text="@string/btn_stream"/>
+                android:layout_weight="20">
 
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+                    android:id="@+id/btn_second_video_stream_link"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:background="@drawable/img_btn_background"
+                    android:foreground="?android:selectableItemBackground"
+                    android:text="@string/btn_stream" />
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+                    android:id="@+id/btn_second_video_edit_link"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:background="@drawable/img_btn_background"
+                    android:foreground="?android:selectableItemBackground"
+                    android:text="Edit"
+                    android:visibility="gone" />
+
+            </RelativeLayout>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginBottom="@dimen/divider_margin"
-            android:gravity="center">
+        <!--<LinearLayout-->
+        <!--android:id="@+id/layout_second_video_confirm"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_margin="@dimen/elements_vertical_margin_spacing"-->
+        <!--android:gravity="center">-->
 
-            <VideoView
-                android:id="@+id/video_view_stream_two"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+        <!--<sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton-->
+        <!--android:id="@+id/btn_second_video_stream_link"-->
+        <!--android:layout_width="200dp"-->
+        <!--android:layout_height="40dp"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:background="@drawable/img_btn_background"-->
+        <!--android:foreground="?android:selectableItemBackground"-->
+        <!--android:text="@string/btn_stream" />-->
 
-        </LinearLayout>
+        <!--</LinearLayout>-->
 
     </LinearLayout>
 

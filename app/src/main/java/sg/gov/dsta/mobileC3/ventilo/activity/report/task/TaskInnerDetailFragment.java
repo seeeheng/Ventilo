@@ -1,10 +1,8 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.report.task;
 
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,7 +11,6 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,12 +28,13 @@ import java.util.Calendar;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.report.ReportStatePagerAdapter;
 import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
+import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicLightEditTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.ReportFragmentConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
 
 public class TaskInnerDetailFragment extends Fragment {
@@ -238,7 +236,7 @@ public class TaskInnerDetailFragment extends Fragment {
         public void onClick(View view) {
             if (validateTask()) {
                 TaskInnerFragment taskInnerFragment = (TaskInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
-                        get(ReportFragmentConstants.REPORT_TAB_TITLE_TASK_ID);
+                        get(FragmentConstants.REPORT_TAB_TITLE_TASK_ID);
 
                 if(taskInnerFragment != null) {
                     String titleDetail;
@@ -301,20 +299,20 @@ public class TaskInnerDetailFragment extends Fragment {
 
     private void refreshUI() {
         String fragmentType;
-        String defaultValue = ReportFragmentConstants.VALUE_TASK_ADD;
+        String defaultValue = FragmentConstants.VALUE_TASK_ADD;
         Bundle bundle = this.getArguments();
 
         if (bundle != null) {
-            fragmentType = bundle.getString(ReportFragmentConstants.KEY_TASK, defaultValue);
+            fragmentType = bundle.getString(FragmentConstants.KEY_TASK, defaultValue);
         } else {
             fragmentType = defaultValue;
         }
 
-        if (fragmentType.equalsIgnoreCase(ReportFragmentConstants.VALUE_TASK_VIEW)) {
+        if (fragmentType.equalsIgnoreCase(FragmentConstants.VALUE_TASK_VIEW)) {
             if (bundle != null) {
                 if (mEtvTitleDetail != null) {
                     String title = bundle.getString(
-                            ReportFragmentConstants.KEY_TASK_TITLE, ReportFragmentConstants.DEFAULT_STRING);
+                            FragmentConstants.KEY_TASK_TITLE, FragmentConstants.DEFAULT_STRING);
                     boolean isSpinnerOption = false;
 
                     for (int i = 0; i < mSpinnerDropdownTitle.getAdapter().getCount(); i++) {
@@ -340,7 +338,7 @@ public class TaskInnerDetailFragment extends Fragment {
 
                 if (mEtvDescriptionDetail != null) {
                     String description = bundle.getString(
-                            ReportFragmentConstants.KEY_TASK_DESCRIPTION, ReportFragmentConstants.DEFAULT_STRING);
+                            FragmentConstants.KEY_TASK_DESCRIPTION, FragmentConstants.DEFAULT_STRING);
                     mEtvDescriptionDetail.setText(description);
                     mEtvDescriptionDetail.setEnabled(false);
                 }
@@ -355,13 +353,13 @@ public class TaskInnerDetailFragment extends Fragment {
     private void publishTaskAdd(String titleDetail, String descriptionDetail) {
         Bundle bundle = this.getArguments();
         int numberOfTasks = bundle.getInt(
-                ReportFragmentConstants.KEY_TASK_TOTAL_NUMBER, ReportFragmentConstants.DEFAULT_INT);
+                FragmentConstants.KEY_TASK_TOTAL_NUMBER, FragmentConstants.DEFAULT_INT);
 
         JSONObject newTaskJSON = new JSONObject();
         try {
-            newTaskJSON.put("key", ReportFragmentConstants.KEY_TASK_ADD);
+            newTaskJSON.put("key", FragmentConstants.KEY_TASK_ADD);
             newTaskJSON.put("id", String.valueOf(numberOfTasks));
-            newTaskJSON.put("assigner", "King (K44)");
+            newTaskJSON.put("assigner", SharedPreferenceUtil.getCurrentUser(getActivity()));
             newTaskJSON.put("assignee", "George (A33)");
             newTaskJSON.put("assigneeAvatarId", "default");
             newTaskJSON.put("title", titleDetail);
@@ -403,7 +401,8 @@ public class TaskInnerDetailFragment extends Fragment {
 //
 //        editor.apply();
 
-        MqttHelper.getInstance().publishMessage(newTaskJSON.toString());
+//        MqttHelper.getInstance().publishMessage(newTaskJSON.toString());
+        RabbitMQHelper.getInstance().sendMessage(newTaskJSON.toString());
     }
 
     @Override

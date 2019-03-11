@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -20,16 +19,13 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.google.gson.Gson;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.constants.SharedPrefConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackEditTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView;
-import sg.gov.dsta.mobileC3.ventilo.model.login.AuthRx;
-import sg.gov.dsta.mobileC3.ventilo.model.login.LoginTx;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 //import sg.com.superc2.utils.GsonCreator;
 //import sg.com.superc2.utils.constants.RestConstants;
 //import sg.com.superc2.utils.rest.QueueSingleton;
@@ -47,9 +43,9 @@ public class LoginActivity extends AppCompatActivity {
     private static final int REQUEST_READ_CONTACTS = 0;
 
     // UI references.
-    private C2LatoBlackEditTextView mEmailET;
-    private C2LatoBlackEditTextView mPasswordET;
-    private C2LatoBlackTextView mForgotPasswordTV;
+    private C2LatoBlackEditTextView mEtvUsername;
+    private C2LatoBlackEditTextView mEtvPassword;
+//    private C2LatoBlackTextView mForgotPasswordTV;
     private View mProgressView;
     private View mLoginFormView;
 
@@ -58,16 +54,17 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // TODO: remove after demo
+        resetSharedPref();
 //        Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
 //        startActivity(activityIntent);
 
         setContentView(R.layout.activity_login);
         // Set up the login form.
-        mEmailET = (C2LatoBlackEditTextView) findViewById(R.id.et_email);
+        mEtvUsername = (C2LatoBlackEditTextView) findViewById(R.id.etv_login_username);
 //        populateAutoComplete();
 
-        mPasswordET = (C2LatoBlackEditTextView) findViewById(R.id.et_login_password);
-        mPasswordET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mEtvPassword = (C2LatoBlackEditTextView) findViewById(R.id.etv_login_password);
+        mEtvPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
@@ -78,33 +75,49 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-
-
         ImageView mLoginBtn = (ImageView) findViewById(R.id.img_btn_sign_in);
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                attemptLogin();
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplication());
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putString(SharedPreferenceConstants.CALLSIGN_USER, mEtvUsername.getText().toString().trim());
+                editor.apply();
+
+                SharedPreferenceConstants.INITIALS = SharedPreferenceConstants.TEAM_NUMBER.
+                        concat(SharedPreferenceConstants.SEPARATOR).concat(SharedPreferenceConstants.CALLSIGN_USER);
+
+                // TODO: Remove after demo
+                SharedPreferenceUtil.setContext(getApplication());
+
                 //TODO figure out a way to toggle when server is not available
                 Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(activityIntent);
             }
         });
 
-        mForgotPasswordTV = (C2LatoBlackTextView) findViewById(R.id.tv_login_forgot_password);
-        mForgotPasswordTV.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
-            }
-        });
+//        mForgotPasswordTV = (C2LatoBlackTextView) findViewById(R.id.tv_login_footnote);
+//        mForgotPasswordTV.setOnClickListener(new View.OnClickListener(){
+//            public void onClick(View v){
+//                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+//                startActivity(intent);
+//            }
+//        });
 
         mLoginFormView = findViewById(R.id.inner_login_form);
         mProgressView = findViewById(R.id.login_progress);
 
         // TODO: Remove after testing
-        mPasswordET.setText("Bella@com.sg");
-        mPasswordET.setText("pass");
+//        mPasswordET.setText("Bella@com.sg");
+//        mPasswordET.setText("pass");
+    }
+
+    private void resetSharedPref() {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.apply();
     }
 
     @Override
@@ -127,27 +140,27 @@ public class LoginActivity extends AppCompatActivity {
     private void attemptLogin() {
 
         // Reset errors.
-        mEmailET.setError(null);
-        mPasswordET.setError(null);
+        mEtvUsername.setError(null);
+        mEtvPassword.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailET.getText().toString();
-        String password = mPasswordET.getText().toString();
+        String email = mEtvUsername.getText().toString();
+        String password = mEtvPassword.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordET.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordET;
+            mEtvPassword.setError(getString(R.string.error_invalid_password));
+            focusView = mEtvPassword;
             cancel = true;
         }
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email) && !isEmailValid(email)) {
-            mEmailET.setError(getString(R.string.error_field_required));
-            focusView = mEmailET;
+            mEtvUsername.setError(getString(R.string.error_field_required));
+            focusView = mEtvUsername;
             cancel = true;
         }
 
@@ -160,7 +173,7 @@ public class LoginActivity extends AppCompatActivity {
             // TODO: Add after design review
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-//            LoginTx loginTx = new LoginTx(mEmailET.getText().toString()
+//            LoginTx loginTx = new LoginTx(mEtvUsername.getText().toString()
 //                    , mPasswordET.getText().toString());
 //            StringRequest stringRequest = VolleyPostBuilder.getRequest(RestConstants.BASE_URL + RestConstants.POST_LOGIN, loginTx, loginListener, errorListener, getApplicationContext());
 //            QueueSingleton.getInstance(this).addToRequestQueue(stringRequest);

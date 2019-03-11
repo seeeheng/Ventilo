@@ -33,11 +33,19 @@
     </style>
 
     <!-- Floating Action Button -->
-    <style name="FloatingActionButton">
+    <style name="FloatingActionButton_StyleOne">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignParentRight">true</item>
         <item name="android:layout_marginRight">@dimen/vertical_3rd_level_margin</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <!-- Floating Action Button -->
+    <style name="FloatingActionButton_StyleTwo">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!--<item name="android:layout_alignParentStart">true</item>-->
         <item name="android:scaleType">fitCenter</item>
     </style>
 

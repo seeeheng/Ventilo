@@ -9,25 +9,27 @@ import java.util.HashMap;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.map.MapFragment;
-import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
+import sg.gov.dsta.mobileC3.ventilo.activity.radiolinkstatus.RadioLinkStatusFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.report.ReportFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.timeline.TimelineFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.videostream.VideoStreamFragment;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.ReportFragmentConstants;
 
 public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
 
+    private FragmentManager mFm;
     private static HashMap<Integer, Fragment> mHashMapPageReference;
 
     public MainStatePagerAdapter(FragmentManager fm) {
         super(fm);
+        mFm = fm;
         mHashMapPageReference = new HashMap<>();
     }
 
     @Override
     public Fragment getItem(int i) {
         Fragment fragment;
+        FragmentTransaction ft = mFm.beginTransaction();
 
         switch (i) {
             case MainNavigationConstants.BTM_NAV_MENU_MAP_POSITION_ID:
@@ -45,9 +47,9 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
                 mHashMapPageReference.put(MainNavigationConstants.BTM_NAV_MENU_REPORT_POSITION_ID,
                         fragment);
                 break;
-            case MainNavigationConstants.BTM_NAV_MENU_NOTIFICATION_POSITION_ID:
-                fragment = new TimelineFragment();
-                mHashMapPageReference.put(MainNavigationConstants.BTM_NAV_MENU_NOTIFICATION_POSITION_ID,
+            case MainNavigationConstants.BTM_NAV_MENU_RADIO_LINK_STATUS_POSITION_ID:
+                fragment = new RadioLinkStatusFragment();
+                mHashMapPageReference.put(MainNavigationConstants.BTM_NAV_MENU_RADIO_LINK_STATUS_POSITION_ID,
                         fragment);
                 break;
             case MainNavigationConstants.BTM_NAV_MENU_STREAM_POSITION_ID:
@@ -61,6 +63,10 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
                         fragment);
                 break;
         }
+
+
+        ft.addToBackStack(fragment.getClass().getSimpleName());
+        ft.commit();
 
         return fragment;
     }

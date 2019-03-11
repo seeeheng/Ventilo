@@ -11,8 +11,7 @@ import android.view.ViewGroup;
 
 import sg.gov.dsta.mobileC3.ventilo.NoSwipeViewPager;
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.ReportFragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 
 public class ReportFragment extends Fragment {
 
@@ -35,11 +34,11 @@ public class ReportFragment extends Fragment {
 
         TabLayout tabLayout = rootView.findViewById(R.id.tab_layout_report_tabs);
         tabLayout.setupWithViewPager(noSwipeViewPager);
-        tabLayout.getTabAt(ReportFragmentConstants.REPORT_TAB_TITLE_INCIDENT_ID).
+        tabLayout.getTabAt(FragmentConstants.REPORT_TAB_TITLE_INCIDENT_ID).
                 setText(getString(R.string.tab_layout_tabs_incident_title));
-        tabLayout.getTabAt(ReportFragmentConstants.REPORT_TAB_TITLE_TASK_ID).
+        tabLayout.getTabAt(FragmentConstants.REPORT_TAB_TITLE_TASK_ID).
                 setText(getString(R.string.tab_layout_tabs_task_title));
-        tabLayout.getTabAt(ReportFragmentConstants.REPORT_TAB_TITLE_SITREP_ID).
+        tabLayout.getTabAt(FragmentConstants.REPORT_TAB_TITLE_SITREP_ID).
                 setText(getString(R.string.tab_layout_tabs_sitrep_title));
 
         return rootView;

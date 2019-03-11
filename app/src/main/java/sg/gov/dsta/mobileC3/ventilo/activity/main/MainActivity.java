@@ -7,16 +7,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,31 +19,30 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.esri.arcgisruntime.mapping.ArcGISMap;
-import com.esri.arcgisruntime.mapping.Basemap;
-import com.esri.arcgisruntime.mapping.view.MapView;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import sg.gov.dh.mq.MQListener;
 import sg.gov.dsta.mobileC3.ventilo.NoSwipeViewPager;
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.activity.map.MapFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.report.ReportStatePagerAdapter;
+import sg.gov.dsta.mobileC3.ventilo.activity.report.sitrep.SitRepInnerFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.report.task.TaskInnerFragment;
 import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
-import sg.gov.dsta.mobileC3.ventilo.network.NetworkConnectivity;
+import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
+import sg.gov.dsta.mobileC3.ventilo.model.eventbus.PageEvent;
 import sg.gov.dsta.mobileC3.ventilo.network.NetworkService;
 import sg.gov.dsta.mobileC3.ventilo.network.NetworkServiceBinder;
+import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
 import sg.gov.dsta.mobileC3.ventilo.util.JSONUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.ReportFragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 
 public class MainActivity extends AppCompatActivity {
@@ -63,15 +56,17 @@ public class MainActivity extends AppCompatActivity {
     private Intent mMqttIntent;
 
     private NetworkService mNetworkService;
-//    private NetworkConnectivity mNetworkConnectivity;
+    //    private NetworkConnectivity mNetworkConnectivity;
     private MqttHelper mMqttHelper;
+
+    private NoSwipeViewPager mNoSwipeViewPager;
     private BottomNavigationView mBottomNavigationView;
     private TextView mDataReceived;
     private Button mBtnPublish;
 
     private boolean mIsServiceRegistered;
 
-
+    private IMQListener mIMQListener;
 //    private MapView mMapView;
 
     @Override
@@ -84,18 +79,18 @@ public class MainActivity extends AppCompatActivity {
 
         MainStatePagerAdapter mainStatePagerAdapter = new MainStatePagerAdapter(
                 getSupportFragmentManager());
-        final NoSwipeViewPager viewPager = findViewById(R.id.viewpager_main_nav);
-        viewPager.setAdapter(mainStatePagerAdapter);
-        viewPager.setPagingEnabled(false);
+        mNoSwipeViewPager = findViewById(R.id.viewpager_main_nav);
+        mNoSwipeViewPager.setAdapter(mainStatePagerAdapter);
+        mNoSwipeViewPager.setPagingEnabled(false);
 
         mBottomNavigationView = findViewById(R.id.btm_nav_view_main_nav);
 
         NoSwipeViewPager.OnPageChangeListener viewPagerPageChangeListener =
                 setPageChangeListener(mBottomNavigationView);
-        viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
+        mNoSwipeViewPager.addOnPageChangeListener(viewPagerPageChangeListener);
 
         BottomNavigationView.OnNavigationItemSelectedListener
-                navigationItemSelectedListener = setNavigationItemSelectedListener(viewPager);
+                navigationItemSelectedListener = setNavigationItemSelectedListener(mNoSwipeViewPager);
         mBottomNavigationView.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
 
         mDataReceived = findViewById(R.id.dataReceived);
@@ -129,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                         bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_report);
                         return;
 
-                    case MainNavigationConstants.BTM_NAV_MENU_NOTIFICATION_POSITION_ID:
+                    case MainNavigationConstants.BTM_NAV_MENU_RADIO_LINK_STATUS_POSITION_ID:
                         bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_notification);
                         return;
 
@@ -167,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                         return true;
 
                     case R.id.btn_nav_action_notification:
-                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_NOTIFICATION_POSITION_ID,
+                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_RADIO_LINK_STATUS_POSITION_ID,
                                 true);
                         return true;
 
@@ -194,6 +189,130 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
+    private void setupMQListener() {
+        if (mIMQListener == null) {
+            mIMQListener = new IMQListener() {
+                @Override
+                public void onNewMessage(String message) {
+                    Log.w("Debug", message);
+
+                    System.out.println("Received new rabbitMqMessage");
+                    System.out.println("JSONUtil.isJSONValid(message) is " + JSONUtil.isJSONValid(message));
+//                String mqttMessageString = mqttMessage.toString();
+                    boolean isJSON = false;
+
+                    if (JSONUtil.isJSONValid(message)) {
+                        try {
+                            JSONObject mqttMessageJSON = new JSONObject(message);
+                            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplication().getApplicationContext());
+                            SharedPreferences.Editor editor = pref.edit();
+
+                            System.out.println("Received valid mqttMessage");
+
+                            switch (mqttMessageJSON.getString("key")) {
+
+                                case FragmentConstants.KEY_TASK_ADD:
+                                    int totalNumberOfTasks = pref.getInt(SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER), 0);
+                                    String totalNumberOfTasksKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER);
+                                    editor.putInt(totalNumberOfTasksKey, totalNumberOfTasks + 1);
+
+                                    String taskInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.HEADER_TASK).concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(String.valueOf(totalNumberOfTasks));
+
+                                    editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_ID), mqttMessageJSON.getInt("id"));
+                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNER), mqttMessageJSON.getString("assigner"));
+                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE), mqttMessageJSON.getString("assignee"));
+                                    editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE_AVATAR_ID), R.drawable.default_soldier_icon);
+                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_TITLE), mqttMessageJSON.getString("title"));
+                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_DESCRIPTION), mqttMessageJSON.getString("description"));
+                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_STATUS), mqttMessageJSON.getString("status"));
+                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_DATE), mqttMessageJSON.getString("date"));
+
+                                    editor.apply();
+
+                                    TaskInnerFragment taskInnerFragment = (TaskInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
+                                            get(FragmentConstants.REPORT_TAB_TITLE_TASK_ID);
+
+                                    if (taskInnerFragment != null) {
+                                        Log.d(TAG, "Task: Refresh Data");
+                                        taskInnerFragment.refreshData();
+                                        taskInnerFragment.addItemInRecycler();
+                                    }
+
+                                case FragmentConstants.KEY_SITREP_ADD:
+                                    int totalNumberOfSitRep = pref.getInt(SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER), 0);
+                                    String totalNumberOfSitRepKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER);
+                                    editor.putInt(totalNumberOfSitRepKey, totalNumberOfSitRep + 1);
+
+                                    System.out.println("main activity totalNumberOfSitRep + 1 is " + (totalNumberOfSitRep + 1));
+
+                                    String sitRepInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.HEADER_SITREP).concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(String.valueOf(totalNumberOfSitRep));
+                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ID), mqttMessageJSON.getInt("id"));
+                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER), mqttMessageJSON.getString("reporter"));
+                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER_AVATAR_ID), R.drawable.default_soldier_icon);
+                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_LOCATION), mqttMessageJSON.getString("location"));
+                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ACTIVITY), mqttMessageJSON.getString("activity"));
+                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_T), mqttMessageJSON.getInt("personnel_t"));
+                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_S), mqttMessageJSON.getInt("personnel_s"));
+                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_D), mqttMessageJSON.getInt("personnel_d"));
+                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_NEXT_COA), mqttMessageJSON.getString("next_coa"));
+                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REQUEST), mqttMessageJSON.getString("request"));
+
+                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_DATE), mqttMessageJSON.getString("date"));
+
+                                    editor.apply();
+
+                                    SitRepInnerFragment sitRepInnerFragment = (SitRepInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
+                                            get(FragmentConstants.REPORT_TAB_TITLE_SITREP_ID);
+
+                                    if (sitRepInnerFragment != null) {
+                                        Log.d(TAG, "Sit Rep: Refresh Data");
+                                        sitRepInnerFragment.refreshData();
+                                        sitRepInnerFragment.addItemInRecycler();
+                                    }
+                            }
+
+                            isJSON = true;
+
+                        } catch (JSONException ex) {
+                            Log.d(TAG, "JSONException: " + ex);
+                        }
+
+                    }
+                }
+            };
+
+            RabbitMQHelper.getInstance().addRabbitListener(mIMQListener);
+        }
+
+    }
+
     public void setMqttCallback() {
         mMqttHelper.setCallback(new MqttCallbackExtended() {
             @Override
@@ -214,7 +333,6 @@ public class MainActivity extends AppCompatActivity {
                 String mqttMessageString = mqttMessage.toString();
                 boolean isJSON = false;
 
-
                 if (JSONUtil.isJSONValid(mqttMessageString)) {
                     try {
                         JSONObject mqttMessageJSON = new JSONObject(mqttMessageString);
@@ -222,57 +340,106 @@ public class MainActivity extends AppCompatActivity {
                         SharedPreferences.Editor editor = pref.edit();
 
                         System.out.println("Received valid mqttMessage");
-                        if (ReportFragmentConstants.KEY_TASK_ADD.equalsIgnoreCase(mqttMessageJSON.getString("key"))) {
 
-                            int totalNumberOfTasks = pref.getInt(SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                    concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER), 0);
-                            String totalNumberOfTasksKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                    concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER);
-                            editor.putInt(totalNumberOfTasksKey, totalNumberOfTasks + 1);
+                        switch (mqttMessageJSON.getString("key")) {
 
-                            String taskInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                    concat(SharedPreferenceConstants.HEADER_TASK).concat(SharedPreferenceConstants.SEPARATOR).
-                                    concat(String.valueOf(totalNumberOfTasks));
+                            case FragmentConstants.KEY_TASK_ADD:
+                                int totalNumberOfTasks = pref.getInt(SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER), 0);
+                                String totalNumberOfTasksKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER);
+                                editor.putInt(totalNumberOfTasksKey, totalNumberOfTasks + 1);
 
-                            editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_ID), mqttMessageJSON.getInt("id"));
-                            editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNER), mqttMessageJSON.getString("assigner"));
-                            editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE), mqttMessageJSON.getString("assignee"));
-                            editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE_AVATAR_ID), R.drawable.default_soldier_icon);
-                            editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_TITLE), mqttMessageJSON.getString("title"));
-                            editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_DESCRIPTION), mqttMessageJSON.getString("description"));
-                            editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_STATUS), mqttMessageJSON.getString("status"));
-                            editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_DATE), mqttMessageJSON.getString("date"));
+                                String taskInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.HEADER_TASK).concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(String.valueOf(totalNumberOfTasks));
 
-                            editor.apply();
+                                editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ID), mqttMessageJSON.getInt("id"));
+                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNER), mqttMessageJSON.getString("assigner"));
+                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE), mqttMessageJSON.getString("assignee"));
+                                editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE_AVATAR_ID), R.drawable.default_soldier_icon);
+                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_TITLE), mqttMessageJSON.getString("title"));
+                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_DESCRIPTION), mqttMessageJSON.getString("description"));
+                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_STATUS), mqttMessageJSON.getString("status"));
+                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_DATE), mqttMessageJSON.getString("date"));
 
-                            TaskInnerFragment taskInnerFragment = (TaskInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
-                                    get(ReportFragmentConstants.REPORT_TAB_TITLE_TASK_ID);
+                                editor.apply();
 
-                            if(taskInnerFragment != null) {
-                                System.out.println("Refreshes");
-                                taskInnerFragment.refreshData();
-                                taskInnerFragment.addItemInRecycler();
-                            }
+                                TaskInnerFragment taskInnerFragment = (TaskInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
+                                        get(FragmentConstants.REPORT_TAB_TITLE_TASK_ID);
+
+                                if (taskInnerFragment != null) {
+                                    Log.d(TAG, "Task: Refresh Data");
+                                    taskInnerFragment.refreshData();
+                                    taskInnerFragment.addItemInRecycler();
+                                }
+
+                            case FragmentConstants.KEY_SITREP_ADD:
+                                int totalNumberOfSitRep = pref.getInt(SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER), 0);
+                                String totalNumberOfSitRepKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER);
+                                editor.putInt(totalNumberOfSitRepKey, totalNumberOfSitRep + 1);
+
+                                System.out.println("main activity totalNumberOfSitRep + 1 is " + (totalNumberOfSitRep + 1));
+
+                                String sitRepInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.HEADER_SITREP).concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(String.valueOf(totalNumberOfSitRep));
+                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ID), mqttMessageJSON.getInt("id"));
+                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER), mqttMessageJSON.getString("reporter"));
+                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER_AVATAR_ID), R.drawable.default_soldier_icon);
+                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_LOCATION), mqttMessageJSON.getString("location"));
+                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ACTIVITY), mqttMessageJSON.getString("activity"));
+                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_T), mqttMessageJSON.getInt("personnel_t"));
+                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_S), mqttMessageJSON.getInt("personnel_s"));
+                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_D), mqttMessageJSON.getInt("personnel_d"));
+                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_NEXT_COA), mqttMessageJSON.getString("next_coa"));
+                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REQUEST), mqttMessageJSON.getString("request"));
+
+                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_DATE), mqttMessageJSON.getString("date"));
+
+                                editor.apply();
+
+                                SitRepInnerFragment sitRepInnerFragment = (SitRepInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
+                                        get(FragmentConstants.REPORT_TAB_TITLE_SITREP_ID);
+
+                                if (sitRepInnerFragment != null) {
+                                    Log.d(TAG, "Sit Rep: Refresh Data");
+                                    sitRepInnerFragment.refreshData();
+                                    sitRepInnerFragment.addItemInRecycler();
+                                }
                         }
 
                         isJSON = true;
 
                     } catch (JSONException ex) {
-
+                        Log.d(TAG, "JSONException: " + ex);
                     }
 
                 }
                 //
-                checkMqttTaskTopic(topic, mqttMessage.toString());
-                checkMqttIncidentTopic(topic, mqttMessage.toString());
+//                checkMqttTaskTopic(topic, mqttMessage.toString());
+//                checkMqttIncidentTopic(topic, mqttMessage.toString());
 
 //                mDataReceived.setText(mqttMessage.toString());
 
@@ -282,27 +449,20 @@ public class MainActivity extends AppCompatActivity {
 //                    System.out.println("message arrived is " + mqttMessage.toString());
 //                }
 
-                if (!isJSON) {
-                    if (mqttMessage.toString().contains("publish")) {
-                        MapFragment.isTrackAllies = true;
-                        MapFragment.coordString = mqttMessage.toString();
-                        System.out.println("message arrived is " + mqttMessage.toString());
-                    }
-
-
-                    if (mqttMessage.toString().contains("Coords:")) {
-                        System.out.println("GOT THE STRING --> " + mqttMessage.toString());
-                        MapFragment.isTrackAllies = true;
-                        MapFragment.coordString = mqttMessage.toString();
-
-//                    Intent i = new Intent(MainActivity.this, MapFragment.class);
-//                    i.putExtra("mapCoord", mqttMessage.toString());
-
-
-//                    Bundle bundle = new Bundle();
-//                    bundle.putCharSequence("mapCoord", mqttMessage.toString());
-                    }
-                }
+//                if (!isJSON) {
+//                    if (mqttMessage.toString().contains("publish")) {
+//                        MapFragment.isTrackAllies = true;
+//                        MapFragment.coordString = mqttMessage.toString();
+//                        System.out.println("message arrived is " + mqttMessage.toString());
+//                    }
+//
+//
+//                    if (mqttMessage.toString().contains("Coords:")) {
+//                        System.out.println("GOT THE STRING --> " + mqttMessage.toString());
+//                        MapFragment.isTrackAllies = true;
+//                        MapFragment.coordString = mqttMessage.toString();
+//                    }
+//                }
             }
 
             @Override
@@ -312,22 +472,22 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void checkMqttTaskTopic(String topic, String message) {
-        if (MQTT_TOPIC_TASK.equalsIgnoreCase(topic)) {
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-            SharedPreferences.Editor editor = pref.edit();
-
-            String subHeaderTaskKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_TITLE);
-            editor.putString(subHeaderTaskKey, message);
-        }
-    }
-
-    private void checkMqttIncidentTopic(String topic, String message) {
-        if (MQTT_TOPIC_INCIDENT.equalsIgnoreCase(topic)) {
-
-        }
-    }
+//    private void checkMqttTaskTopic(String topic, String message) {
+//        if (MQTT_TOPIC_TASK.equalsIgnoreCase(topic)) {
+//            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+//            SharedPreferences.Editor editor = pref.edit();
+//
+//            String subHeaderTaskKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+//                    concat(SharedPreferenceConstants.SUB_HEADER_TASK_TITLE);
+//            editor.putString(subHeaderTaskKey, message);
+//        }
+//    }
+//
+//    private void checkMqttIncidentTopic(String topic, String message) {
+//        if (MQTT_TOPIC_INCIDENT.equalsIgnoreCase(topic)) {
+//
+//        }
+//    }
 
 //    private void startMqtt() {
 //        mqttHelper = new MqttHelper(getApplicationContext());
@@ -373,6 +533,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            mNetworkService.deactivate();
 //            System.out.println("Disconnected");
 //            Toast.makeText(getApplicationContext(), "Service Disconnected", Toast.LENGTH_LONG).show();
         }
@@ -393,28 +554,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void registerMqttBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(MqttHelper.MQTT_CONNECT_INTENT_ACTION);
-
+        filter.addAction(RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION);
+//        filter.addAction(MqttHelper.MQTT_CONNECT_INTENT_ACTION);
+        System.out.println("registerMqttBroadcastReceiver");
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (MqttHelper.MQTT_CONNECT_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
-                    if (mMqttHelper == null) {
-                        mMqttHelper = MqttHelper.getInstance();
-                        setMqttCallback();
-//                        DataHolder dataholder=new DataHolder("1","TestName");
+//                if (MqttHelper.MQTT_CONNECT_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
+//                    if (mMqttHelper == null) {
+//                        mMqttHelper = MqttHelper.getInstance();
+//                        setMqttCallback();
+//                    }
+//                }
 
-
-
-//                        Bundle bundle = new Bundle();
-//                        bundle.putSerializable("mqttHelper",mMqttHelper);
-//
-//                        MapFragment mapFragment = new MapFragment();
-//                        mapFragment.setArguments(bundle);
-//                        FragmentManager fragmentManager = getSupportFragmentManager();
-//                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                        fragmentTransaction.add(R.id.container, mapFragment);
-//                        fragmentTransaction.commit();
+                if (RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
+                    if (RabbitMQHelper.connectionStatus == RabbitMQHelper.RabbitMQConnectionStatus.CONNECTED) {
+                        System.out.println("RabbitMQConnectionStatus.CONNECTED");
+                        setupMQListener();
                     }
                 }
             }
@@ -425,6 +581,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        System.out.println("Main Activity onBackPressed");
         int count = getSupportFragmentManager().getBackStackEntryCount();
         if (count == 0) {
             // Go to login page
@@ -436,8 +593,35 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "returned fragment matches" + taggedName);
 
             if (getSupportFragmentManager().findFragmentByTag(taggedName) instanceof MapShipBlueprintFragment) {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                 mBottomNavigationView.setVisibility(View.VISIBLE);
+
+//                System.out.println("getSupportFragmentManager().getBackStackEntryCount() is " + getSupportFragmentManager().getBackStackEntryCount());
+//                String newTaggedName = getSupportFragmentManager().getBackStackEntryAt(
+//                        getSupportFragmentManager().getBackStackEntryCount() - 2).getName();
+//                String newTaggedName2 = getSupportFragmentManager().getBackStackEntryAt(
+//                        getSupportFragmentManager().getBackStackEntryCount() - 3).getName();
+//                System.out.println("newTaggedName is " + newTaggedName);
+//                System.out.println("newTaggedName 2 is " + newTaggedName2);
+//                System.out.println("MapFragment.class.getSimpleName() is " + MapFragment.class.getSimpleName());
+//
+//                System.out.println("getSupportFragmentManager().findFragmentByTag(\"android:switcher:\" + R.id.viewpager_main_nav + \":\" + 1) is " + getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager_main_nav + ":" + 1));
+//                MapFragment returnedFragment = (MapFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager_main_nav + ":" + 1);
+//                if (0 == mNoSwipeViewPager.getCurrentItem() && null != returnedFragment) {
+//                    ((MapFragment) returnedFragment).onVisible();
+//                }
+
+                // Notify mapfragment of previous fragment (MapShipBlueprintFragment) that it was switched from
+                EventBus.getDefault().post(PageEvent.getInstance().addPage(PageEvent.FRAGMENT_KEY, MapShipBlueprintFragment.class.getSimpleName()));
+
+//                for (int i = 0; i < backStackCount; i++) {
+//                    if (MapFragment.class.getSimpleName().equalsIgnoreCase(
+//                            getSupportFragmentManager().getBackStackEntryAt(i).getName())) {
+//
+////                        MapFragment returnedFragment = (MapFragment) getSupportFragmentManager().
+////                                findFragmentByTag(MapFragment.class.getSimpleName());
+//                        returnedFragment.onVisible();
+//                    }
+//                }
             } else if (getSupportFragmentManager().findFragmentByTag(taggedName) instanceof TaskInnerFragment) {
                 TaskInnerFragment returnedFragment = (TaskInnerFragment) getSupportFragmentManager().findFragmentByTag(taggedName);
                 returnedFragment.refreshData();
@@ -462,14 +646,30 @@ public class MainActivity extends AppCompatActivity {
 //        startService(mqttIntent);
 //        mIsServiceRegistered = getApplicationContext().bindService(mqttIntent, mMqttServiceConnection, Context.BIND_AUTO_CREATE);
 //        registerMqttBroadcastReceiver();
-        subscribeToMQTT();
+
+
+//        subscribeToMQTT();
+        subscribeToRabbitMQ();
     }
 
-    private void subscribeToMQTT() {
+//    private void subscribeToMQTT() {
+//        mMqttIntent = new Intent(getApplicationContext(), NetworkService.class);
+//        startService(mMqttIntent);
+//        mIsServiceRegistered = getApplicationContext().bindService(mMqttIntent, mMqttServiceConnection, Context.BIND_AUTO_CREATE);
+//        registerMqttBroadcastReceiver();
+//    }
+
+    private void subscribeToRabbitMQ() {
         mMqttIntent = new Intent(getApplicationContext(), NetworkService.class);
         startService(mMqttIntent);
         mIsServiceRegistered = getApplicationContext().bindService(mMqttIntent, mMqttServiceConnection, Context.BIND_AUTO_CREATE);
         registerMqttBroadcastReceiver();
+
+//        new RabbitMQTask().execute("");
+//        RabbitMQHelper.getInstance(this.getApplicationContext()).startRabbitMQWithDefaultSetting();
+//        if (RabbitMQHelper.connectionStatus == RabbitMQHelper.RabbitMQConnectionStatus.CONNECTED) {
+//            setupMQListener();
+//        }
     }
 
 //    @Override
@@ -498,10 +698,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+//    private class RabbitMQTask extends AsyncTask<String, Void, String> {
+//
+//        protected String doInBackground(String... urls) {
+//            RabbitMQHelper.getInstance().startRabbitMQWithDefaultSetting();
+//            if (RabbitMQHelper.connectionStatus == RabbitMQHelper.RabbitMQConnectionStatus.CONNECTED) {
+//                setupMQListener();
+//            }
+//            return "";
+//        }
+//
+//        protected void onPostExecute(String result) {
+//            // TODO: check this.exception
+//            // TODO: do something with the result
+//        }
+//    }
+
 //    public interface OnInitMQTTListener {
 //        public void onInitMQTT(MqttHelper mqttHelper);
 //    }
-
 
 
 //    @Override

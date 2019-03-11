@@ -25,7 +25,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicLightEditTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.ReportFragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 
 public class IncidentInnerDetailFragment extends Fragment {
 
@@ -223,7 +223,7 @@ public class IncidentInnerDetailFragment extends Fragment {
         public void onClick(View view) {
             if (validateIncident()) {
                 IncidentInnerFragment incidentInnerFragment = (IncidentInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
-                        get(ReportFragmentConstants.REPORT_TAB_TITLE_INCIDENT_ID);
+                        get(FragmentConstants.REPORT_TAB_TITLE_INCIDENT_ID);
 
                 if(incidentInnerFragment != null) {
                     String titleDetail;
@@ -281,20 +281,20 @@ public class IncidentInnerDetailFragment extends Fragment {
 
     private void refreshUI() {
         String fragmentType;
-        String defaultValue = ReportFragmentConstants.VALUE_INCIDENT_ADD;
+        String defaultValue = FragmentConstants.VALUE_INCIDENT_ADD;
         Bundle bundle = this.getArguments();
 
         if (bundle != null) {
-            fragmentType = bundle.getString(ReportFragmentConstants.KEY_INCIDENT, defaultValue);
+            fragmentType = bundle.getString(FragmentConstants.KEY_INCIDENT, defaultValue);
         } else {
             fragmentType = defaultValue;
         }
 
-        if (fragmentType.equalsIgnoreCase(ReportFragmentConstants.VALUE_INCIDENT_VIEW)) {
+        if (fragmentType.equalsIgnoreCase(FragmentConstants.VALUE_INCIDENT_VIEW)) {
             if (bundle != null) {
                 if (mEtvTitleDetail != null) {
                     String title = bundle.getString(
-                            ReportFragmentConstants.KEY_INCIDENT_TITLE, ReportFragmentConstants.DEFAULT_STRING);
+                            FragmentConstants.KEY_INCIDENT_TITLE, FragmentConstants.DEFAULT_STRING);
                     boolean isSpinnerOption = false;
 
                     for (int i = 0; i < mSpinnerDropdownTitle.getAdapter().getCount(); i++) {
@@ -320,7 +320,7 @@ public class IncidentInnerDetailFragment extends Fragment {
 
                 if (mEtvDescriptionDetail != null) {
                     String description = bundle.getString(
-                            ReportFragmentConstants.KEY_INCIDENT_DESCRIPTION, ReportFragmentConstants.DEFAULT_STRING);
+                            FragmentConstants.KEY_INCIDENT_DESCRIPTION, FragmentConstants.DEFAULT_STRING);
                     mEtvDescriptionDetail.setText(description);
                     mEtvDescriptionDetail.setEnabled(false);
                 }

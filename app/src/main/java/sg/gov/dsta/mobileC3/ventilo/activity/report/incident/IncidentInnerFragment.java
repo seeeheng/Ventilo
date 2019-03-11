@@ -13,17 +13,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.activity.report.task.TaskRecyclerAdapter;
 import sg.gov.dsta.mobileC3.ventilo.model.incident.IncidentItemModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.ReportFragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 
 public class IncidentInnerFragment extends Fragment {
 
@@ -56,9 +54,9 @@ public class IncidentInnerFragment extends Fragment {
             public void onItemClick(View view, int position) {
                 Fragment incidentDetailFragment = new IncidentInnerDetailFragment();
                 Bundle bundle = new Bundle();
-                bundle.putString(ReportFragmentConstants.KEY_INCIDENT, ReportFragmentConstants.VALUE_INCIDENT_VIEW);
-                bundle.putString(ReportFragmentConstants.KEY_INCIDENT_TITLE, mIncidentListItems.get(position).getTitle());
-                bundle.putString(ReportFragmentConstants.KEY_INCIDENT_DESCRIPTION, mIncidentListItems.get(position).getDescription());
+                bundle.putString(FragmentConstants.KEY_INCIDENT, FragmentConstants.VALUE_INCIDENT_VIEW);
+                bundle.putString(FragmentConstants.KEY_INCIDENT_TITLE, mIncidentListItems.get(position).getTitle());
+                bundle.putString(FragmentConstants.KEY_INCIDENT_DESCRIPTION, mIncidentListItems.get(position).getDescription());
                 incidentDetailFragment.setArguments(bundle);
 
                 // Pass info to fragment
@@ -88,7 +86,7 @@ public class IncidentInnerFragment extends Fragment {
         }));
 
         // Set data for recycler view
-        setUpDummyData();
+        setUpRecyclerData();
 
         mRecyclerAdapter = new IncidentRecyclerAdapter(getContext(), mIncidentListItems);
         mRecyclerView.setAdapter(mRecyclerAdapter);
@@ -101,7 +99,7 @@ public class IncidentInnerFragment extends Fragment {
             public void onClick(View view) {
                 Fragment incidentDetailFragment = new IncidentInnerDetailFragment();
                 Bundle bundle = new Bundle();
-                bundle.putString(ReportFragmentConstants.KEY_INCIDENT, ReportFragmentConstants.VALUE_INCIDENT_ADD);
+                bundle.putString(FragmentConstants.KEY_INCIDENT, FragmentConstants.VALUE_INCIDENT_ADD);
                 incidentDetailFragment.setArguments(bundle);
 
                 FragmentManager fm = getActivity().getSupportFragmentManager();
@@ -202,7 +200,7 @@ public class IncidentInnerFragment extends Fragment {
         return mRecyclerAdapter;
     }
 
-    private void setUpDummyData() {
+    private void setUpRecyclerData() {
         mIncidentListItems = new ArrayList<>();
 
         IncidentItemModel incidentItemModel1 = new IncidentItemModel();

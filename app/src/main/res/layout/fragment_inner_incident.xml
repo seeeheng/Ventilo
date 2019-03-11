@@ -29,7 +29,7 @@
             android:layout_marginBottom="@dimen/horizontal_2nd_level_margin"
             android:src="@drawable/fab_add"
             app:fabSize="mini"
-            style="@style/FloatingActionButton" />
+            style="@style/FloatingActionButton_StyleOne" />
 
     </RelativeLayout>
 

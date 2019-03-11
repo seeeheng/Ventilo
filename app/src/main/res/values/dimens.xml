@@ -10,6 +10,7 @@
     <dimen name="vertical_1st_level_margin">64dp</dimen>
     <dimen name="vertical_2nd_level_margin">32dp</dimen>
     <dimen name="vertical_3rd_level_margin">24dp</dimen>
+    <dimen name="thin_line_margin">1dp</dimen>
     <dimen name="minor_margin">3dp</dimen>
     <dimen name="side_margin">15dp</dimen>
     <dimen name="elements_vertical_margin_spacing">10dp</dimen>
@@ -36,8 +37,11 @@
     <!-- Login Page -->
     <dimen name="login_outermost_padding">16dp</dimen>
     <dimen name="login_input_length">230dp</dimen>
-    <dimen name="login_app_logo_height">115dp</dimen>
-    <dimen name="login_app_logo_width">230dp</dimen>
+    <dimen name="login_app_logo_height">200dp</dimen>
+    <dimen name="login_app_logo_width">300dp</dimen>
+    <dimen name="login_app_logo_first_margin_top">40dp</dimen>
+    <dimen name="login_app_logo_second_margin_top">-60dp</dimen>
+    <dimen name="login_app_text_margin_top">-20dp</dimen>
     <dimen name="login_sign_in_height">35dp</dimen>
     <dimen name="login_sign_in_width">230dp</dimen>
     <dimen name="login_app_text_size">24sp</dimen>

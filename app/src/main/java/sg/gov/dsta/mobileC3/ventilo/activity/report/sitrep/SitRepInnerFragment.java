@@ -1,72 +1,48 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.report.sitrep;
 
-import android.graphics.Color;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.Toast;
 
-import de.hdodenhof.circleimageview.CircleImageView;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
-import sg.gov.dsta.mobileC3.ventilo.util.ValidationUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoLightEditTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.ReportFragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepItemModel;
+import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 
 public class SitRepInnerFragment extends Fragment {
 
-    // Linear Layouts
-    private LinearLayout mLayoutLocation;
-    private LinearLayout mLayoutActivity;
-    private LinearLayout mLayoutPersonnel;
-    private LinearLayout mLayoutNextCoa;
-    private LinearLayout mLayoutRequest;
+    private static final String TAG = "SitRepInnerFragment";
 
-    // Text Views
-    private C2LatoRegularTextView mTvTeam;
-    private C2LatoRegularTextView mTvLocation;
-    private C2LatoRegularTextView mTvActivity;
-    private C2LatoRegularTextView mTvPersonnel;
-    private C2LatoRegularTextView mTvNextCoa;
-    private C2LatoRegularTextView mTvRequest;
+    private RecyclerView mRecyclerView;
+    private SitRepRecyclerAdapter mRecyclerAdapter;
+    private RecyclerView.LayoutManager mRecyclerLayoutManager;
+    private FloatingActionButton mFabAddSitRep;
 
-    // Edit Texts
-    private C2LatoLightEditTextView mEtvT;
-    private C2LatoLightEditTextView mEtvS;
-    private C2LatoLightEditTextView mEtvD;
+    private List<SitRepItemModel> mSitRepListItems;
 
-    // Buttons
-    private CircleImageView mCircleBtnAddT;
-    private CircleImageView mCircleBtnReduceT;
-    private CircleImageView mCircleBtnAddS;
-    private CircleImageView mCircleBtnReduceS;
-    private CircleImageView mCircleBtnAddD;
-    private CircleImageView mCircleBtnReduceD;
-    private C2LatoBlackButton mBtnConfirm;
-
-    // Spinners
-    private Spinner mSpinnerDropdownLocation;
-    private Spinner mSpinnerDropdownActivity;
-    private Spinner mSpinnerDropdownNextCoa;
-    private Spinner mSpinnerDropdownRequest;
-
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
         View rootView = inflater.inflate(R.layout.fragment_inner_sitrep, container, false);
         initUI(rootView);
 
@@ -74,406 +50,344 @@ public class SitRepInnerFragment extends Fragment {
     }
 
     private void initUI(View rootView) {
-        initLayouts(rootView);
-        initTextViews(rootView);
-        initEditTextViews(rootView);
-        initButtons(rootView);
-        initSpinners(rootView);
-    }
+        mRecyclerView = rootView.findViewById(R.id.recycler_sitrep);
 
-    private void initLayouts(View rootView) {
-        mLayoutLocation = rootView.findViewById(R.id.layout_sitrep_location);
-        mLayoutActivity = rootView.findViewById(R.id.layout_sitrep_activity);
-        mLayoutPersonnel = rootView.findViewById(R.id.layout_sitrep_personnel);
-        mLayoutNextCoa = rootView.findViewById(R.id.layout_sitrep_next_coa);
-        mLayoutRequest = rootView.findViewById(R.id.layout_sitrep_request);
+        mRecyclerView.setHasFixedSize(true);
 
-        mLayoutActivity.setVisibility(View.GONE);
-        mLayoutPersonnel.setVisibility(View.GONE);
-        mLayoutNextCoa.setVisibility(View.GONE);
-        mLayoutRequest.setVisibility(View.GONE);
-    }
-
-    private void initTextViews(View rootView) {
-        int teamNo = 1;
-        String teamHeader = getString(R.string.sitrep_team).concat(" ").concat(String.valueOf(teamNo));
-        mTvTeam = rootView.findViewById(R.id.sitrep_tv_team);
-        mTvTeam.setText(teamHeader);
-
-        mTvLocation = rootView.findViewById(R.id.sitrep_tv_location);
-        String locationText = getString(R.string.sitrep_location).concat(":");
-        mTvLocation.setText(locationText);
-
-        mTvActivity = rootView.findViewById(R.id.sitrep_tv_activity);
-        String activityText = getString(R.string.sitrep_activity).concat(":");
-        mTvActivity.setText(activityText);
-
-        mTvPersonnel = rootView.findViewById(R.id.sitrep_tv_personnel);
-        String personnelText = getString(R.string.sitrep_personnel).concat(":");
-        mTvPersonnel.setText(personnelText);
-
-        mTvNextCoa = rootView.findViewById(R.id.sitrep_tv_next_coa);
-        String nextCoaText = getString(R.string.sitrep_next_coa).concat(":");
-        mTvNextCoa.setText(nextCoaText);
-
-        mTvRequest = rootView.findViewById(R.id.sitrep_tv_request);
-        String requestText = getString(R.string.sitrep_request).concat(":");
-        mTvRequest.setText(requestText);
-    }
-
-    private void initEditTextViews(View rootView) {
-        mEtvT = rootView.findViewById(R.id.sitrep_etv_T);
-        mEtvS = rootView.findViewById(R.id.sitrep_etv_S);
-        mEtvD = rootView.findViewById(R.id.sitrep_etv_D);
-
-        mEtvT.setText("0");
-        mEtvS.setText("0");
-        mEtvD.setText("0");
-    }
-
-    private void initButtons(View rootView) {
-        mCircleBtnAddT = rootView.findViewById(R.id.circle_img_view_add_T);
-        mCircleBtnAddT.bringToFront();
-        mCircleBtnAddT.setOnClickListener(onAddTClickListener);
-        mCircleBtnReduceT = rootView.findViewById(R.id.circle_img_view_reduce_T);
-        mCircleBtnReduceT.bringToFront();
-        mCircleBtnReduceT.setOnClickListener(onReduceTClickListener);
-
-        mCircleBtnAddS = rootView.findViewById(R.id.circle_img_view_add_S);
-        mCircleBtnAddS.bringToFront();
-        mCircleBtnAddS.setOnClickListener(onAddSClickListener);
-        mCircleBtnReduceS = rootView.findViewById(R.id.circle_img_view_reduce_S);
-        mCircleBtnReduceS.bringToFront();
-        mCircleBtnReduceS.setOnClickListener(onReduceSClickListener);
-
-        mCircleBtnAddD = rootView.findViewById(R.id.circle_img_view_add_D);
-        mCircleBtnAddD.bringToFront();
-        mCircleBtnAddD.setOnClickListener(onAddDClickListener);
-        mCircleBtnReduceD = rootView.findViewById(R.id.circle_img_view_reduce_D);
-        mCircleBtnReduceD.bringToFront();
-        mCircleBtnReduceD.setOnClickListener(onReduceDClickListener);
-
-        mBtnConfirm = rootView.findViewById(R.id.btn_sitrep_confirm);
-        mBtnConfirm.setOnClickListener(onConfirmClickListener);
-        mBtnConfirm.setVisibility(View.GONE);
-    }
-
-    private View.OnClickListener onAddTClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (mEtvT.getText() != null && ValidationUtil.isNumberField(mEtvT.getText().toString())) {
-                int newValue = Integer.valueOf(mEtvT.getText().toString()) + 1;
-                mEtvT.setText(String.valueOf(newValue));
-            }
-        }
-    };
-
-    private View.OnClickListener onReduceTClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (mEtvT.getText() != null && ValidationUtil.isNumberField(mEtvT.getText().toString())
-                    && Integer.valueOf(mEtvT.getText().toString()) > 0) {
-                int newValue = Integer.valueOf(mEtvT.getText().toString()) - 1;
-                mEtvT.setText(String.valueOf(newValue));
-            }
-        }
-    };
-
-    private View.OnClickListener onAddSClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (mEtvS.getText() != null && ValidationUtil.isNumberField(mEtvS.getText().toString())) {
-                int newValue = Integer.valueOf(mEtvS.getText().toString()) + 1;
-                mEtvS.setText(String.valueOf(newValue));
-            }
-        }
-    };
-
-    private View.OnClickListener onReduceSClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (mEtvS.getText() != null && ValidationUtil.isNumberField(mEtvS.getText().toString())
-                    && Integer.valueOf(mEtvS.getText().toString()) > 0) {
-                int newValue = Integer.valueOf(mEtvS.getText().toString()) - 1;
-                mEtvS.setText(String.valueOf(newValue));
-            }
-        }
-    };
-
-    private View.OnClickListener onAddDClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (mEtvD.getText() != null && ValidationUtil.isNumberField(mEtvD.getText().toString())) {
-                int newValue = Integer.valueOf(mEtvD.getText().toString()) + 1;
-                mEtvD.setText(String.valueOf(newValue));
-            }
-        }
-    };
-
-    private View.OnClickListener onReduceDClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (mEtvD.getText() != null && ValidationUtil.isNumberField(mEtvD.getText().toString())
-                    && Integer.valueOf(mEtvD.getText().toString()) > 0) {
-                int newValue = Integer.valueOf(mEtvD.getText().toString()) - 1;
-                mEtvD.setText(String.valueOf(newValue));
-            }
-        }
-    };
-
-    private void initSpinners(View rootView) {
-        initLocationSpinner(rootView);
-        initActivitySpinner(rootView);
-        initNextCoaSpinner(rootView);
-        initRequestSpinner(rootView);
-    }
-
-    private void initLocationSpinner(View rootView) {
-        mSpinnerDropdownLocation = rootView.findViewById(R.id.spinner_sitrep_location);
-        String[] locationStringArray = ReportSpinnerBank.getInstance(getActivity()).getLocationList();
-
-        ArrayAdapter<String> adapter = new ArrayAdapter(getActivity(),
-                R.layout.spinner_row_sitrep_location, R.id.text_item_sitrep_location, locationStringArray) {
-
+        mRecyclerLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(mRecyclerLayoutManager);
+        mRecyclerView.addOnItemTouchListener(new SitRepRecyclerItemTouchListener(getContext(), mRecyclerView, new SitRepRecyclerItemTouchListener.OnItemClickListener() {
             @Override
-            public boolean isEnabled(int position) {
-                if (position == 0) {
-                    // Disable the first item from Spinner
-                    // First item will be used as hint
-                    return false;
-                } else {
-                    return true;
-                }
+            public void onItemClick(View view, int position) {
+                Fragment sitRepInnerDetailFragment = new SitRepInnerDetailFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString(FragmentConstants.KEY_SITREP, FragmentConstants.VALUE_SITREP_VIEW);
+                bundle.putString(FragmentConstants.KEY_SITREP_LOCATION, mSitRepListItems.get(position).getLocation());
+                bundle.putString(FragmentConstants.KEY_SITREP_ACTIVITY, mSitRepListItems.get(position).getActivity());
+                bundle.putInt(FragmentConstants.KEY_SITREP_PERSONNEL_T, mSitRepListItems.get(position).getPersonnelT());
+                bundle.putInt(FragmentConstants.KEY_SITREP_PERSONNEL_S, mSitRepListItems.get(position).getPersonnelS());
+                bundle.putInt(FragmentConstants.KEY_SITREP_PERSONNEL_D, mSitRepListItems.get(position).getPersonnelD());
+                bundle.putString(FragmentConstants.KEY_SITREP_NEXT_COA, mSitRepListItems.get(position).getNextCOA());
+                bundle.putString(FragmentConstants.KEY_SITREP_REQUEST, mSitRepListItems.get(position).getRequest());
+                sitRepInnerDetailFragment.setArguments(bundle);
+
+                // Pass info to fragment
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
+                ft.replace(R.id.layout_sitrep_inner_fragment, sitRepInnerDetailFragment, sitRepInnerDetailFragment.getClass().getSimpleName());
+                ft.addToBackStack(sitRepInnerDetailFragment.getClass().getSimpleName());
+                ft.commit();
             }
 
             @Override
-            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = view.findViewById(R.id.text_item_sitrep_location);
-                if (position == 0) {
-                    // Set the hint text color gray
-                    tv.setTextColor(Color.GRAY);
-                } else {
-                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_white, null));
-                }
-                return view;
+            public void onLongItemClick(View view, int position) {
+                Toast.makeText(getContext(), "Sit Rep onItemLongClick" + "(" + position + ")", Toast.LENGTH_SHORT).show();
             }
-        };
 
-        mSpinnerDropdownLocation.setAdapter(adapter);
-        mSpinnerDropdownLocation.setOnItemSelectedListener(getLocationSpinnerItemSelectedListener);
+            @Override
+            public void onSwipeLeft(View view, int position) {
+//                Toast.makeText(getContext(), "Sit Rep onSwipeLeft" + "(" + position + ")", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSwipeRight(View view, int position) {
+//                Toast.makeText(getContext(), "Sit Rep onSwipeRight" + "(" + position + ")", Toast.LENGTH_SHORT).show();
+            }
+        }));
+
+        // Set data for recycler view
+        setUpRecyclerData();
+
+        mRecyclerAdapter = new SitRepRecyclerAdapter(getContext(), mSitRepListItems);
+        mRecyclerView.setAdapter(mRecyclerAdapter);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        // Set up floating action button
+        mFabAddSitRep = rootView.findViewById(R.id.fab_sitrep_add);
+        mFabAddSitRep.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Fragment sitRepInnerAddFragment = new SitRepInnerAddFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString(FragmentConstants.KEY_SITREP, FragmentConstants.VALUE_SITREP_ADD);
+                sitRepInnerAddFragment.setArguments(bundle);
+
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
+                ft.replace(R.id.layout_sitrep_inner_fragment, sitRepInnerAddFragment, sitRepInnerAddFragment.getClass().getSimpleName());
+                ft.addToBackStack(sitRepInnerAddFragment.getClass().getSimpleName());
+                ft.commit();
+            }
+        });
+
+//        initOtherLayouts(inflater, container);
     }
 
-    private AdapterView.OnItemSelectedListener getLocationSpinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            String selectedItemText = (String) parent.getItemAtPosition(position);
-            // If user change the default selection
-            // First item is disable and it is used for hint
-            if (position > 0) {
-                // Notify the selected item text
-                mLayoutActivity.setVisibility(View.VISIBLE);
-                mLayoutPersonnel.setVisibility(View.VISIBLE);
-                mSpinnerDropdownActivity.setEnabled(true);
-            }
-        }
+//    private void setImageListeners(View recyclerView) {
+//        AppCompatImageView imgDelete = recyclerView.findViewById(R.id.img_task_delete);
+//        AppCompatImageView imgStart = recyclerView.findViewById(R.id.img_task_start);
+//        AppCompatImageView imgDone = recyclerView.findViewById(R.id.img_task_done);
+//
+//        imgDelete.setOnClickListener(onDeleteClickListener);
+//        imgStart.setOnClickListener(onStartClickListener);
+//        imgDone.setOnClickListener(onDoneClickListener);
+//
+//        imgDelete.bringToFront();
+//        imgStart.bringToFront();
+//        imgDone.bringToFront();
+//    }
+//
+//    private View.OnClickListener onDeleteClickListener = new View.OnClickListener() {
+//        @Override
+//        public void onClick(View view) {
+//            TaskViewHolder holder = (TaskViewHolder) view.getTag();
+//            int position = holder.getAdapterPosition();
+//            removeItemInRecycler(position);
+//        }
+//    };
+//
+//    private View.OnClickListener onStartClickListener = new View.OnClickListener() {
+//        @Override
+//        public void onClick(View view) {
+//            TaskViewHolder holder = (TaskViewHolder) view.getTag();
+//            int position = holder.getAdapterPosition();
+//            startItemInRecycler(position);
+//        }
+//    };
+//
+//    private View.OnClickListener onDoneClickListener = new View.OnClickListener() {
+//        @Override
+//        public void onClick(View view) {
+//            TaskViewHolder holder = (TaskViewHolder) view.getTag();
+//            int position = holder.getAdapterPosition();
+//            completeItemInRecycler(position);
+//        }
+//    };
+//
+//    private void startItemInRecycler(int position) {
+//        mTaskListItems.get(position).setStatus(EStatus.IN_PROGRESS);
+//        mRecyclerAdapter.notifyDataSetChanged();
+//    }
+//
+//    private void completeItemInRecycler(int position) {
+//        mTaskListItems.get(position).setStatus(EStatus.DONE);
+//        mRecyclerAdapter.notifyDataSetChanged();
+//    }
+//
+//    private void removeItemInRecycler(int position) {
+//        mTaskListItems.remove(position);
+//        mRecyclerView.removeViewAt(position);
+//        mRecyclerAdapter.notifyItemRemoved(position);
+//        mRecyclerAdapter.notifyItemRangeChanged(position, mTaskListItems.size());
+//    }
 
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
+//    @Override
+//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//        super.onCreateOptionsMenu(menu, inflater);
+//        inflater.inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
 
-        }
-    };
+//    @Override
+//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+//
+//        //Floating Action Button to add new task
+//        mAddBtn = getView().findViewById(R.id.fab_task_add);
+//
+//        mAddBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                Intent intent = new Intent(getContext(), TasksAddActivity.class);
+//                startActivity(intent);
+//            }
+//        });
+//    }
 
-    private void initActivitySpinner(View rootView) {
-        mSpinnerDropdownActivity = rootView.findViewById(R.id.spinner_sitrep_activity);
-        String[] activityStringArray = ReportSpinnerBank.getInstance(getActivity()).getActivityList();
-
-        ArrayAdapter<String> adapter = new ArrayAdapter(getActivity(),
-                R.layout.spinner_row_sitrep_activity, R.id.text_item_sitrep_activity, activityStringArray) {
-
-            @Override
-            public boolean isEnabled(int position) {
-                if (position == 0) {
-                    // Disable the first item from Spinner
-                    // First item will be used as hint
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-
-            @Override
-            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = view.findViewById(R.id.text_item_sitrep_activity);
-                if (position == 0) {
-                    // Set the hint text color gray
-                    tv.setTextColor(Color.GRAY);
-                } else {
-                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_white, null));
-                }
-                return view;
-            }
-        };
-
-        mSpinnerDropdownActivity.setAdapter(adapter);
-        mSpinnerDropdownActivity.setOnItemSelectedListener(getActivitySpinnerItemSelectedListener);
-        mSpinnerDropdownActivity.setEnabled(false);
+    public SitRepRecyclerAdapter getAdapter() {
+        return mRecyclerAdapter;
     }
 
-    private AdapterView.OnItemSelectedListener getActivitySpinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            String selectedItemText = (String) parent.getItemAtPosition(position);
-            // If user change the default selection
-            // First item is disable and it is used for hint
-            if (position > 0) {
-                // Notify the selected item text
-                mLayoutNextCoa.setVisibility(View.VISIBLE);
-                mSpinnerDropdownNextCoa.setEnabled(true);
-            }
-        }
+    public void refreshData() {
+        Log.d(TAG, "refreshData");
+        setUpRecyclerData();
 
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-    };
-
-    private void initNextCoaSpinner(View rootView) {
-        mSpinnerDropdownNextCoa = rootView.findViewById(R.id.spinner_sitrep_next_coa);
-        String[] nextCoaStringArray = ReportSpinnerBank.getInstance(getActivity()).getNextCoaList();
-
-        ArrayAdapter<String> adapter = new ArrayAdapter(getActivity(),
-                R.layout.spinner_row_sitrep_next_coa, R.id.text_item_sitrep_next_coa, nextCoaStringArray) {
-
-            @Override
-            public boolean isEnabled(int position) {
-                if (position == 0) {
-                    // Disable the first item from Spinner
-                    // First item will be used as hint
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-
-            @Override
-            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = view.findViewById(R.id.text_item_sitrep_next_coa);
-                if (position == 0) {
-                    // Set the hint text color gray
-                    tv.setTextColor(Color.GRAY);
-                } else {
-                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_white, null));
-                }
-                return view;
-            }
-        };
-
-        mSpinnerDropdownNextCoa.setAdapter(adapter);
-        mSpinnerDropdownNextCoa.setOnItemSelectedListener(getNextCoaSpinnerItemSelectedListener);
-        mSpinnerDropdownNextCoa.setEnabled(false);
+//        if (mRecyclerAdapter != null) {
+//            mRecyclerAdapter.notifyDataSetChanged();
+//        }
     }
 
-    private AdapterView.OnItemSelectedListener getNextCoaSpinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            String selectedItemText = (String) parent.getItemAtPosition(position);
-            // If user change the default selection
-            // First item is disable and it is used for hint
-            if (position > 0) {
-                // Notify the selected item text
-                mLayoutRequest.setVisibility(View.VISIBLE);
-                mSpinnerDropdownRequest.setEnabled(true);
-            }
+    public void addItemInRecycler() {
+        if (mRecyclerAdapter != null) {
+            mRecyclerAdapter.notifyItemInserted(mSitRepListItems.size() - 1);
+            mRecyclerAdapter.notifyItemRangeChanged(mSitRepListItems.size() - 1, mSitRepListItems.size());
         }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-    };
-
-    private void initRequestSpinner(View rootView) {
-        mSpinnerDropdownRequest = rootView.findViewById(R.id.spinner_sitrep_request);
-        String[] requestStringArray = ReportSpinnerBank.getInstance(getActivity()).getRequestList();
-
-        ArrayAdapter<String> adapter = new ArrayAdapter(getActivity(),
-                R.layout.spinner_row_sitrep_request, R.id.text_item_sitrep_request, requestStringArray) {
-
-            @Override
-            public boolean isEnabled(int position) {
-                if (position == 0) {
-                    // Disable the first item from Spinner
-                    // First item will be used as hint
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-
-            @Override
-            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = view.findViewById(R.id.text_item_sitrep_request);
-                if (position == 0) {
-                    // Set the hint text color gray
-                    tv.setTextColor(Color.GRAY);
-                } else {
-                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_white, null));
-                }
-                return view;
-            }
-        };
-
-        mSpinnerDropdownRequest.setAdapter(adapter);
-        mSpinnerDropdownRequest.setOnItemSelectedListener(getRequestSpinnerItemSelectedListener);
-        mSpinnerDropdownRequest.setEnabled(false);
     }
 
-    private AdapterView.OnItemSelectedListener getRequestSpinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            String selectedItemText = (String) parent.getItemAtPosition(position);
-            // If user change the default selection
-            // First item is disable and it is used for hint
-            if (position > 0) {
-                // Notify the selected item text
-                mBtnConfirm.setVisibility(View.VISIBLE);
+    private void setUpRecyclerData() {
+        if (mSitRepListItems == null) {
+            mSitRepListItems = new ArrayList<>();
+        }
+
+        if (getTotalNumberOfSitReps() == 0) {
+            SitRepItemModel sitRepItemModel1 = new SitRepItemModel();
+            sitRepItemModel1.setId(0);
+            sitRepItemModel1.setReporter(SharedPreferenceUtil.getCurrentUser(getActivity()));
+            sitRepItemModel1.setReporterAvatar(getContext().getDrawable(R.drawable.default_soldier_icon));
+            sitRepItemModel1.setLocation("BALESTIER");
+            sitRepItemModel1.setActivity("Fire Fighting");
+            sitRepItemModel1.setPersonnelT(6);
+            sitRepItemModel1.setPersonnelS(5);
+            sitRepItemModel1.setPersonnelD(4);
+            sitRepItemModel1.setNextCOA("Inform HQ");
+            sitRepItemModel1.setRequest("Additional MP");
+            Date date1 = DateTimeUtil.getSpecifiedDate(2016, Calendar.DECEMBER, 29,
+                    Calendar.AM, 11, 30, 30);
+            sitRepItemModel1.setReportedDateTime(date1);
+
+            mSitRepListItems.add(sitRepItemModel1);
+
+            addItemsToLocalDatabase();
+
+        } else {
+            mSitRepListItems.clear();
+
+            for (int i = 0; i < getTotalNumberOfSitReps(); i++) {
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String sitRepInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                        concat(SharedPreferenceConstants.HEADER_SITREP).concat(SharedPreferenceConstants.SEPARATOR).
+                        concat(String.valueOf(i));
+
+                SitRepItemModel sitRepItemModel = new SitRepItemModel();
+                sitRepItemModel.setId(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ID), SharedPreferenceConstants.DEFAULT_INT));
+                sitRepItemModel.setReporter(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER), SharedPreferenceConstants.DEFAULT_STRING));
+                sitRepItemModel.setReporterAvatar(getContext().getDrawable(R.drawable.default_soldier_icon));
+//                taskItem.setAssigneeAvatar(Objects.requireNonNull(getContext()).getDrawable(pref.getInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE_AVATAR_ID), SharedPreferenceConstants.DEFAULT_INT)));
+                sitRepItemModel.setLocation(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_LOCATION), SharedPreferenceConstants.DEFAULT_STRING));
+                sitRepItemModel.setActivity(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ACTIVITY), SharedPreferenceConstants.DEFAULT_STRING));
+                sitRepItemModel.setPersonnelT(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_T), SharedPreferenceConstants.DEFAULT_INT));
+                sitRepItemModel.setPersonnelS(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_S), SharedPreferenceConstants.DEFAULT_INT));
+                sitRepItemModel.setPersonnelD(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_D), SharedPreferenceConstants.DEFAULT_INT));
+                sitRepItemModel.setNextCOA(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_NEXT_COA), SharedPreferenceConstants.DEFAULT_STRING));
+                sitRepItemModel.setRequest(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REQUEST), SharedPreferenceConstants.DEFAULT_STRING));
+                sitRepItemModel.setReportedDateTime(DateTimeUtil.stringToDate(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_DATE), SharedPreferenceConstants.DEFAULT_STRING)));
+
+                mSitRepListItems.add(sitRepItemModel);
             }
         }
+    }
 
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
+    /*
+     * Obtain total number of sit reps of user
+     */
+    private int getTotalNumberOfSitReps() {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        int totalNumberOfSitReps = pref.getInt(SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER), 0);
 
+        return totalNumberOfSitReps;
+    }
+
+    /*
+     * Add sit rep items to local database
+     */
+    private void addItemsToLocalDatabase() {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences.Editor editor = pref.edit();
+
+        // Increment total number of sit reps by one, and store it
+        String totalNumberOfSitRepsKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER);
+
+        editor.putInt(totalNumberOfSitRepsKey, mSitRepListItems.size());
+
+        for (int i = 0; i < mSitRepListItems.size(); i++) {
+            SitRepItemModel sitRepItemModel = mSitRepListItems.get(i);
+            addSingleItemToLocalDatabase(editor, sitRepItemModel.getId(), sitRepItemModel.getReporter(),
+                    R.drawable.default_soldier_icon, sitRepItemModel.getLocation(), sitRepItemModel.getActivity(),
+                    sitRepItemModel.getPersonnelT(), sitRepItemModel.getPersonnelS(), sitRepItemModel.getPersonnelD(),
+                    sitRepItemModel.getNextCOA(), sitRepItemModel.getRequest(),
+                    DateTimeUtil.dateToString(sitRepItemModel.getReportedDateTime()));
         }
-    };
+    }
 
-    private View.OnClickListener onConfirmClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Fragment sitRepInnerDetailFragment = new SitRepInnerDetailFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString(ReportFragmentConstants.KEY_SITREP_LOCATION, mSpinnerDropdownLocation.getSelectedItem().toString());
-            bundle.putString(ReportFragmentConstants.KEY_SITREP_ACTIVITY, mSpinnerDropdownActivity.getSelectedItem().toString());
-            bundle.putString(ReportFragmentConstants.KEY_SITREP_PERSONNEL_T, mEtvT.getText().toString().trim());
-            bundle.putString(ReportFragmentConstants.KEY_SITREP_PERSONNEL_S, mEtvS.getText().toString().trim());
-            bundle.putString(ReportFragmentConstants.KEY_SITREP_PERSONNEL_D, mEtvD.getText().toString().trim());
-            bundle.putString(ReportFragmentConstants.KEY_SITREP_NEXT_COA, mSpinnerDropdownNextCoa.getSelectedItem().toString());
-            bundle.putString(ReportFragmentConstants.KEY_SITREP_REQUEST, mSpinnerDropdownRequest.getSelectedItem().toString());
-            sitRepInnerDetailFragment.setArguments(bundle);
+    /*
+     * Add single sit rep with respective fields
+     */
+    private void addSingleItemToLocalDatabase(SharedPreferences.Editor editor, int id, String reporter, int reporterAvatarId,
+                                              String location, String activity, int personnelT, int personnelS, int personnelD,
+                                              String nextCoa, String request, String date) {
 
-            // Pass info to fragment
-            FragmentManager fm = getActivity().getSupportFragmentManager();
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right,
-                    R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-            ft.replace(R.id.layout_sitrep_inner_fragment, sitRepInnerDetailFragment,
-                    sitRepInnerDetailFragment.getClass().getSimpleName());
-            ft.addToBackStack(sitRepInnerDetailFragment.getClass().getSimpleName());
-            ft.commit();
-        }
-    };
+        String sitRepInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+                concat(SharedPreferenceConstants.HEADER_SITREP).concat(SharedPreferenceConstants.SEPARATOR).
+                concat(String.valueOf(id));
+
+        editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ID), id);
+        editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER), reporter);
+        editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER_AVATAR_ID), reporterAvatarId);
+        editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_LOCATION), location);
+        editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ACTIVITY), activity);
+        editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_T), personnelT);
+        editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_S), personnelS);
+        editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_D), personnelD);
+        editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_NEXT_COA), nextCoa);
+        editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REQUEST), request);
+        editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_DATE), date);
+
+        editor.apply();
+    }
+
+//    private BroadcastReceiver receiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            String messageType = intent.getStringExtra(RestConstants.REST_REQUEST_TYPE);
+//            String response = intent.getStringExtra(RestConstants.REST_REQUEST_RESULT);
+//            int responseCode = intent.getIntExtra(RestConstants.REST_HTTP_STATUS, -1);
+//
+//            if ((responseCode < 200) || (responseCode >= 300)) {
+//                //Error
+//                Log.e("SuperC2", "HTTP Error: " + responseCode + " " + response);
+//                return;
+//            }
+//
+//            Gson gson = GsonCreator.createGson();
+//            switch (messageType) {
+//                case MessageType.GET_TASKS:
+//
+//
+//                    break;
+//
+//                default:
+//                    Log.e("SuperC2", "TaskFragment Receiver: Unknown MessageType: " + messageType + ": " + response);
+//                    break;
+//            }
+//
+//        }
+//    };
+
 }

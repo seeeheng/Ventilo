@@ -39,7 +39,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     public void onBindViewHolder(TaskViewHolder itemViewHolder, final int i) {
         TaskItemModel item = mTaskListItems.get(i);
 
-        String assignee = "Assignee: ".concat(item.getAssignee());
+        String assignee = "Assigned To: ".concat(item.getAssignee());
         itemViewHolder.getTvAssignee().setText(assignee);
         itemViewHolder.getCircleImgAvatar().setImageDrawable(item.getAssigneeAvatar());
 

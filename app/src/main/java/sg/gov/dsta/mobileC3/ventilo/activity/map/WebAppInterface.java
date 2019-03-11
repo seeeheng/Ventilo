@@ -38,7 +38,6 @@ public class WebAppInterface {
     @JavascriptInterface
     public String getMQSettings()
     {
-
         String message=pref.getMqHost()+","+pref.getMqUsername()+","+ pref.getMqPassword()+","+ pref.getTopic()+","+ pref.getPort();
         Log.d(TAG,"getMQSettings: " + message);
         return message;
@@ -47,7 +46,6 @@ public class WebAppInterface {
     @JavascriptInterface
     public String getName()
     {
-
         String message=pref.getName();
         Log.d(TAG,"getName: " + message);
         return message;

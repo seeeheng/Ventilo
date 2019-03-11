@@ -38,6 +38,8 @@ public class MqttHelper implements Serializable {
     //private static final String SERVER_URI = "tcp://broker.hivemq.com:1883";
     private static final String CLIENT_ID = NetworkUtil.getOwnDeviceMacAddr(); // previously, MqttClient.generateClientId()
     private static final String SERVER_URI = "tcp://mqtt.flespi.io:1883";
+//    private static final String SERVER_URI = "tcp://192.168.1.5:1883";
+//    private static final String SERVER_URI = "tcp://198.18.111.115:1883";
     private static final int QOS = 1;
 //    final String serverUri = "tcp://broker.mqttdashboard.com:8000";
 
@@ -46,6 +48,7 @@ public class MqttHelper implements Serializable {
 
     private static String mTopic = "Ventilo";
     final String username = "Rp3XUF126FW2kBN6BryruzWDEXokpLj6ZaRJGIBAclsmL4iajErD3d6yYiGdUO7J";
+//    final String username = "";
     final String password = "";
 
     // constants used to define MQTT connection status
@@ -280,7 +283,8 @@ public class MqttHelper implements Serializable {
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setUserName(username);
             connOpts.setCleanSession(false);
-            connOpts.setConnectionTimeout(5);
+            connOpts.setConnectionTimeout(15);
+            connOpts.setAutomaticReconnect(true);
             mMqttAndroidClient.connect(connOpts);
             mMqttAndroidClient.setCallback(getDummyCallback());
 //            mMqttAndroidClient.setCallback(new NotificationCallback(this));

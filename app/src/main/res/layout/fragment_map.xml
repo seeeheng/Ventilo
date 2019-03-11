@@ -56,14 +56,14 @@
     </LinearLayout>
 
     <!--<LinearLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="0dp"-->
-        <!--android:layout_weight="0">-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="0dp"-->
+    <!--android:layout_weight="0">-->
 
-        <!--<com.google.android.gms.maps.MapView-->
-            <!--android:id="@+id/map_view_google_map"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent" />-->
+    <!--<com.google.android.gms.maps.MapView-->
+    <!--android:id="@+id/map_view_google_map"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent" />-->
 
     <!--</LinearLayout>-->
 
@@ -74,9 +74,9 @@
         android:layout_weight="100">
 
         <!--<org.apache.cordova.CordovaWebView-->
-            <!--android:id="@+id/mapview_cesium_map"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent">-->
+        <!--android:id="@+id/mapview_cesium_map"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
 
         <!--</org.apache.cordova.CordovaWebView>-->
 
@@ -93,83 +93,85 @@
                 android:id="@+id/mapview_nutiteq"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <RelativeLayout
                 android:layout_width="105dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentStart="true">
+                android:layout_alignParentStart="true"
+                android:layout_alignParentBottom="true">
 
                 <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
                     android:id="@+id/btn_mqtt_subscribe"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:foreground="?android:selectableItemBackground"
                     android:background="@drawable/img_btn_background"
-                    android:text="@string/btn_map_subscribe"/>
+                    android:foreground="?android:selectableItemBackground"
+                    android:text="@string/btn_map_subscribe"
+                    android:visibility="gone" />
 
                 <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
                     android:id="@+id/btn_mqtt_share_location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:foreground="?android:selectableItemBackground"
-                    android:background="@drawable/img_btn_background"
                     android:layout_below="@+id/btn_mqtt_subscribe"
-                    android:text="@string/btn_map_share_location"/>
+                    android:layout_gravity="center"
+                    android:background="@drawable/img_btn_background"
+                    android:foreground="?android:selectableItemBackground"
+                    android:text="@string/btn_map_share_location"
+                    android:visibility="gone" />
 
             </RelativeLayout>
 
             <!--<Button-->
-                <!--android:id="@+id/btn_mqtt_publish"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_toEndOf="@+id/btn_mqtt_subscribe"-->
-                <!--android:text="Publish"/>-->
+            <!--android:id="@+id/btn_mqtt_publish"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_toEndOf="@+id/btn_mqtt_subscribe"-->
+            <!--android:text="Publish"/>-->
 
             <!--<Button-->
-                <!--android:id="@+id/btn_mqtt_publish_two"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_toEndOf="@+id/btn_mqtt_publish"-->
-                <!--android:text="Publish Two"/>-->
+            <!--android:id="@+id/btn_mqtt_publish_two"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_toEndOf="@+id/btn_mqtt_publish"-->
+            <!--android:text="Publish Two"/>-->
 
             <RelativeLayout
                 android:layout_width="105dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentEnd="true">
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true">
 
                 <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
                     android:id="@+id/btn_map_top_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:foreground="?android:selectableItemBackground"
                     android:background="@drawable/img_btn_background"
-                    android:text="@string/btn_map_top"/>
+                    android:foreground="?android:selectableItemBackground"
+                    android:text="@string/btn_map_top" />
 
                 <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
                     android:id="@+id/btn_map_port_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:foreground="?android:selectableItemBackground"
-                    android:background="@drawable/img_btn_background"
                     android:layout_below="@+id/btn_map_top_view"
-                    android:text="@string/btn_map_port"/>
+                    android:layout_gravity="center"
+                    android:background="@drawable/img_btn_background"
+                    android:foreground="?android:selectableItemBackground"
+                    android:text="@string/btn_map_port" />
 
                 <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
                     android:id="@+id/btn_map_sb_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:foreground="?android:selectableItemBackground"
-                    android:background="@drawable/img_btn_background"
                     android:layout_below="@+id/btn_map_port_view"
-                    android:text="@string/btn_map_starboard"/>
+                    android:layout_gravity="center"
+                    android:background="@drawable/img_btn_background"
+                    android:foreground="?android:selectableItemBackground"
+                    android:text="@string/btn_map_starboard" />
 
             </RelativeLayout>
 
@@ -178,14 +180,14 @@
     </LinearLayout>
 
     <!--<LinearLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="0dp"-->
-        <!--android:layout_weight="0">-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="0dp"-->
+    <!--android:layout_weight="0">-->
 
-        <!--<com.esri.arcgisruntime.mapping.view.MapView-->
-            <!--android:id="@+id/mapview_arcgis_map"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"></com.esri.arcgisruntime.mapping.view.MapView>-->
+    <!--<com.esri.arcgisruntime.mapping.view.MapView-->
+    <!--android:id="@+id/mapview_arcgis_map"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"></com.esri.arcgisruntime.mapping.view.MapView>-->
 
     <!--</LinearLayout>-->
 

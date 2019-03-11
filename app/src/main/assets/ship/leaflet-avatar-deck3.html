@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../leaflet/leaflet.css"
+          crossorigin=""/>
+    <link rel="stylesheet" href="../js/leaflet-bft.css"
+          crossorigin=""/>
+    <script src="../leaflet/leaflet.js"
+            crossorigin=""></script>
+    <script src="../js/anglemarker-plugin.js"
+            crossorigin=""></script>
+
+    <script src="../js/leaflet-bft.js"
+            crossorigin=""></script>
+    <script src="../js/stomp.js"
+            crossorigin=""></script>
+
+    <script src="../js/bft-tracks-decks.js"
+            crossorigin=""></script>
+    <script src="../js/leaflet-mobile.js"
+            crossorigin=""></script>
+    <title>BFT Web Map - Leaflet</title>
+</head>
+<body>
+Deck 3 - Boat Deck
+<div id="mapdeck"></div>
+
+
+<script>
+    var lowestHeight=6.85;
+    var highestHeight=9.525;
+    var gaScale = 250.0; // GA scale 1cm to 250 cm
+    var pxWidth = 1921; //Width of GA cut out
+    var metreWidth = (16.25*gaScale)/100; //Width measure from GA cut out
+    var factor = pxWidth/metreWidth;
+    var imageoverlay='../ship/DECK3.png';
+    var lowerleftx=-1.23*250/100*factor;
+    var lowerlefty=-4.7*250/100*factor;
+    var upperrightx=(15.02)*250/100*factor;
+    var upperrighty=4.7*250/100*factor;
+    var initialx=8*250/100;
+    var initialy=0;
+    var initialzoom=-2.5;
+    var map0=loadLeaflet(imageoverlay,lowerleftx,lowerlefty,upperrightx,upperrighty, initialx,initialy,initialzoom);
+
+
+    // getCustomMarker(0,0,null,'P0',true,0).addTo(map0);
+    // getCustomMarker(5.44*250/100,0,null,'P20',true,0).addTo(map0);
+    // getCustomMarker(11.84*250/100,0,null,'P40',true,0).addTo(map0);
+    // getCustomMarker(18.24*250/100,0,null,'P60',true,0).addTo(map0);
+    // getCustomMarker(37.43*250/100,0,null,'P120',true,0).addTo(map0);
+    // getCustomMarker(43.82*250/100,0,null,'P140',true,0).addTo(map0);
+    // getCustomMarker(50.21*250/100,0,null,'P160',true,0).addTo(map0);
+    // getCustomMarker(55.99*250/100,0,null,'P180',true,0).addTo(map0);
+    // getCustomMarker(61.37*250/100,0,null,'P200',true,0).addTo(map0);
+    // getCustomMarker(66.16*250/100,0,null,'P220',true,0).addTo(map0);
+
+    var mqSettings=Android.getMQSettings();
+    mqSettingsArray=mqSettings.split(',');
+    mqAddress=mqSettingsArray[0];
+    mqUser=mqSettingsArray[1];
+    mqPassword=mqSettingsArray[2];
+    mqTopic=mqSettingsArray[3];
+    mqPort=mqSettingsArray[4];
+    // mqAddress=parent.document.getElementById('txtboxRabbitMQserver').value;
+    // mqUser=parent.document.getElementById('txtboxRabbitMQuser').value;
+    // mqPassword=parent.document.getElementById('txtboxRabbitMQpassword').value;
+    // mqTopic=parent.document.getElementById('txtboxRabbitMQtopic').value;
+    // console.debug("mqAddress",mqAddress);
+    // console.debug("mqUser",mqUser);
+    // console.debug("mqPassword",mqPassword);
+    // console.debug("mqTopic",mqTopic);
+    initRabbit(mqAddress,mqUser,mqPassword,mqTopic,mqPort);
+
+    map0.on('contextmenu', function(e){
+        var x=e.latlng.lng;
+        var y=e.latlng.lat;
+        mapHeight=((highestHeight-lowestHeight)/2)+lowestHeight;
+        Android.manualLocationUpdateinPixels(x + "," + y+","+mapHeight);
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="identity_category"
+        android:title="Identity">
+
+        <EditTextPreference
+            android:defaultValue="Alpha"
+            android:key="@string/callsign"
+            android:summary="Enter your callsign"
+            android:title="@string/callsign"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="logs_category"
+        android:title="Logs">
+
+        <EditTextPreference
+            android:defaultValue="locationlogs.csv"
+            android:key="@string/logsloc"
+            android:summary="Enter log location"
+            android:title="@string/logsloc"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="mq_category"
+        android:title="MQ settings">
+
+        <EditTextPreference
+            android:key="@string/mqhost"
+            android:summary="Enter the hostname or IP address of MQ server"
+            android:defaultValue="192.168.1.5"
+            android:title="@string/mqhost"/>
+
+        <EditTextPreference
+            android:key="@string/mqport"
+            android:summary="Enter the port of WS MQ server"
+            android:defaultValue="15674"
+            android:title="@string/mqport"/>
+
+        <EditTextPreference
+            android:key="@string/mqTopic"
+            android:title="@string/mqTopic"
+            android:summary="Enter the MQ topic everyone is using"
+            android:defaultValue="/exchange/bfttracksExchange/bfttracks"/>
+
+        <EditTextPreference
+            android:key="@string/mqUser"
+            android:title="@string/mqUser"
+            android:summary="Enter the username for MQ topic"
+            android:defaultValue="jax"/>
+        <EditTextPreference
+            android:key="@string/mqPassword"
+            android:title="@string/mqPassword"
+            android:summary="Enter the password for MQ topic"
+            android:defaultValue="password"/>
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:key="estimote_category"
+        android:title="Estimote settings">
+
+    <EditTextPreference
+        android:key="@string/estimoteId"
+        android:summary="Enter the Application ID of Estimote"
+        android:defaultValue="ong-xin-cai-s-proximity-fo-hm6"
+        android:title="@string/estimoteId"/>
+
+    <EditTextPreference
+        android:key="@string/estimoteToken"
+        android:summary="Enter the Application Token of Estimote"
+        android:defaultValue="35cd4baf21cdcc9feee14d0fb028c36d"
+        android:title="@string/estimoteToken"/>
+
+    <EditTextPreference
+        android:key="@string/estimoteDist"
+        android:summary="Enter the distance in metres where Estimote Proximity beacon will activate"
+        android:defaultValue="1.0"
+        android:title="@string/estimoteDist"/>
+
+
+
+
+    </PreferenceCategory>
+
+
+
+    <PreferenceCategory
+        android:key="floorplan_category"
+        android:title="Building floorplan">
+
+        <EditTextPreference
+            android:key="@string/Deck7offset"
+            android:title="@string/Deck7offset"
+            android:summary="Enter offset from ground floor in metres"
+            android:defaultValue="17.35"/>
+        <EditTextPreference
+            android:key="@string/Deck6offset"
+            android:title="@string/Deck6offset"
+            android:summary="Enter offset from ground floor in metres"
+            android:defaultValue="14.05"/>
+        <EditTextPreference
+            android:key="@string/Deck5offset"
+            android:title="@string/Deck5offset"
+            android:summary="Enter offset from ground floor in metres"
+            android:defaultValue="12.075"/>
+        <EditTextPreference
+            android:key="@string/Deck4offset"
+            android:title="@string/Deck4offset"
+            android:summary="Enter offset from ground floor in metres"
+            android:defaultValue="9.525"/>
+        <EditTextPreference
+            android:key="@string/Deck3offset"
+            android:title="@string/Deck3offset"
+            android:summary="Enter offset from ground floor in metres"
+            android:defaultValue="6.85"/>
+        <EditTextPreference
+            android:key="@string/Deck2offset"
+            android:title="@string/Deck2offset"
+            android:summary="Enter offset from ground floor in metres"
+            android:defaultValue="3.925"/>
+        <EditTextPreference
+            android:key="@string/DeckTweenoffset"
+            android:title="@string/DeckTweenoffset"
+            android:summary="Enter offset from ground floor in metres"
+            android:defaultValue="1.35"/>
+        <EditTextPreference
+            android:key="@string/DeckMainoffset"
+            android:title="@string/DeckMainoffset"
+            android:summary="Enter offset from ground floor in metres"
+            android:defaultValue="0"/>
+        <EditTextPreference
+            android:key="@string/Deck2ndoffset"
+            android:title="@string/Deck2ndoffset"
+            android:summary="Enter offset from ground floor in metres"
+            android:defaultValue="-1.875"/>
+        <EditTextPreference
+            android:key="@string/Deck3rdoffset"
+            android:title="@string/Deck3rdoffset"
+            android:summary="Enter offset from ground floor in metres"
+            android:defaultValue="-5.15"/>
+        <EditTextPreference
+            android:key="@string/DeckPlatformoffset"
+            android:title="@string/DeckPlatformoffset"
+            android:summary="Enter offset from ground floor in metres"
+            android:defaultValue="-8.875"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="hidden_category"
+        android:title="Live data Do not alter">
+        <EditTextPreference
+            android:key="@string/realheight"
+            android:title="@string/realheight"
+            android:summary="Real height info"
+            android:defaultValue="90"/>
+        <EditTextPreference
+            android:key="@string/mapheight"
+            android:title="@string/mapheight"
+            android:summary="Map height info"
+            android:defaultValue="5"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

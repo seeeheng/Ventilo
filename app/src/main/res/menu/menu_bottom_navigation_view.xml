@@ -22,8 +22,8 @@
     <item
         android:id="@+id/btn_nav_action_notification"
         android:enabled="true"
-        android:icon="@drawable/btm_nav_menu_notification_btn"
-        android:title="@string/btm_nav_menu_notification"
+        android:icon="@drawable/btm_nav_menu_status_btn"
+        android:title="@string/btm_nav_menu_status"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/btn_nav_action_stream"

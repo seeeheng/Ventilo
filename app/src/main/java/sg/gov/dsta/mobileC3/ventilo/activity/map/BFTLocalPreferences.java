@@ -66,7 +66,7 @@ public class BFTLocalPreferences {
     public BFTLocalPreferences(Context context) {
 
         this.context = context;
-//        PreferenceManager.setDefaultValues(context, R.xml.preferences, true);
+        PreferenceManager.setDefaultValues(context, R.xml.preferences, true);
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         //Ground floor up

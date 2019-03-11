@@ -25,7 +25,7 @@ import java.util.List;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskItemModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.ReportFragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
 
@@ -51,12 +51,6 @@ public class TaskInnerFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_inner_task, container, false);
         initUI(inflater, container, rootView);
-
-        // TODO: To delete after scenario
-//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        SharedPreferences.Editor editor = pref.edit();
-//        editor.clear();
-//        editor.apply();
 
         return rootView;
     }
@@ -90,9 +84,9 @@ public class TaskInnerFragment extends Fragment {
                 } else {
                     Fragment taskInnerDetailFragment = new TaskInnerDetailFragment();
                     Bundle bundle = new Bundle();
-                    bundle.putString(ReportFragmentConstants.KEY_TASK, ReportFragmentConstants.VALUE_TASK_VIEW);
-                    bundle.putString(ReportFragmentConstants.KEY_TASK_TITLE, mTaskListItems.get(position).getTitle());
-                    bundle.putString(ReportFragmentConstants.KEY_TASK_DESCRIPTION, mTaskListItems.get(position).getDescription());
+                    bundle.putString(FragmentConstants.KEY_TASK, FragmentConstants.VALUE_TASK_VIEW);
+                    bundle.putString(FragmentConstants.KEY_TASK_TITLE, mTaskListItems.get(position).getTitle());
+                    bundle.putString(FragmentConstants.KEY_TASK_DESCRIPTION, mTaskListItems.get(position).getDescription());
                     taskInnerDetailFragment.setArguments(bundle);
 
                     // Pass info to fragment
@@ -156,7 +150,7 @@ public class TaskInnerFragment extends Fragment {
         }));
 
         // Set data for recycler view
-        setUpDummyData();
+        setUpRecyclerData();
 
         mRecyclerAdapter = new TaskRecyclerAdapter(getContext(), mTaskListItems);
         mRecyclerView.setAdapter(mRecyclerAdapter);
@@ -169,8 +163,8 @@ public class TaskInnerFragment extends Fragment {
             public void onClick(View view) {
                 Fragment taskDetailFragment = new TaskInnerDetailFragment();
                 Bundle bundle = new Bundle();
-                bundle.putString(ReportFragmentConstants.KEY_TASK, ReportFragmentConstants.VALUE_TASK_ADD);
-                bundle.putInt(ReportFragmentConstants.KEY_TASK_TOTAL_NUMBER, mTaskListItems.size());
+                bundle.putString(FragmentConstants.KEY_TASK, FragmentConstants.VALUE_TASK_ADD);
+                bundle.putInt(FragmentConstants.KEY_TASK_TOTAL_NUMBER, mTaskListItems.size());
                 taskDetailFragment.setArguments(bundle);
 
                 FragmentManager fm = getActivity().getSupportFragmentManager();
@@ -282,7 +276,7 @@ public class TaskInnerFragment extends Fragment {
 //        });
 //    }
 
-    private synchronized void setUpDummyData() {
+    private synchronized void setUpRecyclerData() {
 
         if (mTaskListItems == null) {
             mTaskListItems = new ArrayList<>();
@@ -525,7 +519,7 @@ public class TaskInnerFragment extends Fragment {
 
     public void refreshData() {
         Log.d(TAG, "refreshData");
-        setUpDummyData();
+        setUpRecyclerData();
 
 //        if (mRecyclerAdapter != null) {
 //            mRecyclerAdapter.notifyDataSetChanged();
