@@ -27,12 +27,11 @@ import java.util.Calendar;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.report.ReportStatePagerAdapter;
-import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicLightEditTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicLightEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
@@ -41,14 +40,16 @@ public class TaskInnerDetailFragment extends Fragment {
 
     private static final String TAG = "TaskInnerDetailFragment";
 
-    private C2LatoBlackTextView mTvTitleHeader;
-    private C2LatoItalicLightEditTextView mEtvTitleDetail;
-    private C2LatoBlackTextView mTvDescriptionHeader;
-    private C2LatoItalicLightEditTextView mEtvDescriptionDetail;
+    private C2OpenSansBlackTextView mTvTitleHeader;
+    private C2OpenSansItalicLightEditTextView mEtvTitleDetail;
+    private C2OpenSansBlackTextView mTvDescriptionHeader;
+    private C2OpenSansItalicLightEditTextView mEtvDescriptionDetail;
 
     private Spinner mSpinnerDropdownTitle;
 
-    private C2LatoBlackButton mBtnReport;
+    private C2OpenSansBlackButton mBtnReport;
+
+    private boolean mIsVisibleToUser;
 
     @Nullable
     @Override
@@ -405,10 +406,51 @@ public class TaskInnerDetailFragment extends Fragment {
         RabbitMQHelper.getInstance().sendMessage(newTaskJSON.toString());
     }
 
+//    private void onVisible() {
+//
+//    }
+//
+//    // Remove all fragments from back stack once this fragment is invisible (user navigates to other tabs)
+//    private void onInvisible() {
+//        System.out.println("TaskInner Invisible");
+//        int count = getFragmentManager().getBackStackEntryCount();
+//        while (count > 0) {
+//            getFragmentManager().popBackStack();
+//            count = getFragmentManager().getBackStackEntryCount();
+//        }
+//    }
+
     @Override
     public void onResume() {
         super.onResume();
 
         refreshUI();
+
+//        if (mIsVisibleToUser) {
+//            onVisible();
+//        }
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+//        if (mIsVisibleToUser) {
+//            onInvisible();
+//        }
+    }
+
+//    @Override
+//    public void setUserVisibleHint(boolean isVisibleToUser) {
+//        super.setUserVisibleHint(isVisibleToUser);
+//        mIsVisibleToUser = isVisibleToUser;
+//        System.out.println("TaskInner Visible");
+//        if (isResumed()) { // fragment has been created at this point
+//            if (mIsVisibleToUser) {
+//                onVisible();
+//            } else {
+//                onInvisible();
+//            }
+//        }
+//    }
 }

@@ -101,7 +101,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_alignParentBottom="true">
 
-                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton
                     android:id="@+id/btn_mqtt_subscribe"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -111,7 +111,7 @@
                     android:text="@string/btn_map_subscribe"
                     android:visibility="gone" />
 
-                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton
                     android:id="@+id/btn_mqtt_share_location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -144,7 +144,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true">
 
-                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton
                     android:id="@+id/btn_map_top_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -153,7 +153,7 @@
                     android:foreground="?android:selectableItemBackground"
                     android:text="@string/btn_map_top" />
 
-                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton
                     android:id="@+id/btn_map_port_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -163,7 +163,7 @@
                     android:foreground="?android:selectableItemBackground"
                     android:text="@string/btn_map_port" />
 
-                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton
                     android:id="@+id/btn_map_sb_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

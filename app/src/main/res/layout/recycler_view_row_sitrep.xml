@@ -77,7 +77,7 @@
                                     android:scaleType="fitXY"
                                     app:srcCompat="@drawable/assignee_icon" />
 
-                                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicBlackTextView
+                                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicBlackTextView
                                     android:id="@+id/tv_recycler_sitrep_reported_by"
                                     android:layout_width="wrap_content"
                                     android:layout_height="match_parent"
@@ -101,7 +101,7 @@
                                     android:scaleType="fitXY"
                                     app:srcCompat="@drawable/created_time_icon" />
 
-                                <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
+                                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
                                     android:id="@+id/tv_recycler_sitrep_reported_datetime"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"

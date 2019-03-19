@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView
+        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackTextView
             android:id="@+id/sitrep_detail_tv_sitrep_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -29,7 +29,7 @@
             android:layout_margin="@dimen/side_margin"
             android:orientation="vertical">
 
-            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
                 android:id="@+id/tv_sitrep_detail_report"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
                 android:textColor="@color/primary_text_white"
                 android:textSize="@dimen/sub_header_text_size" />
 
-            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton
                 android:id="@+id/btn_sitrep_detail_send"
                 android:layout_width="200dp"
                 android:layout_height="40dp"

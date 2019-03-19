@@ -8,24 +8,24 @@ import android.util.AttributeSet;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 
-public class C2LatoItalicBlackTextView extends AppCompatTextView {
+public class C2OpenSansRegularTextView extends AppCompatTextView {
 
-    public C2LatoItalicBlackTextView(Context context, AttributeSet attrs, int defStyle) {
+    public C2OpenSansRegularTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
     }
 
-    public C2LatoItalicBlackTextView(Context context, AttributeSet attrs) {
+    public C2OpenSansRegularTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public C2LatoItalicBlackTextView(Context context) {
+    public C2OpenSansRegularTextView(Context context) {
         super(context);
     }
 
     private void init() {
-        Typeface tf = ResourcesCompat.getFont(getContext(), R.font.lato_black_italic);
+        Typeface tf = ResourcesCompat.getFont(getContext(), R.font.open_sans_regular);
         setTypeface(tf);
     }
 

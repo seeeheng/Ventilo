@@ -37,9 +37,9 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
                 mHashMapPageReference.put(MainNavigationConstants.BTM_NAV_MENU_MAP_POSITION_ID,
                         fragment);
                 break;
-            case MainNavigationConstants.BTM_NAV_MENU_TIMELINE_POSITION_ID:
-                fragment = new TimelineFragment();
-                mHashMapPageReference.put(MainNavigationConstants.BTM_NAV_MENU_TIMELINE_POSITION_ID,
+            case MainNavigationConstants.BTM_NAV_MENU_VIDEO_STREAM_POSITION_ID:
+                fragment = new VideoStreamFragment();
+                mHashMapPageReference.put(MainNavigationConstants.BTM_NAV_MENU_VIDEO_STREAM_POSITION_ID,
                         fragment);
                 break;
             case MainNavigationConstants.BTM_NAV_MENU_REPORT_POSITION_ID:
@@ -47,18 +47,18 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
                 mHashMapPageReference.put(MainNavigationConstants.BTM_NAV_MENU_REPORT_POSITION_ID,
                         fragment);
                 break;
+            case MainNavigationConstants.BTM_NAV_MENU_TIMELINE_POSITION_ID:
+                fragment = new TimelineFragment();
+                mHashMapPageReference.put(MainNavigationConstants.BTM_NAV_MENU_TIMELINE_POSITION_ID,
+                        fragment);
+                break;
             case MainNavigationConstants.BTM_NAV_MENU_RADIO_LINK_STATUS_POSITION_ID:
                 fragment = new RadioLinkStatusFragment();
                 mHashMapPageReference.put(MainNavigationConstants.BTM_NAV_MENU_RADIO_LINK_STATUS_POSITION_ID,
                         fragment);
                 break;
-            case MainNavigationConstants.BTM_NAV_MENU_STREAM_POSITION_ID:
-                fragment = new VideoStreamFragment();
-                mHashMapPageReference.put(MainNavigationConstants.BTM_NAV_MENU_STREAM_POSITION_ID,
-                        fragment);
-                break;
             default:
-                fragment = new TimelineFragment();
+                fragment = new RadioLinkStatusFragment();
                 mHashMapPageReference.put(MainNavigationConstants.BTM_NAV_MENU_TIMELINE_POSITION_ID,
                         fragment);
                 break;

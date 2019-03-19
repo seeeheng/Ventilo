@@ -8,10 +8,10 @@
         android:title="@string/btm_nav_menu_map"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/btn_nav_action_timeline"
+        android:id="@+id/btn_nav_action_video_stream"
         android:enabled="true"
-        android:icon="@drawable/btm_nav_menu_timeline_btn"
-        android:title="@string/btm_nav_menu_timeline"
+        android:icon="@drawable/btm_nav_menu_video_stream_btn"
+        android:title="@string/btm_nav_menu_video_stream"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/btn_nav_action_report"
@@ -20,15 +20,15 @@
         android:title="@string/btm_nav_menu_report"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/btn_nav_action_notification"
+        android:id="@+id/btn_nav_action_timeline"
+        android:enabled="true"
+        android:icon="@drawable/btm_nav_menu_timeline_btn"
+        android:title="@string/btm_nav_menu_timeline"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/btn_nav_action_radio_link"
         android:enabled="true"
         android:icon="@drawable/btm_nav_menu_status_btn"
         android:title="@string/btm_nav_menu_status"
-        app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/btn_nav_action_stream"
-        android:enabled="true"
-        android:icon="@drawable/btm_nav_menu_video_stream_btn"
-        android:title="@string/btm_nav_menu_stream"
         app:showAsAction="ifRoom" />
 </menu>

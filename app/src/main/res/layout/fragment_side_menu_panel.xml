@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="@dimen/side_menu_tab_panel_width"
+    android:layout_height="match_parent"
+    android:background="@color/background_dark_grey">
+
+    <RelativeLayout
+        android:id="@+id/layout_tab_map_selector_status"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/side_menu_tab_height"
+        android:layout_alignParentTop="true">
+
+        <LinearLayout
+            android:id="@+id/linear_layout_line_selector_map"
+            android:layout_width="@dimen/side_menu_line_selector_width"
+            android:layout_height="match_parent"
+            android:background="@color/primary_highlight_cyan"
+            android:orientation="horizontal" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center">
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/img_tab_map"
+                android:layout_width="@dimen/side_menu_icon_width"
+                android:layout_height="@dimen/side_menu_icon_height"
+                app:srcCompat="@drawable/side_nav_menu_map_btn" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/layout_tab_radio_link_selector_status"
+        android:layout_below="@+id/layout_tab_map_selector_status"
+        android:orientation="vertical"
+        android:weightSum="98">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="14" />
+
+        <RelativeLayout
+            android:id="@+id/layout_tab_video_stream_selector_status"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="14"
+            android:minHeight="@dimen/side_menu_tab_height">
+
+            <LinearLayout
+                android:id="@+id/linear_layout_line_selector_video_stream"
+                android:layout_width="@dimen/side_menu_line_selector_width"
+                android:layout_height="match_parent"
+                android:background="@color/primary_highlight_cyan"
+                android:orientation="horizontal" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/img_tab_video_stream"
+                    android:layout_width="@dimen/side_menu_icon_width"
+                    android:layout_height="@dimen/side_menu_icon_height"
+                    app:srcCompat="@drawable/side_nav_menu_video_stream_btn" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="14" />
+
+        <RelativeLayout
+            android:id="@+id/layout_tab_report_selector_status"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="14"
+            android:minHeight="@dimen/side_menu_tab_height">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp">
+
+                <LinearLayout
+                    android:id="@+id/linear_layout_line_selector_report"
+                    android:layout_width="@dimen/side_menu_line_selector_width"
+                    android:layout_height="match_parent"
+                    android:background="@color/primary_highlight_cyan"
+                    android:orientation="horizontal" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center">
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/img_tab_report"
+                        android:layout_width="@dimen/side_menu_icon_width"
+                        android:layout_height="@dimen/side_menu_icon_height"
+                        app:srcCompat="@drawable/side_nav_menu_report_btn" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="14" />
+
+        <RelativeLayout
+            android:id="@+id/layout_tab_timeline_selector_status"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="14"
+            android:minHeight="@dimen/side_menu_tab_height">
+
+            <LinearLayout
+                android:id="@+id/linear_layout_line_selector_timeline"
+                android:layout_width="@dimen/side_menu_line_selector_width"
+                android:layout_height="match_parent"
+                android:background="@color/primary_highlight_cyan"
+                android:orientation="horizontal" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/img_tab_timeline"
+                    android:layout_width="@dimen/side_menu_icon_width"
+                    android:layout_height="@dimen/side_menu_icon_height"
+                    app:srcCompat="@drawable/side_nav_menu_timeline_btn" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="14" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/layout_tab_radio_link_selector_status"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/side_menu_tab_height"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/linear_layout_line_selector_radio_link"
+            android:layout_width="@dimen/side_menu_line_selector_width"
+            android:layout_height="match_parent"
+            android:background="@color/primary_highlight_cyan"
+            android:orientation="horizontal" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center">
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/img_tab_radio_link"
+                android:layout_width="@dimen/side_menu_icon_width"
+                android:layout_height="@dimen/side_menu_icon_height"
+                android:gravity="center"
+                app:srcCompat="@drawable/side_nav_menu_radio_status_btn" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

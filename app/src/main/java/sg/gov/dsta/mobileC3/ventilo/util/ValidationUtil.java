@@ -2,8 +2,7 @@ package sg.gov.dsta.mobileC3.ventilo.util;
 
 import android.text.TextUtils;
 
-import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicLightEditTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicLightEditTextView;
 
 public class ValidationUtil {
 
@@ -18,7 +17,7 @@ public class ValidationUtil {
         }
     }
 
-    public static boolean validateEditTextField(C2LatoItalicLightEditTextView etv, String errorString) {
+    public static boolean validateEditTextField(C2OpenSansItalicLightEditTextView etv, String errorString) {
         if (etv != null) {
             String urlLinkDetail = etv.getText().toString().trim();
 

@@ -15,6 +15,9 @@
     <dimen name="side_margin">15dp</dimen>
     <dimen name="elements_vertical_margin_spacing">10dp</dimen>
     <dimen name="divider_margin">50dp</dimen>
+    <dimen name="toolbar_height">40dp</dimen>
+    <dimen name="text_view_height">40dp</dimen>
+    <dimen name="edit_text_view_height">40dp</dimen>
 
     <!-- Common Recycler Dimensions -->
     <dimen name="recycler_row_outermost_padding">16dp</dimen>
@@ -34,6 +37,14 @@
     <dimen name="design_bottom_navigation_text_size" tools:override="true">9sp</dimen>
     <dimen name="design_bottom_navigation_active_text_size" tools:override="true">9sp</dimen>
 
+    <!-- Main Side Menu Tab -->
+    <dimen name="side_menu_tab_panel_width">50dp</dimen>
+    <dimen name="side_menu_tab_height">40dp</dimen>
+    <!--<dimen name="side_menu_tab_width">40dp</dimen>-->
+    <dimen name="side_menu_icon_width">20dp</dimen>
+    <dimen name="side_menu_icon_height">20dp</dimen>
+    <dimen name="side_menu_line_selector_width">4dp</dimen>
+
     <!-- Login Page -->
     <dimen name="login_outermost_padding">16dp</dimen>
     <dimen name="login_input_length">230dp</dimen>
@@ -47,10 +58,19 @@
     <dimen name="login_app_text_size">24sp</dimen>
     <dimen name="login_misc_text_size">12sp</dimen>
 
+    <!-- Map Blueprint Page -->
+    <dimen name="map_blueprint_btn_width">25dp</dimen>
+    <dimen name="map_blueprint_btn_height">25dp</dimen>
+
+    <!-- Video Stream Page -->
+    <dimen name="video_stream_btn_width">25dp</dimen>
+    <dimen name="video_stream_btn_height">25dp</dimen>
+
     <!-- Text Size -->
     <dimen name="sub_header_text_size">18sp</dimen>
-    <dimen name="hint_text_size">14sp</dimen>
-    <dimen name="edit_text_text_size">16sp</dimen>
+    <dimen name="hint_text_size">13sp</dimen>
+    <dimen name="edit_text_text_size">15sp</dimen>
+    <dimen name="text_view_text_size">15sp</dimen>
     <!--<dimen name="edit_text_size">14sp</dimen>-->
 
     <!-- Task -->

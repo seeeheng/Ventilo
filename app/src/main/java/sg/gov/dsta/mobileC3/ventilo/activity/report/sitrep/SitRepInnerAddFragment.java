@@ -21,9 +21,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
 import sg.gov.dsta.mobileC3.ventilo.util.ValidationUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoLightEditTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansLightEditTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 
 public class SitRepInnerAddFragment extends Fragment {
@@ -36,17 +36,17 @@ public class SitRepInnerAddFragment extends Fragment {
     private LinearLayout mLayoutRequest;
 
     // Text Views
-    private C2LatoRegularTextView mTvTeam;
-    private C2LatoRegularTextView mTvLocation;
-    private C2LatoRegularTextView mTvActivity;
-    private C2LatoRegularTextView mTvPersonnel;
-    private C2LatoRegularTextView mTvNextCoa;
-    private C2LatoRegularTextView mTvRequest;
+    private C2OpenSansRegularTextView mTvTeam;
+    private C2OpenSansRegularTextView mTvLocation;
+    private C2OpenSansRegularTextView mTvActivity;
+    private C2OpenSansRegularTextView mTvPersonnel;
+    private C2OpenSansRegularTextView mTvNextCoa;
+    private C2OpenSansRegularTextView mTvRequest;
 
     // Edit Texts
-    private C2LatoLightEditTextView mEtvT;
-    private C2LatoLightEditTextView mEtvS;
-    private C2LatoLightEditTextView mEtvD;
+    private C2OpenSansLightEditTextView mEtvT;
+    private C2OpenSansLightEditTextView mEtvS;
+    private C2OpenSansLightEditTextView mEtvD;
 
     // Buttons
     private CircleImageView mCircleBtnAddT;
@@ -55,13 +55,13 @@ public class SitRepInnerAddFragment extends Fragment {
     private CircleImageView mCircleBtnReduceS;
     private CircleImageView mCircleBtnAddD;
     private CircleImageView mCircleBtnReduceD;
-    private C2LatoBlackButton mBtnConfirm;
+    private C2OpenSansBlackButton mBtnConfirm;
 
     // Spinners
-    private Spinner mSpinnerDropdownLocation;
-    private Spinner mSpinnerDropdownActivity;
-    private Spinner mSpinnerDropdownNextCoa;
-    private Spinner mSpinnerDropdownRequest;
+    private Spinner mSpinnerLocation;
+    private Spinner mSpinnerActivity;
+    private Spinner mSpinnerNextCoa;
+    private Spinner mSpinnerRequest;
 
     @Nullable
     @Override
@@ -229,7 +229,7 @@ public class SitRepInnerAddFragment extends Fragment {
     }
 
     private void initLocationSpinner(View rootView) {
-        mSpinnerDropdownLocation = rootView.findViewById(R.id.spinner_sitrep_location);
+        mSpinnerLocation = rootView.findViewById(R.id.spinner_sitrep_location);
         String[] locationStringArray = ReportSpinnerBank.getInstance(getActivity()).getLocationList();
 
         ArrayAdapter<String> adapter = new ArrayAdapter(getActivity(),
@@ -260,8 +260,8 @@ public class SitRepInnerAddFragment extends Fragment {
             }
         };
 
-        mSpinnerDropdownLocation.setAdapter(adapter);
-        mSpinnerDropdownLocation.setOnItemSelectedListener(getLocationSpinnerItemSelectedListener);
+        mSpinnerLocation.setAdapter(adapter);
+        mSpinnerLocation.setOnItemSelectedListener(getLocationSpinnerItemSelectedListener);
     }
 
     private AdapterView.OnItemSelectedListener getLocationSpinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
@@ -274,7 +274,7 @@ public class SitRepInnerAddFragment extends Fragment {
                 // Notify the selected item text
                 mLayoutActivity.setVisibility(View.VISIBLE);
                 mLayoutPersonnel.setVisibility(View.VISIBLE);
-                mSpinnerDropdownActivity.setEnabled(true);
+                mSpinnerActivity.setEnabled(true);
             }
         }
 
@@ -285,7 +285,7 @@ public class SitRepInnerAddFragment extends Fragment {
     };
 
     private void initActivitySpinner(View rootView) {
-        mSpinnerDropdownActivity = rootView.findViewById(R.id.spinner_sitrep_activity);
+        mSpinnerActivity = rootView.findViewById(R.id.spinner_sitrep_activity);
         String[] activityStringArray = ReportSpinnerBank.getInstance(getActivity()).getActivityList();
 
         ArrayAdapter<String> adapter = new ArrayAdapter(getActivity(),
@@ -316,9 +316,9 @@ public class SitRepInnerAddFragment extends Fragment {
             }
         };
 
-        mSpinnerDropdownActivity.setAdapter(adapter);
-        mSpinnerDropdownActivity.setOnItemSelectedListener(getActivitySpinnerItemSelectedListener);
-        mSpinnerDropdownActivity.setEnabled(false);
+        mSpinnerActivity.setAdapter(adapter);
+        mSpinnerActivity.setOnItemSelectedListener(getActivitySpinnerItemSelectedListener);
+        mSpinnerActivity.setEnabled(false);
     }
 
     private AdapterView.OnItemSelectedListener getActivitySpinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
@@ -330,7 +330,7 @@ public class SitRepInnerAddFragment extends Fragment {
             if (position > 0) {
                 // Notify the selected item text
                 mLayoutNextCoa.setVisibility(View.VISIBLE);
-                mSpinnerDropdownNextCoa.setEnabled(true);
+                mSpinnerNextCoa.setEnabled(true);
             }
         }
 
@@ -341,7 +341,7 @@ public class SitRepInnerAddFragment extends Fragment {
     };
 
     private void initNextCoaSpinner(View rootView) {
-        mSpinnerDropdownNextCoa = rootView.findViewById(R.id.spinner_sitrep_next_coa);
+        mSpinnerNextCoa = rootView.findViewById(R.id.spinner_sitrep_next_coa);
         String[] nextCoaStringArray = ReportSpinnerBank.getInstance(getActivity()).getNextCoaList();
 
         ArrayAdapter<String> adapter = new ArrayAdapter(getActivity(),
@@ -372,9 +372,9 @@ public class SitRepInnerAddFragment extends Fragment {
             }
         };
 
-        mSpinnerDropdownNextCoa.setAdapter(adapter);
-        mSpinnerDropdownNextCoa.setOnItemSelectedListener(getNextCoaSpinnerItemSelectedListener);
-        mSpinnerDropdownNextCoa.setEnabled(false);
+        mSpinnerNextCoa.setAdapter(adapter);
+        mSpinnerNextCoa.setOnItemSelectedListener(getNextCoaSpinnerItemSelectedListener);
+        mSpinnerNextCoa.setEnabled(false);
     }
 
     private AdapterView.OnItemSelectedListener getNextCoaSpinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
@@ -386,7 +386,7 @@ public class SitRepInnerAddFragment extends Fragment {
             if (position > 0) {
                 // Notify the selected item text
                 mLayoutRequest.setVisibility(View.VISIBLE);
-                mSpinnerDropdownRequest.setEnabled(true);
+                mSpinnerRequest.setEnabled(true);
             }
         }
 
@@ -397,7 +397,7 @@ public class SitRepInnerAddFragment extends Fragment {
     };
 
     private void initRequestSpinner(View rootView) {
-        mSpinnerDropdownRequest = rootView.findViewById(R.id.spinner_sitrep_request);
+        mSpinnerRequest = rootView.findViewById(R.id.spinner_sitrep_request);
         String[] requestStringArray = ReportSpinnerBank.getInstance(getActivity()).getRequestList();
 
         ArrayAdapter<String> adapter = new ArrayAdapter(getActivity(),
@@ -428,9 +428,9 @@ public class SitRepInnerAddFragment extends Fragment {
             }
         };
 
-        mSpinnerDropdownRequest.setAdapter(adapter);
-        mSpinnerDropdownRequest.setOnItemSelectedListener(getRequestSpinnerItemSelectedListener);
-        mSpinnerDropdownRequest.setEnabled(false);
+        mSpinnerRequest.setAdapter(adapter);
+        mSpinnerRequest.setOnItemSelectedListener(getRequestSpinnerItemSelectedListener);
+        mSpinnerRequest.setEnabled(false);
     }
 
     private AdapterView.OnItemSelectedListener getRequestSpinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
@@ -456,13 +456,13 @@ public class SitRepInnerAddFragment extends Fragment {
         public void onClick(View view) {
             Fragment sitRepInnerDetailFragment = new SitRepInnerDetailFragment();
             Bundle bundle = new Bundle();
-            bundle.putString(FragmentConstants.KEY_SITREP_LOCATION, mSpinnerDropdownLocation.getSelectedItem().toString());
-            bundle.putString(FragmentConstants.KEY_SITREP_ACTIVITY, mSpinnerDropdownActivity.getSelectedItem().toString());
+            bundle.putString(FragmentConstants.KEY_SITREP_LOCATION, mSpinnerLocation.getSelectedItem().toString());
+            bundle.putString(FragmentConstants.KEY_SITREP_ACTIVITY, mSpinnerActivity.getSelectedItem().toString());
             bundle.putInt(FragmentConstants.KEY_SITREP_PERSONNEL_T, Integer.valueOf(mEtvT.getText().toString().trim()));
             bundle.putInt(FragmentConstants.KEY_SITREP_PERSONNEL_S, Integer.valueOf(mEtvS.getText().toString().trim()));
             bundle.putInt(FragmentConstants.KEY_SITREP_PERSONNEL_D, Integer.valueOf(mEtvD.getText().toString().trim()));
-            bundle.putString(FragmentConstants.KEY_SITREP_NEXT_COA, mSpinnerDropdownNextCoa.getSelectedItem().toString());
-            bundle.putString(FragmentConstants.KEY_SITREP_REQUEST, mSpinnerDropdownRequest.getSelectedItem().toString());
+            bundle.putString(FragmentConstants.KEY_SITREP_NEXT_COA, mSpinnerNextCoa.getSelectedItem().toString());
+            bundle.putString(FragmentConstants.KEY_SITREP_REQUEST, mSpinnerRequest.getSelectedItem().toString());
             sitRepInnerDetailFragment.setArguments(bundle);
 
             // Pass info to fragment

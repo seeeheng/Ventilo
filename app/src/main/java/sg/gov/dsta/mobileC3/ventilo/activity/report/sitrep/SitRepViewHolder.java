@@ -6,16 +6,15 @@ import android.view.View;
 import de.hdodenhof.circleimageview.CircleImageView;
 import lombok.Data;
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicBlackTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicBlackTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 
 @Data
 public class SitRepViewHolder extends RecyclerView.ViewHolder {
 
     private CircleImageView circleImgAvatar;
-    private C2LatoItalicBlackTextView tvReporter;
-    private C2LatoRegularTextView tvDateTime;
+    private C2OpenSansItalicBlackTextView tvReporter;
+    private C2OpenSansRegularTextView tvDateTime;
 
 //    private RelativeLayout relativeLayoutDeleteIcon;
 

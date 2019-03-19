@@ -11,14 +11,17 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
@@ -27,7 +30,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import sg.gov.dh.mq.MQListener;
 import sg.gov.dsta.mobileC3.ventilo.NoSwipeViewPager;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
@@ -60,9 +62,26 @@ public class MainActivity extends AppCompatActivity {
     private MqttHelper mMqttHelper;
 
     private NoSwipeViewPager mNoSwipeViewPager;
-    private BottomNavigationView mBottomNavigationView;
-    private TextView mDataReceived;
-    private Button mBtnPublish;
+//    private BottomNavigationView mBottomNavigationView;
+
+    // Side Tab Menu Buttons
+    private ImageView mImgViewTabMap;
+    private ImageView mImgViewTabVideoStream;
+    private ImageView mImgViewTabReport;
+    private ImageView mImgViewTabTimeline;
+    private ImageView mImgViewTabRadioLink;
+
+    private RelativeLayout mRelativeLayoutTabMap;
+    private RelativeLayout mRelativeLayoutTabVideoStream;
+    private RelativeLayout mRelativeLayoutTabReport;
+    private RelativeLayout mRelativeLayoutTabTimeline;
+    private RelativeLayout mRelativeLayoutTabRadioLink;
+
+    private LinearLayout mLinearLayoutLineSelectorMap;
+    private LinearLayout mLinearLayoutLineSelectorVideoStream;
+    private LinearLayout mLinearLayoutLineSelectorReport;
+    private LinearLayout mLinearLayoutLineSelectorTimeline;
+    private LinearLayout mLinearLayoutLineSelectorRadioLink;
 
     private boolean mIsServiceRegistered;
 
@@ -73,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        initTabButtons();
 //        ownUserId = 10;
 //        ownUserId = Long.parseLong(getIntent().getStringExtra("USER_ID"));
 
@@ -83,111 +102,235 @@ public class MainActivity extends AppCompatActivity {
         mNoSwipeViewPager.setAdapter(mainStatePagerAdapter);
         mNoSwipeViewPager.setPagingEnabled(false);
 
-        mBottomNavigationView = findViewById(R.id.btm_nav_view_main_nav);
+//        mBottomNavigationView = findViewById(R.id.btm_nav_view_main_nav);
 
-        NoSwipeViewPager.OnPageChangeListener viewPagerPageChangeListener =
-                setPageChangeListener(mBottomNavigationView);
-        mNoSwipeViewPager.addOnPageChangeListener(viewPagerPageChangeListener);
+//        NoSwipeViewPager.OnPageChangeListener viewPagerPageChangeListener =
+//                setPageChangeListener(mBottomNavigationView);
+//        mNoSwipeViewPager.addOnPageChangeListener(viewPagerPageChangeListener);
 
-        BottomNavigationView.OnNavigationItemSelectedListener
-                navigationItemSelectedListener = setNavigationItemSelectedListener(mNoSwipeViewPager);
-        mBottomNavigationView.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
+//        BottomNavigationView.OnNavigationItemSelectedListener
+//                navigationItemSelectedListener = setNavigationItemSelectedListener(mNoSwipeViewPager);
+//        mBottomNavigationView.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
 
-        mDataReceived = findViewById(R.id.dataReceived);
-        mBtnPublish = findViewById(R.id.btn_mqtt_publish);
-
-        mBtnPublish.setVisibility(View.GONE);
-        mBtnPublish.setOnClickListener(publishOnClickListener());
+//        mDataReceived = findViewById(R.id.dataReceived);
+//        mBtnPublish = findViewById(R.id.btn_mqtt_publish);
+//
+//        mBtnPublish.setVisibility(View.GONE);
+//        mBtnPublish.setOnClickListener(publishOnClickListener());
     }
 
-    private NoSwipeViewPager.OnPageChangeListener setPageChangeListener(
-            final BottomNavigationView bottomNavigationView) {
+    private void initTabButtons() {
+        // Tab Views
+        mRelativeLayoutTabMap = findViewById(R.id.layout_tab_map_selector_status);
+        mRelativeLayoutTabVideoStream = findViewById(R.id.layout_tab_video_stream_selector_status);
+        mRelativeLayoutTabReport = findViewById(R.id.layout_tab_report_selector_status);
+        mRelativeLayoutTabTimeline = findViewById(R.id.layout_tab_timeline_selector_status);
+        mRelativeLayoutTabRadioLink = findViewById(R.id.layout_tab_radio_link_selector_status);
 
-        return new NoSwipeViewPager.OnPageChangeListener() {
-            public void onPageScrollStateChanged(int state) {
-            }
+        // Line within Tab View
+        mLinearLayoutLineSelectorMap = findViewById(R.id.linear_layout_line_selector_map);
+        mLinearLayoutLineSelectorVideoStream = findViewById(R.id.linear_layout_line_selector_video_stream);
+        mLinearLayoutLineSelectorReport = findViewById(R.id.linear_layout_line_selector_report);
+        mLinearLayoutLineSelectorTimeline = findViewById(R.id.linear_layout_line_selector_timeline);
+        mLinearLayoutLineSelectorRadioLink = findViewById(R.id.linear_layout_line_selector_radio_link);
 
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
+        // Image Views within Tab View
+        mImgViewTabMap = findViewById(R.id.img_tab_map);
+        mImgViewTabVideoStream = findViewById(R.id.img_tab_video_stream);
+        mImgViewTabReport = findViewById(R.id.img_tab_report);
+        mImgViewTabTimeline = findViewById(R.id.img_tab_timeline);
+        mImgViewTabRadioLink = findViewById(R.id.img_tab_radio_link);
 
-            public void onPageSelected(int position) {
-                switch (position) {
-                    case MainNavigationConstants.BTM_NAV_MENU_MAP_POSITION_ID:
-                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_map);
-                        return;
+        // Tab Views OnClickListeners
+        mRelativeLayoutTabMap.setOnClickListener(setMapTabOnClickListener);
+        mRelativeLayoutTabVideoStream.setOnClickListener(setVideoStreamTabOnClickListener);
+        mRelativeLayoutTabReport.setOnClickListener(setReportTabOnClickListener);
+        mRelativeLayoutTabTimeline.setOnClickListener(setTimelineTabOnClickListener);
+        mRelativeLayoutTabRadioLink.setOnClickListener(setRadioLinkTabOnClickListener);
 
-                    case MainNavigationConstants.BTM_NAV_MENU_TIMELINE_POSITION_ID:
-                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_timeline);
-                        return;
-
-                    case MainNavigationConstants.BTM_NAV_MENU_REPORT_POSITION_ID:
-                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_report);
-                        return;
-
-                    case MainNavigationConstants.BTM_NAV_MENU_RADIO_LINK_STATUS_POSITION_ID:
-                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_notification);
-                        return;
-
-                    case MainNavigationConstants.BTM_NAV_MENU_STREAM_POSITION_ID:
-                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_stream);
-                        return;
-
-                    default:
-                        return;
-                }
-            }
-        };
+        // Map selected by default on start up
+        removeLineSelector();
+        setMapSelectedUI();
     }
 
-    private BottomNavigationView.OnNavigationItemSelectedListener setNavigationItemSelectedListener(
-            final NoSwipeViewPager viewPager) {
+    private OnClickListener setMapTabOnClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            removeSelector();
+            setMapSelectedUI();
+            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_MAP_POSITION_ID,
+                    true);
+        }
+    };
 
-        return new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.btn_nav_action_map:
-                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_MAP_POSITION_ID,
-                                true);
-                        return true;
+    private OnClickListener setVideoStreamTabOnClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            removeSelector();
+            setVideoStreamSelectedUI();
+            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_VIDEO_STREAM_POSITION_ID,
+                    true);
+        }
+    };
 
-                    case R.id.btn_nav_action_timeline:
-                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_TIMELINE_POSITION_ID,
-                                true);
-                        return true;
+    private OnClickListener setReportTabOnClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            removeSelector();
+            setReportSelectedUI();
+            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_REPORT_POSITION_ID,
+                    true);
+        }
+    };
 
-                    case R.id.btn_nav_action_report:
-                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_REPORT_POSITION_ID,
-                                true);
-                        return true;
+    private OnClickListener setTimelineTabOnClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            removeSelector();
+            setTimelineSelectedUI();
+            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_TIMELINE_POSITION_ID,
+                    true);
+        }
+    };
 
-                    case R.id.btn_nav_action_notification:
-                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_RADIO_LINK_STATUS_POSITION_ID,
-                                true);
-                        return true;
+    private OnClickListener setRadioLinkTabOnClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            removeSelector();
+            setRadioLinkSelectedUI();
+            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_RADIO_LINK_STATUS_POSITION_ID,
+                    true);
+        }
+    };
 
-                    case R.id.btn_nav_action_stream:
-                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_STREAM_POSITION_ID,
-                                true);
-                        return true;
-
-                    default:
-                        return false;
-                }
-            }
-        };
+    private void removeSelector() {
+        removeLineSelector();
+        removeTintSelector();
     }
 
-    private View.OnClickListener publishOnClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mMqttHelper != null) {
-                    mMqttHelper.publishMessage("Test Payload");
-                }
-            }
-        };
+    private void removeLineSelector() {
+        mLinearLayoutLineSelectorMap.setVisibility(View.GONE);
+        mLinearLayoutLineSelectorVideoStream.setVisibility(View.GONE);
+        mLinearLayoutLineSelectorReport.setVisibility(View.GONE);
+        mLinearLayoutLineSelectorTimeline.setVisibility(View.GONE);
+        mLinearLayoutLineSelectorRadioLink.setVisibility(View.GONE);
     }
+
+    private void removeTintSelector() {
+        mImgViewTabMap.setColorFilter(null);
+        mImgViewTabVideoStream.setColorFilter(null);
+        mImgViewTabReport.setColorFilter(null);
+        mImgViewTabTimeline.setColorFilter(null);
+        mImgViewTabRadioLink.setColorFilter(null);
+    }
+
+    private void setMapSelectedUI() {
+        mLinearLayoutLineSelectorMap.setVisibility(View.VISIBLE);
+        mImgViewTabMap.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
+                android.graphics.PorterDuff.Mode.MULTIPLY);
+    }
+
+    private void setVideoStreamSelectedUI() {
+        mLinearLayoutLineSelectorVideoStream.setVisibility(View.VISIBLE);
+        mImgViewTabVideoStream.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
+                android.graphics.PorterDuff.Mode.MULTIPLY);
+    }
+
+    private void setReportSelectedUI() {
+        mLinearLayoutLineSelectorReport.setVisibility(View.VISIBLE);
+        mImgViewTabReport.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
+                android.graphics.PorterDuff.Mode.MULTIPLY);
+    }
+
+    private void setTimelineSelectedUI() {
+        mLinearLayoutLineSelectorTimeline.setVisibility(View.VISIBLE);
+        mImgViewTabTimeline.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
+                android.graphics.PorterDuff.Mode.MULTIPLY);
+    }
+
+    private void setRadioLinkSelectedUI() {
+        mLinearLayoutLineSelectorRadioLink.setVisibility(View.VISIBLE);
+        mImgViewTabRadioLink.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
+                android.graphics.PorterDuff.Mode.MULTIPLY);
+    }
+
+//    private NoSwipeViewPager.OnPageChangeListener setPageChangeListener(
+//            final BottomNavigationView bottomNavigationView) {
+//
+//        return new NoSwipeViewPager.OnPageChangeListener() {
+//            public void onPageScrollStateChanged(int state) {
+//            }
+//
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//            }
+//
+//            public void onPageSelected(int position) {
+//                switch (position) {
+//                    case MainNavigationConstants.BTM_NAV_MENU_MAP_POSITION_ID:
+//                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_map);
+//                        return;
+//
+//                    case MainNavigationConstants.BTM_NAV_MENU_VIDEO_STREAM_POSITION_ID:
+//                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_video_stream);
+//                        return;
+//
+//                    case MainNavigationConstants.BTM_NAV_MENU_REPORT_POSITION_ID:
+//                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_report);
+//                        return;
+//
+//                    case MainNavigationConstants.BTM_NAV_MENU_TIMELINE_POSITION_ID:
+//                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_timeline);
+//                        return;
+//
+//                    case MainNavigationConstants.BTM_NAV_MENU_RADIO_LINK_STATUS_POSITION_ID:
+//                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_radio_link);
+//                        return;
+//
+//                    default:
+//                        return;
+//                }
+//            }
+//        };
+//    }
+
+//    private BottomNavigationView.OnNavigationItemSelectedListener setNavigationItemSelectedListener(
+//            final NoSwipeViewPager viewPager) {
+//
+//        return new BottomNavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//                switch (item.getItemId()) {
+//                    case R.id.btn_nav_action_map:
+//                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_MAP_POSITION_ID,
+//                                true);
+//                        return true;
+//
+//                    case R.id.btn_nav_action_video_stream:
+//                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_VIDEO_STREAM_POSITION_ID,
+//                                true);
+//                        return true;
+//
+//                    case R.id.btn_nav_action_report:
+//                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_REPORT_POSITION_ID,
+//                                true);
+//                        return true;
+//
+//                    case R.id.btn_nav_action_timeline:
+//                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_TIMELINE_POSITION_ID,
+//                                true);
+//                        return true;
+//
+//                    case R.id.btn_nav_action_radio_link:
+//                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_RADIO_LINK_STATUS_POSITION_ID,
+//                                true);
+//                        return true;
+//
+//                    default:
+//                        return false;
+//                }
+//            }
+//        };
+//    }
 
     private void setupMQListener() {
         if (mIMQListener == null) {
@@ -212,10 +355,9 @@ public class MainActivity extends AppCompatActivity {
                             switch (mqttMessageJSON.getString("key")) {
 
                                 case FragmentConstants.KEY_TASK_ADD:
-                                    int totalNumberOfTasks = pref.getInt(SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER), 0);
                                     String totalNumberOfTasksKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
                                             concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER);
+                                    int totalNumberOfTasks = pref.getInt(totalNumberOfTasksKey, 0);
                                     editor.putInt(totalNumberOfTasksKey, totalNumberOfTasks + 1);
 
                                     String taskInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
@@ -251,10 +393,9 @@ public class MainActivity extends AppCompatActivity {
                                     }
 
                                 case FragmentConstants.KEY_SITREP_ADD:
-                                    int totalNumberOfSitRep = pref.getInt(SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER), 0);
                                     String totalNumberOfSitRepKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
                                             concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER);
+                                    int totalNumberOfSitRep = pref.getInt(totalNumberOfSitRepKey, 0);
                                     editor.putInt(totalNumberOfSitRepKey, totalNumberOfSitRep + 1);
 
                                     System.out.println("main activity totalNumberOfSitRep + 1 is " + (totalNumberOfSitRep + 1));
@@ -344,10 +485,9 @@ public class MainActivity extends AppCompatActivity {
                         switch (mqttMessageJSON.getString("key")) {
 
                             case FragmentConstants.KEY_TASK_ADD:
-                                int totalNumberOfTasks = pref.getInt(SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER), 0);
                                 String totalNumberOfTasksKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
                                         concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER);
+                                int totalNumberOfTasks = pref.getInt(totalNumberOfTasksKey, 0);
                                 editor.putInt(totalNumberOfTasksKey, totalNumberOfTasks + 1);
 
                                 String taskInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
@@ -383,10 +523,9 @@ public class MainActivity extends AppCompatActivity {
                                 }
 
                             case FragmentConstants.KEY_SITREP_ADD:
-                                int totalNumberOfSitRep = pref.getInt(SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER), 0);
                                 String totalNumberOfSitRepKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
                                         concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER);
+                                int totalNumberOfSitRep = pref.getInt(totalNumberOfSitRepKey, 0);
                                 editor.putInt(totalNumberOfSitRepKey, totalNumberOfSitRep + 1);
 
                                 System.out.println("main activity totalNumberOfSitRep + 1 is " + (totalNumberOfSitRep + 1));
@@ -593,7 +732,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "returned fragment matches" + taggedName);
 
             if (getSupportFragmentManager().findFragmentByTag(taggedName) instanceof MapShipBlueprintFragment) {
-                mBottomNavigationView.setVisibility(View.VISIBLE);
+//                mBottomNavigationView.setVisibility(View.VISIBLE);
 
 //                System.out.println("getSupportFragmentManager().getBackStackEntryCount() is " + getSupportFragmentManager().getBackStackEntryCount());
 //                String newTaggedName = getSupportFragmentManager().getBackStackEntryAt(

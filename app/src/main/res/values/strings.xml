@@ -5,7 +5,7 @@
     <string name="btm_nav_menu_map">MAP</string>
     <!--<string name="btm_nav_menu_chat">CHAT</string>-->
     <string name="btm_nav_menu_timeline">TIMELINE</string>
-    <string name="btm_nav_menu_stream">STREAM</string>
+    <string name="btm_nav_menu_video_stream">STREAM</string>
     <string name="btm_nav_menu_report">REPORT</string>
     <string name="btm_nav_menu_status">STATUS</string>
 
@@ -20,6 +20,8 @@
     <string name="disconnected">ToyVPN is disconnected!</string>
 
     <!-- Button -->
+    <string name="btn_back">Back</string>
+    <string name="btn_done">Done</string>
     <string name="btn_confirm">Confirm</string>
     <string name="btn_report">Report</string>
     <string name="btn_send">Send</string>
@@ -148,14 +150,18 @@
     <string name="sitrep_detail_situation_report">Situation Report</string>
 
     <!-- Video Stream Fragment -->
-    <!--<string name="first_video_stream_URL_Title">1st Video URL: </string>-->
-    <!--<string name="second_video_stream_URL_Title">2nd Video URL: </string>-->
+    <string name="video_name_hint">Video Stream Name</string>
+    <string name="video_URL_hint">Video Stream URL</string>
+    <string name="video_stream_add">Add Video Stream</string>
+
     <string name="first_video_stream_URL_hint">Enter 1st Video URL </string>
     <string name="second_video_stream_URL_hint">Enter 2nd Video URL </string>
     <string name="error_empty_video_url_detail">Please enter URL Link</string>
 
     <!-- Map Fragment -->
     <!-- Example settings for Data & Sync -->
+    <string name="map_initialise_location">Long press on map to initialise your location</string>
+
     <string name="pref_header_data_sync">Data &amp; sync</string>
 
     <string name="pref_title_sync_frequency">Sync frequency</string>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_video_stream_edit_delete"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/minor_margin"
+    android:layout_marginBottom="@dimen/minor_margin"
+    android:gravity="center_vertical">
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/img_video_stream_delete"
+        android:layout_width="@dimen/side_menu_icon_width"
+        android:layout_height="@dimen/side_menu_icon_height"
+        android:layout_marginStart="@dimen/minor_margin"
+        android:layout_marginTop="@dimen/elements_vertical_margin_spacing"
+        android:layout_marginEnd="@dimen/elements_vertical_margin_spacing"
+        android:layout_marginBottom="@dimen/elements_vertical_margin_spacing"
+        app:srcCompat="@drawable/btn_video_delete" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
+        android:id="@+id/etv_video_stream_name"
+        style="@style/EditTextView_Main"
+        android:layout_width="150dp"
+        android:layout_toEndOf="@+id/img_video_stream_delete"
+        android:hint="@string/video_name_hint"
+        android:textSize="@dimen/hint_text_size" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
+        android:id="@+id/etv_video_stream_url"
+        style="@style/EditTextView_Main"
+        android:layout_width="wrap_content"
+        android:layout_marginStart="@dimen/elements_vertical_margin_spacing"
+        android:layout_toStartOf="@+id/layout_video_stream_edit_save"
+        android:layout_toEndOf="@+id/etv_video_stream_name"
+        android:hint="@string/video_URL_hint"
+        android:textSize="@dimen/hint_text_size" />
+
+    <LinearLayout
+        android:id="@+id/layout_video_stream_edit_save"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/edit_text_view_height"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="@dimen/elements_vertical_margin_spacing"
+        android:gravity="center_vertical">
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/img_video_stream_edit_save"
+            android:layout_width="@dimen/video_stream_btn_width"
+            android:layout_height="@dimen/video_stream_btn_height"
+            app:srcCompat="@drawable/btn_save" />
+
+    </LinearLayout>
+
+</RelativeLayout>

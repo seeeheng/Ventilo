@@ -23,7 +23,7 @@ import com.android.volley.VolleyError;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.constants.SharedPrefConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackEditTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 //import sg.com.superc2.utils.GsonCreator;
@@ -43,8 +43,8 @@ public class LoginActivity extends AppCompatActivity {
     private static final int REQUEST_READ_CONTACTS = 0;
 
     // UI references.
-    private C2LatoBlackEditTextView mEtvUsername;
-    private C2LatoBlackEditTextView mEtvPassword;
+    private C2OpenSansBlackEditTextView mEtvUsername;
+    private C2OpenSansBlackEditTextView mEtvPassword;
 //    private C2LatoBlackTextView mForgotPasswordTV;
     private View mProgressView;
     private View mLoginFormView;
@@ -60,10 +60,10 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login);
         // Set up the login form.
-        mEtvUsername = (C2LatoBlackEditTextView) findViewById(R.id.etv_login_username);
+        mEtvUsername = (C2OpenSansBlackEditTextView) findViewById(R.id.etv_login_username);
 //        populateAutoComplete();
 
-        mEtvPassword = (C2LatoBlackEditTextView) findViewById(R.id.etv_login_password);
+        mEtvPassword = (C2OpenSansBlackEditTextView) findViewById(R.id.etv_login_password);
         mEtvPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {

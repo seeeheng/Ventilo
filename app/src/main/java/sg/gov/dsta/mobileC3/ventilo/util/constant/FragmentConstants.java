@@ -40,4 +40,9 @@ public class FragmentConstants {
     public static final String KEY_SITREP_REQUEST = "Sit Rep Request";
     public static final String VALUE_SITREP_ADD = "Add Sit Rep";
     public static final String VALUE_SITREP_VIEW = "View Sit Rep";
+
+    // Video Stream
+    public static final String KEY_VIDEO_STREAM = "Video Stream";
+    public static final String KEY_VIDEO_STREAM_SAVE = "Save";
+    public static final String KEY_VIDEO_STREAM_EDIT = "Edit";
 }

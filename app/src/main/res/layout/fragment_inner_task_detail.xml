@@ -16,7 +16,7 @@
             android:layout_marginBottom="@dimen/side_margin"
             android:orientation="horizontal">
 
-            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackTextView
                 android:id="@+id/tv_task_title_header"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -37,7 +37,7 @@
 
         </LinearLayout>
 
-        <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicLightEditTextView
+        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicLightEditTextView
             android:id="@+id/etv_task_title_detail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -48,14 +48,14 @@
             android:textColorHint="@color/circle_image_border_grey"
             android:textSize="@dimen/hint_text_size" />
 
-        <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView
+        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackTextView
             android:id="@+id/tv_task_description_header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/task_description_header"
             android:textSize="@dimen/sub_header_text_size" />
 
-        <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicLightEditTextView
+        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicLightEditTextView
             android:id="@+id/etv_task_description_detail"
             android:layout_width="match_parent"
             android:layout_height="300dp"
@@ -74,7 +74,7 @@
             android:layout_marginBottom="@dimen/vertical_2nd_level_margin"
             android:gravity="center">
 
-            <sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton
                 android:id="@+id/btn_task_detail_report"
                 android:layout_width="200dp"
                 android:layout_height="40dp"

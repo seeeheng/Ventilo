@@ -22,21 +22,21 @@ import android.widget.TextView;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.report.ReportStatePagerAdapter;
 import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicLightEditTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicLightEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 
 public class IncidentInnerDetailFragment extends Fragment {
 
-    private C2LatoBlackTextView mTvTitleHeader;
-    private C2LatoItalicLightEditTextView mEtvTitleDetail;
-    private C2LatoBlackTextView mTvDescriptionHeader;
-    private C2LatoItalicLightEditTextView mEtvDescriptionDetail;
+    private C2OpenSansBlackTextView mTvTitleHeader;
+    private C2OpenSansItalicLightEditTextView mEtvTitleDetail;
+    private C2OpenSansBlackTextView mTvDescriptionHeader;
+    private C2OpenSansItalicLightEditTextView mEtvDescriptionDetail;
 
     private Spinner mSpinnerDropdownTitle;
 
-    private C2LatoBlackButton mBtnReport;
+    private C2OpenSansBlackButton mBtnReport;
 
     @Nullable
     @Override

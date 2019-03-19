@@ -2,10 +2,10 @@
 
     <!-- Base application theme. -->
     <!--<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
-        <!--&lt;!&ndash; Customize your theme here. &ndash;&gt;-->
-        <!--<item name="colorPrimary">@color/colorPrimary</item>-->
-        <!--<item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
-        <!--<item name="colorAccent">@color/colorAccent</item>-->
+    <!--&lt;!&ndash; Customize your theme here. &ndash;&gt;-->
+    <!--<item name="colorPrimary">@color/colorPrimary</item>-->
+    <!--<item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
+    <!--<item name="colorAccent">@color/colorAccent</item>-->
     <!--</style>-->
 
     <!-- Base application theme. -->
@@ -47,6 +47,15 @@
         <item name="android:layout_height">wrap_content</item>
         <!--<item name="android:layout_alignParentStart">true</item>-->
         <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <!-- EditTextView -->
+    <style name="EditTextView_Main">
+        <item name="android:layout_height">@dimen/edit_text_view_height</item>
+        <item name="android:padding">@dimen/elements_vertical_margin_spacing</item>
+        <item name="android:background">@drawable/rounded_edit_text</item>
+        <item name="android:textColorHint">@color/primary_text_hint_dark_grey</item>
+        <item name="android:textColor">@color/text_view_color_selector</item>
     </style>
 
 </resources>

@@ -6,8 +6,6 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -20,6 +18,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
@@ -53,7 +52,7 @@ public class MapShipBlueprintFragment extends Fragment {
 
     private static final String TAG = "BFTLOCAL";
     private static final String LOCAL_SHIP_BLUEPRINT_DIRECTORY = "file:///android_asset/ship/";
-    private BottomNavigationView mBottomNavigationView;
+//    private BottomNavigationView mBottomNavigationView;
     private EditText mTextXYZ;
     private EditText mTextBearing;
     private EditText mTextAction;
@@ -107,29 +106,29 @@ public class MapShipBlueprintFragment extends Fragment {
         myWebView.loadUrl(LOCAL_SHIP_BLUEPRINT_DIRECTORY + prefs.getOverview());
         myWebView.addJavascriptInterface(new WebAppInterface(this.getActivity(), prefs, tracker), "Android");
 
-        final ImageButton btnUpDeck = rootMapShipBlueprintView.findViewById(R.id.img_btn_ship_blueprint_upButton);
-        btnUpDeck.setOnClickListener(new View.OnClickListener() {
+        final ImageView imgUpDeck = rootMapShipBlueprintView.findViewById(R.id.img_ship_blueprint_upButton);
+        imgUpDeck.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 myWebView.loadUrl(LOCAL_SHIP_BLUEPRINT_DIRECTORY + prefs.getNextFloorUp());
             }
         });
 
-        final ImageButton btnDownDeck = rootMapShipBlueprintView.findViewById(R.id.img_btn_ship_blueprint_downButton);
-        btnDownDeck.setOnClickListener(new View.OnClickListener() {
+        final ImageView imgDownDeck = rootMapShipBlueprintView.findViewById(R.id.img_ship_blueprint_downButton);
+        imgDownDeck.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 myWebView.loadUrl(LOCAL_SHIP_BLUEPRINT_DIRECTORY + prefs.getNextFloorDown());
             }
         });
 
-        final ImageButton btnZeroDeck = rootMapShipBlueprintView.findViewById(R.id.img_btn_ship_blueprint_zeroButton);
-        btnZeroDeck.setOnClickListener(new View.OnClickListener() {
+        final ImageView imgZeroDeck = rootMapShipBlueprintView.findViewById(R.id.img_ship_blueprint_zeroButton);
+        imgZeroDeck.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 myWebView.loadUrl(LOCAL_SHIP_BLUEPRINT_DIRECTORY + prefs.getOverview());
             }
         });
 
-        final FloatingActionButton mFabMap = rootMapShipBlueprintView.findViewById(R.id.fab_map);
-        mFabMap.setOnClickListener(new View.OnClickListener() {
+        final ImageView imgWorldMap = rootMapShipBlueprintView.findViewById(R.id.img_btn_ship_blueprint_world_map);
+        imgWorldMap.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 MapFragment mapFragment = new MapFragment();
                 FragmentManager fm = getActivity().getSupportFragmentManager();
@@ -163,13 +162,13 @@ public class MapShipBlueprintFragment extends Fragment {
                 // Notify mapfragment of previous fragment (MapShipBlueprintFragment) that it was switched from
                 EventBus.getDefault().post(PageEvent.getInstance().addPage(PageEvent.FRAGMENT_KEY, MapShipBlueprintFragment.class.getSimpleName()));
 
-                BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.btm_nav_view_main_nav);
-                bottomNavigationView.setVisibility(View.VISIBLE);
+//                BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.btm_nav_view_main_nav);
+//                bottomNavigationView.setVisibility(View.VISIBLE);
             }
         });
 
-        final FloatingActionButton mFabSettings = rootMapShipBlueprintView.findViewById(R.id.fab_settings);
-        mFabSettings.setOnClickListener(new View.OnClickListener() {
+        final ImageView imgSetting = rootMapShipBlueprintView.findViewById(R.id.img_btn_ship_blueprint_setting);
+        imgSetting.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 startActivity(new Intent(getActivity(), SettingsActivity.class));
             }
@@ -539,8 +538,8 @@ public class MapShipBlueprintFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mBottomNavigationView = getActivity().findViewById(R.id.btm_nav_view_main_nav);
-        mBottomNavigationView.setVisibility(View.GONE);
+//        mBottomNavigationView = getActivity().findViewById(R.id.btm_nav_view_main_nav);
+//        mBottomNavigationView.setVisibility(View.GONE);
 
         if (tracker == null) {
             System.out.println("mapShipBlueprintFragment onResume");

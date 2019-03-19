@@ -16,10 +16,9 @@ import java.util.Calendar;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.report.ReportStatePagerAdapter;
-import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 
@@ -28,8 +27,8 @@ public class SitRepInnerDetailFragment extends Fragment {
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
     private static final String SPACE = " ";
 
-    private C2LatoRegularTextView mTvReport;
-    private C2LatoBlackButton mSendButton;
+    private C2OpenSansRegularTextView mTvReport;
+    private C2OpenSansBlackButton mSendButton;
 
     private String mLocation;
     private String mActivity;
@@ -141,7 +140,6 @@ public class SitRepInnerDetailFragment extends Fragment {
                 publishSitRepAdd();
 
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                fragmentManager.popBackStack();
                 fragmentManager.popBackStack();
             }
         }

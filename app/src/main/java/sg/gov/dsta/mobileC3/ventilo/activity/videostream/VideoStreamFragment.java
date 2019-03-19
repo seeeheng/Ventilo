@@ -7,13 +7,20 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -38,15 +45,18 @@ import java.util.ArrayList;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.util.CustomKeyboardUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
 import sg.gov.dsta.mobileC3.ventilo.util.ValidationUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackButton;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicLightEditTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicLightEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 
 public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
 // implements OnvifListener {
 
-    private static final String TAG = "VideoStream";
+    private static final String TAG = "VideoStreamFragment";
+
+    private ImageView mImgSetting;
 
     // VLC
     private LibVLC libVlcOne;
@@ -73,14 +83,16 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
 
     private VideoView mVideoViewOne;
     private VideoView mVideoViewTwo;
-    private C2LatoItalicLightEditTextView mEtvFirstVideoURLLink;
-    private C2LatoItalicLightEditTextView mEtvSecondVideoURLLink;
+    private Spinner mSpinnerFirstVideoStreamList;
+
+    private C2OpenSansItalicLightEditTextView mEtvFirstVideoURLLink;
+    private C2OpenSansItalicLightEditTextView mEtvSecondVideoURLLink;
     //    private LinearLayout mLinearLayoutFirstVideoConfirm;
 //    private LinearLayout mLinearLayoutSecondVideoConfirm;
-    private C2LatoBlackButton mImgBtnFirstVideoStream;
-    private C2LatoBlackButton mImgBtnSecondVideoStream;
-    private C2LatoBlackButton mImgBtnFirstVideoEdit;
-    private C2LatoBlackButton mImgBtnSecondVideoEdit;
+    private C2OpenSansBlackButton mImgBtnFirstVideoStream;
+    private C2OpenSansBlackButton mImgBtnSecondVideoStream;
+    private C2OpenSansBlackButton mImgBtnFirstVideoEdit;
+    private C2OpenSansBlackButton mImgBtnSecondVideoEdit;
 
     private MediaController mMediaControllerOne;
     private MediaController mMediaControllerTwo;
@@ -101,14 +113,64 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
     }
 
     private void initUI(View rootVideoStreamView) {
+        initSettingUI(rootVideoStreamView);
         initURLLinkUI(rootVideoStreamView);
 //        initVideoOneStream(rootVideoStreamView);
 //        initVideoTwoStream(rootVideoStreamView);
+
+        initSpinners(rootVideoStreamView);
 
 //        initExoVideoOneStream(rootVideoStreamView);
         initSurfaceViewVideoOneStream(rootVideoStreamView);
         initSurfaceViewVideoTwoStream(rootVideoStreamView);
     }
+
+    private void initSettingUI(View rootVideoStreamView) {
+        mImgSetting = rootVideoStreamView.findViewById(R.id.img_btn_video_stream_setting);
+        mImgSetting.setOnClickListener(settingOnClickListener);
+    }
+
+    private void initSpinners(View rootVideoStreamView) {
+        initFirstVideoListSpinner(rootVideoStreamView);
+    }
+
+    private void initFirstVideoListSpinner(View rootVideoStreamView) {
+        mSpinnerFirstVideoStreamList = rootVideoStreamView.findViewById(R.id.spinner_video_stream_selector);
+        String[] locationStringArray = ReportSpinnerBank.getInstance(getActivity()).getLocationList();
+
+        ArrayAdapter adapter = new ArrayAdapter(getActivity(),
+                R.layout.spinner_row_first_video_stream_list, R.id.text_item_first_video_stream, locationStringArray) {
+
+            @Override
+            public boolean isEnabled(int position) {
+                if (position == 0) {
+                    // Disable the first item from Spinner
+                    // First item will be used as hint
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+            @Override
+            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = view.findViewById(R.id.text_item_first_video_stream);
+                if (position == 0) {
+                    // Set the hint text color gray
+                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_hint_dark_grey, null));
+                } else {
+                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_white, null));
+                }
+                return view;
+            }
+        };
+
+        mSpinnerFirstVideoStreamList.setAdapter(adapter);
+//        mSpinnerFirstVideoStreamList.setOnItemSelectedListener(getLocationSpinnerItemSelectedListener);
+    }
+
+
 
 //    private void initExoVideoOneStream(View rootVideoStreamView) {
 //        playerView = rootVideoStreamView.findViewById(R.id.video_view_stream_one_exo);
@@ -146,17 +208,17 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
 
 //        mLinearLayoutFirstVideoConfirm = rootVideoStreamView.findViewById(R.id.layout_first_video_confirm);
         mImgBtnFirstVideoStream = rootVideoStreamView.findViewById(R.id.btn_first_video_stream_link);
-        mImgBtnFirstVideoStream.setOnClickListener(onFirstVideoStreamClickListener);
+        mImgBtnFirstVideoStream.setOnClickListener(firstVideoStreamOnClickListener);
         mImgBtnFirstVideoEdit = rootVideoStreamView.findViewById(R.id.btn_first_video_edit_link);
-        mImgBtnFirstVideoEdit.setOnClickListener(onFirstVideoEditClickListener);
+        mImgBtnFirstVideoEdit.setOnClickListener(firstVideoEditOnClickListener);
 
         mEtvSecondVideoURLLink = rootVideoStreamView.findViewById(R.id.etv_second_video_url_title_detail);
 //        mEtvSecondVideoURLLink.addTextChangedListener(secondVideoTextWatcher);
 //        mLinearLayoutSecondVideoConfirm = rootVideoStreamView.findViewById(R.id.layout_second_video_confirm);
         mImgBtnSecondVideoStream = rootVideoStreamView.findViewById(R.id.btn_second_video_stream_link);
-        mImgBtnSecondVideoStream.setOnClickListener(onSecondVideoStreamClickListener);
+        mImgBtnSecondVideoStream.setOnClickListener(secondVideoStreamOnClickListener);
         mImgBtnSecondVideoEdit = rootVideoStreamView.findViewById(R.id.btn_second_video_edit_link);
-        mImgBtnSecondVideoEdit.setOnClickListener(onSecondVideoEditClickListener);
+        mImgBtnSecondVideoEdit.setOnClickListener(secondVideoEditOnClickListener);
     }
 
 //    private TextWatcher firstVideoTextWatcher = new TextWatcher() {
@@ -189,7 +251,21 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
 //        }
 //    };
 
-    private View.OnClickListener onFirstVideoStreamClickListener = new View.OnClickListener() {
+    private View.OnClickListener settingOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Fragment videoStreamAddFragment = new VideoStreamAddFragment();
+
+            FragmentManager fm = getActivity().getSupportFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
+            ft.replace(R.id.layout_video_stream_fragment, videoStreamAddFragment, videoStreamAddFragment.getClass().getSimpleName());
+            ft.addToBackStack(videoStreamAddFragment.getClass().getSimpleName());
+            ft.commit();
+        }
+    };
+
+    private View.OnClickListener firstVideoStreamOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             if (ValidationUtil.validateEditTextField(mEtvFirstVideoURLLink,
@@ -214,14 +290,14 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
         }
     };
 
-    private View.OnClickListener onFirstVideoEditClickListener = new View.OnClickListener() {
+    private View.OnClickListener firstVideoEditOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             initFirstVideoSetUp();
         }
     };
 
-    private View.OnClickListener onSecondVideoStreamClickListener = new View.OnClickListener() {
+    private View.OnClickListener secondVideoStreamOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             if (ValidationUtil.validateEditTextField(mEtvSecondVideoURLLink,
@@ -244,7 +320,7 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
         }
     };
 
-    private View.OnClickListener onSecondVideoEditClickListener = new View.OnClickListener() {
+    private View.OnClickListener secondVideoEditOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             initSecondVideoSetUp();
@@ -451,6 +527,7 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
     }
 
     private void onInvisible() {
+        Log.d(TAG, "onInvisible");
         hideKeyboard();
         releasePlayers();
 //        if (Util.SDK_INT <= 23) {
@@ -707,6 +784,7 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
     @Override
     public void onPause() {
         super.onPause();
+        Log.d(TAG, "onPause");
 //        releasePlayer();
     }
 
@@ -716,6 +794,7 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
         if (mIsVisibleToUser) {
             onInvisible();
         }
+
 
 //        if (Util.SDK_INT > 23) {
 //            releasePlayer();

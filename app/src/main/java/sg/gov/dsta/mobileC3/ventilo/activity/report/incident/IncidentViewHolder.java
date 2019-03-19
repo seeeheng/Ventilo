@@ -2,23 +2,22 @@ package sg.gov.dsta.mobileC3.ventilo.activity.report.incident;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.RelativeLayout;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import lombok.Data;
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoBlackTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoItalicBlackTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicBlackTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 
 @Data
 public class IncidentViewHolder extends RecyclerView.ViewHolder {
 
     private CircleImageView circleImgAvatar;
-    private C2LatoBlackTextView tvTitle;
+    private C2OpenSansBlackTextView tvTitle;
 //    private C2LatoItalicBlackTextView tvStatus;
-    private C2LatoItalicBlackTextView tvReporter;
-    private C2LatoRegularTextView tvDateTime;
+    private C2OpenSansItalicBlackTextView tvReporter;
+    private C2OpenSansRegularTextView tvDateTime;
     private CircleImageView circleImgStatus;
 
 //    private RelativeLayout relativeLayoutDeleteIcon;
