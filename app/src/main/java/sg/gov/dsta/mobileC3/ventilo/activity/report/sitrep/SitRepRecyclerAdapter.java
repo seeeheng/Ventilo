@@ -11,16 +11,16 @@ import java.util.Date;
 import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepItemModel;
+import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 
 public class SitRepRecyclerAdapter extends RecyclerView.Adapter<SitRepViewHolder> {
 
-    List<SitRepItemModel> mSitRepListItems;
+    List<SitRepModel> mSitRepListItems;
 
     private Context mContext;
 
-    public SitRepRecyclerAdapter(Context context, List<SitRepItemModel> sitRepListItems) {
+    public SitRepRecyclerAdapter(Context context, List<SitRepModel> sitRepListItems) {
         this.mContext = context;
         mSitRepListItems = sitRepListItems;
     }
@@ -35,7 +35,7 @@ public class SitRepRecyclerAdapter extends RecyclerView.Adapter<SitRepViewHolder
 
     @Override
     public void onBindViewHolder(SitRepViewHolder itemViewHolder, final int i) {
-        SitRepItemModel item = mSitRepListItems.get(i);
+        SitRepModel item = mSitRepListItems.get(i);
 
         String reporter = "Reported By: ".concat(item.getReporter());
         itemViewHolder.getTvReporter().setText(reporter);
@@ -64,22 +64,22 @@ public class SitRepRecyclerAdapter extends RecyclerView.Adapter<SitRepViewHolder
 
     public void addItem(String reporter, String location, String activity, int personnelT, int personnelS, int personnelD,
                         String nextCoa, String request) {
-        SitRepItemModel newSitRepItemModel = new SitRepItemModel();
-        newSitRepItemModel.setId(mSitRepListItems.size() + 1);
-        newSitRepItemModel.setReporter(reporter);
-        newSitRepItemModel.setReporterAvatar(mContext.getDrawable(R.drawable.default_soldier_icon));
-        newSitRepItemModel.setLocation("BALESTIER");
-        newSitRepItemModel.setActivity("Fire Fighting");
-        newSitRepItemModel.setPersonnelT(6);
-        newSitRepItemModel.setPersonnelS(5);
-        newSitRepItemModel.setPersonnelD(4);
-        newSitRepItemModel.setNextCOA("Inform HQ");
-        newSitRepItemModel.setRequest("Additional MP");
+        SitRepModel newSitRepModel = new SitRepModel();
+        newSitRepModel.setId(mSitRepListItems.size() + 1);
+        newSitRepModel.setReporter(reporter);
+        newSitRepModel.setReporterAvatar(mContext.getDrawable(R.drawable.default_soldier_icon));
+        newSitRepModel.setLocation("BALESTIER");
+        newSitRepModel.setActivity("Fire Fighting");
+        newSitRepModel.setPersonnelT(6);
+        newSitRepModel.setPersonnelS(5);
+        newSitRepModel.setPersonnelD(4);
+        newSitRepModel.setNextCOA("Inform HQ");
+        newSitRepModel.setRequest("Additional MP");
 
         Date currentDateTime = Calendar.getInstance().getTime();
-        newSitRepItemModel.setReportedDateTime(currentDateTime);
+        newSitRepModel.setReportedDateTime(currentDateTime);
 
-        mSitRepListItems.add(newSitRepItemModel);
+        mSitRepListItems.add(newSitRepModel);
         notifyDataSetChanged();
     }
 

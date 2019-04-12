@@ -44,7 +44,16 @@
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
 
+    <!-- Map -->
+    <string name="map_page_title">Map</string>
+
+    <!-- Video Stream Fragment -->
+    <string name="video_stream_page_title">Video Stream</string>
+    <string name="video_stream_error_field_required">This field is required</string>
+    <string name="video_stream_error_save_required">Stream needs to be saved with Save button on the right</string>
+
     <!-- Timeline Fragment -->
+    <string name="timeline_page_title">Timeline</string>
     <string name="timeline_ago">ago</string>
     <string name="timeline_commencing_in">Commencing in</string>
 
@@ -70,6 +79,7 @@
     <string name="error_empty_incident_description_detail">Please enter incident description</string>
 
     <!-- Task Inner Fragment -->
+    <string name="task_page_title">Task</string>
     <string name="task_title_header">Title</string>
 
     <string-array name="task_title_items">
@@ -87,6 +97,7 @@
     <string name="error_empty_task_description_detail">Please enter task description</string>
 
     <!-- Sitrep Inner Fragment -->
+    <string name="sitrep_page_title">Situation Report</string>
     <string-array name="sitrep_location_items">
         <item>Select Location...</item>
         <item>AUDI</item>
@@ -150,9 +161,10 @@
     <string name="sitrep_detail_situation_report">Situation Report</string>
 
     <!-- Video Stream Fragment -->
-    <string name="video_name_hint">Video Stream Name</string>
-    <string name="video_URL_hint">Video Stream URL</string>
+    <string name="video_name_hint">Video Name</string>
+    <string name="video_URL_hint">Video URL</string>
     <string name="video_stream_add">Add Video Stream</string>
+    <string name="video_stream_select_spinner_item">-- Select Video Stream --</string>
 
     <string name="first_video_stream_URL_hint">Enter 1st Video URL </string>
     <string name="second_video_stream_URL_hint">Enter 2nd Video URL </string>
@@ -232,4 +244,7 @@
     <string name="estimoteId">Estimote App ID</string>
     <string name="estimoteToken">Estimote App Token</string>
     <string name="estimoteDist">Estimote Proximity activation distance (m))</string>
+
+    <!-- Radio Link Status -->
+    <string name="radio_link_status_page_title">Radio Link Status</string>
 </resources>

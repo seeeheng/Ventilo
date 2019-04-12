@@ -67,7 +67,7 @@ public class SitRepInnerAddFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_inner_add_sitrep, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_add_sitrep, container, false);
         initUI(rootView);
 
         return rootView;

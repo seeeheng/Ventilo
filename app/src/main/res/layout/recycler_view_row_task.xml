@@ -9,208 +9,250 @@
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
     android:orientation="vertical"
-    app:cardBackgroundColor="@color/background_main_dark_charcoal"
-    app:cardCornerRadius="15dp">
+    app:cardBackgroundColor="@color/background_dark_grey"
+    app:cardCornerRadius="@dimen/recycler_card_corner_radius">
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <RelativeLayout
+            android:id="@+id/layout_recycler_task_view_background"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="@dimen/task_recycler_row_height">
 
-            <LinearLayout
-                android:id="@+id/layout_recycler_task_content"
+            <RelativeLayout
+                android:id="@+id/layout_task_swipe_action_status_delete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/img_task_swipe_action_status_delete"
+                    android:layout_width="@dimen/task_recycler_row_swipe_action_icon_width"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    app:srcCompat="@drawable/btn_task_swipe_action_status_delete" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/layout_task_second_swipe_action_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="@dimen/recycler_row_outermost_padding"
-                android:weightSum="100">
+                android:layout_marginEnd="@dimen/task_recycler_row_first_swipe_action_button_margin_end">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/img_task_second_swipe_action_status"
+                    android:layout_width="@dimen/task_recycler_row_swipe_action_icon_width"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    app:srcCompat="@drawable/btn_task_swipe_action_status_complete" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/layout_task_first_swipe_action_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/task_recycler_row_second_swipe_action_button_margin_end"
+                android:background="@color/task_status_yellow">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/img_task_first_swipe_action_status"
+                    android:layout_width="@dimen/task_recycler_row_swipe_action_icon_width"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    app:srcCompat="@drawable/btn_task_swipe_action_status_in_progress" />
+
+            </RelativeLayout>
+
+            <!--<RelativeLayout-->
+                <!--android:id="@+id/layout_task_swipe_action_status_new"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginEnd="135dp"-->
+                <!--android:background="@color/task_status_cyan">-->
+
+                <!--<android.support.v7.widget.AppCompatImageView-->
+                    <!--android:id="@+id/img_task_swipe_action_status_new"-->
+                    <!--android:layout_width="@dimen/task_recycler_row_swipe_action_icon_width"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_alignParentEnd="true"-->
+                    <!--app:srcCompat="@drawable/btn_task_swipe_action_status_new" />-->
+
+            <!--</RelativeLayout>-->
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layout_recycler_task_view_foreground"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/task_recycler_row_height"
+            android:padding="@dimen/recycler_row_outermost_padding"
+            android:background="@color/background_dark_grey">
+
+            <RelativeLayout
+                android:id="@+id/layout_header_container"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/task_recycler_row_line_information_height">
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                    android:id="@+id/tv_recycler_task_header_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentStart="true"
+                    android:textColor="@color/primary_text_white"
+                    android:textSize="@dimen/text_view_text_size" />
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                    android:id="@+id/tv_recycler_task_header_status"
+                    android:layout_width="@dimen/task_recycler_row_inner_status_container_information_width"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:gravity="center_horizontal"
+                    android:textSize="@dimen/text_view_text_size" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_header_content_divider"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/elements_vertical_margin_spacing"
+                android:layout_below="@+id/layout_header_container"
+                android:orientation="vertical" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/task_recycler_row_container_information_height"
+                android:layout_below="@+id/layout_header_content_divider">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="@dimen/task_recycler_row_inner_detail_container_information_width"
                     android:layout_height="match_parent"
-                    android:layout_weight="85"
                     android:orientation="vertical">
 
                     <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="@dimen/recycler_avatar_height"
-                        android:orientation="horizontal">
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/task_recycler_row_line_information_height"
+                        android:layout_marginBottom="@dimen/elements_vertical_small_margin_spacing">
 
-                        <LinearLayout
+                        <android.support.v7.widget.AppCompatImageView
+                            android:layout_width="@dimen/task_recycler_row_icon_width"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="@dimen/elements_vertical_margin_spacing"
+                            android:scaleType="fitCenter"
+                            app:srcCompat="@drawable/icon_assigned_to" />
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+                            android:id="@+id/tv_recycler_task_assigned_to"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:gravity="center_vertical|left">
-
-                            <!--<ImageView-->
-                            <!--android:id="@+id/tasks_item_header_image"-->
-                            <!--android:layout_width="@dimen/tasks_secondary_checkbox_width"-->
-                            <!--android:layout_height="@dimen/tasks_secondary_checkbox_height"-->
-
-                            <!--android:src="@drawable/toolbar_map_btn" />-->
-                            <de.hdodenhof.circleimageview.CircleImageView
-                                android:id="@+id/circle_img_view_recycler_task_avatar"
-                                android:layout_width="@dimen/recycler_avatar_width"
-                                android:layout_height="@dimen/recycler_avatar_height"
-                                android:src="@drawable/default_soldier_icon"
-                                app:civ_border_color="@color/circle_image_border_grey"
-                                app:civ_border_width="@dimen/circle_img_border_width"
-                                app:civ_circle_background_color="@color/background_2nd_level_gray" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
                             android:gravity="center_vertical"
-                            android:orientation="vertical">
-
-                            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackTextView
-                                android:id="@+id/tv_recycler_task_item_header_title"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center_vertical"
-                                android:layout_marginStart="@dimen/side_margin"
-                                android:text="Task: Deactivate IAD"
-                                android:textSize="@dimen/sub_header_text_size" />
-
-                            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicBlackTextView
-                                android:id="@+id/tv_recycler_task_item_status"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center_vertical"
-                                android:layout_marginStart="@dimen/side_margin"
-                                android:maxWidth="135dp"
-                                android:text="Status: In Progress"
-                                android:textColor="@color/primary_highlight_cyan"
-                                android:textSize="@dimen/hint_text_size" />
-
-                        </LinearLayout>
+                            android:text="Team Bravo" />
 
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="20dp"
-                        android:layout_marginTop="@dimen/minor_margin"
-                        android:orientation="horizontal">
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/task_recycler_row_line_information_height"
+                        android:layout_marginBottom="@dimen/elements_vertical_small_margin_spacing">
 
                         <android.support.v7.widget.AppCompatImageView
-                            android:layout_width="20dp"
+                            android:layout_width="@dimen/task_recycler_row_icon_width"
                             android:layout_height="20dp"
-                            android:layout_marginEnd="@dimen/minor_margin"
-                            android:scaleType="fitXY"
-                            app:srcCompat="@drawable/assignee_icon" />
+                            android:layout_marginEnd="@dimen/elements_vertical_margin_spacing"
+                            android:scaleType="fitCenter"
+                            app:srcCompat="@drawable/icon_scheduled_time" />
 
                         <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
-                            android:id="@+id/tv_recycler_task_assignee"
+                            android:id="@+id/tv_recycler_task_scheduled_time"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:gravity="center_vertical"
-                            android:text="Assignee: Jack (C04)" />
+                            android:gravity="center_vertical" />
 
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/minor_margin"
-                        android:orientation="horizontal">
-
-                        <android.support.v7.widget.AppCompatImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_marginEnd="@dimen/minor_margin"
-                            android:scaleType="fitXY"
-                            app:srcCompat="@drawable/created_time_icon" />
-
-                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
-                            android:id="@+id/tv_recycler_task_reported_datetime"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:text="Date Time"
-                            android:textColor="@color/primary_text_white" />
-
-                    </LinearLayout>
+                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+                        android:id="@+id/tv_recycler_task_short_detail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. " />
 
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="@dimen/task_recycler_row_inner_status_container_information_width"
                     android:layout_height="match_parent"
-                    android:layout_weight="15"
-                    android:gravity="center_vertical"
+                    android:layout_alignParentEnd="true"
+                    android:gravity="center"
                     android:orientation="horizontal">
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/circle_img_view_recyler_task_status"
-                        android:layout_width="@dimen/recycler_avatar_width"
-                        android:layout_height="@dimen/recycler_avatar_height"
+                        android:layout_width="@dimen/task_recycler_row_status_icon_width"
+                        android:layout_height="@dimen/task_recycler_row_status_icon_height"
                         android:src="@drawable/task_in_progress"
                         app:civ_border_color="@color/translucent"
                         app:civ_border_width="@dimen/circle_img_border_width" />
 
                 </LinearLayout>
 
-            </LinearLayout>
-
-            <RelativeLayout
-                android:id="@+id/layout_recycler_task_delete"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_alignTop="@+id/layout_recycler_task_content"
-                android:layout_alignBottom="@+id/layout_recycler_task_content"
-                android:background="@drawable/recycler_item_delete_background"
-                android:gravity="center"
-                android:padding="@dimen/recycler_row_outermost_padding">
-
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/img_task_delete"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/icon_delete" />
-
             </RelativeLayout>
 
-            <RelativeLayout
-                android:id="@+id/layout_recycler_task_start"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_alignTop="@+id/layout_recycler_task_content"
-                android:layout_alignBottom="@+id/layout_recycler_task_content"
-                android:background="@drawable/recycler_item_start_background"
-                android:gravity="center"
-                android:padding="@dimen/recycler_row_outermost_padding">
+            <!--<RelativeLayout-->
+            <!--android:id="@+id/layout_recycler_task_delete"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
+            <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
+            <!--android:background="@drawable/recycler_item_delete_background"-->
+            <!--android:gravity="center"-->
+            <!--android:padding="@dimen/recycler_row_outermost_padding">-->
 
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/img_task_start"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/icon_in_progress" />
+            <!--<android.support.v7.widget.AppCompatImageView-->
+            <!--android:id="@+id/img_task_delete"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@drawable/icon_delete" />-->
 
-            </RelativeLayout>
+            <!--</RelativeLayout>-->
 
-            <RelativeLayout
-                android:id="@+id/layout_recycler_task_done"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_alignTop="@+id/layout_recycler_task_content"
-                android:layout_alignBottom="@+id/layout_recycler_task_content"
-                android:background="@drawable/recycler_item_done_background"
-                android:gravity="center"
-                android:padding="@dimen/recycler_row_outermost_padding">
+            <!--<RelativeLayout-->
+            <!--android:id="@+id/layout_recycler_task_start"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
+            <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
+            <!--android:background="@drawable/recycler_item_start_background"-->
+            <!--android:gravity="center"-->
+            <!--android:padding="@dimen/recycler_row_outermost_padding">-->
 
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/img_task_done"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/icon_done" />
+            <!--<android.support.v7.widget.AppCompatImageView-->
+            <!--android:id="@+id/img_task_start"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@drawable/icon_in_progress" />-->
 
-            </RelativeLayout>
+            <!--</RelativeLayout>-->
+
+            <!--<RelativeLayout-->
+            <!--android:id="@+id/layout_recycler_task_done"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
+            <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
+            <!--android:background="@drawable/recycler_item_done_background"-->
+            <!--android:gravity="center"-->
+            <!--android:padding="@dimen/recycler_row_outermost_padding">-->
+
+            <!--<android.support.v7.widget.AppCompatImageView-->
+            <!--android:id="@+id/img_task_done"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@drawable/icon_done" />-->
+
+            <!--</RelativeLayout>-->
 
         </RelativeLayout>
 

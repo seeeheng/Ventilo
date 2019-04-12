@@ -1,28 +1,37 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.videostream;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.MediaController;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 //import com.rvirin.onvif.onvifcamera.OnvifDevice;
 //import com.rvirin.onvif.onvifcamera.OnvifListener;
@@ -42,87 +51,94 @@ import org.videolan.libvlc.MediaPlayer;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
+import io.reactivex.SingleObserver;
+import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.util.CustomKeyboardUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
-import sg.gov.dsta.mobileC3.ventilo.util.ValidationUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicLightEditTextView;
+import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
+import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
+import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
+import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.PhotoCaptureUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 
-public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
+public class VideoStreamFragment extends Fragment {
 // implements OnvifListener {
 
     private static final String TAG = "VideoStreamFragment";
+    private static final int MEDIA_CONTROLLER_SHOW_DURATION = 3000;
+    private static final int DEFAULT_VIDEO_VIEW_WIDTH = 300;
+    private static final int DEFAULT_VIDEO_VIEW_HEIGHT = 200;
+    private static final int FIRST_VIDEO_STREAM_SPINNER_ID = 1;
+    private static final int SECOND_VIDEO_STREAM_SPINNER_ID = 2;
 
+    // View Models
+    private UserViewModel mUserViewModel;
+    private VideoStreamViewModel mVideoStreamViewModel;
+
+    /*** VLC first video stream ***/
+    private LibVLC mLibVlcOne;
+    private VideoStreamControllerView mVideoStreamControllerViewOne;
+    private MediaPlayer mMediaPlayerOne;
+
+    // First video stream toolbar
     private ImageView mImgSetting;
+    private Spinner mSpinnerVideoStreamListOne;
+    private ArrayAdapter mSpinnerVideoStreamAdapterOne;
+    private ArrayList<String> mVideoStreamNameListOne;
 
-    // VLC
-    private LibVLC libVlcOne;
-    private MediaPlayer mMediaPlayerOne = null;
-    private SurfaceView mSurfaceViewOne;
+    // First video stream view
+    private RelativeLayout mRelativeLayoutToolbarOne;
+    private ConstraintLayout mConstraintLayoutSurfaceViewOne;
+    private TextureView mSurfaceViewOne;
     private SurfaceHolder mSurfaceHolderOne;
-//    private int mVideoWidthOne;
-//    private int mVideoHeightOne;
 
-    private LibVLC libVlcTwo;
-    private MediaPlayer mMediaPlayerTwo = null;
-    private SurfaceView mSurfaceViewTwo;
+    /*** VLC second video stream ***/
+    private LibVLC mLibVlcTwo;
+    private VideoStreamControllerView mVideoStreamControllerViewTwo;
+    private MediaPlayer mMediaPlayerTwo;
+
+    // Second video stream toolbar
+    private Spinner mSpinnerVideoStreamListTwo;
+    private ArrayAdapter mSpinnerVideoStreamAdapterTwo;
+    private ArrayList<String> mVideoStreamNameListTwo;
+
+    // Second video stream view
+    private RelativeLayout mRelativeLayoutToolbarTwo;
+    private ConstraintLayout mConstraintLayoutSurfaceViewTwo;
+    private TextureView mSurfaceViewTwo;
     private SurfaceHolder mSurfaceHolderTwo;
-//    private int mVideoWidthTwo;
-//    private int mVideoHeightTwo;
-
-    // ExoPlayer
-//    private PlayerView playerView;
-//    private SimpleExoPlayer player;
-//    private ProgressBar loading;
-//    private boolean playWhenReady = true;
-//    private int currentWindow = 0;
-//    private long playbackPosition = 0;
-
-    private VideoView mVideoViewOne;
-    private VideoView mVideoViewTwo;
-    private Spinner mSpinnerFirstVideoStreamList;
-
-    private C2OpenSansItalicLightEditTextView mEtvFirstVideoURLLink;
-    private C2OpenSansItalicLightEditTextView mEtvSecondVideoURLLink;
-    //    private LinearLayout mLinearLayoutFirstVideoConfirm;
-//    private LinearLayout mLinearLayoutSecondVideoConfirm;
-    private C2OpenSansBlackButton mImgBtnFirstVideoStream;
-    private C2OpenSansBlackButton mImgBtnSecondVideoStream;
-    private C2OpenSansBlackButton mImgBtnFirstVideoEdit;
-    private C2OpenSansBlackButton mImgBtnSecondVideoEdit;
-
-    private MediaController mMediaControllerOne;
-    private MediaController mMediaControllerTwo;
-
-//    private OnvifDevice mMyDevice;
 
     private boolean mIsVisibleToUser;
+    private boolean mIsFullscreen;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootVideoStreamView = inflater.inflate(R.layout.fragment_video_stream, container, false);
+        observerSetup();
         initUI(rootVideoStreamView);
-
-//        mMyDevice = new OnvifDevice("192.168.43.194:6608", "", "");
-//        mMyDevice.setListener(this);
 
         return rootVideoStreamView;
     }
 
     private void initUI(View rootVideoStreamView) {
-        initSettingUI(rootVideoStreamView);
-        initURLLinkUI(rootVideoStreamView);
-//        initVideoOneStream(rootVideoStreamView);
-//        initVideoTwoStream(rootVideoStreamView);
+        initVideoStreamOneToolbar(rootVideoStreamView);
+        initVideoStreamTwoToolbar(rootVideoStreamView);
 
-        initSpinners(rootVideoStreamView);
-
-//        initExoVideoOneStream(rootVideoStreamView);
         initSurfaceViewVideoOneStream(rootVideoStreamView);
         initSurfaceViewVideoTwoStream(rootVideoStreamView);
+    }
+
+    private void initVideoStreamOneToolbar(View rootVideoStreamView) {
+        mRelativeLayoutToolbarOne = rootVideoStreamView.findViewById(R.id.layout_video_stream_one_toolbar);
+        initSettingUI(rootVideoStreamView);
+        initVideoListOneSpinner(rootVideoStreamView);
+    }
+
+    private void initVideoStreamTwoToolbar(View rootVideoStreamView) {
+        mRelativeLayoutToolbarTwo = rootVideoStreamView.findViewById(R.id.layout_video_stream_two_toolbar);
+        initVideoListTwoSpinner(rootVideoStreamView);
     }
 
     private void initSettingUI(View rootVideoStreamView) {
@@ -130,16 +146,47 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
         mImgSetting.setOnClickListener(settingOnClickListener);
     }
 
-    private void initSpinners(View rootVideoStreamView) {
-        initFirstVideoListSpinner(rootVideoStreamView);
-    }
+//    private void getVideoStreamList(View rootVideoStreamView) {
+//        ArrayList<String> videoStreamArrayList = new ArrayList<>();
+//
+//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//        int totalCountOfVideoStreams = pref.getInt(SharedPreferenceConstants.VIDEO_STREAM_TOTAL_NUMBER, 0);
+//
+//        for (int i = 0; i < totalCountOfVideoStreams; i++) {
+//            String videoStreamInitials = SharedPreferenceConstants.HEADER_VIDEO_STREAM.concat(SharedPreferenceConstants.SEPARATOR).
+//                    concat(String.valueOf(i));
+//
+//            String name = pref.getString(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                    concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_NAME), SharedPreferenceConstants.DEFAULT_STRING);
+//            String url = pref.getString(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                    concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_URL), SharedPreferenceConstants.DEFAULT_STRING);
+//
+//            if (!(SharedPreferenceConstants.DEFAULT_STRING.equalsIgnoreCase(name) &&
+//                    SharedPreferenceConstants.DEFAULT_STRING.equalsIgnoreCase(url))) {
+//                videoStreamArrayList.add(name);
+//            }
+//        }
+//
+//        String[] videoStreamStringList = new String[videoStreamArrayList.size()];
+//        videoStreamStringList = videoStreamArrayList.toArray(videoStreamStringList);
 
-    private void initFirstVideoListSpinner(View rootVideoStreamView) {
-        mSpinnerFirstVideoStreamList = rootVideoStreamView.findViewById(R.id.spinner_video_stream_selector);
-        String[] locationStringArray = ReportSpinnerBank.getInstance(getActivity()).getLocationList();
+//        return videoStreamStringList;
+//    }
 
-        ArrayAdapter adapter = new ArrayAdapter(getActivity(),
-                R.layout.spinner_row_first_video_stream_list, R.id.text_item_first_video_stream, locationStringArray) {
+//    private String getUserID() {
+//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//        String userId = pref.getString(SharedPreferenceConstants.USER_ID,
+//                SharedPreferenceConstants.DEFAULT_STRING);
+//        return userId;
+//    }
+
+    private void initVideoListOneSpinner(View rootVideoStreamView) {
+        mSpinnerVideoStreamListOne = rootVideoStreamView.findViewById(R.id.spinner_video_stream_selector_one);
+        mVideoStreamNameListOne = new ArrayList<>();
+        mVideoStreamNameListOne.add(getString(R.string.video_stream_select_spinner_item));
+
+        mSpinnerVideoStreamAdapterOne = new ArrayAdapter(getActivity(),
+                R.layout.spinner_row_video_stream_list, R.id.text_item_video_stream, mVideoStreamNameListOne) {
 
             @Override
             public boolean isEnabled(int position) {
@@ -155,7 +202,7 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
             @Override
             public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
                 View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = view.findViewById(R.id.text_item_first_video_stream);
+                TextView tv = view.findViewById(R.id.text_item_video_stream);
                 if (position == 0) {
                     // Set the hint text color gray
                     tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_hint_dark_grey, null));
@@ -166,90 +213,360 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
             }
         };
 
-        mSpinnerFirstVideoStreamList.setAdapter(adapter);
-//        mSpinnerFirstVideoStreamList.setOnItemSelectedListener(getLocationSpinnerItemSelectedListener);
+        mSpinnerVideoStreamListOne.setAdapter(mSpinnerVideoStreamAdapterOne);
+        mSpinnerVideoStreamListOne.setOnItemSelectedListener(videoStreamOneSpinnerOnItemSelectedListener);
     }
 
+    private void initVideoListTwoSpinner(View rootVideoStreamView) {
+        mSpinnerVideoStreamListTwo = rootVideoStreamView.findViewById(R.id.spinner_video_stream_selector_two);
+        mVideoStreamNameListTwo = new ArrayList<>();
+        mVideoStreamNameListTwo.add(getString(R.string.video_stream_select_spinner_item));
 
+        mSpinnerVideoStreamAdapterTwo = new ArrayAdapter(getActivity(),
+                R.layout.spinner_row_video_stream_list, R.id.text_item_video_stream, mVideoStreamNameListTwo) {
 
-//    private void initExoVideoOneStream(View rootVideoStreamView) {
-//        playerView = rootVideoStreamView.findViewById(R.id.video_view_stream_one_exo);
-//        loading = rootVideoStreamView.findViewById(R.id.loading);
-//
-//        //--------------------------------------
-//        //Creating default track selector
-//        //and init the player
-//        TrackSelection.Factory adaptiveTrackSelection = new AdaptiveTrackSelection.Factory(new DefaultBandwidthMeter());
-//        player = ExoPlayerFactory.newSimpleInstance(
-//                new DefaultRenderersFactory(getActivity().getApplicationContext()),
-//                new DefaultTrackSelector(adaptiveTrackSelection),
-//                new DefaultLoadControl());
-//
-//        //init the player
-//        playerView.setPlayer(player);
-//    }
+            @Override
+            public boolean isEnabled(int position) {
+                if (position == 0) {
+                    // Disable the first item from Spinner
+                    // First item will be used as hint
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+            @Override
+            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = view.findViewById(R.id.text_item_video_stream);
+                if (position == 0) {
+                    // Set the hint text color gray
+                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_hint_dark_grey, null));
+                } else {
+                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_white, null));
+                }
+                return view;
+            }
+        };
+
+        mSpinnerVideoStreamListTwo.setAdapter(mSpinnerVideoStreamAdapterTwo);
+        mSpinnerVideoStreamListTwo.setOnItemSelectedListener(videoStreamTwoSpinnerOnItemSelectedListener);
+    }
+
+    private Spinner.OnItemSelectedListener videoStreamOneSpinnerOnItemSelectedListener =
+            new Spinner.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedVideoName = (String) parent.getItemAtPosition(position);
+                    getUrlStreamFromName(selectedVideoName, FIRST_VIDEO_STREAM_SPINNER_ID);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            };
+
+    private Spinner.OnItemSelectedListener videoStreamTwoSpinnerOnItemSelectedListener =
+            new Spinner.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedVideoName = (String) parent.getItemAtPosition(position);
+                    getUrlStreamFromName(selectedVideoName, SECOND_VIDEO_STREAM_SPINNER_ID);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            };
+
+    private void getUrlStreamFromName(String videoName, int spinnerId) {
+
+        SingleObserver<String> singleObserverVideoStreamForUserByName =
+                new SingleObserver<String>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        // add it to a CompositeDisposable
+                    }
+
+                    @Override
+                    public void onSuccess(String videoUrl) {
+                        if (videoUrl != null) {
+                            Log.d(TAG, "onSuccess singleObserverVideoStreamForUserByName, " +
+                                    "getUrlStreamFromName. " +
+                                    "videoUrl: " + videoUrl);
+
+                            if (spinnerId == FIRST_VIDEO_STREAM_SPINNER_ID) {
+                                setVideoOneVLCStreamURL(videoUrl);
+                            } else {
+                                setVideoTwoVLCStreamURL(videoUrl);
+                            }
+                        } else {
+                            Log.d(TAG, "onSuccess singleObserverVideoStreamForUserByName, " +
+                                    "getUrlStreamFromName. " +
+                                    "videoUrl is null");
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError singleObserverVideoStreamForUserByName, " +
+                                "getUrlStreamFromName. " +
+                                "Error Msg: " + e.toString());
+                    }
+                };
+
+        mVideoStreamViewModel.getVideoStreamUrlForUserByName(getUserID(), videoName,
+                singleObserverVideoStreamForUserByName);
+    }
+
+    private String getUserID() {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String userId = pref.getString(SharedPreferenceConstants.USER_ID,
+                SharedPreferenceConstants.DEFAULT_STRING);
+        return userId;
+    }
 
     private void initSurfaceViewVideoOneStream(View rootVideoStreamView) {
 //        mFilePath = "rtsp://184.72.239.149/vod/mp4:BigBuckBunny_175k.mov";
 
 //        Log.d(TAG, "Playing: " + mFilePath);
-        mSurfaceViewOne = rootVideoStreamView.findViewById(R.id.surface_view_stream_one);
-        mSurfaceHolderOne = mSurfaceViewOne.getHolder();
+        mConstraintLayoutSurfaceViewOne = rootVideoStreamView.findViewById(R.id.constraint_layout_video_surface_one);
+        mSurfaceViewOne = rootVideoStreamView.findViewById(R.id.texture_view_stream_one);
+        mVideoStreamControllerViewOne = new VideoStreamControllerView(getContext(), false);
+        mVideoStreamControllerViewOne.setMediaPlayer(videoStreamPlayerOneInterface);
+        mVideoStreamControllerViewOne.setAnchorView(mConstraintLayoutSurfaceViewOne);
+//        mSurfaceHolderOne = mSurfaceViewOne.getHolder();
     }
 
     private void initSurfaceViewVideoTwoStream(View rootVideoStreamView) {
+        mConstraintLayoutSurfaceViewTwo = rootVideoStreamView.findViewById(R.id.constraint_layout_video_surface_two);
         mSurfaceViewTwo = rootVideoStreamView.findViewById(R.id.surface_view_stream_two);
-        mSurfaceHolderTwo = mSurfaceViewTwo.getHolder();
+//        mSurfaceHolderTwo = mSurfaceViewTwo.getHolder();
+        mVideoStreamControllerViewTwo = new VideoStreamControllerView(getContext(), false);
+        mVideoStreamControllerViewTwo.setMediaPlayer(videoStreamPlayerTwoInterface);
+        mVideoStreamControllerViewTwo.setAnchorView(mConstraintLayoutSurfaceViewTwo);
     }
 
-    private void initURLLinkUI(View rootVideoStreamView) {
-        mEtvFirstVideoURLLink = rootVideoStreamView.findViewById(R.id.etv_first_video_url_title_detail);
-//        mEtvFirstVideoURLLink.addTextChangedListener(firstVideoTextWatcher);
+    private VideoStreamControllerView.MediaPlayerControl videoStreamPlayerOneInterface =
+            new VideoStreamControllerView.MediaPlayerControl() {
+        public int getBufferPercentage() {
+            return 0;
+        }
 
-//        mLinearLayoutFirstVideoConfirm = rootVideoStreamView.findViewById(R.id.layout_first_video_confirm);
-        mImgBtnFirstVideoStream = rootVideoStreamView.findViewById(R.id.btn_first_video_stream_link);
-        mImgBtnFirstVideoStream.setOnClickListener(firstVideoStreamOnClickListener);
-        mImgBtnFirstVideoEdit = rootVideoStreamView.findViewById(R.id.btn_first_video_edit_link);
-        mImgBtnFirstVideoEdit.setOnClickListener(firstVideoEditOnClickListener);
+        public int getCurrentPosition() {
+            float pos = mMediaPlayerOne.getPosition();
+            return (int) (pos * getDuration());
+        }
 
-        mEtvSecondVideoURLLink = rootVideoStreamView.findViewById(R.id.etv_second_video_url_title_detail);
-//        mEtvSecondVideoURLLink.addTextChangedListener(secondVideoTextWatcher);
-//        mLinearLayoutSecondVideoConfirm = rootVideoStreamView.findViewById(R.id.layout_second_video_confirm);
-        mImgBtnSecondVideoStream = rootVideoStreamView.findViewById(R.id.btn_second_video_stream_link);
-        mImgBtnSecondVideoStream.setOnClickListener(secondVideoStreamOnClickListener);
-        mImgBtnSecondVideoEdit = rootVideoStreamView.findViewById(R.id.btn_second_video_edit_link);
-        mImgBtnSecondVideoEdit.setOnClickListener(secondVideoEditOnClickListener);
+        public int getDuration() {
+            return (int) mMediaPlayerOne.getLength();
+        }
+
+        public boolean isPlaying() {
+            return mMediaPlayerOne.isPlaying();
+        }
+
+        public void pause() {
+            mMediaPlayerOne.pause();
+        }
+
+        public void takeScreenshot() {
+//            Bitmap imageBitmap = screenShot(mSurfaceViewOne);
+            Bitmap imageBitmap = mSurfaceViewOne.getBitmap();
+            if (imageBitmap != null) {
+                String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
+                        imageBitmap, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
+//                System.out.println("imagePath is " + imagePath);
+            }
+        }
+
+        public void seekTo(int pos) {
+            mMediaPlayerOne.setPosition((float) pos / getDuration());
+        }
+
+        public void start() {
+            mMediaPlayerOne.play();
+        }
+
+        public boolean canPause() {
+            return true;
+        }
+
+        public boolean canSeekBackward() {
+            return false;
+        }
+
+        public boolean canSeekForward() {
+            return false;
+        }
+
+        @Override
+        public boolean isFullScreen() {
+            return mIsFullscreen;
+        }
+
+        @Override
+        public void toggleFullScreen() {
+            if (!isFullScreen()) {
+                setVideoStreamFullscreen(mConstraintLayoutSurfaceViewOne, mSurfaceViewOne);
+            } else {
+                setVideoStreamDefaultScreen(mConstraintLayoutSurfaceViewOne, mSurfaceViewOne);
+            }
+
+            setOtherUiElementsForFirstVideoStream(!isFullScreen());
+            mIsFullscreen = !mIsFullscreen;
+        }
+    };
+
+    private VideoStreamControllerView.MediaPlayerControl videoStreamPlayerTwoInterface =
+            new VideoStreamControllerView.MediaPlayerControl() {
+        public int getBufferPercentage() {
+            return 0;
+        }
+
+        public int getCurrentPosition() {
+            float pos = mMediaPlayerTwo.getPosition();
+            return (int) (pos * getDuration());
+        }
+
+        public int getDuration() {
+            return (int) mMediaPlayerTwo.getLength();
+        }
+
+        public boolean isPlaying() {
+            return mMediaPlayerTwo.isPlaying();
+        }
+
+        public void pause() {
+            mMediaPlayerTwo.pause();
+        }
+
+        public void takeScreenshot() {
+//            Bitmap imageBitmap = screenShot(mSurfaceViewOne);
+            Bitmap imageBitmap = mSurfaceViewTwo.getBitmap();
+            if (imageBitmap != null) {
+                String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
+                        imageBitmap, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
+//                System.out.println("imagePath is " + imagePath);
+            }
+        }
+
+        public void seekTo(int pos) {
+            mMediaPlayerTwo.setPosition((float) pos / getDuration());
+        }
+
+        public void start() {
+            mMediaPlayerTwo.play();
+        }
+
+        public boolean canPause() {
+            return true;
+        }
+
+        public boolean canSeekBackward() {
+            return false;
+        }
+
+        public boolean canSeekForward() {
+            return false;
+        }
+
+        @Override
+        public boolean isFullScreen() {
+            return mIsFullscreen;
+        }
+
+        @Override
+        public void toggleFullScreen() {
+            if (!isFullScreen()) {
+                setVideoStreamFullscreen(mConstraintLayoutSurfaceViewTwo, mSurfaceViewTwo);
+            } else {
+                setVideoStreamDefaultScreen(mConstraintLayoutSurfaceViewTwo, mSurfaceViewTwo);
+            }
+
+            setOtherUiElementsForSecondVideoStream(!isFullScreen());
+            mIsFullscreen = !mIsFullscreen;
+        }
+    };
+
+    private void setVideoStreamFullscreen(ConstraintLayout constraintLayout, TextureView textureView) {
+        ConstraintLayout.LayoutParams constraintLayoutParams = new ConstraintLayout.LayoutParams(
+                ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
+        LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+
+        constraintLayoutParams.width = DimensionUtil.getScreenWidth();
+        constraintLayoutParams.height = DimensionUtil.getScreenHeightWithoutNavAndStatusBar();
+        linearLayoutParams.width = DimensionUtil.getScreenWidth();
+        linearLayoutParams.height = DimensionUtil.getScreenHeightWithoutNavAndStatusBar();
+
+        if (getActivity() instanceof MainActivity) {
+            MainActivity mainActivity = (MainActivity) getActivity();
+            if (mainActivity.getMainSidePanel() != null) {
+                mainActivity.getMainSidePanel().setVisibility(View.GONE);
+            }
+            if (mainActivity.getMainBottomPanel() != null) {
+                mainActivity.getMainBottomPanel().setVisibility(View.GONE);
+            }
+        }
+
+        constraintLayout.setLayoutParams(linearLayoutParams);
+        textureView.setLayoutParams(constraintLayoutParams);
+        constraintLayout.requestLayout();
+        textureView.requestLayout();
     }
 
-//    private TextWatcher firstVideoTextWatcher = new TextWatcher() {
-//        @Override
-//        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//        }
-//
-//        @Override
-//        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//            mLinearLayoutFirstVideoConfirm.setVisibility(View.VISIBLE);
-//        }
-//
-//        @Override
-//        public void afterTextChanged(Editable editable) {
-//        }
-//    };
+    private void setVideoStreamDefaultScreen(ConstraintLayout constraintLayout, TextureView textureView) {
+        ConstraintLayout.LayoutParams constraintLayoutParams = new ConstraintLayout.LayoutParams(
+                DimensionUtil.convertDpsToPixel(DEFAULT_VIDEO_VIEW_WIDTH),
+                DimensionUtil.convertDpsToPixel(DEFAULT_VIDEO_VIEW_HEIGHT));
+        LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(
+                DimensionUtil.convertDpsToPixel(DEFAULT_VIDEO_VIEW_WIDTH),
+                DimensionUtil.convertDpsToPixel(DEFAULT_VIDEO_VIEW_HEIGHT));
+        linearLayoutParams.gravity = Gravity.CENTER;
 
-//    private TextWatcher secondVideoTextWatcher = new TextWatcher() {
-//        @Override
-//        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//        }
-//
-//        @Override
-//        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//            mLinearLayoutSecondVideoConfirm.setVisibility(View.VISIBLE);
-//        }
-//
-//        @Override
-//        public void afterTextChanged(Editable editable) {
-//        }
-//    };
+        if (getActivity() instanceof MainActivity) {
+            MainActivity mainActivity = (MainActivity) getActivity();
+            if (mainActivity.getMainSidePanel() != null) {
+                mainActivity.getMainSidePanel().setVisibility(View.VISIBLE);
+            }
+            if (mainActivity.getMainBottomPanel() != null) {
+                mainActivity.getMainBottomPanel().setVisibility(View.VISIBLE);
+            }
+        }
+
+        constraintLayout.setLayoutParams(linearLayoutParams);
+        textureView.setLayoutParams(constraintLayoutParams);
+        constraintLayout.requestLayout();
+        textureView.requestLayout();
+    }
+
+    private void setOtherUiElementsForFirstVideoStream(boolean isFullScreen) {
+        if (isFullScreen) {
+            mRelativeLayoutToolbarOne.setVisibility(View.GONE);
+            mRelativeLayoutToolbarTwo.setVisibility(View.GONE);
+            mConstraintLayoutSurfaceViewTwo.setVisibility(View.GONE);
+        } else {
+            mRelativeLayoutToolbarOne.setVisibility(View.VISIBLE);
+            mRelativeLayoutToolbarTwo.setVisibility(View.VISIBLE);
+            mConstraintLayoutSurfaceViewTwo.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void setOtherUiElementsForSecondVideoStream(boolean isFullScreen) {
+        if (isFullScreen) {
+            mRelativeLayoutToolbarOne.setVisibility(View.GONE);
+            mRelativeLayoutToolbarTwo.setVisibility(View.GONE);
+            mConstraintLayoutSurfaceViewOne.setVisibility(View.GONE);
+        } else {
+            mRelativeLayoutToolbarOne.setVisibility(View.VISIBLE);
+            mRelativeLayoutToolbarTwo.setVisibility(View.VISIBLE);
+            mConstraintLayoutSurfaceViewOne.setVisibility(View.VISIBLE);
+        }
+    }
 
     private View.OnClickListener settingOnClickListener = new View.OnClickListener() {
         @Override
@@ -265,292 +582,28 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
         }
     };
 
-    private View.OnClickListener firstVideoStreamOnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (ValidationUtil.validateEditTextField(mEtvFirstVideoURLLink,
-                    getString(R.string.error_empty_video_url_detail))) {
-
-                String videoURL = mEtvFirstVideoURLLink.getText().toString().trim();
-
-//                setVideoOneStreamURL(videoURL);
-//                setVideoOneExoStreamURL(videoURL);
-                setVideoOneVLCStreamURL(videoURL);
-//                mLinearLayoutFirstVideoConfirm.setVisibility(View.GONE);
-                editFirstVideoSetUp();
-
-                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                SharedPreferences.Editor editor = pref.edit();
-
-                editor.putString(SharedPreferenceConstants.SUB_HEADER_FIRST_VIDEO_URL, videoURL);
-                editor.apply();
-
-                hideKeyboard();
-            }
+    private Bitmap screenShot(View view) {
+        if (view != null) {
+            Bitmap bitmap = Bitmap.createBitmap(view.getWidth(),
+                    view.getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            view.draw(canvas);
+            return bitmap;
         }
-    };
-
-    private View.OnClickListener firstVideoEditOnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            initFirstVideoSetUp();
-        }
-    };
-
-    private View.OnClickListener secondVideoStreamOnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (ValidationUtil.validateEditTextField(mEtvSecondVideoURLLink,
-                    getString(R.string.error_empty_video_url_detail))) {
-                String videoURL = mEtvSecondVideoURLLink.getText().toString().trim();
-
-//                setVideoTwoStreamURL(videoURL);
-                setVideoTwoVLCStreamURL(videoURL);
-//                mLinearLayoutSecondVideoConfirm.setVisibility(View.GONE);
-                editSecondVideoSetUp();
-
-                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                SharedPreferences.Editor editor = pref.edit();
-
-                editor.putString(SharedPreferenceConstants.SUB_HEADER_SECOND_VIDEO_URL, videoURL);
-                editor.apply();
-
-                hideKeyboard();
-            }
-        }
-    };
-
-    private View.OnClickListener secondVideoEditOnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            initSecondVideoSetUp();
-        }
-    };
-
-//    private void initVideoOneStream(View rootVideoStreamView) {
-//        mVideoViewOne = rootVideoStreamView.findViewById(R.id.video_view_stream_one);
-//        mMediaControllerOne = new MediaController(getActivity());
-//        mVideoViewOne.setMediaController(mMediaControllerOne);
-//    }
-//
-//    private void initVideoTwoStream(View rootVideoStreamView) {
-//        mVideoViewTwo = rootVideoStreamView.findViewById(R.id.video_view_stream_two);
-//        mMediaControllerTwo = new MediaController(getActivity());
-//        mVideoViewTwo.setMediaController(mMediaControllerTwo);
-//    }
-
-    // Test URL is "rtsp://184.72.239.149/vod/mp4:BigBuckBunny_175k.mov"
-//    private void setVideoOneStreamURL(String urlLink) {
-//        try {
-//            Uri video = Uri.parse(urlLink);
-//
-//            mVideoViewOne.setVideoURI(video);
-//
-//            mVideoViewOne.post(new Runnable() {
-//                @Override
-//                public void run() {
-////                    mMediaControllerOne.show(0);
-//                }
-//            });
-//        } catch (RuntimeException e) {
-//            Log.d(TAG, "Video Stream One - Invalid URI");
-//        }
-//
-//        mVideoViewOne.start();
-//    }
-
-    // Test URL is "http://archive.org/download/SampleMpeg4_201307/sample_mpeg4.mp4"
-//    private void setVideoTwoStreamURL(String urlLink) {
-//        mMediaControllerTwo = new MediaController(getActivity());
-//        mVideoViewTwo.setMediaController(mMediaControllerTwo);
-//
-//        try {
-//            Uri video = Uri.parse(urlLink);
-//            mVideoViewTwo.setVideoURI(video);
-//
-//            mVideoViewTwo.post(new Runnable() {
-//                @Override
-//                public void run() {
-////                    mMediaControllerTwo.show(0);
-//                }
-//            });
-//        } catch (RuntimeException e) {
-//            Log.d(TAG, "Video Stream Two - Invalid URI");
-//        }
-//
-//        mVideoViewTwo.start();
-//    }
-
-//    private void setVideoOneExoStreamURL(String urlLink) {
-////-------------------------------------------------
-//        DefaultBandwidthMeter defaultBandwidthMeter = new DefaultBandwidthMeter();
-//        // Produces DataSource instances through which media data is loaded.
-//        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getActivity().getApplicationContext(),
-//                Util.getUserAgent(getActivity().getApplicationContext(), "Exo2"), defaultBandwidthMeter);
-//
-//        DataSource.Factory manifestDataSourceFactory =
-//                new DefaultHttpDataSourceFactory("ua");
-//        DashChunkSource.Factory dashChunkSourceFactory =
-//                new DefaultDashChunkSource.Factory(
-//                        new DefaultHttpDataSourceFactory("ua", new DefaultBandwidthMeter()));
-//
-////        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getActivity().getApplicationContext(),
-////                Util.getUserAgent(getActivity().getApplicationContext(), "Exo2"), defaultBandwidthMeter);
-//
-//        //-----------------------------------------------
-//        //Create media source
-////        String hls_url = "YOUR STREAMING URL HERE";
-//        Uri uri = Uri.parse(urlLink);
-//        Handler mainHandler = new Handler();
-////        MediaSource mediaSource = new SsMediaSource(manifestDataSourceFactory,
-////                dataSourceFactory, mainHandler, null);
-//        MediaSource mediaSource = new DashMediaSource.Factory(dashChunkSourceFactory,
-//                dataSourceFactory).createMediaSource(uri);
-//
-//        player.prepare(mediaSource);
-//
-//
-//        player.setPlayWhenReady(playWhenReady);
-//        player.addListener(new Player.EventListener() {
-//            @Override
-//            public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
-//
-//            }
-//
-//            @Override
-//            public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-//
-//            }
-//
-//            @Override
-//            public void onLoadingChanged(boolean isLoading) {
-//
-//            }
-//
-//            @Override
-//            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-//                switch (playbackState) {
-//                    case Player.STATE_READY:
-//                        loading.setVisibility(View.GONE);
-//                        break;
-//                    case Player.STATE_BUFFERING:
-//                        loading.setVisibility(View.VISIBLE);
-//                        break;
-//                }
-//            }
-//
-//            @Override
-//            public void onRepeatModeChanged(int repeatMode) {
-//
-//            }
-//
-//            @Override
-//            public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-//
-//            }
-//
-//            @Override
-//            public void onPlayerError(ExoPlaybackException error) {
-//
-//            }
-//
-//            @Override
-//            public void onPositionDiscontinuity(int reason) {
-//
-//            }
-//
-//            @Override
-//            public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-//
-//            }
-//
-//            @Override
-//            public void onSeekProcessed() {
-//
-//            }
-//        });
-//        player.seekTo(currentWindow, playbackPosition);
-//        player.prepare(mediaSource, true, false);
-//    }
-
-    private void initFirstVideoSetUp() {
-        mImgBtnFirstVideoEdit.setVisibility(View.GONE);
-        mEtvFirstVideoURLLink.setVisibility(View.VISIBLE);
-        mImgBtnFirstVideoStream.setVisibility(View.VISIBLE);
-        mEtvFirstVideoURLLink.requestFocus();
-        CustomKeyboardUtil.showKeyboard(getActivity());
-    }
-
-    private void editFirstVideoSetUp() {
-        mEtvFirstVideoURLLink.setVisibility(View.INVISIBLE);
-        mImgBtnFirstVideoStream.setVisibility(View.GONE);
-        mImgBtnFirstVideoEdit.setVisibility(View.VISIBLE);
-    }
-
-    private void initSecondVideoSetUp() {
-        mImgBtnSecondVideoEdit.setVisibility(View.GONE);
-        mEtvSecondVideoURLLink.setVisibility(View.VISIBLE);
-        mImgBtnSecondVideoStream.setVisibility(View.VISIBLE);
-    }
-
-    private void editSecondVideoSetUp() {
-        mEtvSecondVideoURLLink.setVisibility(View.INVISIBLE);
-        mImgBtnSecondVideoStream.setVisibility(View.GONE);
-        mImgBtnSecondVideoEdit.setVisibility(View.VISIBLE);
+        return null;
     }
 
     private void onVisible() {
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String videoFirstURL = pref.getString(SharedPreferenceConstants.SUB_HEADER_FIRST_VIDEO_URL,
-                SharedPreferenceConstants.DEFAULT_STRING);
-
-        if (!SharedPreferenceConstants.DEFAULT_STRING.equalsIgnoreCase(videoFirstURL)) {
-            editFirstVideoSetUp();
-//            setVideoOneStreamURL(videoFirstURL);
-//            setVideoOneExoStreamURL(videoFirstURL);
-            setVideoOneVLCStreamURL(videoFirstURL);
-        } else {
-            initFirstVideoSetUp();
-        }
-
-        String videoSecondURL = pref.getString(SharedPreferenceConstants.SUB_HEADER_SECOND_VIDEO_URL,
-                SharedPreferenceConstants.DEFAULT_STRING);
-
-        if (!SharedPreferenceConstants.DEFAULT_STRING.equalsIgnoreCase(videoSecondURL)) {
-            editSecondVideoSetUp();
-//            setVideoTwoStreamURL(videoSecondURL);
-//            setVideoTwoExoStreamURL(videoSecondURL);
-            setVideoTwoVLCStreamURL(videoSecondURL);
-        } else {
-            initSecondVideoSetUp();
-        }
     }
 
     private void onInvisible() {
         Log.d(TAG, "onInvisible");
-        hideKeyboard();
+//        hideKeyboard();
         releasePlayers();
 //        if (Util.SDK_INT <= 23) {
 //            releasePlayer();
 //        }
     }
-
-    private void hideKeyboard() {
-        mEtvFirstVideoURLLink.clearFocus();
-        mEtvSecondVideoURLLink.clearFocus();
-        CustomKeyboardUtil.hideKeyboard(getActivity(), mEtvFirstVideoURLLink);
-        CustomKeyboardUtil.hideKeyboard(getActivity(), mEtvSecondVideoURLLink);
-    }
-
-//    private void releasePlayer() {
-//        if (player != null) {
-//            playbackPosition = player.getCurrentPosition();
-//            currentWindow = player.getCurrentWindowIndex();
-//            playWhenReady = player.getPlayWhenReady();
-//            player.release();
-//            player = null;
-//        }
-//    }
 
     /**
      * Creates VLC MediaPlayerOne and plays video
@@ -560,13 +613,6 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
     private void setVideoOneVLCStreamURL(String media) {
         releasePlayerOne();
         try {
-//            if (media.length() > 0) {
-//                Toast toast = Toast.makeText(getActivity(), media, Toast.LENGTH_LONG);
-//                toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
-//                        0);
-//                toast.show();
-//            }
-
             // Create LibVLC
             // TODO: make this more robust, and sync with audio demo
             ArrayList<String> options = new ArrayList<String>();
@@ -574,21 +620,28 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
             options.add("--aout=opensles");
             options.add("--audio-time-stretch"); // time stretching
             options.add("-vvv"); // verbosity
-            libVlcOne = new LibVLC(getActivity(), options);
-            mSurfaceHolderOne.setKeepScreenOn(true);
+            mLibVlcOne = new LibVLC(getActivity(), options);
+//            mSurfaceHolderOne.setKeepScreenOn(true);
+
+            // Create media controller
+            mSurfaceViewOne.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    mVideoStreamControllerViewOne.show(MEDIA_CONTROLLER_SHOW_DURATION);
+                }
+            });
 
             // Creating media player
-            mMediaPlayerOne = new MediaPlayer(libVlcOne);
+            mMediaPlayerOne = new MediaPlayer(mLibVlcOne);
             mMediaPlayerOne.setEventListener(mPlayerOneListener);
 
             // Seting up video output
             final IVLCVout vout = mMediaPlayerOne.getVLCVout();
             vout.setVideoView(mSurfaceViewOne);
             //vout.setSubtitlesView(mSurfaceSubtitles);
-            vout.addCallback(this);
+            vout.addCallback(firstIVLCVoutCallback);
             vout.attachViews();
 
-            Media m = new Media(libVlcOne, Uri.parse(media));
+            Media m = new Media(mLibVlcOne, Uri.parse(media));
             mMediaPlayerOne.setMedia(m);
             mMediaPlayerOne.play();
         } catch (Exception e) {
@@ -612,21 +665,28 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
             options.add("--aout=opensles");
             options.add("--audio-time-stretch"); // time stretching
             options.add("-vvv"); // verbosity
-            libVlcTwo = new LibVLC(getActivity(), options);
-            mSurfaceHolderTwo.setKeepScreenOn(true);
+            mLibVlcTwo = new LibVLC(getActivity(), options);
+//            mSurfaceHolderTwo.setKeepScreenOn(true);
+
+            // Create media controller
+            mSurfaceViewTwo.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    mVideoStreamControllerViewTwo.show(MEDIA_CONTROLLER_SHOW_DURATION);
+                }
+            });
 
             // Creating media player
-            mMediaPlayerTwo = new MediaPlayer(libVlcTwo);
+            mMediaPlayerTwo = new MediaPlayer(mLibVlcTwo);
             mMediaPlayerTwo.setEventListener(mPlayerTwoListener);
 
             // Seting up video output
             final IVLCVout vout = mMediaPlayerTwo.getVLCVout();
             vout.setVideoView(mSurfaceViewTwo);
             //vout.setSubtitlesView(mSurfaceSubtitles);
-            vout.addCallback(this);
+            vout.addCallback(secondIVLCVoutCallback);
             vout.attachViews();
 
-            Media m = new Media(libVlcTwo, Uri.parse(media));
+            Media m = new Media(mLibVlcTwo, Uri.parse(media));
             mMediaPlayerTwo.setMedia(m);
             mMediaPlayerTwo.play();
         } catch (Exception e) {
@@ -641,35 +701,29 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
     }
 
     private void releasePlayerOne() {
-        if (libVlcOne == null)
+        if (mLibVlcOne == null)
             return;
 
         mMediaPlayerOne.stop();
         final IVLCVout vOutOne = mMediaPlayerOne.getVLCVout();
-        vOutOne.removeCallback(this);
+        vOutOne.removeCallback(firstIVLCVoutCallback);
         vOutOne.detachViews();
-        mSurfaceHolderOne = null;
-        libVlcOne.release();
-        libVlcOne = null;
-
-//        mVideoWidthOne = 0;
-//        mVideoHeightOne = 0;
+//        mSurfaceHolderOne = null;
+        mLibVlcOne.release();
+        mLibVlcOne = null;
     }
 
     private void releasePlayerTwo() {
-        if (libVlcTwo == null)
+        if (mLibVlcTwo == null)
             return;
 
         mMediaPlayerTwo.stop();
         final IVLCVout vOutTwo = mMediaPlayerTwo.getVLCVout();
-        vOutTwo.removeCallback(this);
+        vOutTwo.removeCallback(secondIVLCVoutCallback);
         vOutTwo.detachViews();
-        mSurfaceHolderTwo = null;
-        libVlcTwo.release();
-        libVlcTwo = null;
-
-//        mVideoWidthTwo = 0;
-//        mVideoHeightTwo = 0;
+//        mSurfaceHolderTwo = null;
+        mLibVlcTwo.release();
+        mLibVlcTwo = null;
     }
 
     /**
@@ -703,7 +757,7 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
     }
 
     /**
-     * Registering callbacks for VLC Player One
+     * Registering callbacks for VLC Player Two
      */
     private MediaPlayer.EventListener mPlayerTwoListener = new MyPlayerTwoListener(this);
 
@@ -732,27 +786,99 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
         }
     }
 
-    @Override
-    public void onNewLayout(IVLCVout vlcVout, int width, int height, int visibleWidth, int visibleHeight, int sarNum, int sarDen) {
+    private void observerSetup() {
+        mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+        mVideoStreamViewModel = ViewModelProviders.of(this).get(VideoStreamViewModel.class);
 
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String userId = sharedPrefs.getString(SharedPreferenceConstants.USER_ID,
+                SharedPreferenceConstants.DEFAULT_STRING);
+
+        /*
+         * Refreshes spinner UI whenever there is a change in video streams (insert, update or delete)
+         */
+        mVideoStreamViewModel.getAllVideoStreamNamesLiveDataForUser(userId).observe(this,
+                new Observer<List<String>>() {
+                    @Override
+                    public void onChanged(@Nullable List<String> videoStreamNameList) {
+                        if (mSpinnerVideoStreamAdapterOne != null) {
+                            if (mVideoStreamNameListOne == null) {
+                                mVideoStreamNameListOne = new ArrayList<>();
+                            } else {
+                                mVideoStreamNameListOne.clear();
+                            }
+
+                            mVideoStreamNameListOne.add(getString(R.string.video_stream_select_spinner_item));
+                            mVideoStreamNameListOne.addAll(videoStreamNameList);
+                            mSpinnerVideoStreamAdapterOne.notifyDataSetChanged();
+                        }
+
+                        if (mSpinnerVideoStreamAdapterTwo != null) {
+                            if (mVideoStreamNameListTwo == null) {
+                                mVideoStreamNameListTwo = new ArrayList<>();
+                            } else {
+                                mVideoStreamNameListTwo.clear();
+                            }
+
+                            mVideoStreamNameListTwo.add(getString(R.string.video_stream_select_spinner_item));
+                            mVideoStreamNameListTwo.addAll(videoStreamNameList);
+                            mSpinnerVideoStreamAdapterTwo.notifyDataSetChanged();
+                        }
+                    }
+                });
     }
 
-    @Override
-    public void onSurfacesCreated(IVLCVout vlcVout) {
+    private IVLCVout.Callback firstIVLCVoutCallback = new IVLCVout.Callback() {
 
-    }
+        @Override
+        public void onNewLayout(IVLCVout vlcVout, int width, int height, int visibleWidth, int visibleHeight, int sarNum, int sarDen) {
 
-    @Override
-    public void onSurfacesDestroyed(IVLCVout vlcVout) {
+        }
 
-    }
+        @Override
+        public void onSurfacesCreated(IVLCVout vlcVout) {
 
-    @Override
-    public void onHardwareAccelerationError(IVLCVout vlcVout) {
-        Log.e(TAG, "Error with hardware acceleration");
-        this.releasePlayers();
-        Toast.makeText(getActivity(), "Error with hardware acceleration", Toast.LENGTH_LONG).show();
-    }
+        }
+
+        @Override
+        public void onSurfacesDestroyed(IVLCVout vlcVout) {
+
+        }
+
+        @Override
+        public void onHardwareAccelerationError(IVLCVout vlcVout) {
+            Log.e(TAG, "Error with hardware acceleration for first video stream");
+            Toast.makeText(getActivity(), "Error with hardware acceleration for first video stream",
+                    Toast.LENGTH_LONG).show();
+            releasePlayerOne();
+        }
+    };
+
+    private IVLCVout.Callback secondIVLCVoutCallback = new IVLCVout.Callback() {
+
+        @Override
+        public void onNewLayout(IVLCVout vlcVout, int width, int height, int visibleWidth, int visibleHeight, int sarNum, int sarDen) {
+
+        }
+
+        @Override
+        public void onSurfacesCreated(IVLCVout vlcVout) {
+
+        }
+
+        @Override
+        public void onSurfacesDestroyed(IVLCVout vlcVout) {
+
+        }
+
+        @Override
+        public void onHardwareAccelerationError(IVLCVout vlcVout) {
+            Log.e(TAG, "Error with hardware acceleration for second video stream");
+            Toast.makeText(getActivity(), "Error with hardware acceleration for second video stream",
+                    Toast.LENGTH_LONG).show();
+            releasePlayerTwo();
+        }
+    };
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
@@ -785,7 +911,7 @@ public class VideoStreamFragment extends Fragment implements IVLCVout.Callback {
     public void onPause() {
         super.onPause();
         Log.d(TAG, "onPause");
-//        releasePlayer();
+//        releasePlayers();
     }
 
     @Override

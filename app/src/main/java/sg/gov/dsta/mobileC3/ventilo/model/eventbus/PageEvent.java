@@ -9,11 +9,11 @@ public class PageEvent {
     public static final int FRAGMENT_KEY = 0;
     public static final int ACTIVITY_KEY = 0;
     private static final PageEvent INSTANCE = new PageEvent();
-    private Map<Integer, String> pastPages;
+    private Map<Integer, String> mPastPages;
 //    private String previousFragmentName;
 
     private PageEvent() {
-        pastPages = new LinkedHashMap<>();
+        mPastPages = new LinkedHashMap<>();
     }
 
     public static PageEvent getInstance() {
@@ -21,11 +21,11 @@ public class PageEvent {
     }
 
     public PageEvent addPage(int key, String previousActivityOrFragmentName) {
-        if (pastPages.size() == 5) {
-            pastPages.remove(0);
+        if (mPastPages.size() == 5) {
+            mPastPages.remove(0);
         }
 
-        pastPages.put(key, previousActivityOrFragmentName);
+        mPastPages.put(key, previousActivityOrFragmentName);
 
         return INSTANCE;
 //        this.previousFragmentName = previousFragmentName;
@@ -56,7 +56,7 @@ public class PageEvent {
     private Map.Entry<Integer, String> getLastPageEntry() {
         Map.Entry<Integer, String> lastElement = null;
 
-        Iterator iterator = pastPages.entrySet().iterator();
+        Iterator iterator = mPastPages.entrySet().iterator();
         while (iterator.hasNext()) {
             lastElement = (Map.Entry<Integer, String>) iterator.next();
         }

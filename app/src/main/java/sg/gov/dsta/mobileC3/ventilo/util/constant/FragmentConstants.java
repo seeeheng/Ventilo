@@ -6,9 +6,10 @@ public class FragmentConstants {
     public static final String DEFAULT_STRING = "";
     public static final int DEFAULT_INT = 0;
 
-    public static final int REPORT_TAB_TITLE_INCIDENT_ID = 0;
-    public static final int REPORT_TAB_TITLE_TASK_ID = 1;
-    public static final int REPORT_TAB_TITLE_SITREP_ID = 2;
+//    public static final int REPORT_TAB_TITLE_INCIDENT_ID = 0;
+//    public static final int REPORT_TAB_TITLE_TASK_ID = 1;
+//    public static final int REPORT_TAB_TITLE_SITREP_ID = 2;
+    public static final int REPORT_TAB_TITLE_SITREP_ID = 0;
 
     // Incident
     public static final String KEY_INCIDENT = "Incident";

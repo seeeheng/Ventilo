@@ -3,28 +3,41 @@ package sg.gov.dsta.mobileC3.ventilo.activity.login;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
+import java.util.List;
 
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
-import sg.gov.dsta.mobileC3.ventilo.constants.SharedPrefConstants;
+import sg.gov.dsta.mobileC3.ventilo.database.VentiloDatabase;
+import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
+import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.MainViewModel;
+import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.security.RandomString;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 //import sg.com.superc2.utils.GsonCreator;
 //import sg.com.superc2.utils.constants.RestConstants;
@@ -41,11 +54,15 @@ public class LoginActivity extends AppCompatActivity {
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
+    private static final String TAG = LoginActivity.class.getSimpleName();
 
-    // UI references.
-    private C2OpenSansBlackEditTextView mEtvUsername;
+    private static final String USERNAME = "123";
+    private static final String USERNAME_TWO = "456";
+    private UserViewModel mUserViewModel;
+
+    // UI references
+    private C2OpenSansBlackEditTextView mEtvUserId;
     private C2OpenSansBlackEditTextView mEtvPassword;
-//    private C2LatoBlackTextView mForgotPasswordTV;
     private View mProgressView;
     private View mLoginFormView;
 
@@ -55,12 +72,15 @@ public class LoginActivity extends AppCompatActivity {
 
         // TODO: remove after demo
         resetSharedPref();
+        setUpDummyUser();
+        observerSetup();
+
 //        Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
 //        startActivity(activityIntent);
 
         setContentView(R.layout.activity_login);
         // Set up the login form.
-        mEtvUsername = (C2OpenSansBlackEditTextView) findViewById(R.id.etv_login_username);
+        mEtvUserId = (C2OpenSansBlackEditTextView) findViewById(R.id.etv_login_username);
 //        populateAutoComplete();
 
         mEtvPassword = (C2OpenSansBlackEditTextView) findViewById(R.id.etv_login_password);
@@ -80,9 +100,10 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 //                attemptLogin();
+
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplication());
                 SharedPreferences.Editor editor = pref.edit();
-                editor.putString(SharedPreferenceConstants.CALLSIGN_USER, mEtvUsername.getText().toString().trim());
+                editor.putString(SharedPreferenceConstants.CALLSIGN_USER, mEtvUserId.getText().toString().trim());
                 editor.apply();
 
                 SharedPreferenceConstants.INITIALS = SharedPreferenceConstants.TEAM_NUMBER.
@@ -91,9 +112,7 @@ public class LoginActivity extends AppCompatActivity {
                 // TODO: Remove after demo
                 SharedPreferenceUtil.setContext(getApplication());
 
-                //TODO figure out a way to toggle when server is not available
-                Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(activityIntent);
+                checkIfValidUser();
             }
         });
 
@@ -140,27 +159,27 @@ public class LoginActivity extends AppCompatActivity {
     private void attemptLogin() {
 
         // Reset errors.
-        mEtvUsername.setError(null);
+        mEtvUserId.setError(null);
         mEtvPassword.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEtvUsername.getText().toString();
+        String userId = mEtvUserId.getText().toString();
         String password = mEtvPassword.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mEtvPassword.setError(getString(R.string.error_invalid_password));
+        if (TextUtils.isEmpty(password)) {
+            mEtvPassword.setError(getString(R.string.error_field_required));
             focusView = mEtvPassword;
             cancel = true;
         }
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email) && !isEmailValid(email)) {
-            mEtvUsername.setError(getString(R.string.error_field_required));
-            focusView = mEtvUsername;
+        // Check for a valid user Id.
+        if (TextUtils.isEmpty(userId)) {
+            mEtvUserId.setError(getString(R.string.error_field_required));
+            focusView = mEtvUserId;
             cancel = true;
         }
 
@@ -173,13 +192,21 @@ public class LoginActivity extends AppCompatActivity {
             // TODO: Add after design review
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-//            LoginTx loginTx = new LoginTx(mEtvUsername.getText().toString()
+
+            checkIfValidUser();
+//            LoginTx loginTx = new LoginTx(mEtvUserId.getText().toString()
 //                    , mPasswordET.getText().toString());
 //            StringRequest stringRequest = VolleyPostBuilder.getRequest(RestConstants.BASE_URL + RestConstants.POST_LOGIN, loginTx, loginListener, errorListener, getApplicationContext());
 //            QueueSingleton.getInstance(this).addToRequestQueue(stringRequest);
 //            showProgress(true);
         }
     }
+
+//    private void storeAccessToken(String userId) {
+//        RandomString randomString = new RandomString();
+//        String accessToken = randomString.nextString();
+//        saveLoginDetails(userId, accessToken);
+//    }
 
     // TODO: Add after design review
 //    Response.Listener<String> loginListener = new Response.Listener<String>() {
@@ -194,24 +221,24 @@ public class LoginActivity extends AppCompatActivity {
 //        }
 //    };
 
-    Response.ErrorListener errorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            showProgress(false);
-            Toast.makeText(getApplicationContext(), "Incorrect username or password. Please try again.",
-                    Toast.LENGTH_LONG).show();
-        }
-    };
+//    Response.ErrorListener errorListener = new Response.ErrorListener() {
+//        @Override
+//        public void onErrorResponse(VolleyError error) {
+//            showProgress(false);
+//            Toast.makeText(getApplicationContext(), "Incorrect username or password. Please try again.",
+//                    Toast.LENGTH_LONG).show();
+//        }
+//    };
 
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() >= 4;
-    }
+//    private boolean isUsernameValid(String username) {
+////        return email.contains("@");
+//        return username.length() >= 0;
+//    }
+//
+//    private boolean isPasswordValid(String password) {
+////        return password.length() >= 4;
+//        return password.length() >= 0;
+//    }
 
     /**
      * Shows the progress UI and hides the login form.
@@ -292,7 +319,6 @@ public class LoginActivity extends AppCompatActivity {
 //        mEmailView.setAdapter(adapter);
 //    }
 
-
 //    private interface ProfileQuery {
 //        String[] PROJECTION = {
 //                ContactsContract.CommonDataKinds.Email.ADDRESS,
@@ -302,16 +328,139 @@ public class LoginActivity extends AppCompatActivity {
 //        int ADDRESS = 0;
 //        int IS_PRIMARY = 1;
 //    }
-    private void saveLoginDetails(String accessToken) {
+
+    private void setUpDummyUser() {
+        // TODO: Remove for actual deployment
+        // Added for testing; Clears all data from database
+        MainViewModel mainViewModel = new MainViewModel(getApplication());
+        mainViewModel.clearAllData();
+
+        UserViewModel userViewModel = new UserViewModel(getApplication());
+        String password = "333";
+        UserModel newUser = new UserModel(USERNAME, password, "", "Alpha", "Member");
+
+        String passwordTwo = "444";
+        UserModel newUserTwo = new UserModel(USERNAME_TWO, passwordTwo, "", "Alpha", "Member");
+
+        userViewModel.addUser(newUser);
+        userViewModel.addUser(newUserTwo);
+    }
+
+    private void checkIfValidUser() {
+        // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
+        // asynchronously in the background thread and apply changes on the main UI thread
+        SingleObserver<UserModel> singleObserver = new SingleObserver<UserModel>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                // add it to a CompositeDisposable
+            }
+
+            @Override
+            public void onSuccess(UserModel userModel) {
+                saveLoginDetails(userModel);
+
+                //TODO figure out a way to toggle when server is not available
+                Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(activityIntent);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "Error adding Access Token. Error Msg: " + e.toString());
+            }
+        };
+
+//        mUserViewModel.queryUserByUserId(mEtvUserId.getText().toString().trim(), singleObserver);
+        mUserViewModel.queryUserByUserId(USERNAME, singleObserver);
+    }
+
+    private void saveLoginDetails(UserModel userModel) {
+        String accessToken = generateAccessToken();
+
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor prefsEditor = sharedPrefs.edit();
-//        prefsEditor.putString(General.USER_ID, userId);
+        prefsEditor.putString(SharedPreferenceConstants.USER_ID, userModel.getUserId());
 //        prefsEditor.putString(General.USER_HANDLE, userHandle);
 //        prefsEditor.putString(General.USER_RANK, userRank);
 //        prefsEditor.putString(General.REFRESH_TOKEN, refreshToken);
-        prefsEditor.putString(SharedPrefConstants.ACCESS_TOKEN, accessToken);
-        prefsEditor.commit();
+        prefsEditor.putString(SharedPreferenceConstants.ACCESS_TOKEN, accessToken);
+        prefsEditor.apply();
+
+        Log.d(TAG, "Added Access Token to User (" + userModel.getUserId() + ")");
+        userModel.setAccessToken(accessToken);
+        mUserViewModel.updateUser(userModel);
     }
 
+    private String generateAccessToken() {
+        RandomString randomString = new RandomString();
+        return randomString.nextString();
+    }
 
+    private void observerSetup() {
+        mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+
+//        mUserViewModel.getUserByAccessTokenOrUserId().observe(this, new Observer<UserModel>() {
+//            @Override
+//            public void onChanged(@Nullable UserModel userModel) {
+//
+//            }
+//        });
+    }
+
+    /**
+     * Represents an asynchronous login/registration task used to authenticate
+     * the user.
+     */
+//    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+//
+//        private final String mEmail;
+//        private final String mPassword;
+//
+//        UserLoginTask(String email, String password) {
+//            mEmail = email;
+//            mPassword = password;
+//        }
+//
+//        @Override
+//        protected Boolean doInBackground(Void... params) {
+//            // TODO: attempt authentication against a network service.
+//
+//            try {
+//                // Simulate network access.
+//                Thread.sleep(2000);
+//            } catch (InterruptedException e) {
+//                return false;
+//            }
+//
+//            for (String credential : DUMMY_CREDENTIALS) {
+//                String[] pieces = credential.split(":");
+//                if (pieces[0].equals(mEmail)) {
+//                    // Account exists, return true if the password matches.
+//                    return pieces[1].equals(mPassword);
+//                }
+//            }
+//
+//            // TODO: register the new account here.
+//            return true;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(final Boolean success) {
+//            mAuthTask = null;
+//            showProgress(false);
+//
+//            if (success) {
+//                finish();
+//            } else {
+//                mPasswordView.setError(getString(R.string.error_incorrect_password));
+//                mPasswordView.requestFocus();
+//            }
+//        }
+//
+//        @Override
+//        protected void onCancelled() {
+//            mAuthTask = null;
+//            showProgress(false);
+//        }
+//    }
 }

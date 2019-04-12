@@ -2,6 +2,8 @@ package sg.gov.dsta.mobileC3.ventilo.util.constant;
 
 public class SharedPreferenceConstants {
 //    public static final String TITLE = "VentiloPref";
+    public static final String ACCESS_TOKEN = "AccessToken";
+    public static final String USER_ID = "UserID";
     public static final int DEFAULT_INT = 0;
     public static final String DEFAULT_STRING = "";
     public static final String SEPARATOR = "_";

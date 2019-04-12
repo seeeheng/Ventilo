@@ -1,10 +1,8 @@
 package sg.gov.dsta.mobileC3.ventilo.network;
 
 import android.app.IntentService;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -13,19 +11,13 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
-import android.widget.Toast;
 
-import java.util.LinkedList;
-
-import sg.gov.dsta.mobileC3.ventilo.constants.ActivityResultConstants;
 import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
-import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQ;
-
-import static android.support.v4.app.ActivityCompat.startActivityForResult;
 
 public class NetworkService extends IntentService {
+
+    private static final String TAG = "Ventilo:WakeLockTag";
 
     private final IBinder mBinder = new NetworkServiceBinder(this);
 
@@ -184,7 +176,7 @@ public class NetworkService extends IntentService {
             //  by requesting a wake lock - we request the minimum possible wake
             //  lock - just enough to keep the CPU running until we've finished
             PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-            PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MQTT");
+            PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
             wl.acquire();
 
 //            Log.d("SharedSense", "MQTT Connection: Background Data changed!");

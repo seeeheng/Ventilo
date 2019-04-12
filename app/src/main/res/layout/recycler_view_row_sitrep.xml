@@ -75,7 +75,7 @@
                                     android:layout_height="20dp"
                                     android:layout_marginEnd="@dimen/minor_margin"
                                     android:scaleType="fitXY"
-                                    app:srcCompat="@drawable/assignee_icon" />
+                                    app:srcCompat="@drawable/icon_assigned_to" />
 
                                 <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicBlackTextView
                                     android:id="@+id/tv_recycler_sitrep_reported_by"

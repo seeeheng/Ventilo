@@ -16,12 +16,13 @@
     <!--<color name="background_2nd_level_gray">#BBBBBB</color>-->
     <!--<color name="background_3rd_level_chinese_silver">#CCCCCC</color>-->
 
-    <color name="background_main_black">#000000</color>
+    <color name="background_main_black">#121212</color>
     <!--<color name="background_main_dark_charcoal">#333333</color>-->
     <color name="background_2nd_level_gray">#BBBBBB</color>
     <color name="background_3rd_level_chinese_silver">#CCCCCC</color>
     <color name="background_dark_grey">#181818</color>
     <color name="background_main_dark_charcoal">#152538</color>
+    <color name="background_media_controller_dark_grey">#336D6D6D</color>
     <color name="dark_cyan">#008B8B</color>
     <color name="primary_highlight_cyan">#00DCFF</color>
     <color name="primary_text_white">#FFFFFF</color>
@@ -41,11 +42,16 @@
     <color name="spinner_fill_grey">#282828</color>
     <color name="spinner_border_grey">#707070</color>
 
-    <!-- Home -->
-    <!--<color name="background_2nd_level_pacific_blue_translucent">#BF253D51</color>-->
+    <!-- Bottom Panel -->
+    <color name="link_status_green">#6ACC57</color>
+    <color name="link_status_red">#FC605B</color>
+    <color name="sub_components_background_grey">#282828</color>
 
-    <!-- Bottom Navigation View -->
-    <!--<color name="background_main_dark_charcoal">#0B1E30</color>-->
+    <!--Task Status -->
+    <color name="task_status_cyan">#00DCFF</color>
+    <color name="task_status_yellow">#F5CE51</color>
+    <color name="task_status_green">#6ACC57</color>
+    <color name="task_delete_red">#FC605B</color>
 
     <color name="cursor_white">#FFFFFF</color>
 </resources>

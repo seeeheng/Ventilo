@@ -37,87 +37,87 @@ public class ReportFragment extends Fragment {
 
         TabLayout tabLayout = rootView.findViewById(R.id.tab_layout_report_tabs);
         tabLayout.setupWithViewPager(noSwipeViewPager);
-        tabLayout.getTabAt(FragmentConstants.REPORT_TAB_TITLE_INCIDENT_ID).
-                setText(getString(R.string.tab_layout_tabs_incident_title));
-        tabLayout.getTabAt(FragmentConstants.REPORT_TAB_TITLE_TASK_ID).
-                setText(getString(R.string.tab_layout_tabs_task_title));
+//        tabLayout.getTabAt(FragmentConstants.REPORT_TAB_TITLE_INCIDENT_ID).
+//                setText(getString(R.string.tab_layout_tabs_incident_title));
+//        tabLayout.getTabAt(FragmentConstants.REPORT_TAB_TITLE_TASK_ID).
+//                setText(getString(R.string.tab_layout_tabs_task_title));
         tabLayout.getTabAt(FragmentConstants.REPORT_TAB_TITLE_SITREP_ID).
                 setText(getString(R.string.tab_layout_tabs_sitrep_title));
 
-        tabLayout.getTabAt(FragmentConstants.REPORT_TAB_TITLE_INCIDENT_ID).
-                setTag(getString(R.string.tab_layout_tabs_incident_title));
-        tabLayout.getTabAt(FragmentConstants.REPORT_TAB_TITLE_TASK_ID).
-                setTag(getString(R.string.tab_layout_tabs_task_title));
+//        tabLayout.getTabAt(FragmentConstants.REPORT_TAB_TITLE_INCIDENT_ID).
+//                setTag(getString(R.string.tab_layout_tabs_incident_title));
+//        tabLayout.getTabAt(FragmentConstants.REPORT_TAB_TITLE_TASK_ID).
+//                setTag(getString(R.string.tab_layout_tabs_task_title));
         tabLayout.getTabAt(FragmentConstants.REPORT_TAB_TITLE_SITREP_ID).
                 setTag(getString(R.string.tab_layout_tabs_sitrep_title));
 
-        tabLayout.addOnTabSelectedListener(onTabSelectedListener);
-        mPreviousTagName = getString(R.string.tab_layout_tabs_incident_title);
+//        tabLayout.addOnTabSelectedListener(onTabSelectedListener);
+//        mPreviousTagName = getString(R.string.tab_layout_tabs_incident_title);
 
         return rootView;
     }
 
-    private OnTabSelectedListener onTabSelectedListener = new OnTabSelectedListener() {
+//    private OnTabSelectedListener onTabSelectedListener = new OnTabSelectedListener() {
+//
+//        @Override
+//        public void onTabSelected(Tab tab) {
+//            if (!mPreviousTagName.equalsIgnoreCase(tab.getTag().toString())) {
+//                onInvisible();
+//                mPreviousTagName = tab.getTag().toString();
+//            }
+//        }
+//
+//        @Override
+//        public void onTabUnselected(Tab tab) {
+//
+//        }
+//
+//        @Override
+//        public void onTabReselected(Tab tab) {
+//
+//        }
+//    };
 
-        @Override
-        public void onTabSelected(Tab tab) {
-            if (!mPreviousTagName.equalsIgnoreCase(tab.getTag().toString())) {
-                onInvisible();
-                mPreviousTagName = tab.getTag().toString();
-            }
-        }
-
-        @Override
-        public void onTabUnselected(Tab tab) {
-
-        }
-
-        @Override
-        public void onTabReselected(Tab tab) {
-
-        }
-    };
-
-    private void onVisible() {
-
-    }
+//    private void onVisible() {
+//
+//    }
 
     // Remove all fragments from back stack once this fragment is invisible (user navigates to other tabs)
-    private void onInvisible() {
-        int count = getActivity().getSupportFragmentManager().getBackStackEntryCount();
-        if (count > 0) {
-            getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        }
-    }
+//    private void onInvisible() {
+//        int count = getActivity().getSupportFragmentManager().getBackStackEntryCount();
+//        if (count > 0) {
+//            getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+//        }
+//    }
 
     @Override
     public void onPause() {
         super.onPause();
 
-        if (mIsVisibleToUser) {
-            onInvisible();
-        }
+//        if (mIsVisibleToUser) {
+//            onInvisible();
+//        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
 
-        if (mIsVisibleToUser) {
-            onVisible();
-        }
+//        if (mIsVisibleToUser) {
+//            onVisible();
+//        }
     }
 
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        mIsVisibleToUser = isVisibleToUser;
-        if (isResumed()) { // fragment has been created at this point
-            if (mIsVisibleToUser) {
-                onVisible();
-            } else {
-                onInvisible();
-            }
-        }
-    }
+//    @Override
+//    public void setUserVisibleHint(boolean isVisibleToUser) {
+//        super.setUserVisibleHint(isVisibleToUser);
+//        mIsVisibleToUser = isVisibleToUser;
+//        if (isResumed()) { // fragment has been created at this point
+//            if (mIsVisibleToUser) {
+//                onVisible();
+//            } else {
+//                onInvisible();
+//            }
+//        }
+//    }
 }

@@ -14,13 +14,15 @@
     <dimen name="minor_margin">3dp</dimen>
     <dimen name="side_margin">15dp</dimen>
     <dimen name="elements_vertical_margin_spacing">10dp</dimen>
+    <dimen name="elements_vertical_small_margin_spacing">5dp</dimen>
     <dimen name="divider_margin">50dp</dimen>
     <dimen name="toolbar_height">40dp</dimen>
     <dimen name="text_view_height">40dp</dimen>
     <dimen name="edit_text_view_height">40dp</dimen>
 
     <!-- Common Recycler Dimensions -->
-    <dimen name="recycler_row_outermost_padding">16dp</dimen>
+    <dimen name="recycler_card_corner_radius">8dp</dimen>
+    <dimen name="recycler_row_outermost_padding">5dp</dimen>
     <dimen name="recycler_outermost_margin_start">3dp</dimen>
     <dimen name="recycler_outermost_margin_end">3dp</dimen>
     <dimen name="recycler_row_outermost_margin">5dp</dimen>
@@ -37,13 +39,19 @@
     <dimen name="design_bottom_navigation_text_size" tools:override="true">9sp</dimen>
     <dimen name="design_bottom_navigation_active_text_size" tools:override="true">9sp</dimen>
 
-    <!-- Main Side Menu Tab -->
+    <!-- Main Side Menu Panel -->
     <dimen name="side_menu_tab_panel_width">50dp</dimen>
     <dimen name="side_menu_tab_height">40dp</dimen>
     <!--<dimen name="side_menu_tab_width">40dp</dimen>-->
     <dimen name="side_menu_icon_width">20dp</dimen>
     <dimen name="side_menu_icon_height">20dp</dimen>
     <dimen name="side_menu_line_selector_width">4dp</dimen>
+
+    <!-- Main Bottom Panel -->
+    <dimen name="bottom_panel_sub_components_height">25dp</dimen>
+    <dimen name="bottom_panel_radio_link_status_icon_width">10dp</dimen>
+    <dimen name="bottom_panel_radio_link_status_icon_height">10dp</dimen>
+    <dimen name="bottom_panel_sub_components_text_height">20dp</dimen>
 
     <!-- Login Page -->
     <dimen name="login_outermost_padding">16dp</dimen>
@@ -65,24 +73,46 @@
     <!-- Video Stream Page -->
     <dimen name="video_stream_btn_width">25dp</dimen>
     <dimen name="video_stream_btn_height">25dp</dimen>
+    <dimen name="video_stream_media_controller_height">275dp</dimen>
+    <dimen name="video_stream_media_controller_toolbar_height">25dp</dimen>
+    <dimen name="video_stream_media_controller_toolbar_btn_width">20dp</dimen>
+    <dimen name="video_stream_media_controller_toolbar_btn_height">20dp</dimen>
+    <dimen name="video_stream_media_controller_btn_play_height">50dp</dimen>
+    <dimen name="video_stream_media_controller_btn_play_width">50dp</dimen>
 
     <!-- Text Size -->
     <dimen name="sub_header_text_size">18sp</dimen>
+    <dimen name="error_hint_text_size">13sp</dimen>
     <dimen name="hint_text_size">13sp</dimen>
     <dimen name="edit_text_text_size">15sp</dimen>
     <dimen name="text_view_text_size">15sp</dimen>
     <!--<dimen name="edit_text_size">14sp</dimen>-->
 
     <!-- Task -->
-    <dimen name="task_recycler_row_height">95dp</dimen>
-    <dimen name="task_recycler_row_header_poster_text_width">150dp</dimen>
-    <dimen name="task_recycler_row_poster_text_size">12sp</dimen>
-    <dimen name="task_recycler_row_information_text_size">12sp</dimen>
-    <dimen name="task_recycler_row_timestamp_text_size">12sp</dimen>
+    <dimen name="task_recycler_row_height">115dp</dimen>
+    <dimen name="task_recycler_row_line_information_height">20dp</dimen>
+    <dimen name="task_recycler_row_container_information_height">75dp</dimen>
+    <dimen name="task_recycler_row_container_information_width">540dp</dimen>
+    <dimen name="task_recycler_row_inner_detail_container_information_width">440dp</dimen>
+    <dimen name="task_recycler_row_inner_status_container_information_width">100dp</dimen>
+    <dimen name="task_recycler_row_icon_width">20dp</dimen>
+    <dimen name="task_recycler_row_icon_height">20dp</dimen>
+    <dimen name="task_recycler_row_status_icon_width">50dp</dimen>
+    <dimen name="task_recycler_row_status_icon_height">50dp</dimen>
+    <!--<dimen name="task_recycler_row_header_poster_text_width">150dp</dimen>-->
+    <!--<dimen name="task_recycler_row_poster_text_size">12sp</dimen>-->
+    <!--<dimen name="task_recycler_row_information_text_size">15sp</dimen>-->
+    <!--<dimen name="task_recycler_row_timestamp_text_size">12sp</dimen>-->
+    <dimen name="task_recycler_row_first_swipe_action_button_margin_end">43dp</dimen>
+    <dimen name="task_recycler_row_second_swipe_action_button_margin_end">86dp</dimen>
+    <dimen name="task_recycler_row_swipe_action_icon_width">45dp</dimen>
     <dimen name="task_recycler_row_detail_margin_bottom">3dp</dimen>
 
     <!-- Floating Action Button (Do NOT change the default names. For overriding purpose) -->
     <dimen name="design_fab_size_mini" tools:override="true">48dp</dimen>
     <dimen name="design_fab_image_size" tools:override="true">48dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
 
 </resources>

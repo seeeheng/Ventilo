@@ -1,18 +1,8 @@
 package sg.gov.dsta.mobileC3.ventilo.helper;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
-import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
-import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -23,10 +13,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
-import sg.gov.dsta.mobileC3.ventilo.constants.ActivityResultConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.network.NetworkUtil;
-
-import static android.support.v4.app.ActivityCompat.startActivityForResult;
 
 public class MqttHelper implements Serializable {
     public MqttClient mMqttAndroidClient;

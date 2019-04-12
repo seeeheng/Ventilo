@@ -3,7 +3,7 @@ package sg.gov.dsta.mobileC3.ventilo.util.task;
 import java.util.HashMap;
 
 public enum EStatus {
-    NEW("New"), IN_PROGRESS("In Progress"), DONE("Done"), NA("N.A.");
+    NEW("New"), IN_PROGRESS("In Progress"), COMPLETE("Complete"), NA("N.A.");
 
     public static HashMap<String, EStatus> statusMapping = new HashMap<>();
     private final String name;
@@ -11,7 +11,7 @@ public enum EStatus {
     static {
         statusMapping.put(NEW.toString(), NEW);
         statusMapping.put(IN_PROGRESS.toString(), IN_PROGRESS);
-        statusMapping.put(DONE.toString(), DONE);
+        statusMapping.put(COMPLETE.toString(), COMPLETE);
         statusMapping.put(NA.toString(), NA);
     }
 

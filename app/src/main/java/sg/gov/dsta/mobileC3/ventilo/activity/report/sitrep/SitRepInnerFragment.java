@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepItemModel;
+import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
@@ -37,13 +37,13 @@ public class SitRepInnerFragment extends Fragment {
     private RecyclerView.LayoutManager mRecyclerLayoutManager;
     private FloatingActionButton mFabAddSitRep;
 
-    private List<SitRepItemModel> mSitRepListItems;
+    private List<SitRepModel> mSitRepListItems;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragment_inner_sitrep, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_sitrep, container, false);
         initUI(rootView);
 
         return rootView;
@@ -172,7 +172,7 @@ public class SitRepInnerFragment extends Fragment {
 //    }
 //
 //    private void completeItemInRecycler(int position) {
-//        mTaskListItems.get(position).setStatus(EStatus.DONE);
+//        mTaskListItems.get(position).setStatus(EStatus.COMPLETE);
 //        mRecyclerAdapter.notifyDataSetChanged();
 //    }
 //
@@ -233,22 +233,22 @@ public class SitRepInnerFragment extends Fragment {
         }
 
         if (getTotalNumberOfSitReps() == 0) {
-            SitRepItemModel sitRepItemModel1 = new SitRepItemModel();
-            sitRepItemModel1.setId(0);
-            sitRepItemModel1.setReporter(SharedPreferenceUtil.getCurrentUser(getActivity()));
-            sitRepItemModel1.setReporterAvatar(getContext().getDrawable(R.drawable.default_soldier_icon));
-            sitRepItemModel1.setLocation("BALESTIER");
-            sitRepItemModel1.setActivity("Fire Fighting");
-            sitRepItemModel1.setPersonnelT(6);
-            sitRepItemModel1.setPersonnelS(5);
-            sitRepItemModel1.setPersonnelD(4);
-            sitRepItemModel1.setNextCOA("Inform HQ");
-            sitRepItemModel1.setRequest("Additional MP");
+            SitRepModel sitRepModel1 = new SitRepModel();
+            sitRepModel1.setId(0);
+            sitRepModel1.setReporter(SharedPreferenceUtil.getCurrentUser(getActivity()));
+            sitRepModel1.setReporterAvatar(getContext().getDrawable(R.drawable.default_soldier_icon));
+            sitRepModel1.setLocation("BALESTIER");
+            sitRepModel1.setActivity("Fire Fighting");
+            sitRepModel1.setPersonnelT(6);
+            sitRepModel1.setPersonnelS(5);
+            sitRepModel1.setPersonnelD(4);
+            sitRepModel1.setNextCOA("Inform HQ");
+            sitRepModel1.setRequest("Additional MP");
             Date date1 = DateTimeUtil.getSpecifiedDate(2016, Calendar.DECEMBER, 29,
                     Calendar.AM, 11, 30, 30);
-            sitRepItemModel1.setReportedDateTime(date1);
+            sitRepModel1.setReportedDateTime(date1);
 
-            mSitRepListItems.add(sitRepItemModel1);
+            mSitRepListItems.add(sitRepModel1);
 
             addItemsToLocalDatabase();
 
@@ -261,32 +261,32 @@ public class SitRepInnerFragment extends Fragment {
                         concat(SharedPreferenceConstants.HEADER_SITREP).concat(SharedPreferenceConstants.SEPARATOR).
                         concat(String.valueOf(i));
 
-                SitRepItemModel sitRepItemModel = new SitRepItemModel();
-                sitRepItemModel.setId(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                SitRepModel sitRepModel = new SitRepModel();
+                sitRepModel.setId(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
                         concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ID), SharedPreferenceConstants.DEFAULT_INT));
-                sitRepItemModel.setReporter(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                sitRepModel.setReporter(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
                         concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER), SharedPreferenceConstants.DEFAULT_STRING));
-                sitRepItemModel.setReporterAvatar(getContext().getDrawable(R.drawable.default_soldier_icon));
+                sitRepModel.setReporterAvatar(getContext().getDrawable(R.drawable.default_soldier_icon));
 //                taskItem.setAssigneeAvatar(Objects.requireNonNull(getContext()).getDrawable(pref.getInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
 //                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE_AVATAR_ID), SharedPreferenceConstants.DEFAULT_INT)));
-                sitRepItemModel.setLocation(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                sitRepModel.setLocation(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
                         concat(SharedPreferenceConstants.SUB_HEADER_SITREP_LOCATION), SharedPreferenceConstants.DEFAULT_STRING));
-                sitRepItemModel.setActivity(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                sitRepModel.setActivity(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
                         concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ACTIVITY), SharedPreferenceConstants.DEFAULT_STRING));
-                sitRepItemModel.setPersonnelT(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                sitRepModel.setPersonnelT(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
                         concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_T), SharedPreferenceConstants.DEFAULT_INT));
-                sitRepItemModel.setPersonnelS(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                sitRepModel.setPersonnelS(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
                         concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_S), SharedPreferenceConstants.DEFAULT_INT));
-                sitRepItemModel.setPersonnelD(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                sitRepModel.setPersonnelD(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
                         concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_D), SharedPreferenceConstants.DEFAULT_INT));
-                sitRepItemModel.setNextCOA(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                sitRepModel.setNextCOA(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
                         concat(SharedPreferenceConstants.SUB_HEADER_SITREP_NEXT_COA), SharedPreferenceConstants.DEFAULT_STRING));
-                sitRepItemModel.setRequest(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                sitRepModel.setRequest(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
                         concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REQUEST), SharedPreferenceConstants.DEFAULT_STRING));
-                sitRepItemModel.setReportedDateTime(DateTimeUtil.stringToDate(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+                sitRepModel.setReportedDateTime(DateTimeUtil.stringToDate(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
                         concat(SharedPreferenceConstants.SUB_HEADER_SITREP_DATE), SharedPreferenceConstants.DEFAULT_STRING)));
 
-                mSitRepListItems.add(sitRepItemModel);
+                mSitRepListItems.add(sitRepModel);
             }
         }
     }
@@ -316,12 +316,12 @@ public class SitRepInnerFragment extends Fragment {
         editor.putInt(totalNumberOfSitRepsKey, mSitRepListItems.size());
 
         for (int i = 0; i < mSitRepListItems.size(); i++) {
-            SitRepItemModel sitRepItemModel = mSitRepListItems.get(i);
-            addSingleItemToLocalDatabase(editor, sitRepItemModel.getId(), sitRepItemModel.getReporter(),
-                    R.drawable.default_soldier_icon, sitRepItemModel.getLocation(), sitRepItemModel.getActivity(),
-                    sitRepItemModel.getPersonnelT(), sitRepItemModel.getPersonnelS(), sitRepItemModel.getPersonnelD(),
-                    sitRepItemModel.getNextCOA(), sitRepItemModel.getRequest(),
-                    DateTimeUtil.dateToString(sitRepItemModel.getReportedDateTime()));
+            SitRepModel sitRepModel = mSitRepListItems.get(i);
+            addSingleItemToLocalDatabase(editor, sitRepModel.getId(), sitRepModel.getReporter(),
+                    R.drawable.default_soldier_icon, sitRepModel.getLocation(), sitRepModel.getActivity(),
+                    sitRepModel.getPersonnelT(), sitRepModel.getPersonnelS(), sitRepModel.getPersonnelD(),
+                    sitRepModel.getNextCOA(), sitRepModel.getRequest(),
+                    DateTimeUtil.dateToString(sitRepModel.getReportedDateTime()));
         }
     }
 

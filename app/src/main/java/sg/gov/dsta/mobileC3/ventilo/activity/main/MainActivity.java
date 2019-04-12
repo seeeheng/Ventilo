@@ -9,14 +9,11 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -35,7 +32,7 @@ import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.report.ReportStatePagerAdapter;
 import sg.gov.dsta.mobileC3.ventilo.activity.report.sitrep.SitRepInnerFragment;
-import sg.gov.dsta.mobileC3.ventilo.activity.report.task.TaskInnerFragment;
+import sg.gov.dsta.mobileC3.ventilo.activity.task.TaskFragment;
 import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.eventbus.PageEvent;
@@ -43,6 +40,7 @@ import sg.gov.dsta.mobileC3.ventilo.network.NetworkService;
 import sg.gov.dsta.mobileC3.ventilo.network.NetworkServiceBinder;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
 import sg.gov.dsta.mobileC3.ventilo.util.JSONUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
@@ -64,24 +62,35 @@ public class MainActivity extends AppCompatActivity {
     private NoSwipeViewPager mNoSwipeViewPager;
 //    private BottomNavigationView mBottomNavigationView;
 
-    // Side Tab Menu Buttons
+    // Side Tab Panel
+    private View mViewSideMenuPanel;
     private ImageView mImgViewTabMap;
     private ImageView mImgViewTabVideoStream;
     private ImageView mImgViewTabReport;
     private ImageView mImgViewTabTimeline;
+    private ImageView mImgViewTabTask;
     private ImageView mImgViewTabRadioLink;
 
     private RelativeLayout mRelativeLayoutTabMap;
     private RelativeLayout mRelativeLayoutTabVideoStream;
     private RelativeLayout mRelativeLayoutTabReport;
     private RelativeLayout mRelativeLayoutTabTimeline;
+    private RelativeLayout mRelativeLayoutTabTask;
     private RelativeLayout mRelativeLayoutTabRadioLink;
 
     private LinearLayout mLinearLayoutLineSelectorMap;
     private LinearLayout mLinearLayoutLineSelectorVideoStream;
     private LinearLayout mLinearLayoutLineSelectorReport;
     private LinearLayout mLinearLayoutLineSelectorTimeline;
+    private LinearLayout mLinearLayoutLineSelectorTask;
     private LinearLayout mLinearLayoutLineSelectorRadioLink;
+
+    // Bottom Panel
+    private View mViewBottomPanel;
+    private C2OpenSansSemiBoldTextView mTvFragmentTitle;
+    private C2OpenSansSemiBoldTextView mTvRadioLinkStatus;
+    private C2OpenSansSemiBoldTextView mTvLastConnectionDate;
+    private C2OpenSansSemiBoldTextView mTvLastConnectionTime;
 
     private boolean mIsServiceRegistered;
 
@@ -92,12 +101,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initTabButtons();
+        initSideMenuPanel();
+        initBottomPanel();
 //        ownUserId = 10;
 //        ownUserId = Long.parseLong(getIntent().getStringExtra("USER_ID"));
 
         MainStatePagerAdapter mainStatePagerAdapter = new MainStatePagerAdapter(
-                getSupportFragmentManager());
+                getSupportFragmentManager(), getApplication().getApplicationContext());
         mNoSwipeViewPager = findViewById(R.id.viewpager_main_nav);
         mNoSwipeViewPager.setAdapter(mainStatePagerAdapter);
         mNoSwipeViewPager.setPagingEnabled(false);
@@ -119,87 +129,124 @@ public class MainActivity extends AppCompatActivity {
 //        mBtnPublish.setOnClickListener(publishOnClickListener());
     }
 
-    private void initTabButtons() {
+    private void initSideMenuPanel() {
+        mViewSideMenuPanel = findViewById(R.id.layout_main_side_menu_panel);
+
         // Tab Views
         mRelativeLayoutTabMap = findViewById(R.id.layout_tab_map_selector_status);
         mRelativeLayoutTabVideoStream = findViewById(R.id.layout_tab_video_stream_selector_status);
         mRelativeLayoutTabReport = findViewById(R.id.layout_tab_report_selector_status);
         mRelativeLayoutTabTimeline = findViewById(R.id.layout_tab_timeline_selector_status);
+        mRelativeLayoutTabTask = findViewById(R.id.layout_tab_task_selector_status);
         mRelativeLayoutTabRadioLink = findViewById(R.id.layout_tab_radio_link_selector_status);
 
         // Line within Tab View
-        mLinearLayoutLineSelectorMap = findViewById(R.id.linear_layout_line_selector_map);
-        mLinearLayoutLineSelectorVideoStream = findViewById(R.id.linear_layout_line_selector_video_stream);
-        mLinearLayoutLineSelectorReport = findViewById(R.id.linear_layout_line_selector_report);
-        mLinearLayoutLineSelectorTimeline = findViewById(R.id.linear_layout_line_selector_timeline);
-        mLinearLayoutLineSelectorRadioLink = findViewById(R.id.linear_layout_line_selector_radio_link);
+        mLinearLayoutLineSelectorMap = findViewById(R.id.linear_layout_map_line_selector);
+        mLinearLayoutLineSelectorVideoStream = findViewById(R.id.linear_layout_video_stream_line_selector);
+        mLinearLayoutLineSelectorReport = findViewById(R.id.linear_layout_report_line_selector);
+        mLinearLayoutLineSelectorTimeline = findViewById(R.id.linear_layout_timeline_line_selector);
+        mLinearLayoutLineSelectorTask = findViewById(R.id.linear_layout_task_line_selector);
+        mLinearLayoutLineSelectorRadioLink = findViewById(R.id.linear_layout_radio_link_line_selector);
 
         // Image Views within Tab View
         mImgViewTabMap = findViewById(R.id.img_tab_map);
         mImgViewTabVideoStream = findViewById(R.id.img_tab_video_stream);
         mImgViewTabReport = findViewById(R.id.img_tab_report);
         mImgViewTabTimeline = findViewById(R.id.img_tab_timeline);
+        mImgViewTabTask = findViewById(R.id.img_tab_task);
         mImgViewTabRadioLink = findViewById(R.id.img_tab_radio_link);
 
         // Tab Views OnClickListeners
-        mRelativeLayoutTabMap.setOnClickListener(setMapTabOnClickListener);
-        mRelativeLayoutTabVideoStream.setOnClickListener(setVideoStreamTabOnClickListener);
-        mRelativeLayoutTabReport.setOnClickListener(setReportTabOnClickListener);
-        mRelativeLayoutTabTimeline.setOnClickListener(setTimelineTabOnClickListener);
-        mRelativeLayoutTabRadioLink.setOnClickListener(setRadioLinkTabOnClickListener);
+        mRelativeLayoutTabMap.setOnClickListener(onMapTabClickListener);
+        mRelativeLayoutTabVideoStream.setOnClickListener(onVideoStreamTabClickListener);
+        mRelativeLayoutTabReport.setOnClickListener(onReportTabClickListener);
+        mRelativeLayoutTabTimeline.setOnClickListener(onTimelineTabClickListener);
+        mRelativeLayoutTabTask.setOnClickListener(onTaskTabClickListener);
+        mRelativeLayoutTabRadioLink.setOnClickListener(onRadioLinkTabClickListener);
 
         // Map selected by default on start up
         removeLineSelector();
         setMapSelectedUI();
     }
 
-    private OnClickListener setMapTabOnClickListener = new OnClickListener() {
+    private void initBottomPanel() {
+        mViewBottomPanel = findViewById(R.id.layout_main_bottom_panel);
+
+        mTvFragmentTitle = findViewById(R.id.tv_bottom_panel_fragment_title);
+        mTvRadioLinkStatus = findViewById(R.id.tv_bottom_panel_radio_link_status);
+        mTvLastConnectionDate = findViewById(R.id.tv_bottom_panel_last_connection_date);
+        mTvLastConnectionTime = findViewById(R.id.tv_bottom_panel_last_connection_time);
+    }
+
+    private OnClickListener onMapTabClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
             removeSelector();
             setMapSelectedUI();
-            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_MAP_POSITION_ID,
+            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID,
                     true);
+            mTvFragmentTitle.setText(mNoSwipeViewPager.getAdapter().
+                    getPageTitle(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID));
         }
     };
 
-    private OnClickListener setVideoStreamTabOnClickListener = new OnClickListener() {
+    private OnClickListener onVideoStreamTabClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
             removeSelector();
             setVideoStreamSelectedUI();
-            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_VIDEO_STREAM_POSITION_ID,
+            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID,
                     true);
+            mTvFragmentTitle.setText(mNoSwipeViewPager.getAdapter().
+                    getPageTitle(MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID));
         }
     };
 
-    private OnClickListener setReportTabOnClickListener = new OnClickListener() {
+    private OnClickListener onReportTabClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
             removeSelector();
             setReportSelectedUI();
-            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_REPORT_POSITION_ID,
+            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID,
                     true);
+            mTvFragmentTitle.setText(mNoSwipeViewPager.getAdapter().
+                    getPageTitle(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID));
         }
     };
 
-    private OnClickListener setTimelineTabOnClickListener = new OnClickListener() {
+    private OnClickListener onTimelineTabClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
             removeSelector();
             setTimelineSelectedUI();
-            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_TIMELINE_POSITION_ID,
+            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID,
                     true);
+            mTvFragmentTitle.setText(mNoSwipeViewPager.getAdapter().
+                    getPageTitle(MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID));
         }
     };
 
-    private OnClickListener setRadioLinkTabOnClickListener = new OnClickListener() {
+    private OnClickListener onTaskTabClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            removeSelector();
+            setTaskSelectedUI();
+            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID,
+                    true);
+            mTvFragmentTitle.setText(mNoSwipeViewPager.getAdapter().
+                    getPageTitle(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID));
+        }
+    };
+
+    private OnClickListener onRadioLinkTabClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
             removeSelector();
             setRadioLinkSelectedUI();
-            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_RADIO_LINK_STATUS_POSITION_ID,
+            mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID,
                     true);
+            mTvFragmentTitle.setText(mNoSwipeViewPager.getAdapter().
+                    getPageTitle(MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID));
         }
     };
 
@@ -213,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
         mLinearLayoutLineSelectorVideoStream.setVisibility(View.GONE);
         mLinearLayoutLineSelectorReport.setVisibility(View.GONE);
         mLinearLayoutLineSelectorTimeline.setVisibility(View.GONE);
+        mLinearLayoutLineSelectorTask.setVisibility(View.GONE);
         mLinearLayoutLineSelectorRadioLink.setVisibility(View.GONE);
     }
 
@@ -221,6 +269,7 @@ public class MainActivity extends AppCompatActivity {
         mImgViewTabVideoStream.setColorFilter(null);
         mImgViewTabReport.setColorFilter(null);
         mImgViewTabTimeline.setColorFilter(null);
+        mImgViewTabTask.setColorFilter(null);
         mImgViewTabRadioLink.setColorFilter(null);
     }
 
@@ -248,6 +297,12 @@ public class MainActivity extends AppCompatActivity {
                 android.graphics.PorterDuff.Mode.MULTIPLY);
     }
 
+    private void setTaskSelectedUI() {
+        mLinearLayoutLineSelectorTask.setVisibility(View.VISIBLE);
+        mImgViewTabTask.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
+                android.graphics.PorterDuff.Mode.MULTIPLY);
+    }
+
     private void setRadioLinkSelectedUI() {
         mLinearLayoutLineSelectorRadioLink.setVisibility(View.VISIBLE);
         mImgViewTabRadioLink.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
@@ -266,23 +321,23 @@ public class MainActivity extends AppCompatActivity {
 //
 //            public void onPageSelected(int position) {
 //                switch (position) {
-//                    case MainNavigationConstants.BTM_NAV_MENU_MAP_POSITION_ID:
+//                    case MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID:
 //                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_map);
 //                        return;
 //
-//                    case MainNavigationConstants.BTM_NAV_MENU_VIDEO_STREAM_POSITION_ID:
+//                    case MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID:
 //                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_video_stream);
 //                        return;
 //
-//                    case MainNavigationConstants.BTM_NAV_MENU_REPORT_POSITION_ID:
+//                    case MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID:
 //                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_report);
 //                        return;
 //
-//                    case MainNavigationConstants.BTM_NAV_MENU_TIMELINE_POSITION_ID:
+//                    case MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID:
 //                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_timeline);
 //                        return;
 //
-//                    case MainNavigationConstants.BTM_NAV_MENU_RADIO_LINK_STATUS_POSITION_ID:
+//                    case MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID:
 //                        bottomNavigationView.setSelectedItemId(R.id.btn_nav_action_radio_link);
 //                        return;
 //
@@ -301,27 +356,27 @@ public class MainActivity extends AppCompatActivity {
 //            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 //                switch (item.getItemId()) {
 //                    case R.id.btn_nav_action_map:
-//                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_MAP_POSITION_ID,
+//                        viewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID,
 //                                true);
 //                        return true;
 //
 //                    case R.id.btn_nav_action_video_stream:
-//                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_VIDEO_STREAM_POSITION_ID,
+//                        viewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID,
 //                                true);
 //                        return true;
 //
 //                    case R.id.btn_nav_action_report:
-//                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_REPORT_POSITION_ID,
+//                        viewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID,
 //                                true);
 //                        return true;
 //
 //                    case R.id.btn_nav_action_timeline:
-//                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_TIMELINE_POSITION_ID,
+//                        viewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID,
 //                                true);
 //                        return true;
 //
 //                    case R.id.btn_nav_action_radio_link:
-//                        viewPager.setCurrentItem(MainNavigationConstants.BTM_NAV_MENU_RADIO_LINK_STATUS_POSITION_ID,
+//                        viewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID,
 //                                true);
 //                        return true;
 //
@@ -383,13 +438,13 @@ public class MainActivity extends AppCompatActivity {
 
                                     editor.apply();
 
-                                    TaskInnerFragment taskInnerFragment = (TaskInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
-                                            get(FragmentConstants.REPORT_TAB_TITLE_TASK_ID);
+                                    TaskFragment taskFragment = (TaskFragment) MainStatePagerAdapter.getPageReferenceMap().
+                                            get(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID);
 
-                                    if (taskInnerFragment != null) {
+                                    if (taskFragment != null) {
                                         Log.d(TAG, "Task: Refresh Data");
-                                        taskInnerFragment.refreshData();
-                                        taskInnerFragment.addItemInRecycler();
+                                        taskFragment.refreshData();
+                                        taskFragment.addItemInRecycler();
                                     }
 
                                 case FragmentConstants.KEY_SITREP_ADD:
@@ -513,13 +568,13 @@ public class MainActivity extends AppCompatActivity {
 
                                 editor.apply();
 
-                                TaskInnerFragment taskInnerFragment = (TaskInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
-                                        get(FragmentConstants.REPORT_TAB_TITLE_TASK_ID);
+                                TaskFragment taskFragment = (TaskFragment) MainStatePagerAdapter.getPageReferenceMap().
+                                        get(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID);
 
-                                if (taskInnerFragment != null) {
+                                if (taskFragment != null) {
                                     Log.d(TAG, "Task: Refresh Data");
-                                    taskInnerFragment.refreshData();
-                                    taskInnerFragment.addItemInRecycler();
+                                    taskFragment.refreshData();
+                                    taskFragment.addItemInRecycler();
                                 }
 
                             case FragmentConstants.KEY_SITREP_ADD:
@@ -654,6 +709,30 @@ public class MainActivity extends AppCompatActivity {
 //        });
 //    }
 
+    public View getMainSidePanel() {
+        return mViewSideMenuPanel;
+    }
+
+    public View getMainBottomPanel() {
+        return mViewBottomPanel;
+    }
+
+    public void setBottomPanelFragmentTitleText(String title) {
+        mTvFragmentTitle.setText(title);
+    }
+
+    public void setBottomPanelRadioLinkStatusText(String linkStatus) {
+        mTvRadioLinkStatus.setText(linkStatus);
+    }
+
+    public void setBottomPanelLastConnectionDateText(String date) {
+        mTvLastConnectionDate.setText(date);
+    }
+
+    public void setBottomPanelLastConnectionTimeText(String time) {
+        mTvLastConnectionTime.setText(time);
+    }
+
     /**
      * Defines callbacks for service binding, passed to bindService()
      */
@@ -761,16 +840,16 @@ public class MainActivity extends AppCompatActivity {
 //                        returnedFragment.onVisible();
 //                    }
 //                }
-            } else if (getSupportFragmentManager().findFragmentByTag(taggedName) instanceof TaskInnerFragment) {
-                TaskInnerFragment returnedFragment = (TaskInnerFragment) getSupportFragmentManager().findFragmentByTag(taggedName);
+            } else if (getSupportFragmentManager().findFragmentByTag(taggedName) instanceof TaskFragment) {
+                TaskFragment returnedFragment = (TaskFragment) getSupportFragmentManager().findFragmentByTag(taggedName);
                 returnedFragment.refreshData();
             }
 
 //            String fragmentTag = fragmentManager.getBackStackEntryAt(fragmentManager.getBackStackEntryCount() - 1).getName();
 //            Log.d(TAG, "fragmentTag is " + fragmentTag);
-//            if (TaskInnerFragment.class.getSimpleName().equalsIgnoreCase(fragmentTag)) {
+//            if (TaskFragment.class.getSimpleName().equalsIgnoreCase(fragmentTag)) {
 //
-//                TaskInnerFragment returnedFragment = (TaskInnerFragment) fragmentManager.findFragmentByTag(fragmentTag);
+//                TaskFragment returnedFragment = (TaskFragment) fragmentManager.findFragmentByTag(fragmentTag);
 //                returnedFragment.refreshUI();
 //            }
 
