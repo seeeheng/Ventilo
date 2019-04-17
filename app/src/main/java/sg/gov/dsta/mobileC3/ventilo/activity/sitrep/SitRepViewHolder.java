@@ -1,4 +1,4 @@
-package sg.gov.dsta.mobileC3.ventilo.activity.report.sitrep;
+package sg.gov.dsta.mobileC3.ventilo.activity.sitrep;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

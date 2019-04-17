@@ -66,30 +66,14 @@
 
             </RelativeLayout>
 
-            <!--<RelativeLayout-->
-                <!--android:id="@+id/layout_task_swipe_action_status_new"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginEnd="135dp"-->
-                <!--android:background="@color/task_status_cyan">-->
-
-                <!--<android.support.v7.widget.AppCompatImageView-->
-                    <!--android:id="@+id/img_task_swipe_action_status_new"-->
-                    <!--android:layout_width="@dimen/task_recycler_row_swipe_action_icon_width"-->
-                    <!--android:layout_height="match_parent"-->
-                    <!--android:layout_alignParentEnd="true"-->
-                    <!--app:srcCompat="@drawable/btn_task_swipe_action_status_new" />-->
-
-            <!--</RelativeLayout>-->
-
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/layout_recycler_task_view_foreground"
             android:layout_width="match_parent"
             android:layout_height="@dimen/task_recycler_row_height"
-            android:padding="@dimen/recycler_row_outermost_padding"
-            android:background="@color/background_dark_grey">
+            android:background="@color/background_dark_grey"
+            android:padding="@dimen/recycler_row_outermost_padding">
 
             <RelativeLayout
                 android:id="@+id/layout_header_container"
@@ -117,7 +101,7 @@
             <LinearLayout
                 android:id="@+id/layout_header_content_divider"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/elements_vertical_margin_spacing"
+                android:layout_height="@dimen/elements_margin_spacing"
                 android:layout_below="@+id/layout_header_container"
                 android:orientation="vertical" />
 
@@ -134,12 +118,12 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="@dimen/task_recycler_row_line_information_height"
-                        android:layout_marginBottom="@dimen/elements_vertical_small_margin_spacing">
+                        android:layout_marginBottom="@dimen/elements_small_margin_spacing">
 
                         <android.support.v7.widget.AppCompatImageView
                             android:layout_width="@dimen/task_recycler_row_icon_width"
                             android:layout_height="20dp"
-                            android:layout_marginEnd="@dimen/elements_vertical_margin_spacing"
+                            android:layout_marginEnd="@dimen/elements_margin_spacing"
                             android:scaleType="fitCenter"
                             app:srcCompat="@drawable/icon_assigned_to" />
 
@@ -155,12 +139,12 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="@dimen/task_recycler_row_line_information_height"
-                        android:layout_marginBottom="@dimen/elements_vertical_small_margin_spacing">
+                        android:layout_marginBottom="@dimen/elements_small_margin_spacing">
 
                         <android.support.v7.widget.AppCompatImageView
                             android:layout_width="@dimen/task_recycler_row_icon_width"
                             android:layout_height="20dp"
-                            android:layout_marginEnd="@dimen/elements_vertical_margin_spacing"
+                            android:layout_marginEnd="@dimen/elements_margin_spacing"
                             android:scaleType="fitCenter"
                             app:srcCompat="@drawable/icon_scheduled_time" />
 
@@ -176,7 +160,10 @@
                         android:id="@+id/tv_recycler_task_short_detail"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
+                        android:ellipsize="end"
                         android:gravity="center_vertical"
+                        android:maxWidth="@dimen/task_recycler_row_inner_detail_container_information_width"
+                        android:maxLines="1"
                         android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. " />
 
                 </LinearLayout>
@@ -199,60 +186,6 @@
                 </LinearLayout>
 
             </RelativeLayout>
-
-            <!--<RelativeLayout-->
-            <!--android:id="@+id/layout_recycler_task_delete"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
-            <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
-            <!--android:background="@drawable/recycler_item_delete_background"-->
-            <!--android:gravity="center"-->
-            <!--android:padding="@dimen/recycler_row_outermost_padding">-->
-
-            <!--<android.support.v7.widget.AppCompatImageView-->
-            <!--android:id="@+id/img_task_delete"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:src="@drawable/icon_delete" />-->
-
-            <!--</RelativeLayout>-->
-
-            <!--<RelativeLayout-->
-            <!--android:id="@+id/layout_recycler_task_start"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
-            <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
-            <!--android:background="@drawable/recycler_item_start_background"-->
-            <!--android:gravity="center"-->
-            <!--android:padding="@dimen/recycler_row_outermost_padding">-->
-
-            <!--<android.support.v7.widget.AppCompatImageView-->
-            <!--android:id="@+id/img_task_start"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:src="@drawable/icon_in_progress" />-->
-
-            <!--</RelativeLayout>-->
-
-            <!--<RelativeLayout-->
-            <!--android:id="@+id/layout_recycler_task_done"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
-            <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
-            <!--android:background="@drawable/recycler_item_done_background"-->
-            <!--android:gravity="center"-->
-            <!--android:padding="@dimen/recycler_row_outermost_padding">-->
-
-            <!--<android.support.v7.widget.AppCompatImageView-->
-            <!--android:id="@+id/img_task_done"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:src="@drawable/icon_done" />-->
-
-            <!--</RelativeLayout>-->
 
         </RelativeLayout>
 

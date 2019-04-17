@@ -28,6 +28,7 @@ public class TaskViewHolder extends RecyclerView.ViewHolder {
     private C2OpenSansSemiBoldTextView tvStatus;
     private C2OpenSansRegularTextView tvAssignedTo;
     private C2OpenSansRegularTextView tvScheduledTime;
+    private C2OpenSansRegularTextView tvShortDescription;
     private CircleImageView circleImgStatus;
 
     private RelativeLayout relativeLayoutBackground;
@@ -47,6 +48,7 @@ public class TaskViewHolder extends RecyclerView.ViewHolder {
         tvStatus = itemView.findViewById(R.id.tv_recycler_task_header_status);
         tvAssignedTo = itemView.findViewById(R.id.tv_recycler_task_assigned_to);
         tvScheduledTime = itemView.findViewById(R.id.tv_recycler_task_scheduled_time);
+        tvShortDescription = itemView.findViewById(R.id.tv_recycler_task_short_detail);
         circleImgStatus = itemView.findViewById(R.id.circle_img_view_recyler_task_status);
 
         relativeLayoutBackground = itemView.findViewById(R.id.layout_recycler_task_view_background);
@@ -60,34 +62,12 @@ public class TaskViewHolder extends RecyclerView.ViewHolder {
         imgFirstSwipeAction = itemView.findViewById(R.id.img_task_first_swipe_action_status);
 
         itemView.setOnClickListener(onMainForegroundLayoutClickListener);
-        relativeLayoutBackground.clearFocus();
-        relativeLayoutForeground.requestFocus();
     }
 
     private View.OnClickListener onMainForegroundLayoutClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             EventBus.getDefault().post(TaskEvent.getInstance().setItemPos(getAdapterPosition()));
-
-//            Fragment taskDetailFragment = new TaskDetailFragment();
-//            Bundle bundle = new Bundle();
-//            bundle.putString(FragmentConstants.KEY_TASK, FragmentConstants.VALUE_TASK_VIEW);
-//            bundle.putString(FragmentConstants.KEY_TASK_TITLE,
-//                    mTaskListItems.get(position).getTitle());
-//            bundle.putString(FragmentConstants.KEY_TASK_DESCRIPTION, mTaskListItems.get(position).getDescription());
-//            taskDetailFragment.setArguments(bundle);
-//
-//            // Pass info to fragment
-//            if (view.getContext() instanceof MainActivity) {
-//                MainActivity mainActivity = (MainActivity) view.getContext();
-//
-//                FragmentManager fm = mainActivity.getSupportFragmentManager();
-//                FragmentTransaction ft = fm.beginTransaction();
-//                ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-//                ft.replace(R.id.layout_task_fragment, taskDetailFragment, taskDetailFragment.getClass().getSimpleName());
-//                ft.addToBackStack(taskDetailFragment.getClass().getSimpleName());
-//                ft.commit();
-//            }
         }
     };
 }

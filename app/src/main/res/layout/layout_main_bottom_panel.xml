@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/toolbar_height"
     android:layout_alignParentBottom="true"
-    android:padding="@dimen/elements_vertical_margin_spacing"
+    android:padding="@dimen/elements_margin_spacing"
     android:background="@color/background_dark_grey"
     android:gravity="center_vertical"
     android:orientation="horizontal">
@@ -29,7 +29,7 @@
             android:background="@drawable/bottom_panel_subcomponent_background"
             android:gravity="center"
             android:orientation="horizontal"
-            android:padding="@dimen/elements_vertical_small_margin_spacing">
+            android:padding="@dimen/elements_small_margin_spacing">
 
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/img_bottom_panel_radio_link_status_icon"
@@ -42,7 +42,7 @@
                 android:id="@+id/tv_bottom_panel_radio_link_status"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/bottom_panel_sub_components_text_height"
-                android:layout_marginStart="@dimen/elements_vertical_small_margin_spacing"
+                android:layout_marginStart="@dimen/elements_small_margin_spacing"
                 android:gravity="center_vertical"
                 android:text="ONLINE"
                 android:textColor="@color/link_status_green"
@@ -52,7 +52,7 @@
                 android:id="@+id/tv_bottom_panel_last_connection_date"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/bottom_panel_sub_components_text_height"
-                android:layout_marginStart="@dimen/elements_vertical_margin_spacing"
+                android:layout_marginStart="@dimen/elements_margin_spacing"
                 android:gravity="center_vertical"
                 android:text="1 Mar 2019"
                 android:textColor="@color/primary_text_white"
@@ -62,7 +62,7 @@
                 android:id="@+id/tv_bottom_panel_last_connection_time"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/bottom_panel_sub_components_text_height"
-                android:layout_marginStart="@dimen/elements_vertical_margin_spacing"
+                android:layout_marginStart="@dimen/elements_margin_spacing"
                 android:gravity="center_vertical"
                 android:text="15:30"
                 android:textColor="@color/primary_highlight_cyan"

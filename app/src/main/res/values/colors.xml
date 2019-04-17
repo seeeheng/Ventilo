@@ -40,6 +40,7 @@
 
     <!-- Spinner -->
     <color name="spinner_fill_grey">#282828</color>
+    <color name="spinner_broad_fill_grey">#181818</color>
     <color name="spinner_border_grey">#707070</color>
 
     <!-- Bottom Panel -->
@@ -52,6 +53,9 @@
     <color name="task_status_yellow">#F5CE51</color>
     <color name="task_status_green">#6ACC57</color>
     <color name="task_delete_red">#FC605B</color>
+
+    <!-- Sit Rep -->
+    <color name="sitrep_light_grey">#ADADAD</color>
 
     <color name="cursor_white">#FFFFFF</color>
 </resources>

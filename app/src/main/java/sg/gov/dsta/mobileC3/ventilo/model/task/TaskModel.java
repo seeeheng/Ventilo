@@ -1,11 +1,9 @@
 package sg.gov.dsta.mobileC3.ventilo.model.task;
 
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.PrimaryKey;
 
 import lombok.Data;
-import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 
 @Data
 //@Entity(foreignKeys = @ForeignKey(entity = UserModel.class,
@@ -17,7 +15,7 @@ public class TaskModel {
     @PrimaryKey(autoGenerate = true)
     private long id;
 //    private long userId;
-    private String assignee;
+    private String assignedTo;
     private String assignedBy;
     private String title;
     private String description;
@@ -27,7 +25,7 @@ public class TaskModel {
     // --- GETTER ---
     public long getId() { return id; }
 //    public long getUserId() { return userId; }
-    public String getAssignee() { return assignee; }
+    public String getAssignedTo() { return assignedTo; }
     public String getAssignedBy() { return assignedBy; }
     public String getTitle() { return title; }
     public String getDescription() { return description; }
@@ -37,7 +35,7 @@ public class TaskModel {
     // --- SETTER ---
     public void setId(long id) { this.id = id; }
 //    public void setUserId(long userId) { this.userId = userId; }
-    public void setAssignee(String assignee) { this.assignee = assignee; }
+    public void setAssignedTo(String assignedTo) { this.assignedTo = assignedTo; }
     public void setAssignedBy(String assignedBy) { this.assignedBy = assignedBy; }
     public void setTitle(String title) { this.title = title; }
     public void setDescription(String description) { this.description = description; }

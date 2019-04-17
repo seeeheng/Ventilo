@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_snackbar"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/coordinator_layout_snackbar"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/text_view_height"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/snackbar_margin_bottom"
+        android:background="@drawable/snackbar_background">
+
+        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+            android:id="@+id/tv_snackbar_message"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingStart="@dimen/side_margin"
+            android:paddingEnd="@dimen/side_margin"
+            android:text="@string/btn_report"
+            android:textColor="@color/primary_text_white"
+            android:textSize="@dimen/text_view_small_text_size" />
+
+    </android.support.design.widget.CoordinatorLayout>
+
+</RelativeLayout>

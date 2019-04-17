@@ -52,7 +52,7 @@
     <!-- EditTextView -->
     <style name="EditTextView_Main">
         <item name="android:layout_height">@dimen/edit_text_view_height</item>
-        <item name="android:padding">@dimen/elements_vertical_margin_spacing</item>
+        <item name="android:padding">@dimen/elements_margin_spacing</item>
         <item name="android:background">@drawable/rounded_edit_text</item>
         <item name="android:textColorHint">@color/primary_text_hint_dark_grey</item>
         <item name="android:textColor">@color/text_view_color_selector</item>

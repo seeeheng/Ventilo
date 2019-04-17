@@ -11,15 +11,16 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.res.ResourcesCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -57,10 +57,12 @@ import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
+import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.PhotoCaptureUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 
 public class VideoStreamFragment extends Fragment {
@@ -73,9 +75,12 @@ public class VideoStreamFragment extends Fragment {
     private static final int FIRST_VIDEO_STREAM_SPINNER_ID = 1;
     private static final int SECOND_VIDEO_STREAM_SPINNER_ID = 2;
 
-    // View Models
+    // View models
     private UserViewModel mUserViewModel;
     private VideoStreamViewModel mVideoStreamViewModel;
+
+    // Main layout
+    private RelativeLayout mRelativeLayoutMain;
 
     /*** VLC first video stream ***/
     private LibVLC mLibVlcOne;
@@ -110,19 +115,30 @@ public class VideoStreamFragment extends Fragment {
     private TextureView mSurfaceViewTwo;
     private SurfaceHolder mSurfaceHolderTwo;
 
+    // Snackbar
+    private View mViewSnackbar;
+
     private boolean mIsVisibleToUser;
     private boolean mIsFullscreen;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootVideoStreamView = inflater.inflate(R.layout.fragment_video_stream, container, false);
+
         observerSetup();
+        initSnackbar(inflater, rootVideoStreamView);
         initUI(rootVideoStreamView);
 
         return rootVideoStreamView;
     }
 
+    private void initSnackbar(LayoutInflater inflater, View rootVideoStreamView) {
+        mViewSnackbar = inflater.inflate(R.layout.layout_custom_snackbar, null);
+    }
+
     private void initUI(View rootVideoStreamView) {
+        mRelativeLayoutMain = rootVideoStreamView.findViewById(R.id.layout_video_stream_fragment);
+
         initVideoStreamOneToolbar(rootVideoStreamView);
         initVideoStreamTwoToolbar(rootVideoStreamView);
 
@@ -380,6 +396,11 @@ public class VideoStreamFragment extends Fragment {
                 String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
                         imageBitmap, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
 //                System.out.println("imagePath is " + imagePath);
+
+                if (imagePath != null) {
+                    SnackbarUtil.showCustomSnackbar(mRelativeLayoutMain, mViewSnackbar,
+                            getString(R.string.snackbar_screenshot_taken));
+                }
             }
         }
 
@@ -447,10 +468,16 @@ public class VideoStreamFragment extends Fragment {
         public void takeScreenshot() {
 //            Bitmap imageBitmap = screenShot(mSurfaceViewOne);
             Bitmap imageBitmap = mSurfaceViewTwo.getBitmap();
+
             if (imageBitmap != null) {
                 String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
                         imageBitmap, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
 //                System.out.println("imagePath is " + imagePath);
+
+                if (imagePath != null) {
+                    SnackbarUtil.showCustomSnackbar(mRelativeLayoutMain, mViewSnackbar,
+                            getString(R.string.snackbar_screenshot_taken));
+                }
             }
         }
 
@@ -810,6 +837,23 @@ public class VideoStreamFragment extends Fragment {
 
                             mVideoStreamNameListOne.add(getString(R.string.video_stream_select_spinner_item));
                             mVideoStreamNameListOne.addAll(videoStreamNameList);
+
+                            /**
+                             * Remove last video model item if item content is empty.
+                             * Only the last item will possibly be empty because an
+                             * empty entry will be stored in the database to be displayed in the
+                             * add video stream fragment's recyclerview for user to fill up details
+                             * of this entry and save it in the database.
+                             */
+                            int lastVideoStreamItemIndex = mVideoStreamNameListOne.size() - 1;
+                            if (lastVideoStreamItemIndex != 0) {
+                                String lastVideoStreamModel = mVideoStreamNameListOne.get(lastVideoStreamItemIndex);
+
+                                if (TextUtils.isEmpty(lastVideoStreamModel.trim())) {
+                                    mVideoStreamNameListOne.remove(lastVideoStreamItemIndex);
+                                }
+                            }
+
                             mSpinnerVideoStreamAdapterOne.notifyDataSetChanged();
                         }
 
@@ -822,6 +866,23 @@ public class VideoStreamFragment extends Fragment {
 
                             mVideoStreamNameListTwo.add(getString(R.string.video_stream_select_spinner_item));
                             mVideoStreamNameListTwo.addAll(videoStreamNameList);
+
+                            /**
+                             * Remove last video model item if item content is empty.
+                             * Only the last item will possibly be empty because an
+                             * empty entry will be stored in the database to be displayed in the
+                             * add video stream fragment's recyclerview for user to fill up details
+                             * of this entry and save it in the database.
+                             */
+                            int lastVideoStreamItemIndex = mVideoStreamNameListTwo.size() - 1;
+                            if (lastVideoStreamItemIndex != 0) {
+                                String lastVideoStreamModel = mVideoStreamNameListTwo.get(lastVideoStreamItemIndex);
+
+                                if (TextUtils.isEmpty(lastVideoStreamModel.trim())) {
+                                    mVideoStreamNameListTwo.remove(lastVideoStreamItemIndex);
+                                }
+                            }
+
                             mSpinnerVideoStreamAdapterTwo.notifyDataSetChanged();
                         }
                     }

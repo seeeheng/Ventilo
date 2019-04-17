@@ -1,4 +1,4 @@
-package sg.gov.dsta.mobileC3.ventilo.activity.task;
+package sg.gov.dsta.mobileC3.ventilo.helper;
 
 import android.content.Context;
 import android.content.res.Resources;

@@ -7,12 +7,11 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.map.MapFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.radiolinkstatus.RadioLinkStatusFragment;
-import sg.gov.dsta.mobileC3.ventilo.activity.report.ReportFragment;
+import sg.gov.dsta.mobileC3.ventilo.activity.sitrep.SitRepFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.task.TaskFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.timeline.TimelineFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.videostream.VideoStreamFragment;
@@ -54,7 +53,7 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
                         mContext.getResources().getString(R.string.video_stream_page_title));
                 break;
             case MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID:
-                fragment = new ReportFragment();
+                fragment = new SitRepFragment();
                 mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID,
                         fragment);
                 mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID,

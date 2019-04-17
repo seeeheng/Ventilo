@@ -1,4 +1,4 @@
-package sg.gov.dsta.mobileC3.ventilo.activity.report.sitrep;
+package sg.gov.dsta.mobileC3.ventilo.activity.sitrep;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,14 +15,15 @@ import org.json.JSONObject;
 import java.util.Calendar;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.activity.report.ReportStatePagerAdapter;
+import sg.gov.dsta.mobileC3.ventilo.activity.main.MainStatePagerAdapter;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 
-public class SitRepInnerDetailFragment extends Fragment {
+public class SitRepDetailFragment extends Fragment {
 
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
     private static final String SPACE = " ";
@@ -133,10 +134,10 @@ public class SitRepInnerDetailFragment extends Fragment {
     private View.OnClickListener onSendClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            SitRepInnerFragment sitRepInnerFragment = (SitRepInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
-                    get(FragmentConstants.REPORT_TAB_TITLE_SITREP_ID);
+            SitRepFragment sitRepFragment = (SitRepFragment) MainStatePagerAdapter.getPageReferenceMap().
+                    get(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID);
 
-            if (sitRepInnerFragment != null) {
+            if (sitRepFragment != null) {
                 publishSitRepAdd();
 
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();

@@ -30,8 +30,7 @@ import org.json.JSONObject;
 import sg.gov.dsta.mobileC3.ventilo.NoSwipeViewPager;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
-import sg.gov.dsta.mobileC3.ventilo.activity.report.ReportStatePagerAdapter;
-import sg.gov.dsta.mobileC3.ventilo.activity.report.sitrep.SitRepInnerFragment;
+import sg.gov.dsta.mobileC3.ventilo.activity.sitrep.SitRepFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.task.TaskFragment;
 import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
@@ -484,13 +483,13 @@ public class MainActivity extends AppCompatActivity {
 
                                     editor.apply();
 
-                                    SitRepInnerFragment sitRepInnerFragment = (SitRepInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
-                                            get(FragmentConstants.REPORT_TAB_TITLE_SITREP_ID);
+                                    SitRepFragment sitRepFragment = (SitRepFragment) MainStatePagerAdapter.getPageReferenceMap().
+                                            get(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID);
 
-                                    if (sitRepInnerFragment != null) {
+                                    if (sitRepFragment != null) {
                                         Log.d(TAG, "Sit Rep: Refresh Data");
-                                        sitRepInnerFragment.refreshData();
-                                        sitRepInnerFragment.addItemInRecycler();
+                                        sitRepFragment.refreshData();
+                                        sitRepFragment.addItemInRecycler();
                                     }
                             }
 
@@ -614,13 +613,13 @@ public class MainActivity extends AppCompatActivity {
 
                                 editor.apply();
 
-                                SitRepInnerFragment sitRepInnerFragment = (SitRepInnerFragment) ReportStatePagerAdapter.getPageReferenceMap().
-                                        get(FragmentConstants.REPORT_TAB_TITLE_SITREP_ID);
+                                SitRepFragment sitRepFragment = (SitRepFragment) MainStatePagerAdapter.getPageReferenceMap().
+                                        get(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID);
 
-                                if (sitRepInnerFragment != null) {
+                                if (sitRepFragment != null) {
                                     Log.d(TAG, "Sit Rep: Refresh Data");
-                                    sitRepInnerFragment.refreshData();
-                                    sitRepInnerFragment.addItemInRecycler();
+                                    sitRepFragment.refreshData();
+                                    sitRepFragment.addItemInRecycler();
                                 }
                         }
 

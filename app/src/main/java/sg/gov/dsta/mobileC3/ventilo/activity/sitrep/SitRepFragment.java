@@ -1,4 +1,4 @@
-package sg.gov.dsta.mobileC3.ventilo.activity.report.sitrep;
+package sg.gov.dsta.mobileC3.ventilo.activity.sitrep;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -28,9 +28,9 @@ import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 
-public class SitRepInnerFragment extends Fragment {
+public class SitRepFragment extends Fragment {
 
-    private static final String TAG = "SitRepInnerFragment";
+    private static final String TAG = "SitRepFragment";
 
     private RecyclerView mRecyclerView;
     private SitRepRecyclerAdapter mRecyclerAdapter;
@@ -59,7 +59,7 @@ public class SitRepInnerFragment extends Fragment {
         mRecyclerView.addOnItemTouchListener(new SitRepRecyclerItemTouchListener(getContext(), mRecyclerView, new SitRepRecyclerItemTouchListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Fragment sitRepInnerDetailFragment = new SitRepInnerDetailFragment();
+                Fragment sitRepInnerDetailFragment = new SitRepDetailFragment();
                 Bundle bundle = new Bundle();
                 bundle.putString(FragmentConstants.KEY_SITREP, FragmentConstants.VALUE_SITREP_VIEW);
                 bundle.putString(FragmentConstants.KEY_SITREP_LOCATION, mSitRepListItems.get(position).getLocation());
@@ -108,7 +108,7 @@ public class SitRepInnerFragment extends Fragment {
         mFabAddSitRep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Fragment sitRepInnerAddFragment = new SitRepInnerAddFragment();
+                Fragment sitRepInnerAddFragment = new SitRepAddFragment();
                 Bundle bundle = new Bundle();
                 bundle.putString(FragmentConstants.KEY_SITREP, FragmentConstants.VALUE_SITREP_ADD);
                 sitRepInnerAddFragment.setArguments(bundle);

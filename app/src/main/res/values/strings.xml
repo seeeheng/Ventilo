@@ -33,6 +33,9 @@
     <string name="btn_map_port">Port</string>
     <string name="btn_map_starboard">Starboard</string>
 
+    <!-- Snackbar -->
+    <string name="snackbar_screenshot_taken">Screenshot has been taken</string>
+
     <!-- Login -->
     <string name="login_username">USERNAME</string>
     <string name="login_password">PASSWORD</string>
@@ -83,23 +86,34 @@
     <string name="task_title_header">Title</string>
 
     <string-array name="task_title_items">
-        <item>Select Task...</item>
+        <item>-- Select Task --</item>
         <item>Deactivate IAD</item>
         <item>Rescue Hostage</item>
         <item>Secure Nuclear Weapon</item>
         <item>Others</item>
     </string-array>
 
-    <string name="task_title_detail_hint">Enter title here...</string>
+    <string name="task_title_detail_hint">Enter title here</string>
     <string name="task_description_header">Description</string>
-    <string name="task_description_detail_hint">Enter description here...</string>
+    <string name="task_description_detail_hint">Enter description here</string>
     <string name="error_empty_task_title_detail">Please enter task title</string>
     <string name="error_empty_task_description_detail">Please enter task description</string>
 
-    <!-- Sitrep Inner Fragment -->
+    <!-- Sitrep Fragment -->
     <string name="sitrep_page_title">Situation Report</string>
+    <string name="sitrep_new_title">New SITREP</string>
+    <string name="sitrep_picture">Pictures</string>
+    <string name="sitrep_location">Location</string>
+    <string name="sitrep_activity">Activity</string>
+    <string name="sitrep_personnel">Personnel</string>
+    <string name="sitrep_next_coa">Next Course of Action</string>
+    <string name="sitrep_request">Request</string>
+    <string name="sitrep_T">T</string>
+    <string name="sitrep_S">S</string>
+    <string name="sitrep_D">D</string>
+
     <string-array name="sitrep_location_items">
-        <item>Select Location...</item>
+        <item>-- Select Location --</item>
         <item>AUDI</item>
         <item>BEDOK</item>
         <item>BALESTIER</item>
@@ -133,29 +147,19 @@
     </string-array>
 
     <string-array name="sitrep_activity_items">
-        <item>Select Activity...</item>
+        <item>-- Select Activity --</item>
         <item>Fire Fighting</item>
     </string-array>
 
     <string-array name="sitrep_next_coa_items">
-        <item>Select Next COA...</item>
+        <item>-- Select Next COA --</item>
         <item>Inform HQ</item>
     </string-array>
 
     <string-array name="sitrep_request_items">
-        <item>Select Request...</item>
+        <item>-- Select Request --</item>
         <item>Additional MP</item>
     </string-array>
-
-    <string name="sitrep_team">Team</string>
-    <string name="sitrep_location">Location</string>
-    <string name="sitrep_activity">Activity</string>
-    <string name="sitrep_personnel">Personnel</string>
-    <string name="sitrep_next_coa">Next Course of Action</string>
-    <string name="sitrep_request">Request</string>
-    <string name="sitrep_T">T</string>
-    <string name="sitrep_S">S</string>
-    <string name="sitrep_D">D</string>
 
     <!-- Sitrep Inner Detail Fragment -->
     <string name="sitrep_detail_situation_report">Situation Report</string>

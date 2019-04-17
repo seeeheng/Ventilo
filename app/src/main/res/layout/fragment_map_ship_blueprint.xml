@@ -13,7 +13,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="@dimen/elements_vertical_margin_spacing">
+            android:padding="@dimen/elements_margin_spacing">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -32,7 +32,7 @@
                     android:layout_width="@dimen/map_blueprint_btn_width"
                     android:layout_height="@dimen/map_blueprint_btn_height"
                     android:layout_below="@+id/img_btn_ship_blueprint_setting"
-                    android:layout_marginTop="@dimen/elements_vertical_margin_spacing"
+                    android:layout_marginTop="@dimen/elements_margin_spacing"
                     android:background="?android:selectableItemBackground"
                     app:srcCompat="@drawable/btn_world_map" />
 
@@ -55,7 +55,7 @@
                     android:layout_width="@dimen/map_blueprint_btn_width"
                     android:layout_height="@dimen/map_blueprint_btn_height"
                     android:layout_below="@+id/img_ship_blueprint_upButton"
-                    android:layout_marginTop="@dimen/elements_vertical_margin_spacing"
+                    android:layout_marginTop="@dimen/elements_margin_spacing"
                     android:background="?android:selectableItemBackground"
                     app:srcCompat="@drawable/btn_map_gps" />
 
@@ -64,7 +64,7 @@
                     android:layout_width="@dimen/map_blueprint_btn_width"
                     android:layout_height="@dimen/map_blueprint_btn_height"
                     android:layout_below="@+id/img_ship_blueprint_zeroButton"
-                    android:layout_marginTop="@dimen/elements_vertical_margin_spacing"
+                    android:layout_marginTop="@dimen/elements_margin_spacing"
                     android:background="?android:selectableItemBackground"
                     app:srcCompat="@drawable/btn_map_toggle_down" />
 

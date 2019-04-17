@@ -3,8 +3,6 @@ package sg.gov.dsta.mobileC3.ventilo.activity.task;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.SharedPreferences;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -14,17 +12,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -37,8 +31,7 @@ import java.util.List;
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
-import sg.gov.dsta.mobileC3.ventilo.model.eventbus.PageEvent;
+import sg.gov.dsta.mobileC3.ventilo.helper.SwipeHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.eventbus.TaskEvent;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoin;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
@@ -52,7 +45,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
 
-public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelperListener {
+public class TaskFragment extends Fragment {
 
     private static final String TAG = TaskFragment.class.getSimpleName();
 
@@ -177,10 +170,15 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
         // Set data for recycler view
         setUpRecyclerData();
 
-        mRecyclerAdapter = new TaskRecyclerAdapter(this, mTaskListItems);
+        mRecyclerAdapter = new TaskRecyclerAdapter(getContext(), mTaskListItems);
         mRecyclerView.setAdapter(mRecyclerAdapter);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
+
+        /**
+         * This identifies each task's status of the recycler view and creates the corresponding action
+         * swipe buttons with ItemTouchHelper.SimpleCallback
+         */
         SwipeHelper taskSwipeHelper = new SwipeHelper(getContext(), mRecyclerView) {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
@@ -195,27 +193,13 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
                         firstSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_in_progress;
                         secondSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_complete;
 
-//                    showFirstAndSecondSwipeActionButtons(taskViewHolder,
-//                            ResourcesCompat.getColor(getResources(), R.color.task_status_yellow, null),
-//                            getContext().getDrawable(R.drawable.btn_task_swipe_action_status_in_progress),
-//                            getContext().getDrawable(R.drawable.btn_task_swipe_action_status_complete));
                     } else if (EStatus.IN_PROGRESS.toString().equalsIgnoreCase(taskStatus)) {
                         firstSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_new;
                         secondSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_complete;
 
-
-//                    showFirstAndSecondSwipeActionButtons(taskViewHolder,
-//                            ResourcesCompat.getColor(getResources(), R.color.task_status_cyan, null),
-//                            getContext().getDrawable(R.drawable.btn_task_swipe_action_status_new),
-//                            getContext().getDrawable(R.drawable.btn_task_swipe_action_status_complete));
                     } else {
                         firstSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_new;
                         secondSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_in_progress;
-
-//                    showFirstAndSecondSwipeActionButtons(taskViewHolder,
-//                            ResourcesCompat.getColor(getResources(), R.color.task_status_cyan, null),
-//                            getContext().getDrawable(R.drawable.btn_task_swipe_action_status_new),
-//                            getContext().getDrawable(R.drawable.btn_task_swipe_action_status_in_progress));
                     }
 
                     final Drawable firstSwipeActionButtonImageDrawable =
@@ -223,9 +207,7 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
                                     firstSwipeActionButtonImageId, null);
 
                     SwipeHelper.UnderlayButton firstUnderlayButton = new SwipeHelper.UnderlayButton(
-                        "",
-                        firstSwipeActionButtonImageDrawable,
-                        null,
+                        "", firstSwipeActionButtonImageDrawable, null,
                         new SwipeHelper.UnderlayButtonClickListener() {
                             @Override
                             public void onClick(int pos) {
@@ -249,9 +231,7 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
                                     secondSwipeActionButtonImageId, null);
 
                     SwipeHelper.UnderlayButton secondUnderlayButton = new SwipeHelper.UnderlayButton(
-                        "",
-                        secondSwipeActionButtonImageDrawable,
-                        null,
+                        "", secondSwipeActionButtonImageDrawable, null,
                         new SwipeHelper.UnderlayButtonClickListener() {
                             @Override
                             public void onClick(int pos) {
@@ -275,9 +255,7 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
                                     R.drawable.btn_task_swipe_action_status_delete, null);
 
                     SwipeHelper.UnderlayButton deleteUnderlayButton = new SwipeHelper.UnderlayButton(
-                        "",
-                        deleteSwipeActionButtonImageDrawable,
-                        null,
+                        "", deleteSwipeActionButtonImageDrawable, null,
                         new SwipeHelper.UnderlayButtonClickListener() {
                             @Override
                             public void onClick(int pos) {
@@ -327,21 +305,18 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
     }
 
     private void setTaskStatusComplete(int position) {
-        System.out.println("setTaskStatusComplete");
         TaskModel taskModelAtPos = mRecyclerAdapter.getTaskModelAtPosition(position);
         taskModelAtPos.setStatus(EStatus.COMPLETE.toString());
         mTaskViewModel.updateTask(taskModelAtPos);
     }
 
     private void setTaskStatusInProgress(int position) {
-        System.out.println("setTaskStatusInProgress");
         TaskModel taskModelAtPos = mRecyclerAdapter.getTaskModelAtPosition(position);
         taskModelAtPos.setStatus(EStatus.IN_PROGRESS.toString());
         mTaskViewModel.updateTask(taskModelAtPos);
     }
 
     private void setTaskStatusNew(int position) {
-        System.out.println("setTaskStatusNew");
         TaskModel taskModelAtPos = mRecyclerAdapter.getTaskModelAtPosition(position);
         taskModelAtPos.setStatus(EStatus.NEW.toString());
         mTaskViewModel.updateTask(taskModelAtPos);
@@ -427,28 +402,6 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
         return mRecyclerAdapter;
     }
 
-
-
-//    private ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
-//        @Override
-//        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-//            return false;
-//        }
-//
-//        @Override
-//        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-//            // Row is swiped from recycler view
-//            // remove it from adapter
-////            viewHolder.
-//        }
-//
-//        @Override
-//        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-//            // view the background view
-//        }
-//    };
-
-
     private void observerSetup() {
         mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         mTaskViewModel = ViewModelProviders.of(this).get(TaskViewModel.class);
@@ -466,7 +419,6 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
     }
 
     private synchronized void setUpRecyclerData() {
-
         if (mTaskListItems == null) {
             mTaskListItems = new ArrayList<>();
         }
@@ -545,7 +497,7 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
 //                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ID), SharedPreferenceConstants.DEFAULT_INT));
 //                taskItem.setAssignedBy(pref.getString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
 //                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNER), SharedPreferenceConstants.DEFAULT_STRING));
-//                taskItem.setAssignee(pref.getString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                taskItem.setAssignedTo(pref.getString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
 //                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE), SharedPreferenceConstants.DEFAULT_STRING));
 ////                    taskItem.setAssigneeAvatar(getContext().getDrawable(R.drawable.default_soldier_icon));
 ////                taskItem.setAssigneeAvatar(Objects.requireNonNull(getContext()).getDrawable(pref.getInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
@@ -573,7 +525,7 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
         TaskModel taskModel1 = new TaskModel();
 //            taskModel1.setId(0);
         taskModel1.setAssignedBy("Aaron (A01)");
-        taskModel1.setAssignee("");
+        taskModel1.setAssignedTo("");
 //            taskModel1.setAssigneeAvatar(getContext().getDrawable(R.drawable.default_soldier_icon));
         taskModel1.setTitle("Deactivate IAD");
         taskModel1.setDescription("IAD is located in the Engine Room. Beware of enemy intruders in adjacent rooms.");
@@ -585,7 +537,7 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
         TaskModel taskModel2 = new TaskModel();
 //            taskModel2.setId(1);
         taskModel2.setAssignedBy("Bastian (B01)");
-        taskModel2.setAssignee("");
+        taskModel2.setAssignedTo("");
         taskModel2.setTitle("Rescue Hostage");
         taskModel2.setDescription("Hostage is located in the Deck 1. Beware of enemy intruders in adjacent rooms.");
 //            taskModel2.setStatus(EStatus.IN_PROGRESS);
@@ -596,7 +548,7 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
         TaskModel taskModel3 = new TaskModel();
 //            taskModel3.setId(2);
         taskModel3.setAssignedBy("Chris (C01)");
-        taskModel3.setAssignee("");
+        taskModel3.setAssignedTo("");
         taskModel3.setTitle("Secure Nuclear Weapon");
         taskModel3.setDescription("Nuclear Weapon is located in the Bridge. Beware of enemy intruders.");
 //            taskModel3.setStatus(EStatus.COMPLETE);
@@ -746,10 +698,10 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
 ////                System.out.println("assignedToList.toString() is "+ assignedToList.toString());
 ////                TaskModel tempTaskModel = mTaskListItems.get(taskItemIndex);
 ////                tempTaskModel.setId(taskId);
-////                tempTaskModel.setAssignee(assignedToList.toString());
+////                tempTaskModel.setAssignedTo(assignedToList.toString());
 ////                mTaskListItems.set(taskItemIndex, tempTaskModel);
 //
-//                taskModel.setAssignee(assignedToList.toString());
+//                taskModel.setAssignedTo(assignedToList.toString());
 //            }
 //
 //            @Override
@@ -789,7 +741,7 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
 //        for (int i = 0; i < mTaskListItems.size(); i++) {
 //            TaskModel taskItem = mTaskListItems.get(i);
 //            addSingleItemToLocalDatabase(editor, taskItem.getId(), taskItem.getAssignedBy(),
-////                    taskItem.getAssignee(),
+////                    taskItem.getAssignedTo(),
 //                    R.drawable.default_soldier_icon, taskItem.getTitle(), taskItem.getDescription(),
 //                    taskItem.getStatus(), taskItem.getCreatedDateTime());
 //        }
@@ -918,38 +870,38 @@ public class TaskFragment extends Fragment implements TaskRecyclerItemTouchHelpe
 //        editor.apply();
 //    }
 
-    private void showFirstAndSecondSwipeActionButtons(TaskViewHolder viewHolder, int firstActionSwipeBackgroundColor,
-                                                      Drawable firstActionSwipeDrawable, Drawable secondActionSwipeDrawable) {
-        viewHolder.getRelativeLayoutFirstSwipeActionButton().setBackgroundColor(firstActionSwipeBackgroundColor);
-        viewHolder.getImgFirstSwipeAction().setImageDrawable(firstActionSwipeDrawable);
-        viewHolder.getImgSecondSwipeAction().setImageDrawable(secondActionSwipeDrawable);
-    }
+//    private void showFirstAndSecondSwipeActionButtons(TaskViewHolder viewHolder, int firstActionSwipeBackgroundColor,
+//                                                      Drawable firstActionSwipeDrawable, Drawable secondActionSwipeDrawable) {
+//        viewHolder.getRelativeLayoutFirstSwipeActionButton().setBackgroundColor(firstActionSwipeBackgroundColor);
+//        viewHolder.getImgFirstSwipeAction().setImageDrawable(firstActionSwipeDrawable);
+//        viewHolder.getImgSecondSwipeAction().setImageDrawable(secondActionSwipeDrawable);
+//    }
 
-    @Override
-    public void onChildDraw(TaskViewHolder viewHolder) {
-        String taskStatus = viewHolder.getTvStatus().getText().toString().trim();
-
-        if (EStatus.NEW.toString().equalsIgnoreCase(taskStatus)) {
-            showFirstAndSecondSwipeActionButtons(viewHolder,
-                    ResourcesCompat.getColor(getResources(), R.color.task_status_yellow, null),
-                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_in_progress),
-                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_complete));
-        } else if (EStatus.IN_PROGRESS.toString().equalsIgnoreCase(taskStatus)) {
-            showFirstAndSecondSwipeActionButtons(viewHolder,
-                    ResourcesCompat.getColor(getResources(), R.color.task_status_cyan, null),
-                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_new),
-                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_complete));
-        } else {
-            showFirstAndSecondSwipeActionButtons(viewHolder,
-                    ResourcesCompat.getColor(getResources(), R.color.task_status_cyan, null),
-                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_new),
-                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_in_progress));
-        }
-
-//        viewHolder.getImgFirstSwipeAction().requestFocus();
-//        viewHolder.getImgSecondSwipeAction().requestFocus();
-//        viewHolder.getImgDelete().requestFocus();
-    }
+//    @Override
+//    public void onChildDraw(TaskViewHolder viewHolder) {
+//        String taskStatus = viewHolder.getTvStatus().getText().toString().trim();
+//
+//        if (EStatus.NEW.toString().equalsIgnoreCase(taskStatus)) {
+//            showFirstAndSecondSwipeActionButtons(viewHolder,
+//                    ResourcesCompat.getColor(getResources(), R.color.task_status_yellow, null),
+//                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_in_progress),
+//                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_complete));
+//        } else if (EStatus.IN_PROGRESS.toString().equalsIgnoreCase(taskStatus)) {
+//            showFirstAndSecondSwipeActionButtons(viewHolder,
+//                    ResourcesCompat.getColor(getResources(), R.color.task_status_cyan, null),
+//                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_new),
+//                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_complete));
+//        } else {
+//            showFirstAndSecondSwipeActionButtons(viewHolder,
+//                    ResourcesCompat.getColor(getResources(), R.color.task_status_cyan, null),
+//                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_new),
+//                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_in_progress));
+//        }
+//
+////        viewHolder.getImgFirstSwipeAction().requestFocus();
+////        viewHolder.getImgSecondSwipeAction().requestFocus();
+////        viewHolder.getImgDelete().requestFocus();
+//    }
 
     @Subscribe
     public void onEvent(TaskEvent taskEvent)
