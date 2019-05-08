@@ -36,6 +36,8 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/thin_line_margin"
         android:layout_below="@+id/layout_media_controller_toolbar"
+        android:layout_marginStart="@dimen/thin_line_margin"
+        android:layout_marginEnd="@dimen/thin_line_margin"
         android:alpha="18"
         android:background="@color/image_white" />
 

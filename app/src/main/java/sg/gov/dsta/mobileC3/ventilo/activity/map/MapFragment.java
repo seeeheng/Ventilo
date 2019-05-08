@@ -417,31 +417,7 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                MapPos mapPos1 = mProj.fromWgs84(103.851959f, 1.290270f);
-//                MapPos mapPos = new MapPos(mapPos1.x, mapPos1.y, 0.1f);
-//                mNutiteqMapView.setFocusPoint(mapPos);
-//                mNutiteqMapView.setMapRotation(0);
-//                mNutiteqMapView.setTilt(90);
-//                mNutiteqMapView.setZoom(16.0f);
-
-//                CameraPosition pos = CameraPosition.fromLatLngZoom(new LatLng(VESSEL_LAT_COORD, VESSEL_LON_COORD), 16);
-//                CameraPosition posWithBearing = CameraPosition.builder(pos).bearing(90).build();
-//                CameraUpdate upd = CameraUpdateFactory.newCameraPosition(posWithBearing);
-//                mGoogleMap.moveCamera(upd);
-
-                dispose();
-
-//            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-
-                Fragment mapShipBlueprintFragment = new MapShipBlueprintFragment();
-
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                FragmentTransaction ft = fm.beginTransaction();
-                ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-                ft.replace(R.id.layout_map_fragment, mapShipBlueprintFragment,
-                        mapShipBlueprintFragment.getClass().getSimpleName());
-                ft.addToBackStack(mapShipBlueprintFragment.getClass().getSimpleName());
-                ft.commit();
+                navigateToMapShipBlueprintFragment();
             }
         };
     }
@@ -1103,6 +1079,42 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
         MqttHelper.getInstance().subscribeToTopic(topic);
     }
 
+    private void navigateToMapShipBlueprintFragment() {
+        dispose();
+
+        Fragment mapShipBlueprintFragment = new MapShipBlueprintFragment();
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+
+        int count = fm.getBackStackEntryCount();
+        boolean isMapShipBlueprintFragmentFound = false;
+
+        // Checks if MapShipBlueprintFragment was previous fragment; if it is, simply pop current stack
+        // By popping stack, we do not re-initialise blueprint in MapShipBlueprintFragment
+        for (int i = 0; i < count; i++) {
+            if (MapShipBlueprintFragment.class.getSimpleName().equalsIgnoreCase(
+                    fm.getBackStackEntryAt(i).getName())) {
+                if (i == (count - 2) || i == (count - 3)) {
+                    isMapShipBlueprintFragmentFound = true;
+                }
+            }
+        }
+
+        if (!isMapShipBlueprintFragmentFound) {
+            Log.d(TAG, "MapShipBlueprintFragment not found in back stack. Creating new map fragment.");
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right,
+                    R.anim.slide_in_from_right, R.anim.slide_out_to_right);
+            ft.replace(R.id.layout_map_fragment, mapShipBlueprintFragment,
+                    mapShipBlueprintFragment.getClass().getSimpleName());
+            ft.addToBackStack(mapShipBlueprintFragment.getClass().getSimpleName());
+            ft.commit();
+        } else {
+            Log.d(TAG, "MapShipBlueprintFragment found in back stack. Popping " +
+                    MapShipBlueprintFragment.class.getSimpleName() + ".");
+            fm.popBackStack();
+        }
+    }
+
 //    public class DaeConverterServiceTask extends AsyncTask<byte[], Void, InputStream> {
 //
 //        private MapFragment offlineActivity;
@@ -1173,20 +1185,7 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
     @Override
     public boolean onMarkerClick(com.google.android.gms.maps.model.Marker marker) {
         if (marker.equals(mOwnGoogleMapMarker)) {
-            dispose();
-
-//            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-
-            Fragment mapShipBlueprintFragment = new MapShipBlueprintFragment();
-
-            FragmentManager fm = getActivity().getSupportFragmentManager();
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-            ft.replace(R.id.layout_map_fragment, mapShipBlueprintFragment,
-                    mapShipBlueprintFragment.getClass().getSimpleName());
-            ft.addToBackStack(mapShipBlueprintFragment.getClass().getSimpleName());
-            ft.commit();
-
+            navigateToMapShipBlueprintFragment();
             return true;
         }
 

@@ -42,10 +42,10 @@
 
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/constraint_layout_video_surface_one"
-                android:layout_width="300dp"
-                android:layout_height="200dp"
+                android:layout_width="375dp"
+                android:layout_height="250dp"
                 android:layout_gravity="center"
-                android:background="@drawable/video_view_background"
+                android:background="@drawable/img_view_background_with_border"
                 android:foregroundGravity="clip_horizontal|clip_vertical"
                 tools:ignore="true">
                 <!--android:background="@color/image_white">-->
@@ -170,10 +170,10 @@
 
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/constraint_layout_video_surface_two"
-                android:layout_width="300dp"
-                android:layout_height="200dp"
+                android:layout_width="375dp"
+                android:layout_height="250dp"
                 android:layout_gravity="center"
-                android:background="@drawable/video_view_background"
+                android:background="@drawable/img_view_background_with_border"
                 android:foregroundGravity="clip_horizontal|clip_vertical"
                 tools:ignore="true">
 

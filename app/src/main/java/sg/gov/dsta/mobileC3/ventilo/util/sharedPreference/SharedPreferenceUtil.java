@@ -10,10 +10,11 @@ public class SharedPreferenceUtil {
 
     // TODO: Remove after demo
     private static Context mContext;
+
     /*
      * Get current user
      */
-    public static String getCurrentUser(Context context) {
+    public static String getCurrentUserCallsignID(Context context) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         String user = pref.getString(SharedPreferenceConstants.CALLSIGN_USER, "A11");
 
@@ -29,6 +30,13 @@ public class SharedPreferenceUtil {
         String user = pref.getString(SharedPreferenceConstants.CALLSIGN_USER, "A11");
 
         return user;
+    }
+
+    public static String getCurrentUserAccessToken(Context context) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        String accessToken = pref.getString(SharedPreferenceConstants.ACCESS_TOKEN, "");
+
+        return accessToken;
     }
 
     // TODO: Remove after demo

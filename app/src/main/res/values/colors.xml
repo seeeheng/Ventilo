@@ -18,15 +18,17 @@
 
     <color name="background_main_black">#121212</color>
     <!--<color name="background_main_dark_charcoal">#333333</color>-->
-    <color name="background_2nd_level_gray">#BBBBBB</color>
+    <color name="background_2nd_level_grey">#BBBBBB</color>
     <color name="background_3rd_level_chinese_silver">#CCCCCC</color>
-    <color name="background_dark_grey">#181818</color>
+    <color name="background_dark_grey">#1F1F1F</color>
+    <!--<color name="background_line_grey">#3E3E3E</color>-->
     <color name="background_main_dark_charcoal">#152538</color>
     <color name="background_media_controller_dark_grey">#336D6D6D</color>
     <color name="dark_cyan">#008B8B</color>
     <color name="primary_highlight_cyan">#00DCFF</color>
     <color name="primary_text_white">#FFFFFF</color>
     <color name="primary_text_hint_dark_grey">#6D6D6D</color>
+    <color name="divider_line_grey">#3E3E3E</color>
     <!--<color name="img_btn_space_blue">#1D2951</color>-->
     <!--<color name="prussian_blue">#003152</color>-->
     <!--<color name="independence_blue">#4C516D</color>-->
@@ -56,6 +58,5 @@
 
     <!-- Sit Rep -->
     <color name="sitrep_light_grey">#ADADAD</color>
-
     <color name="cursor_white">#FFFFFF</color>
 </resources>

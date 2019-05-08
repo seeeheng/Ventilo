@@ -73,12 +73,16 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/task_recycler_row_height"
             android:background="@color/background_dark_grey"
-            android:padding="@dimen/recycler_row_outermost_padding">
+            android:paddingStart="@dimen/recycler_row_outermost_large_padding"
+            android:paddingTop="@dimen/recycler_row_outermost_padding"
+            android:paddingEnd="@dimen/recycler_row_outermost_large_padding"
+            android:paddingBottom="@dimen/recycler_row_outermost_large_padding">
 
             <RelativeLayout
                 android:id="@+id/layout_header_container"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/task_recycler_row_line_information_height">
+                android:layout_height="@dimen/task_recycler_row_line_information_height"
+                android:layout_marginBottom="@dimen/elements_margin_spacing">
 
                 <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
                     android:id="@+id/tv_recycler_task_header_title"
@@ -98,17 +102,10 @@
 
             </RelativeLayout>
 
-            <LinearLayout
-                android:id="@+id/layout_header_content_divider"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/elements_margin_spacing"
-                android:layout_below="@+id/layout_header_container"
-                android:orientation="vertical" />
-
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/task_recycler_row_container_information_height"
-                android:layout_below="@+id/layout_header_content_divider">
+                android:layout_below="@+id/layout_header_container">
 
                 <LinearLayout
                     android:layout_width="@dimen/task_recycler_row_inner_detail_container_information_width"
@@ -122,7 +119,7 @@
 
                         <android.support.v7.widget.AppCompatImageView
                             android:layout_width="@dimen/task_recycler_row_icon_width"
-                            android:layout_height="20dp"
+                            android:layout_height="@dimen/task_recycler_row_icon_height"
                             android:layout_marginEnd="@dimen/elements_margin_spacing"
                             android:scaleType="fitCenter"
                             app:srcCompat="@drawable/icon_assigned_to" />
@@ -143,7 +140,7 @@
 
                         <android.support.v7.widget.AppCompatImageView
                             android:layout_width="@dimen/task_recycler_row_icon_width"
-                            android:layout_height="20dp"
+                            android:layout_height="@dimen/task_recycler_row_icon_height"
                             android:layout_marginEnd="@dimen/elements_margin_spacing"
                             android:scaleType="fitCenter"
                             app:srcCompat="@drawable/icon_scheduled_time" />

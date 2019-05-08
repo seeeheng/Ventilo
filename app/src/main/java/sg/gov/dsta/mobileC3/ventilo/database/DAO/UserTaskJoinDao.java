@@ -8,7 +8,7 @@ import android.arch.persistence.room.Query;
 import java.util.List;
 
 import io.reactivex.Single;
-import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoin;
+import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 
@@ -26,11 +26,11 @@ public interface UserTaskJoinDao {
     Single<List<UserModel>> queryUsersForTask(long taskId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertUserTaskJoin(UserTaskJoin userTaskJoin);
+    void insertUserTaskJoin(UserTaskJoinModel userTaskJoinModel);
 
 //    @Update
-//    long updateUserTaskJoin(UserTaskJoin userTaskJoin);
+//    long updateUserTaskJoin(UserTaskJoinModel userTaskJoin);
 //
-//    @Query("DELETE FROM UserTaskJoin WHERE taskId = :taskId")
+//    @Query("DELETE FROM UserTaskJoinModel WHERE taskId = :taskId")
 //    int deleteUsersForTask(long taskId);
 }

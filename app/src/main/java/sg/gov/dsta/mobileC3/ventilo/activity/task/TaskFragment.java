@@ -33,7 +33,7 @@ import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.helper.SwipeHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.eventbus.TaskEvent;
-import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoin;
+import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.TaskViewModel;
@@ -174,11 +174,35 @@ public class TaskFragment extends Fragment {
         mRecyclerView.setAdapter(mRecyclerAdapter);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
+        setUpSwipeHelper();
 
-        /**
-         * This identifies each task's status of the recycler view and creates the corresponding action
-         * swipe buttons with ItemTouchHelper.SimpleCallback
-         */
+        // Set up floating action button
+        mFabAddTask = rootView.findViewById(R.id.fab_task_add);
+        mFabAddTask.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Fragment taskDetailFragment = new TaskDetailFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString(FragmentConstants.KEY_TASK, FragmentConstants.VALUE_TASK_ADD);
+                bundle.putInt(FragmentConstants.KEY_TASK_TOTAL_NUMBER, mTaskListItems.size());
+                taskDetailFragment.setArguments(bundle);
+
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
+                ft.replace(R.id.layout_task_fragment, taskDetailFragment, taskDetailFragment.getClass().getSimpleName());
+                ft.addToBackStack(taskDetailFragment.getClass().getSimpleName());
+                ft.commit();
+            }
+        });
+//        initOtherLayouts(inflater, container);
+    }
+
+    /**
+     * This identifies each task's status of the recycler view and creates the corresponding action
+     * swipe buttons with ItemTouchHelper.SimpleCallback
+     */
+    private void setUpSwipeHelper() {
         SwipeHelper taskSwipeHelper = new SwipeHelper(getContext(), mRecyclerView) {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
@@ -207,23 +231,23 @@ public class TaskFragment extends Fragment {
                                     firstSwipeActionButtonImageId, null);
 
                     SwipeHelper.UnderlayButton firstUnderlayButton = new SwipeHelper.UnderlayButton(
-                        "", firstSwipeActionButtonImageDrawable, null,
-                        new SwipeHelper.UnderlayButtonClickListener() {
-                            @Override
-                            public void onClick(int pos) {
-                                if (DrawableUtil.areDrawablesIdentical(firstSwipeActionButtonImageDrawable,
-                                        ResourcesCompat.getDrawable(getResources(),
-                                                R.drawable.btn_task_swipe_action_status_new, null))) {
-                                    setTaskStatusNew(pos);
-                                } else if (DrawableUtil.areDrawablesIdentical(firstSwipeActionButtonImageDrawable,
-                                        ResourcesCompat.getDrawable(getResources(),
-                                                R.drawable.btn_task_swipe_action_status_in_progress, null))) {
-                                    setTaskStatusInProgress(pos);
-                                } else {
-                                    setTaskStatusComplete(pos);
+                            "", firstSwipeActionButtonImageDrawable, null,
+                            new SwipeHelper.UnderlayButtonClickListener() {
+                                @Override
+                                public void onClick(int pos) {
+                                    if (DrawableUtil.areDrawablesIdentical(firstSwipeActionButtonImageDrawable,
+                                            ResourcesCompat.getDrawable(getResources(),
+                                                    R.drawable.btn_task_swipe_action_status_new, null))) {
+                                        setTaskStatusNew(pos);
+                                    } else if (DrawableUtil.areDrawablesIdentical(firstSwipeActionButtonImageDrawable,
+                                            ResourcesCompat.getDrawable(getResources(),
+                                                    R.drawable.btn_task_swipe_action_status_in_progress, null))) {
+                                        setTaskStatusInProgress(pos);
+                                    } else {
+                                        setTaskStatusComplete(pos);
+                                    }
                                 }
                             }
-                        }
                     );
 
                     final Drawable secondSwipeActionButtonImageDrawable =
@@ -231,23 +255,23 @@ public class TaskFragment extends Fragment {
                                     secondSwipeActionButtonImageId, null);
 
                     SwipeHelper.UnderlayButton secondUnderlayButton = new SwipeHelper.UnderlayButton(
-                        "", secondSwipeActionButtonImageDrawable, null,
-                        new SwipeHelper.UnderlayButtonClickListener() {
-                            @Override
-                            public void onClick(int pos) {
-                                if (DrawableUtil.areDrawablesIdentical(secondSwipeActionButtonImageDrawable,
-                                        ResourcesCompat.getDrawable(getResources(),
-                                                R.drawable.btn_task_swipe_action_status_new, null))) {
-                                    setTaskStatusNew(pos);
-                                } else if (DrawableUtil.areDrawablesIdentical(secondSwipeActionButtonImageDrawable,
-                                        ResourcesCompat.getDrawable(getResources(),
-                                                R.drawable.btn_task_swipe_action_status_in_progress, null))) {
-                                    setTaskStatusInProgress(pos);
-                                } else {
-                                    setTaskStatusComplete(pos);
+                            "", secondSwipeActionButtonImageDrawable, null,
+                            new SwipeHelper.UnderlayButtonClickListener() {
+                                @Override
+                                public void onClick(int pos) {
+                                    if (DrawableUtil.areDrawablesIdentical(secondSwipeActionButtonImageDrawable,
+                                            ResourcesCompat.getDrawable(getResources(),
+                                                    R.drawable.btn_task_swipe_action_status_new, null))) {
+                                        setTaskStatusNew(pos);
+                                    } else if (DrawableUtil.areDrawablesIdentical(secondSwipeActionButtonImageDrawable,
+                                            ResourcesCompat.getDrawable(getResources(),
+                                                    R.drawable.btn_task_swipe_action_status_in_progress, null))) {
+                                        setTaskStatusInProgress(pos);
+                                    } else {
+                                        setTaskStatusComplete(pos);
+                                    }
                                 }
                             }
-                        }
                     );
 
                     Drawable deleteSwipeActionButtonImageDrawable =
@@ -255,13 +279,13 @@ public class TaskFragment extends Fragment {
                                     R.drawable.btn_task_swipe_action_status_delete, null);
 
                     SwipeHelper.UnderlayButton deleteUnderlayButton = new SwipeHelper.UnderlayButton(
-                        "", deleteSwipeActionButtonImageDrawable, null,
-                        new SwipeHelper.UnderlayButtonClickListener() {
-                            @Override
-                            public void onClick(int pos) {
-                                deleteTask(pos);
+                            "", deleteSwipeActionButtonImageDrawable, null,
+                            new SwipeHelper.UnderlayButtonClickListener() {
+                                @Override
+                                public void onClick(int pos) {
+                                    deleteTask(pos);
+                                }
                             }
-                        }
                     );
 
                     underlayButtons.add(deleteUnderlayButton);
@@ -276,27 +300,6 @@ public class TaskFragment extends Fragment {
 //                TaskItemTouchHelperCallback(this);
 //        new ItemTouchHelper(taskItemTouchHelperCallback).attachToRecyclerView(mRecyclerView);
         taskSwipeHelper.attachSwipe();
-
-        // Set up floating action button
-        mFabAddTask = rootView.findViewById(R.id.fab_task_add);
-        mFabAddTask.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Fragment taskDetailFragment = new TaskDetailFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString(FragmentConstants.KEY_TASK, FragmentConstants.VALUE_TASK_ADD);
-                bundle.putInt(FragmentConstants.KEY_TASK_TOTAL_NUMBER, mTaskListItems.size());
-                taskDetailFragment.setArguments(bundle);
-
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                FragmentTransaction ft = fm.beginTransaction();
-                ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-                ft.replace(R.id.layout_task_fragment, taskDetailFragment, taskDetailFragment.getClass().getSimpleName());
-                ft.addToBackStack(taskDetailFragment.getClass().getSimpleName());
-                ft.commit();
-            }
-        });
-//        initOtherLayouts(inflater, container);
     }
 
     private void deleteTask(int position) {
@@ -391,15 +394,10 @@ public class TaskFragment extends Fragment {
 
     public void addItemInRecycler() {
         if (mRecyclerAdapter != null) {
-            System.out.println("mTaskListItems.size() in recycler is " + mTaskListItems.size());
             mRecyclerAdapter.notifyItemInserted(mTaskListItems.size() - 1);
             mRecyclerAdapter.notifyItemRangeChanged(mTaskListItems.size() - 1, mTaskListItems.size());
 //            mRecyclerAdapter.notifyDataSetChanged();
         }
-    }
-
-    public TaskRecyclerAdapter getAdapter() {
-        return mRecyclerAdapter;
     }
 
     private void observerSetup() {
@@ -414,6 +412,8 @@ public class TaskFragment extends Fragment {
             @Override
             public void onChanged(@Nullable List<TaskModel> taskModelList) {
                 mRecyclerAdapter.setTaskListItems(taskModelList);
+                mTaskListItems.clear();
+                mTaskListItems.addAll(taskModelList);
             }
         });
     }
@@ -532,7 +532,7 @@ public class TaskFragment extends Fragment {
 //            taskModel1.setStatus(EStatus.NEW);
         taskModel1.setStatus(EStatus.NEW.toString());
         Date date1 = DateTimeUtil.getSpecifiedDateByYear(2015);
-        taskModel1.setCreatedDateTime(DateTimeUtil.dateToString(date1));
+        taskModel1.setCreatedDateTime(DateTimeUtil.dateToServerStringFormat(date1));
 
         TaskModel taskModel2 = new TaskModel();
 //            taskModel2.setId(1);
@@ -543,7 +543,7 @@ public class TaskFragment extends Fragment {
 //            taskModel2.setStatus(EStatus.IN_PROGRESS);
         taskModel2.setStatus(EStatus.IN_PROGRESS.toString());
         Date date2 = DateTimeUtil.getSpecifiedDateByYear(2016);
-        taskModel2.setCreatedDateTime(DateTimeUtil.dateToString(date2));
+        taskModel2.setCreatedDateTime(DateTimeUtil.dateToServerStringFormat(date2));
 
         TaskModel taskModel3 = new TaskModel();
 //            taskModel3.setId(2);
@@ -555,7 +555,7 @@ public class TaskFragment extends Fragment {
         taskModel3.setStatus(EStatus.COMPLETE.toString());
         Date date3 = DateTimeUtil.getSpecifiedDate(2017, Calendar.DECEMBER, 22,
                 Calendar.AM, 10, 30, 30);
-        taskModel3.setCreatedDateTime(DateTimeUtil.dateToString(date3));
+        taskModel3.setCreatedDateTime(DateTimeUtil.dateToServerStringFormat(date3));
 
         mTaskListItems.add(taskModel1);
         mTaskListItems.add(taskModel2);
@@ -624,8 +624,8 @@ public class TaskFragment extends Fragment {
                 Log.d(TAG, "onSuccess singleObserverUser, " +
                         "addTasksToCompositeTableInDatabase. " +
                         "UserId: " + userModel.getUserId());
-                UserTaskJoin userTaskJoin = new UserTaskJoin(userModel.getUserId(), taskId);
-                mUserTaskJoinViewModel.addUserTaskJoin(userTaskJoin);
+                UserTaskJoinModel userTaskJoinModel = new UserTaskJoinModel(userModel.getUserId(), taskId);
+                mUserTaskJoinViewModel.addUserTaskJoin(userTaskJoinModel);
             }
 
             @Override

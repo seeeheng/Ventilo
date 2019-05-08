@@ -30,12 +30,12 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
                 @Index(value = "taskId")
         }
 )
-public class UserTaskJoin {
+public class UserTaskJoinModel {
     @NonNull
     public String userId;
     public long taskId;
 
-    public UserTaskJoin(String userId, long taskId) {
+    public UserTaskJoinModel(String userId, long taskId) {
         this.userId = userId;
         this.taskId = taskId;
     }

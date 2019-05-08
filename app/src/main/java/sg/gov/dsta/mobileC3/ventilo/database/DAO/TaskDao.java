@@ -14,15 +14,24 @@ import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 @Dao
 public interface TaskDao {
 
-//    @Query("INSERT INTO Task DEFAULT VALUES")
     @Insert
     Long insertTaskModel(TaskModel task);
 
     @Update
     void updateTaskModel(TaskModel task);
 
+    @Query("UPDATE Task SET assignedTo = :assignedTo, assignedBy = :assignedBy," +
+            "title = :title, description = :description, status = :status," +
+            "createdDateTime = :createdDateTime WHERE refId = :refId")
+    void updateTaskModelByRefId(String assignedTo, String assignedBy, String title,
+                                String description, String status, String createdDateTime,
+                                long refId);
+
     @Query("DELETE FROM Task WHERE id = :taskId")
     void deleteTaskModel(long taskId);
+
+    @Query("DELETE FROM Task WHERE refId = :taskRefId")
+    void deleteTaskModelByRefId(long taskRefId);
 
     @Query("SELECT * FROM Task")
     LiveData<List<TaskModel>> getAllTasks();

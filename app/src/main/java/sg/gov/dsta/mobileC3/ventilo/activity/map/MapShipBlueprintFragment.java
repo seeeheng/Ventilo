@@ -73,8 +73,7 @@ public class MapShipBlueprintFragment extends Fragment {
     private BeaconZeroing beaconZeroing;
 
     private IMQListener mIMQListener;
-    // class member variable to save the X,Y coordinates
-//    private float[] mLastTouchDownXY = new float[2];
+    private boolean mIsVisibleToUser;
 
     @Nullable
     @Override
@@ -147,15 +146,16 @@ public class MapShipBlueprintFragment extends Fragment {
                 }
 
                 if (!isMapFragmentFound) {
-                    System.out.println("IS NOT MapFragment");
+                    Log.d(TAG, "MapFragment not found in back stack. Creating new map fragment.");
                     FragmentTransaction ft = fm.beginTransaction();
                     ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-                    ft.replace(R.id.layout_map_fragment, mapFragment,
+                    ft.replace(R.id.layout_map_ship_blueprint_fragment, mapFragment,
                             mapFragment.getClass().getSimpleName());
                     ft.addToBackStack(mapFragment.getClass().getSimpleName());
                     ft.commit();
                 } else {
-                    System.out.println("IS MapFragment");
+                    Log.d(TAG, "MapFragment found in back stack. Popping " +
+                            MapShipBlueprintFragment.class.getSimpleName() + ".");
                     fm.popBackStack();
                 }
 
@@ -466,6 +466,14 @@ public class MapShipBlueprintFragment extends Fragment {
         RabbitMQHelper.getInstance().sendBFTMessage(_coords.getX() + "," + _coords.getY() + "," + _coords.getAltitude() + "," + _coords.getBearing() + "," + beaconId + "," + BeaconZeroing.BEACONOBJ);
     }
 
+    private void onVisible() {
+        System.out.println("mapShipBlueprintFragment onVisible");
+
+        if (tracker == null) {
+            System.out.println("mapShipBlueprintFragment onResume");
+            initTracker();
+        }
+    }
 
     @Override
     public void onDestroy() {
@@ -511,6 +519,10 @@ public class MapShipBlueprintFragment extends Fragment {
 
         EventBus.getDefault().unregister(this);
 
+        if (mIsVisibleToUser) {
+            onVisible();
+        }
+
 //        if (tracker != null) {
 //            System.out.println("mapShipBlueprintFragment onStop");
 //            tracker.deactivate();
@@ -533,6 +545,10 @@ public class MapShipBlueprintFragment extends Fragment {
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
+
+        if (mIsVisibleToUser) {
+            onVisible();
+        }
     }
 
     @Override
@@ -541,10 +557,10 @@ public class MapShipBlueprintFragment extends Fragment {
 //        mBottomNavigationView = getActivity().findViewById(R.id.btm_nav_view_main_nav);
 //        mBottomNavigationView.setVisibility(View.GONE);
 
-        if (tracker == null) {
-            System.out.println("mapShipBlueprintFragment onResume");
-            initTracker();
-        }
+//        if (tracker == null) {
+//            System.out.println("mapShipBlueprintFragment onResume");
+//            initTracker();
+//        }
 
 //        setupMessageQueue();
 //        if (mqRabbit != null) {
@@ -574,6 +590,22 @@ public class MapShipBlueprintFragment extends Fragment {
 ////            setupMessageQueue();
 ////            initUI(mRootMapView, mSavedInstanceState);
 //        }
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        mIsVisibleToUser = isVisibleToUser;
+        Log.d(TAG, "setUserVisibleHint");
+        if (isResumed()) { // fragment has been created at this point
+            if (mIsVisibleToUser) {
+                Log.d(TAG, "setUserVisibleHint onVisible");
+                onVisible();
+            }
+//            else {
+//                onInvisible();
+//            }
+        }
     }
 
 //    @Override

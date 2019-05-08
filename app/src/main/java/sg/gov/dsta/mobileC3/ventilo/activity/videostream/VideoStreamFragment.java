@@ -11,7 +11,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -57,7 +56,6 @@ import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
-import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
@@ -126,14 +124,14 @@ public class VideoStreamFragment extends Fragment {
         View rootVideoStreamView = inflater.inflate(R.layout.fragment_video_stream, container, false);
 
         observerSetup();
-        initSnackbar(inflater, rootVideoStreamView);
+        initSnackbar();
         initUI(rootVideoStreamView);
 
         return rootVideoStreamView;
     }
 
-    private void initSnackbar(LayoutInflater inflater, View rootVideoStreamView) {
-        mViewSnackbar = inflater.inflate(R.layout.layout_custom_snackbar, null);
+    private void initSnackbar() {
+        mViewSnackbar = getLayoutInflater().inflate(R.layout.layout_custom_snackbar, null);
     }
 
     private void initUI(View rootVideoStreamView) {
@@ -398,8 +396,8 @@ public class VideoStreamFragment extends Fragment {
 //                System.out.println("imagePath is " + imagePath);
 
                 if (imagePath != null) {
-                    SnackbarUtil.showCustomSnackbar(mRelativeLayoutMain, mViewSnackbar,
-                            getString(R.string.snackbar_screenshot_taken));
+                    SnackbarUtil.showCustomSnackbarWithoutAction(mRelativeLayoutMain, mViewSnackbar,
+                            getString(R.string.snackbar_screenshot_taken_message));
                 }
             }
         }
@@ -475,8 +473,8 @@ public class VideoStreamFragment extends Fragment {
 //                System.out.println("imagePath is " + imagePath);
 
                 if (imagePath != null) {
-                    SnackbarUtil.showCustomSnackbar(mRelativeLayoutMain, mViewSnackbar,
-                            getString(R.string.snackbar_screenshot_taken));
+                    SnackbarUtil.showCustomSnackbarWithoutAction(mRelativeLayoutMain, mViewSnackbar,
+                            getString(R.string.snackbar_screenshot_taken_message));
                 }
             }
         }

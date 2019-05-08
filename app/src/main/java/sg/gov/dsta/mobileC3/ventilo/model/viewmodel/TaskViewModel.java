@@ -29,11 +29,23 @@ public class TaskViewModel extends AndroidViewModel {
         repository.addTask(taskModel, singleObserver);
     }
 
+    public void insertTask(TaskModel taskModel) {
+        repository.insertTask(taskModel);
+    }
+
     public void updateTask(TaskModel taskModel) {
         repository.updateTask(taskModel);
     }
 
+    public void updateTaskByRefId(TaskModel taskModel) {
+        repository.updateTaskByRefId(taskModel);
+    }
+
     public void deleteTask(long taskId) {
         repository.deleteTask(taskId);
+    }
+
+    public void deleteTaskByRefId(long taskRefId) {
+        repository.deleteTaskByRefId(taskRefId);
     }
 }

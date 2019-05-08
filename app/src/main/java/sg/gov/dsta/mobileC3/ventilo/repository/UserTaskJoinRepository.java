@@ -1,8 +1,6 @@
 package sg.gov.dsta.mobileC3.ventilo.repository;
 
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.os.AsyncTask;
 
 import java.util.List;
@@ -10,12 +8,10 @@ import java.util.List;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import sg.gov.dsta.mobileC3.ventilo.database.DAO.TaskDao;
 import sg.gov.dsta.mobileC3.ventilo.database.DAO.UserTaskJoinDao;
 import sg.gov.dsta.mobileC3.ventilo.database.VentiloDatabase;
-import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoin;
+import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 
@@ -28,9 +24,9 @@ public class UserTaskJoinRepository {
         mUserTaskJoinDao = db.userTaskDao();
     }
 
-    public void addUserTaskJoin(UserTaskJoin userTaskJoin) {
+    public void addUserTaskJoin(UserTaskJoinModel userTaskJoinModel) {
         InsertAsyncTask task = new InsertAsyncTask(mUserTaskJoinDao);
-        task.execute(userTaskJoin);
+        task.execute(userTaskJoinModel);
     }
 
     public void queryTasksForUser(String userId, SingleObserver<List<TaskModel>> singleObserver) {
@@ -47,7 +43,7 @@ public class UserTaskJoinRepository {
                 .subscribe(singleObserver);
     }
 
-    private static class InsertAsyncTask extends AsyncTask<UserTaskJoin, Void, Void> {
+    private static class InsertAsyncTask extends AsyncTask<UserTaskJoinModel, Void, Void> {
 
         private UserTaskJoinDao asyncUserTaskJoinDao;
 
@@ -56,8 +52,8 @@ public class UserTaskJoinRepository {
         }
 
         @Override
-        protected Void doInBackground(final UserTaskJoin... userTaskJoin) {
-            asyncUserTaskJoinDao.insertUserTaskJoin(userTaskJoin[0]);
+        protected Void doInBackground(final UserTaskJoinModel... userTaskJoinModel) {
+            asyncUserTaskJoinDao.insertUserTaskJoin(userTaskJoinModel[0]);
             return null;
         }
     }

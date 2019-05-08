@@ -5,13 +5,14 @@
     android:layout_height="@dimen/toolbar_height"
     android:paddingStart="@dimen/elements_margin_spacing"
     android:paddingTop="@dimen/elements_margin_spacing"
+    android:background="@color/background_main_black"
     android:paddingEnd="@dimen/elements_margin_spacing">
 
     <LinearLayout
         android:id="@+id/layout_toolbar_top_left_btn"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:gravity="center"
+        android:gravity="top"
         android:orientation="horizontal">
 
         <android.support.v7.widget.AppCompatImageView
@@ -21,9 +22,9 @@
 
         <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginStart="@dimen/elements_margin_spacing"
-            android:layout_marginBottom="@dimen/thin_line_margin"
+            android:layout_marginTop="@dimen/elements_small_negative_margin_spacing"
             android:text="@string/btn_back"
             android:textColor="@color/primary_text_white"
             android:textSize="@dimen/text_view_text_size" />
@@ -35,12 +36,13 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
-        android:gravity="center_vertical">
+        android:gravity="top">
 
         <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
             android:id="@+id/toolbar_top_right_btn_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/elements_small_negative_margin_spacing"
             android:textColor="@color/primary_highlight_cyan"
             android:textSize="@dimen/text_view_text_size" />
 

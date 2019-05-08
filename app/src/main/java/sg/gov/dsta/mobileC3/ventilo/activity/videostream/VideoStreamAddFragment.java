@@ -58,6 +58,8 @@ public class VideoStreamAddFragment extends Fragment {
 
     private void initUI(View rootView) {
         View layoutToolbar = rootView.findViewById(R.id.layout_toolbar_video_stream_text_left_text_right);
+        layoutToolbar.setClickable(true);
+
         LinearLayout linearLayoutBtnBack = layoutToolbar.findViewById(R.id.layout_toolbar_top_left_btn);
         linearLayoutBtnBack.setOnClickListener(onBackClickListener);
         LinearLayout linearLayoutBtnDone = layoutToolbar.findViewById(R.id.layout_toolbar_top_right_btn);

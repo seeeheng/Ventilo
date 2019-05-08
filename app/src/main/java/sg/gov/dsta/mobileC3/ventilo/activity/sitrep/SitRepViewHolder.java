@@ -6,25 +6,26 @@ import android.view.View;
 import de.hdodenhof.circleimageview.CircleImageView;
 import lombok.Data;
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicBlackTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 
 @Data
 public class SitRepViewHolder extends RecyclerView.ViewHolder {
 
-    private CircleImageView circleImgAvatar;
-    private C2OpenSansItalicBlackTextView tvReporter;
-    private C2OpenSansRegularTextView tvDateTime;
-
-//    private RelativeLayout relativeLayoutDeleteIcon;
+    private C2OpenSansBoldTextView tvHeaderTitle;
+    private C2OpenSansRegularTextView tvLocation;
+    private C2OpenSansRegularTextView tvRequest;
+    private C2OpenSansRegularTextView tvTeam;
+    private C2OpenSansRegularTextView tvScheduledTime;
 
     protected SitRepViewHolder(View itemView) {
         super(itemView);
 
-        circleImgAvatar = itemView.findViewById(R.id.circle_img_view_recycler_sitrep_avatar);
-        tvReporter = itemView.findViewById(R.id.tv_recycler_sitrep_reported_by);
-        tvDateTime = itemView.findViewById(R.id.tv_recycler_sitrep_reported_datetime);
-
-//        relativeLayoutDeleteIcon = itemView.findViewById(R.id.layout_recycler_task_delete);
+        tvHeaderTitle = itemView.findViewById(R.id.tv_recycler_sitrep_header_title);
+        tvLocation = itemView.findViewById(R.id.tv_recycler_sitrep_location);
+        tvRequest = itemView.findViewById(R.id.tv_recycler_sitrep_request);
+        tvTeam = itemView.findViewById(R.id.tv_recycler_sitrep_team);
+        tvScheduledTime = itemView.findViewById(R.id.tv_recycler_sitrep_scheduled_time);
     }
 }

@@ -18,7 +18,8 @@ public class RabbitMQHelper {
     private static final String TAG = "RabbitMQHelper";
 //    private static final String SERVER_HOST = "jax79sg.hopto.org";
 //    private static final String SERVER_HOST = "192.168.1.5";
-    private static final String SERVER_HOST = SharedPreferenceUtil.getCurrentUserWithPredefinedContext();
+//    private static final String SERVER_HOST = SharedPreferenceUtil.getCurrentUserWithPredefinedContext();
+    private static final String SERVER_HOST = "111";
     private static final int SERVER_PORT = 15674;
     private static final String USERNAME = "jax";
     private static final String PASSWORD = "password";

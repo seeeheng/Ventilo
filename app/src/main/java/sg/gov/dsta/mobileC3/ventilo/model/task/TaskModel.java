@@ -15,6 +15,7 @@ public class TaskModel {
     @PrimaryKey(autoGenerate = true)
     private long id;
 //    private long userId;
+    private long refId;
     private String assignedTo;
     private String assignedBy;
     private String title;
@@ -24,6 +25,7 @@ public class TaskModel {
 
     // --- GETTER ---
     public long getId() { return id; }
+    public long getRefId() { return refId; }
 //    public long getUserId() { return userId; }
     public String getAssignedTo() { return assignedTo; }
     public String getAssignedBy() { return assignedBy; }
@@ -34,6 +36,7 @@ public class TaskModel {
 
     // --- SETTER ---
     public void setId(long id) { this.id = id; }
+    public void setRefId(long refId) { this.refId = refId; }
 //    public void setUserId(long userId) { this.userId = userId; }
     public void setAssignedTo(String assignedTo) { this.assignedTo = assignedTo; }
     public void setAssignedBy(String assignedBy) { this.assignedBy = assignedBy; }

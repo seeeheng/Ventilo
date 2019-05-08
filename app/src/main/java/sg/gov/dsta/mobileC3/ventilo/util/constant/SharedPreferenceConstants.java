@@ -29,11 +29,6 @@ public class SharedPreferenceConstants {
     public static final String SUB_HEADER_TASK_STATUS = "Task Status";
     public static final String SUB_HEADER_TASK_DATE = "Task Date";
 
-    // Incident
-    public static final String HEADER_INCIDENT = FragmentConstants.KEY_INCIDENT;
-    public static final String SUB_HEADER_INCIDENT_TITLE = "Title";
-    public static final String SUB_HEADER_INCIDENT_DESCRIPTION = "Description";
-
     // Sitrep
     public static final String HEADER_SITREP = FragmentConstants.KEY_SITREP;
     public static final String SITREP_TOTAL_NUMBER = "Number of Sit Reps";
@@ -48,15 +43,4 @@ public class SharedPreferenceConstants {
     public static final String SUB_HEADER_SITREP_NEXT_COA = "Sit Rep Next COA";
     public static final String SUB_HEADER_SITREP_REQUEST = "Sit Rep Request";
     public static final String SUB_HEADER_SITREP_DATE = "Sit Rep Date";
-
-    // Video
-    public static final String HEADER_VIDEO_STREAM = "Video Stream";
-    public static final String VIDEO_STREAM_TOTAL_NUMBER = "Number of Video Streams";
-    public static final String SUB_HEADER_VIDEO_STREAM_ID = "Video Stream ID";
-    public static final String SUB_HEADER_VIDEO_STREAM_NAME = "Video Stream Name";
-    public static final String SUB_HEADER_VIDEO_STREAM_URL = "Video Stream URL";
-    public static final String SUB_HEADER_VIDEO_STREAM_ICON_TYPE = "Video Stream Icon ID";
-
-    public static final String SUB_HEADER_FIRST_VIDEO_URL = "Video First URL";
-    public static final String SUB_HEADER_SECOND_VIDEO_URL = "Video Second URL";
 }

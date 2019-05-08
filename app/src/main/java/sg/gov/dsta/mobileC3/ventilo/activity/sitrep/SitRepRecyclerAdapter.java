@@ -12,6 +12,7 @@ import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
+import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 
 public class SitRepRecyclerAdapter extends RecyclerView.Adapter<SitRepViewHolder> {
@@ -37,12 +38,18 @@ public class SitRepRecyclerAdapter extends RecyclerView.Adapter<SitRepViewHolder
     public void onBindViewHolder(SitRepViewHolder itemViewHolder, final int i) {
         SitRepModel item = mSitRepListItems.get(i);
 
-        String reporter = "Reported By: ".concat(item.getReporter());
-        itemViewHolder.getTvReporter().setText(reporter);
-        itemViewHolder.getCircleImgAvatar().setImageDrawable(item.getReporterAvatar());
+        StringBuilder sitRepTitleBuilder = new StringBuilder();
+        sitRepTitleBuilder.append("Team ");
+        sitRepTitleBuilder.append(item.getReporter());
+        sitRepTitleBuilder.append(" SITREP");
+        itemViewHolder.getTvHeaderTitle().setText(sitRepTitleBuilder.toString().trim());
+        itemViewHolder.getTvLocation().setText(item.getLocation());
+        itemViewHolder.getTvRequest().setText(item.getRequest());
+        itemViewHolder.getTvTeam().setText(item.getReporter());
 
-        String dateTimeString = "Reported Time: ".concat(DateTimeUtil.getTimeDifference(mContext, item.getReportedDateTime()));
-        itemViewHolder.getTvDateTime().setText(dateTimeString);
+//        String dateTimeString = "Reported Time: ".concat(DateTimeUtil.getTimeDifference(mContext, item.getReportedDateTime()));
+        itemViewHolder.getTvScheduledTime().setText(DateTimeUtil.getTimeDifference(mContext,
+                DateTimeUtil.stringToDate(item.getReportedDateTime())));
 
 //        itemViewHolder.get().setText(item.getCreatedBy());
 //        itemViewHolder.getMNumCommentTV().setText(String.valueOf(item.getComments().size()));
@@ -62,25 +69,33 @@ public class SitRepRecyclerAdapter extends RecyclerView.Adapter<SitRepViewHolder
 //        });
     }
 
-    public void addItem(String reporter, String location, String activity, int personnelT, int personnelS, int personnelD,
-                        String nextCoa, String request) {
-        SitRepModel newSitRepModel = new SitRepModel();
-        newSitRepModel.setId(mSitRepListItems.size() + 1);
-        newSitRepModel.setReporter(reporter);
-        newSitRepModel.setReporterAvatar(mContext.getDrawable(R.drawable.default_soldier_icon));
-        newSitRepModel.setLocation("BALESTIER");
-        newSitRepModel.setActivity("Fire Fighting");
-        newSitRepModel.setPersonnelT(6);
-        newSitRepModel.setPersonnelS(5);
-        newSitRepModel.setPersonnelD(4);
-        newSitRepModel.setNextCOA("Inform HQ");
-        newSitRepModel.setRequest("Additional MP");
+//    public void addItem(String reporter, String location, String activity, int personnelT, int personnelS, int personnelD,
+//                        String nextCoa, String request) {
+//        SitRepModel newSitRepModel = new SitRepModel();
+//        newSitRepModel.setId(mSitRepListItems.size() + 1);
+//        newSitRepModel.setReporter(reporter);
+//        newSitRepModel.setLocation("BALESTIER");
+//        newSitRepModel.setActivity("Fire Fighting");
+//        newSitRepModel.setPersonnelT(6);
+//        newSitRepModel.setPersonnelS(5);
+//        newSitRepModel.setPersonnelD(4);
+//        newSitRepModel.setNextCoa("Inform HQ");
+//        newSitRepModel.setRequest("Additional MP");
+//
+//        Date currentDateTime = Calendar.getInstance().getTime();
+//        newSitRepModel.setReportedDateTime(DateTimeUtil.dateToServerStringFormat(currentDateTime));
+//
+//        mSitRepListItems.add(newSitRepModel);
+//        notifyDataSetChanged();
+//    }
 
-        Date currentDateTime = Calendar.getInstance().getTime();
-        newSitRepModel.setReportedDateTime(currentDateTime);
-
-        mSitRepListItems.add(newSitRepModel);
+    public void setSitRepListItems(List<SitRepModel> sitRepListItems) {
+        mSitRepListItems = sitRepListItems;
         notifyDataSetChanged();
+    }
+
+    public SitRepModel getSitRepModelAtPosition(int pos) {
+        return mSitRepListItems.get(pos);
     }
 
     @Override

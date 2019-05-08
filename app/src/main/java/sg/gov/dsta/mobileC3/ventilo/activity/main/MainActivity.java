@@ -37,6 +37,9 @@ import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.eventbus.PageEvent;
 import sg.gov.dsta.mobileC3.ventilo.network.NetworkService;
 import sg.gov.dsta.mobileC3.ventilo.network.NetworkServiceBinder;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPubSubBrokerProxy;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQSubscriber;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
 import sg.gov.dsta.mobileC3.ventilo.util.JSONUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
@@ -92,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private C2OpenSansSemiBoldTextView mTvLastConnectionTime;
 
     private boolean mIsServiceRegistered;
+    private BroadcastReceiver mBroadcastReceiver;
 
     private IMQListener mIMQListener;
 //    private MapView mMapView;
@@ -770,13 +774,14 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     private void registerMqttBroadcastReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION);
+        if (mBroadcastReceiver == null) {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION);
 //        filter.addAction(MqttHelper.MQTT_CONNECT_INTENT_ACTION);
-        System.out.println("registerMqttBroadcastReceiver");
-        BroadcastReceiver receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
+            System.out.println("registerMqttBroadcastReceiver");
+            mBroadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
 //                if (MqttHelper.MQTT_CONNECT_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
 //                    if (mMqttHelper == null) {
 //                        mMqttHelper = MqttHelper.getInstance();
@@ -784,16 +789,17 @@ public class MainActivity extends AppCompatActivity {
 //                    }
 //                }
 
-                if (RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
-                    if (RabbitMQHelper.connectionStatus == RabbitMQHelper.RabbitMQConnectionStatus.CONNECTED) {
-                        System.out.println("RabbitMQConnectionStatus.CONNECTED");
-                        setupMQListener();
+                    if (RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
+                        if (RabbitMQHelper.connectionStatus == RabbitMQHelper.RabbitMQConnectionStatus.CONNECTED) {
+                            System.out.println("RabbitMQConnectionStatus.CONNECTED");
+                            setupMQListener();
+                        }
                     }
                 }
-            }
-        };
+            };
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
+            LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, filter);
+        }
     }
 
     @Override
@@ -862,11 +868,12 @@ public class MainActivity extends AppCompatActivity {
 //        mqttIntent = new Intent(getApplicationContext(), NetworkService.class);
 //        startService(mqttIntent);
 //        mIsServiceRegistered = getApplicationContext().bindService(mqttIntent, mMqttServiceConnection, Context.BIND_AUTO_CREATE);
-//        registerMqttBroadcastReceiver();
-
+        registerMqttBroadcastReceiver();
 
 //        subscribeToMQTT();
-        subscribeToRabbitMQ();
+
+
+//        subscribeToRabbitMQ();
     }
 
 //    private void subscribeToMQTT() {
@@ -889,9 +896,9 @@ public class MainActivity extends AppCompatActivity {
 //        }
     }
 
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
+    @Override
+    protected void onStop() {
+        super.onStop();
 //
 //        System.out.println("Service not registered");
 //
@@ -899,20 +906,29 @@ public class MainActivity extends AppCompatActivity {
 //            System.out.println("Service registered");
 //            getApplicationContext().unbindService(mMqttServiceConnection);
 //        }
-//    }
+
+//        JeroMQPubSubBrokerProxy.getInstance().stop();
+//        JeroMQPublisher.getInstance().stop();
+//        JeroMQSubscriber.getInstance().stop();
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
+        System.out.println("DESTROY");
         /* Close service properly. Currently, the service is not destroyed, only the mqtt connection and
          * connection status are closed.
          */
-        if (mIsServiceRegistered) {
-//            stopService(mMqttIntent);
-            getApplicationContext().unbindService(mMqttServiceConnection);
-            mIsServiceRegistered = false;
-        }
+//        if (mIsServiceRegistered) {
+////            stopService(mMqttIntent);
+//            getApplicationContext().unbindService(mMqttServiceConnection);
+//            mIsServiceRegistered = false;
+//        }
+
+        JeroMQPubSubBrokerProxy.getInstance().stop();
+        JeroMQPublisher.getInstance().stop();
+        JeroMQSubscriber.getInstance().stop();
     }
 
 //    private class RabbitMQTask extends AsyncTask<String, Void, String> {

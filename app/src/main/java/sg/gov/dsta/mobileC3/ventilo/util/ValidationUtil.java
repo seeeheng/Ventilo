@@ -34,4 +34,21 @@ public class ValidationUtil {
         return false;
     }
 
+    public static String getFirstWord(String text) {
+        int index = text.indexOf(' ');
+        if (index > -1) {                       // Check if there is more than one word
+            return text.substring(0, index);    // Extract first word
+        } else {
+            return text;                        // Text is the first word itself
+        }
+    }
+
+    public static String removeFirstWord(String text) {
+        int index = text.indexOf(' ');
+        if (index > -1) {                       // Check if there is more than one word
+            return text.substring(index + 1);   // Remove first word
+        } else {
+            return "";                          // Remaining text is empty after removing first word
+        }
+    }
 }

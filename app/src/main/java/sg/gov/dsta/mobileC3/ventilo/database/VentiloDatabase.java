@@ -2,24 +2,26 @@ package sg.gov.dsta.mobileC3.ventilo.database;
 
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
-import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
-import android.content.ContentValues;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import sg.gov.dsta.mobileC3.ventilo.database.DAO.SitRepDao;
 import sg.gov.dsta.mobileC3.ventilo.database.DAO.TaskDao;
 import sg.gov.dsta.mobileC3.ventilo.database.DAO.UserDao;
+import sg.gov.dsta.mobileC3.ventilo.database.DAO.UserSitRepJoinDao;
 import sg.gov.dsta.mobileC3.ventilo.database.DAO.UserTaskJoinDao;
 import sg.gov.dsta.mobileC3.ventilo.database.DAO.VideoStreamDao;
-import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoin;
+import sg.gov.dsta.mobileC3.ventilo.model.join.UserSitRepJoinModel;
+import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
+import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
-import sg.gov.dsta.mobileC3.ventilo.repository.UserRepository;
 
-@Database(entities = {UserModel.class, TaskModel.class, UserTaskJoin.class, VideoStreamModel.class},
+@Database(entities = {UserModel.class, SitRepModel.class, TaskModel.class,
+        UserSitRepJoinModel.class, UserTaskJoinModel.class, VideoStreamModel.class},
         version = 1, exportSchema = false)
 public abstract class VentiloDatabase extends RoomDatabase {
 
@@ -27,18 +29,18 @@ public abstract class VentiloDatabase extends RoomDatabase {
     private static volatile VentiloDatabase INSTANCE;
 
     // --- DAO ---
+    public abstract UserDao userDao();
+    public abstract SitRepDao sitRepDao();
     public abstract TaskDao taskDao();
     public abstract VideoStreamDao videoStreamDao();
-    public abstract UserDao userDao();
+    public abstract UserSitRepJoinDao userSitRepDao();
     public abstract UserTaskJoinDao userTaskDao();
 
     // --- INSTANCE ---
     public static VentiloDatabase getInstance(Context context) {
         if (INSTANCE == null) {
-            System.out.println("VentiloDatabase getInstance");
             synchronized (VentiloDatabase.class) {
                 if (INSTANCE == null) {
-                    System.out.println("VentiloDatabase getInstance inner ");
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             VentiloDatabase.class, "VentiloDatabase.db")
                             .addCallback(prepopulateDatabase())

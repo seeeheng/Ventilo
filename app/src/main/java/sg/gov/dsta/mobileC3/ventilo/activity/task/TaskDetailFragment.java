@@ -1,12 +1,12 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.task;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.res.ResourcesCompat;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -20,26 +20,34 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Calendar;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.activity.main.MainStatePagerAdapter;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
+import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
+import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.TaskViewModel;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
+import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.GsonCreator;
 import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicLightEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
 
 public class TaskDetailFragment extends Fragment {
 
-    private static final String TAG = "TaskDetailFragment";
+    private static final String TAG = TaskDetailFragment.class.getSimpleName();
+
+    // View models
+    private TaskViewModel mTaskViewModel;
 
     private C2OpenSansBlackTextView mTvTitleHeader;
     private C2OpenSansItalicLightEditTextView mEtvTitleDetail;
@@ -58,9 +66,14 @@ public class TaskDetailFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_task_detail, container, false);
+        observerSetup();
         initUI(rootView);
 
         return rootView;
+    }
+
+    private void observerSetup() {
+        mTaskViewModel = ViewModelProviders.of(this).get(TaskViewModel.class);
     }
 
     private void initUI(View rootView) {
@@ -117,7 +130,7 @@ public class TaskDetailFragment extends Fragment {
 
                 // No hint, text is visible
                 isHint = false;
-                mEtvTitleDetail.setTextColor(getResources().getColor(R.color.background_2nd_level_gray));
+                mEtvTitleDetail.setTextColor(getResources().getColor(R.color.background_2nd_level_grey));
                 int etTextSize = (int) (getResources().getDimension(R.dimen.edit_text_text_size) /
                         getResources().getDisplayMetrics().density);
                 mEtvTitleDetail.setTextSize(TypedValue.COMPLEX_UNIT_SP, etTextSize);
@@ -158,7 +171,7 @@ public class TaskDetailFragment extends Fragment {
 
                 // No hint, text is visible
                 isHint = false;
-                mEtvDescriptionDetail.setTextColor(getResources().getColor(R.color.background_2nd_level_gray));
+                mEtvDescriptionDetail.setTextColor(getResources().getColor(R.color.background_2nd_level_grey));
                 int etTextSize = (int) (getResources().getDimension(R.dimen.edit_text_text_size) /
                         getResources().getDisplayMetrics().density);
                 mEtvDescriptionDetail.setTextSize(TypedValue.COMPLEX_UNIT_SP, etTextSize);
@@ -236,29 +249,53 @@ public class TaskDetailFragment extends Fragment {
     private View.OnClickListener onReportClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            if (validateTask()) {
-                TaskFragment taskFragment = (TaskFragment) MainStatePagerAdapter.getPageReferenceMap().
-                        get(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID);
+            System.out.println("send task start");
+            TaskModel newTaskModel = new TaskModel();
+            newTaskModel.setAssignedTo("Charlie");
+            newTaskModel.setAssignedTo("George");
+            newTaskModel.setTitle("Save the day");
+            newTaskModel.setDescription("Disarm and capture fugitive");
+            newTaskModel.setStatus("NEW");
+            newTaskModel.setCreatedDateTime(DateTimeUtil.getCurrentTime());
 
-                if(taskFragment != null) {
-                    String titleDetail;
-                    if (mSpinnerDropdownTitle.getSelectedItemPosition() ==
-                            mSpinnerDropdownTitle.getAdapter().getCount() - 1) {
-                        titleDetail = mEtvTitleDetail.getText().toString().trim();
-                    } else {
-                        titleDetail = mSpinnerDropdownTitle.getSelectedItem().toString();
-                    }
+            Gson gson = GsonCreator.createGson();
+            String newTaskModelJson = gson.toJson(newTaskModel);
+//            StringBuilder taskSocketMsgBuilder = new StringBuilder();
+//            taskSocketMsgBuilder.append("Task Message");
+            JeroMQPublisher.getInstance().sendTaskMessage(newTaskModelJson, JeroMQPublisher.TOPIC_INSERT);
+            System.out.println("send task end");
 
-                    String descriptionDetail = mEtvDescriptionDetail.getText().toString().trim();
-                    publishTaskAdd(titleDetail, descriptionDetail);
-//                    taskFragment.refreshData();
+            mTaskViewModel.insertTask(newTaskModel);
 
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    fragmentManager.popBackStack();
-//                    taskFragment.getAdapter().addItem(titleDetail, descriptionDetail);
+//            SnackbarUtil.showCustomSnackbarWithoutAction(mMainLayout, mViewSnackbar,
+//                    getString(R.string.snackbar_sitrep_sent_message));
+//            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//            fragmentManager.popBackStack();
 
-                }
-            };
+
+//            if (validateTask()) {
+//                TaskFragment taskFragment = (TaskFragment) MainStatePagerAdapter.getPageReferenceMap().
+//                        get(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID);
+//
+//                if(taskFragment != null) {
+//                    String titleDetail;
+//                    if (mSpinnerDropdownTitle.getSelectedItemPosition() ==
+//                            mSpinnerDropdownTitle.getAdapter().getCount() - 1) {
+//                        titleDetail = mEtvTitleDetail.getText().toString().trim();
+//                    } else {
+//                        titleDetail = mSpinnerDropdownTitle.getSelectedItem().toString();
+//                    }
+//
+//                    String descriptionDetail = mEtvDescriptionDetail.getText().toString().trim();
+//                    publishTaskAdd(titleDetail, descriptionDetail);
+////                    taskFragment.refreshData();
+//
+//                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//                    fragmentManager.popBackStack();
+////                    taskFragment.getAdapter().addItem(titleDetail, descriptionDetail);
+//
+//                }
+//            };
         }
     };
 
@@ -361,7 +398,7 @@ public class TaskDetailFragment extends Fragment {
         try {
             newTaskJSON.put("key", FragmentConstants.KEY_TASK_ADD);
             newTaskJSON.put("id", String.valueOf(numberOfTasks));
-            newTaskJSON.put("assigner", SharedPreferenceUtil.getCurrentUser(getActivity()));
+            newTaskJSON.put("assigner", SharedPreferenceUtil.getCurrentUserCallsignID(getActivity()));
             newTaskJSON.put("assignee", "George (A33)");
             newTaskJSON.put("assigneeAvatarId", "default");
             newTaskJSON.put("title", titleDetail);

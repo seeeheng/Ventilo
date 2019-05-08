@@ -9,171 +9,156 @@
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
     android:orientation="vertical"
-    app:cardBackgroundColor="@color/background_main_dark_charcoal"
-    app:cardCornerRadius="15dp">
+    app:cardBackgroundColor="@color/background_dark_grey"
+    app:cardCornerRadius="@dimen/recycler_card_corner_radius">
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="@dimen/sitrep_recycler_row_height"
+            android:background="@color/background_dark_grey"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/recycler_row_outermost_large_padding"
+            android:paddingTop="@dimen/recycler_row_outermost_padding"
+            android:paddingEnd="@dimen/recycler_row_outermost_large_padding"
+            android:paddingBottom="@dimen/recycler_row_outermost_large_padding">
+            <!--android:id="@+id/layout_recycler_sitrep_view_foreground"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="@dimen/task_recycler_row_height"-->
+            <!--android:background="@color/background_dark_grey"-->
+            <!--android:padding="@dimen/recycler_row_outermost_padding">-->
+
+            <!--<sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView-->
+            <!--android:id="@+id/tv_recycler_task_header_title"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_alignParentStart="true"-->
+            <!--android:textColor="@color/primary_text_white"-->
+            <!--android:textSize="@dimen/text_view_text_size" />-->
+            <!---->
+            <!--<RelativeLayout-->
+            <!--android:id="@+id/layout_header_container"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="@dimen/task_recycler_row_line_information_height"-->
+            <!--android:layout_marginBottom="@dimen/elements_margin_spacing">-->
+
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
+                android:id="@+id/tv_recycler_sitrep_header_title"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/task_recycler_row_line_information_height"
+                android:layout_alignParentStart="true"
+                android:layout_marginBottom="@dimen/elements_margin_spacing"
+                android:text="Team Alpha SITREP"
+                android:textColor="@color/primary_text_white"
+                android:textSize="@dimen/text_view_text_size" />
+
+            <!--</RelativeLayout>-->
+
+            <!--<RelativeLayout-->
+            <!--android:id="@+id/layout_sitrep_main_content"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_below="@+id/layout_header_container">-->
+
+            <!--<LinearLayout-->
+            <!--android:id="@+id/layout_sitrep_main_content"-->
+            <!--android:layout_width="@dimen/task_recycler_row_inner_detail_container_information_width"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_below="@+id/layout_header_container"-->
+            <!--android:orientation="vertical">-->
 
             <LinearLayout
-                android:id="@+id/layout_recycler_sitrep_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="@dimen/recycler_row_outermost_padding"
-                android:weightSum="100">
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/task_recycler_row_line_information_height"
+                android:layout_marginBottom="@dimen/elements_small_margin_spacing"
+                android:gravity="center_vertical">
 
-                <LinearLayout
-                    android:layout_width="0dp"
+                <android.support.v7.widget.AppCompatImageView
+                    android:layout_width="@dimen/sitrep_row_icon_width"
+                    android:layout_height="@dimen/sitrep_row_icon_height"
+                    android:layout_marginEnd="@dimen/elements_margin_spacing"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/icon_location" />
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+                    android:id="@+id/tv_recycler_sitrep_location"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_weight="85"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="@dimen/recycler_avatar_height"
-                        android:orientation="horizontal">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:gravity="center_vertical|left">
-
-                            <!--android:src="@drawable/toolbar_map_btn" />-->
-                            <de.hdodenhof.circleimageview.CircleImageView
-                                android:id="@+id/circle_img_view_recycler_sitrep_avatar"
-                                android:layout_width="@dimen/recycler_avatar_width"
-                                android:layout_height="@dimen/recycler_avatar_height"
-                                android:src="@drawable/default_soldier_icon"
-                                app:civ_border_color="@color/circle_image_border_grey"
-                                app:civ_border_width="@dimen/circle_img_border_width"
-                                app:civ_circle_background_color="@color/background_2nd_level_gray" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginStart="@dimen/side_margin"
-                            android:gravity="center_vertical"
-                            android:orientation="vertical">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="20dp"
-                                android:layout_marginTop="@dimen/minor_margin"
-                                android:orientation="horizontal">
-
-                                <android.support.v7.widget.AppCompatImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_marginEnd="@dimen/minor_margin"
-                                    android:scaleType="fitXY"
-                                    app:srcCompat="@drawable/icon_assigned_to" />
-
-                                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicBlackTextView
-                                    android:id="@+id/tv_recycler_sitrep_reported_by"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="match_parent"
-                                    android:layout_gravity="center_vertical"
-                                    android:text="Reported By: Jack (C04)"
-                                    android:textColor="@color/primary_highlight_cyan"
-                                    android:textSize="@dimen/hint_text_size" />
-
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/minor_margin"
-                                android:orientation="horizontal">
-
-                                <android.support.v7.widget.AppCompatImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_marginEnd="@dimen/minor_margin"
-                                    android:scaleType="fitXY"
-                                    app:srcCompat="@drawable/created_time_icon" />
-
-                                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
-                                    android:id="@+id/tv_recycler_sitrep_reported_datetime"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center_vertical"
-                                    android:text="Date Time"
-                                    android:textColor="@color/primary_text_white" />
-
-                            </LinearLayout>
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                </LinearLayout>
+                    android:text="Team Bravo"
+                    android:textSize="@dimen/text_view_small_text_size" />
 
             </LinearLayout>
 
-            <!--<RelativeLayout-->
-            <!--android:id="@+id/layout_recycler_task_delete"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
-            <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
-            <!--android:background="@drawable/recycler_item_delete_background"-->
-            <!--android:gravity="center"-->
-            <!--android:padding="@dimen/recycler_row_outermost_padding">-->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/task_recycler_row_line_information_height"
+                android:layout_marginBottom="@dimen/elements_margin_spacing"
+                android:gravity="center_vertical">
 
-            <!--<android.support.v7.widget.AppCompatImageView-->
-            <!--android:id="@+id/img_task_delete"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:src="@drawable/icon_delete" />-->
+                <android.support.v7.widget.AppCompatImageView
+                    android:layout_width="@dimen/sitrep_row_icon_width"
+                    android:layout_height="@dimen/sitrep_row_icon_height"
+                    android:layout_marginEnd="@dimen/elements_margin_spacing"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/icon_request" />
 
-            <!--</RelativeLayout>-->
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+                    android:id="@+id/tv_recycler_sitrep_request"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="@dimen/text_view_small_text_size" />
 
-            <!--<RelativeLayout-->
-            <!--android:id="@+id/layout_recycler_task_start"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
-            <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
-            <!--android:background="@drawable/recycler_item_start_background"-->
-            <!--android:gravity="center"-->
-            <!--android:padding="@dimen/recycler_row_outermost_padding">-->
+            </LinearLayout>
 
-            <!--<android.support.v7.widget.AppCompatImageView-->
-            <!--android:id="@+id/img_task_start"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:src="@drawable/icon_in_progress" />-->
+            <!--</LinearLayout>-->
 
             <!--</RelativeLayout>-->
 
-            <!--<RelativeLayout-->
-            <!--android:id="@+id/layout_recycler_task_done"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_alignTop="@+id/layout_recycler_task_content"-->
-            <!--android:layout_alignBottom="@+id/layout_recycler_task_content"-->
-            <!--android:background="@drawable/recycler_item_done_background"-->
-            <!--android:gravity="center"-->
-            <!--android:padding="@dimen/recycler_row_outermost_padding">-->
+            <LinearLayout
+                android:id="@+id/layout_header_content_divider"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/thin_line_margin"
+                android:layout_below="@+id/layout_sitrep_main_content"
+                android:layout_marginBottom="@dimen/elements_margin_spacing"
+                android:background="@color/divider_line_grey"
+                android:orientation="vertical" />
 
-            <!--<android.support.v7.widget.AppCompatImageView-->
-            <!--android:id="@+id/img_task_done"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:src="@drawable/icon_done" />-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/task_recycler_row_line_information_height"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-            <!--</RelativeLayout>-->
+                <android.support.v7.widget.AppCompatImageView
+                    android:layout_width="@dimen/sitrep_row_icon_width"
+                    android:layout_height="@dimen/sitrep_row_icon_height"
+                    android:layout_marginEnd="@dimen/elements_margin_spacing"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/icon_team" />
 
-        </RelativeLayout>
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+                    android:id="@+id/tv_recycler_sitrep_team"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:ellipsize="end"
+                    android:gravity="center_vertical"
+                    android:maxWidth="@dimen/sitrep_recycler_row_inner_detail_container_information_width"
+                    android:maxLines="1"
+                    android:textSize="@dimen/text_view_small_text_size" />
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+                    android:id="@+id/tv_recycler_sitrep_scheduled_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="end"
+                    android:text="1 Feb 2019, 15:30" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </FrameLayout>
 

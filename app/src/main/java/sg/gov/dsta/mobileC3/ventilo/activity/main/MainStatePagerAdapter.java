@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.map.MapFragment;
+import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.radiolinkstatus.RadioLinkStatusFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.sitrep.SitRepFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.task.TaskFragment;
@@ -39,7 +40,7 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
 
         switch (i) {
             case MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID:
-                fragment = new MapFragment();
+                fragment = new MapShipBlueprintFragment();
                 mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID,
                         fragment);
                 mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID,

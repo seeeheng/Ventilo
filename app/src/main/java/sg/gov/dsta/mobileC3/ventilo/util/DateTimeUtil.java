@@ -1,8 +1,6 @@
 package sg.gov.dsta.mobileC3.ventilo.util;
 
 import android.content.Context;
-//import android.net.ParseException;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.text.ParseException;
@@ -12,13 +10,16 @@ import java.util.Date;
 
 import org.qap.ctimelineview.R.plurals;
 import org.qap.ctimelineview.R.string;
+import org.threeten.bp.Instant;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 
 public class DateTimeUtil {
 
     public static final String TAG = "DateTimeUtil";
-    public static final String DATE_TIME_FORMAT = "EEE MMM d HH:mm:ss zz yyyy";
+    public static final String STANDARD_ISO_8601_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    public static final String CUSTOM_DATE_TIME_FORMAT = "d MMM yyyy, HH:mm";
+//    public static final String CUSTOM_DATE_TIME_FORMAT = "EEE MMM d HH:mm:ss zz yyyy";
     private static Context mContext;
 
     public static Date getSpecifiedDateBySecond(int second) {
@@ -164,8 +165,12 @@ public class DateTimeUtil {
         }
     }
 
+    public static String getCurrentTime() {
+        return Instant.now().toString();
+    }
+
     public static Date stringToDate(String stringToConvert) {
-        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DateTimeUtil.DATE_TIME_FORMAT);
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(STANDARD_ISO_8601_DATE_TIME_FORMAT);
         Date date = new Date();
         try {
             date = dateTimeFormat.parse(stringToConvert);
@@ -177,8 +182,15 @@ public class DateTimeUtil {
         }
     }
 
-    public static String dateToString(Date dateToConvert) {
-        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DateTimeUtil.DATE_TIME_FORMAT);
+    public static String dateToServerStringFormat(Date dateToConvert) {
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(STANDARD_ISO_8601_DATE_TIME_FORMAT);
+        String dateTime = dateTimeFormat.format(dateToConvert);
+
+        return dateTime;
+    }
+
+    public static String dateToCustomStringFormat(Date dateToConvert) {
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(CUSTOM_DATE_TIME_FORMAT);
         String dateTime = dateTimeFormat.format(dateToConvert);
 
         return dateTime;
