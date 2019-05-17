@@ -100,15 +100,16 @@
         <!-- </receiver> -->
         <service
             android:name=".network.NetworkService"
-            android:enabled="true" />
-        <service android:name="org.eclipse.paho.android.service.MqttService" />
-        <service
-            android:name=".network.ToyVpnService"
-            android:permission="android.permission.BIND_VPN_SERVICE">
-            <intent-filter>
-                <action android:name="android.net.VpnService" />
-            </intent-filter>
-        </service>
+            android:enabled="true"
+            android:stopWithTask="true" />
+        <!--<service android:name="org.eclipse.paho.android.service.MqttService" />-->
+        <!--<service-->
+            <!--android:name=".network.ToyVpnService"-->
+            <!--android:permission="android.permission.BIND_VPN_SERVICE">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.net.VpnService" />-->
+            <!--</intent-filter>-->
+        <!--</service>-->
     </application>
 
 </manifest>

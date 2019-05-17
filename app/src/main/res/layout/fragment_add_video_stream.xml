@@ -69,7 +69,7 @@
         <LinearLayout
             android:id="@+id/layout_video_stream_add"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/toolbar_height"
             android:layout_marginStart="@dimen/elements_margin_spacing"
             android:layout_marginEnd="@dimen/elements_margin_spacing">
 
@@ -78,16 +78,17 @@
                 android:layout_height="@dimen/side_menu_icon_height"
                 android:layout_marginStart="@dimen/minor_margin"
                 android:layout_marginTop="@dimen/elements_margin_spacing"
+                android:layout_gravity="center_vertical"
                 android:layout_marginEnd="@dimen/elements_margin_spacing"
                 android:layout_marginBottom="@dimen/elements_margin_spacing"
                 app:srcCompat="@drawable/btn_video_add" />
 
             <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/text_view_height"
+                android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:text="@string/video_stream_add"
-                android:textColor="@color/primary_text_white"
+                android:textColor="@color/primary_white"
                 android:textSize="@dimen/text_view_text_size" />
 
         </LinearLayout>

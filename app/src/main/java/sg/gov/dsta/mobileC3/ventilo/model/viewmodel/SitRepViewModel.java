@@ -16,20 +16,24 @@ import sg.gov.dsta.mobileC3.ventilo.repository.SitRepRepository;
 public class SitRepViewModel extends AndroidViewModel {
 
     private SitRepRepository repository;
-    private LiveData<List<SitRepModel>> mAllSitReps;
+    private LiveData<List<SitRepModel>> mAllSitRepsLiveData;
 
     public SitRepViewModel(Application application) {
         super(application);
         repository = new SitRepRepository(application);
-        mAllSitReps = repository.getAllSitReps();
+        mAllSitRepsLiveData = repository.getAllSitRepsLiveData();
     }
 
-    public LiveData<List<SitRepModel>> getAllSitReps() {
-        return mAllSitReps;
+    public LiveData<List<SitRepModel>> getAllSitRepsLiveData() {
+        return mAllSitRepsLiveData;
     }
 
-    public void addSitRep(SitRepModel sitRepModel, SingleObserver singleObserver) {
-        repository.addSitRep(sitRepModel, singleObserver);
+    public void getAllSitReps(SingleObserver<SitRepModel> singleObserver) {
+        repository.getAllSitReps(singleObserver);
+    }
+
+    public void insertSitRepWithObserver(SitRepModel sitRepModel, SingleObserver singleObserver) {
+        repository.insertSitRepWithObserver(sitRepModel, singleObserver);
     }
 
     public void insertSitRep(SitRepModel sitRepModel) {
@@ -37,7 +41,7 @@ public class SitRepViewModel extends AndroidViewModel {
     }
 
     public void querySitRepBySitRepId(long sitRepId, SingleObserver<SitRepModel> singleObserver) {
-        repository.querySitRepBySitRepId(sitRepId, singleObserver);
+        repository.querySitRepById(sitRepId, singleObserver);
     }
 
     public void updateSitRep(SitRepModel sitRepModel) {

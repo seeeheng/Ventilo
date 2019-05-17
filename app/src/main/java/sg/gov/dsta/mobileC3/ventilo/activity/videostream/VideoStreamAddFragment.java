@@ -26,10 +26,8 @@ import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
-import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
@@ -403,7 +401,7 @@ public class VideoStreamAddFragment extends Fragment {
             }
         };
 
-        mVideoStreamViewModel.addVideoStream(videoStreamModel, singleObserverAddVideoStream);
+        mVideoStreamViewModel.insertVideoStream(videoStreamModel, singleObserverAddVideoStream);
     }
 
 //    private void attemptAddVideoStream() {

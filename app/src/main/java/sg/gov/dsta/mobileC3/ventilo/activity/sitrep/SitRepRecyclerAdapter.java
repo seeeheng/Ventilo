@@ -6,13 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
-import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 
 public class SitRepRecyclerAdapter extends RecyclerView.Adapter<SitRepViewHolder> {
@@ -47,9 +44,9 @@ public class SitRepRecyclerAdapter extends RecyclerView.Adapter<SitRepViewHolder
         itemViewHolder.getTvRequest().setText(item.getRequest());
         itemViewHolder.getTvTeam().setText(item.getReporter());
 
-//        String dateTimeString = "Reported Time: ".concat(DateTimeUtil.getTimeDifference(mContext, item.getReportedDateTime()));
+//        String dateTimeString = "Reported Time: ".concat(DateTimeUtil.getTimeDifference(mContext, item.getCreatedDateTime()));
         itemViewHolder.getTvScheduledTime().setText(DateTimeUtil.getTimeDifference(mContext,
-                DateTimeUtil.stringToDate(item.getReportedDateTime())));
+                DateTimeUtil.stringToDate(item.getCreatedDateTime())));
 
 //        itemViewHolder.get().setText(item.getCreatedBy());
 //        itemViewHolder.getMNumCommentTV().setText(String.valueOf(item.getComments().size()));
@@ -83,7 +80,7 @@ public class SitRepRecyclerAdapter extends RecyclerView.Adapter<SitRepViewHolder
 //        newSitRepModel.setRequest("Additional MP");
 //
 //        Date currentDateTime = Calendar.getInstance().getTime();
-//        newSitRepModel.setReportedDateTime(DateTimeUtil.dateToServerStringFormat(currentDateTime));
+//        newSitRepModel.setCreatedDateTime(DateTimeUtil.dateToServerStringFormat(currentDateTime));
 //
 //        mSitRepListItems.add(newSitRepModel);
 //        notifyDataSetChanged();

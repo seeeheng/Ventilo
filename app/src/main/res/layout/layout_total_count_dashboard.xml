@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/toolbar_height"
+    android:layout_marginStart="@dimen/elements_large_margin_spacing"
+    android:layout_marginTop="@dimen/elements_margin_spacing"
+    android:layout_marginEnd="@dimen/elements_large_margin_spacing"
+    android:layout_marginBottom="@dimen/elements_margin_spacing"
+    android:gravity="center">
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+        android:id="@+id/tv_total_count_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/elements_small_margin_spacing"
+        android:gravity="center"
+        android:textSize="@dimen/text_view_text_size" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+        android:id="@+id/tv_total_count_number"
+        android:layout_width="@dimen/count_number_width"
+        android:layout_height="@dimen/count_number_height"
+        android:layout_marginEnd="@dimen/elements_margin_spacing"
+        android:background="@drawable/rounded_corner_background"
+        android:gravity="center"
+        android:textColor="@color/primary_white"
+        android:textSize="@dimen/text_view_text_size" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+        android:id="@+id/tv_first_count_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/elements_small_margin_spacing"
+        android:gravity="center"
+        android:textSize="@dimen/text_view_text_size" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+        android:id="@+id/tv_first_count_number"
+        android:layout_width="@dimen/count_number_width"
+        android:layout_height="@dimen/count_number_height"
+        android:layout_marginEnd="@dimen/elements_margin_spacing"
+        android:background="@drawable/rounded_corner_background"
+        android:gravity="center"
+        android:textColor="@color/primary_white"
+        android:textSize="@dimen/text_view_text_size" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+        android:id="@+id/tv_second_count_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/elements_small_margin_spacing"
+        android:gravity="center"
+        android:textSize="@dimen/text_view_text_size" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+        android:id="@+id/tv_second_count_number"
+        android:layout_width="@dimen/count_number_width"
+        android:layout_height="@dimen/count_number_height"
+        android:layout_marginEnd="@dimen/elements_margin_spacing"
+        android:background="@drawable/rounded_corner_background"
+        android:gravity="center"
+        android:textColor="@color/primary_white"
+        android:textSize="@dimen/text_view_text_size" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+        android:id="@+id/tv_third_count_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/elements_small_margin_spacing"
+        android:gravity="center"
+        android:textSize="@dimen/text_view_text_size" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+        android:id="@+id/tv_third_count_number"
+        android:layout_width="@dimen/count_number_width"
+        android:layout_height="@dimen/count_number_height"
+        android:layout_marginEnd="@dimen/elements_margin_spacing"
+        android:background="@drawable/rounded_corner_background"
+        android:gravity="center"
+        android:textColor="@color/primary_white"
+        android:textSize="@dimen/text_view_text_size" />
+</LinearLayout>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <RelativeLayout
+        android:id="@+id/layout_input_others_icon"
+        android:layout_width="@dimen/input_others_layout_icon_width"
+        android:layout_height="@dimen/input_others_layout_icon_height"
+        android:background="@color/input_others_icon_fill_grey"
+        android:gravity="center">
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/img_input_others_icon"
+            android:layout_width="@dimen/input_others_icon_width"
+            android:layout_height="@dimen/input_others_icon_height"
+            app:srcCompat="@drawable/btn_other_options" />
+
+    </RelativeLayout>
+
+    <Spinner
+        android:id="@+id/spinner_broad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/elements_small_margin_spacing"
+        android:background="@drawable/spinner_rect_broad"
+        android:spinnerMode="dropdown" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
+        android:id="@+id/etv_sitrep_others_info"
+        style="@style/EditTextView_Main"
+        android:layout_width="match_parent"
+        android:layout_marginStart="@dimen/elements_small_margin_spacing"
+        android:gravity="end"
+        android:textSize="@dimen/hint_text_size"
+        android:visibility="gone" />
+
+</LinearLayout>

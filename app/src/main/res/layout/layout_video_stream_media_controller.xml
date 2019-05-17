@@ -39,7 +39,7 @@
         android:layout_marginStart="@dimen/thin_line_margin"
         android:layout_marginEnd="@dimen/thin_line_margin"
         android:alpha="18"
-        android:background="@color/image_white" />
+        android:background="@color/primary_white" />
 
     <!--<LinearLayout-->
     <!--android:layout_width="match_parent"-->

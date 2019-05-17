@@ -36,6 +36,6 @@
         android:src="@drawable/icon_vessel"
         app:civ_border_color="@color/steel_blue"
         app:civ_border_width="@dimen/minor_margin"
-        app:civ_circle_background_color="@color/image_white" />
+        app:civ_circle_background_color="@color/primary_white" />
 
 </RelativeLayout>

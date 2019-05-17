@@ -2,18 +2,19 @@ package sg.gov.dsta.mobileC3.ventilo.activity.sitrep;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,34 +23,39 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
-import io.reactivex.SingleObserver;
-import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.model.join.UserSitRepJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
-import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.SitRepViewModel;
-import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserSitRepJoinViewModel;
-import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
-import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.DrawableUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.PhotoCaptureUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 
 public class SitRepFragment extends Fragment {
 
     private static final String TAG = SitRepFragment.class.getSimpleName();
 
     // View Models
-    private UserViewModel mUserViewModel;
+//    private UserViewModel mUserViewModel;
     private SitRepViewModel mSitRepViewModel;
-    private UserSitRepJoinViewModel mUserSitRepJoinViewModel;
+//    private UserSitRepJoinViewModel mUserSitRepJoinViewModel;
+
+    // Total count dashboard
+    private View mLayoutTotalCountDashboard;
+    private C2OpenSansSemiBoldTextView mTvTotalCountTitle;
+    private C2OpenSansSemiBoldTextView mTvPersonnelTCountTitle;
+    private C2OpenSansSemiBoldTextView mTvPersonnelSCountTitle;
+    private C2OpenSansSemiBoldTextView mTvPersonnelDCountTitle;
+    private C2OpenSansRegularTextView mTvTotalCountNumber;
+    private C2OpenSansRegularTextView mTvPersonnelTCountNumber;
+    private C2OpenSansRegularTextView mTvPersonnelSCountNumber;
+    private C2OpenSansRegularTextView mTvPersonnelDCountNumber;
+
+    // Add new item UI
+    private View mLayoutAddNewItem;
+    private C2OpenSansRegularTextView mTvAddNewItemCategory;
 
     private RecyclerView mRecyclerView;
     private SitRepRecyclerAdapter mRecyclerAdapter;
@@ -70,8 +76,15 @@ public class SitRepFragment extends Fragment {
     }
 
     private void initUI(View rootView) {
-        mRecyclerView = rootView.findViewById(R.id.recycler_sitrep);
+        mLayoutTotalCountDashboard = rootView.findViewById(R.id.layout_total_count_dashboard);
+        initTotalCountDashboardUI(mLayoutTotalCountDashboard);
 
+        mLayoutAddNewItem = rootView.findViewById(R.id.layout_add_new_item);
+//        mLayoutAddNewItem.setVisibility(View.GONE);
+        mTvAddNewItemCategory = mLayoutAddNewItem.findViewById(R.id.tv_add_new_item_category);
+        mTvAddNewItemCategory.setText(getString(R.string.add_new_item_sitrep));
+
+        mRecyclerView = rootView.findViewById(R.id.recycler_sitrep);
         mRecyclerView.setHasFixedSize(true);
 
         mRecyclerLayoutManager = new LinearLayoutManager(getActivity());
@@ -79,6 +92,8 @@ public class SitRepFragment extends Fragment {
         mRecyclerView.addOnItemTouchListener(new SitRepRecyclerItemTouchListener(getContext(), mRecyclerView, new SitRepRecyclerItemTouchListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+                System.out.println("position is " + position);
+                System.out.println("position location is " + mSitRepListItems.get(position).getLocation());
                 navigateToSitRepDetailFragment(mSitRepListItems.get(position));
             }
 
@@ -97,7 +112,10 @@ public class SitRepFragment extends Fragment {
         }));
 
         // Set data for recycler view
-        setUpRecyclerData();
+        if (mSitRepListItems == null) {
+            mSitRepListItems = new ArrayList<>();
+        }
+//        setUpRecyclerData();
 
         mRecyclerAdapter = new SitRepRecyclerAdapter(getContext(), mSitRepListItems);
         mRecyclerView.setAdapter(mRecyclerAdapter);
@@ -108,87 +126,75 @@ public class SitRepFragment extends Fragment {
         mFabAddSitRep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Fragment sitRepInnerAddFragment = new SitRepAddFragment();
+                mFabAddSitRep.setEnabled(false);
+
+                Fragment sitRepAddUpdateFragment = new SitRepAddUpdateFragment();
                 Bundle bundle = new Bundle();
                 bundle.putString(FragmentConstants.KEY_SITREP, FragmentConstants.VALUE_SITREP_ADD);
-                sitRepInnerAddFragment.setArguments(bundle);
+                sitRepAddUpdateFragment.setArguments(bundle);
 
                 FragmentManager fm = getActivity().getSupportFragmentManager();
                 FragmentTransaction ft = fm.beginTransaction();
                 ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-                ft.replace(R.id.layout_sitrep_inner_fragment, sitRepInnerAddFragment, sitRepInnerAddFragment.getClass().getSimpleName());
-                ft.addToBackStack(sitRepInnerAddFragment.getClass().getSimpleName());
+                ft.replace(R.id.layout_sitrep_fragment, sitRepAddUpdateFragment, sitRepAddUpdateFragment.getClass().getSimpleName());
+                ft.addToBackStack(sitRepAddUpdateFragment.getClass().getSimpleName());
                 ft.commit();
+
+                mFabAddSitRep.setEnabled(true);
             }
         });
 
-//        initOtherLayouts(inflater, container);
     }
 
-//    private void setImageListeners(View recyclerView) {
-//        AppCompatImageView imgDelete = recyclerView.findViewById(R.id.img_task_delete);
-//        AppCompatImageView imgStart = recyclerView.findViewById(R.id.img_task_start);
-//        AppCompatImageView imgDone = recyclerView.findViewById(R.id.img_task_done);
-//
-//        imgDelete.setOnClickListener(onDeleteClickListener);
-//        imgStart.setOnClickListener(onStartClickListener);
-//        imgDone.setOnClickListener(onDoneClickListener);
-//
-//        imgDelete.bringToFront();
-//        imgStart.bringToFront();
-//        imgDone.bringToFront();
-//    }
-//
-//    private View.OnClickListener onDeleteClickListener = new View.OnClickListener() {
-//        @Override
-//        public void onClick(View view) {
-//            TaskViewHolder holder = (TaskViewHolder) view.getTag();
-//            int position = holder.getAdapterPosition();
-//            removeItemInRecycler(position);
-//        }
-//    };
-//
-//    private View.OnClickListener onStartClickListener = new View.OnClickListener() {
-//        @Override
-//        public void onClick(View view) {
-//            TaskViewHolder holder = (TaskViewHolder) view.getTag();
-//            int position = holder.getAdapterPosition();
-//            startItemInRecycler(position);
-//        }
-//    };
-//
-//    private View.OnClickListener onDoneClickListener = new View.OnClickListener() {
-//        @Override
-//        public void onClick(View view) {
-//            TaskViewHolder holder = (TaskViewHolder) view.getTag();
-//            int position = holder.getAdapterPosition();
-//            completeItemInRecycler(position);
-//        }
-//    };
-//
-//    private void startItemInRecycler(int position) {
-//        mTaskListItems.get(position).setStatus(EStatus.IN_PROGRESS);
-//        mRecyclerAdapter.notifyDataSetChanged();
-//    }
-//
-//    private void completeItemInRecycler(int position) {
-//        mTaskListItems.get(position).setStatus(EStatus.COMPLETE);
-//        mRecyclerAdapter.notifyDataSetChanged();
-//    }
-//
-//    private void removeItemInRecycler(int position) {
-//        mTaskListItems.remove(position);
-//        mRecyclerView.removeViewAt(position);
-//        mRecyclerAdapter.notifyItemRemoved(position);
-//        mRecyclerAdapter.notifyItemRangeChanged(position, mTaskListItems.size());
-//    }
+    /**
+     * Init dashboard UI displaying total count of Sit Rep Threat(T), Suspects(S) and Dead(D) personnel
+     *
+     * @param layoutTotalCountView
+     */
+    private void initTotalCountDashboardUI(View layoutTotalCountView) {
+        mTvTotalCountTitle = layoutTotalCountView.findViewById(R.id.tv_total_count_title);
+        mTvPersonnelTCountTitle = layoutTotalCountView.findViewById(R.id.tv_first_count_title);
+        mTvPersonnelSCountTitle = layoutTotalCountView.findViewById(R.id.tv_second_count_title);
+        mTvPersonnelDCountTitle = layoutTotalCountView.findViewById(R.id.tv_third_count_title);
 
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        super.onCreateOptionsMenu(menu, inflater);
-//        inflater.inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
+        mTvTotalCountTitle.setText(getString(R.string.sitrep_total_count_title));
+        mTvTotalCountTitle.setTextColor(ResourcesCompat.getColor(getResources(),
+                R.color.primary_highlight_cyan, null));
+
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+
+        SpannableString personnelTitle = new SpannableString(getString(R.string.sitrep_personnel));
+        personnelTitle.setSpan(new ForegroundColorSpan(ResourcesCompat.getColor(getResources(),
+                R.color.primary_text_grey, null)), 0, personnelTitle.length(), 0);
+        builder.append(personnelTitle);
+        builder.append(StringUtil.SPACE);
+
+        // Highlight T, S and D to cyan
+        SpannableString threatTitle = new SpannableString(getString(R.string.sitrep_T));
+        threatTitle.setSpan(new ForegroundColorSpan(ResourcesCompat.getColor(getResources(),
+                R.color.primary_highlight_cyan, null)), 0, threatTitle.length(), 0);
+        builder.append(threatTitle);
+        mTvPersonnelTCountTitle.setText(builder, C2OpenSansSemiBoldTextView.BufferType.SPANNABLE);
+        builder.delete(personnelTitle.length() + StringUtil.SPACE.length(), builder.length());
+
+        SpannableString suspectTitle = new SpannableString(getString(R.string.sitrep_S));
+        suspectTitle.setSpan(new ForegroundColorSpan(ResourcesCompat.getColor(getResources(),
+                R.color.primary_highlight_cyan, null)), 0, suspectTitle.length(), 0);
+        builder.append(suspectTitle);
+        mTvPersonnelSCountTitle.setText(builder, C2OpenSansSemiBoldTextView.BufferType.SPANNABLE);
+        builder.delete(personnelTitle.length() + StringUtil.SPACE.length(), builder.length());
+
+        SpannableString deadTitle = new SpannableString(getString(R.string.sitrep_D));
+        deadTitle.setSpan(new ForegroundColorSpan(ResourcesCompat.getColor(getResources(),
+                R.color.primary_highlight_cyan, null)), 0, deadTitle.length(), 0);
+        builder.append(deadTitle);
+        mTvPersonnelDCountTitle.setText(builder, C2OpenSansSemiBoldTextView.BufferType.SPANNABLE);
+
+        mTvTotalCountNumber = layoutTotalCountView.findViewById(R.id.tv_total_count_number);
+        mTvPersonnelTCountNumber = layoutTotalCountView.findViewById(R.id.tv_first_count_number);
+        mTvPersonnelSCountNumber = layoutTotalCountView.findViewById(R.id.tv_second_count_number);
+        mTvPersonnelDCountNumber = layoutTotalCountView.findViewById(R.id.tv_third_count_number);
+    }
 
 //    @Override
 //    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -207,24 +213,27 @@ public class SitRepFragment extends Fragment {
 //        });
 //    }
 
-    public SitRepRecyclerAdapter getAdapter() {
-        return mRecyclerAdapter;
-    }
+//    public SitRepRecyclerAdapter getAdapter() {
+//        return mRecyclerAdapter;
+//    }
 
 //    private void deleteSitRep(int position) {
 //        SitRepModel sitRepModelAtPos = mRecyclerAdapter.getSitRepModelAtPosition(position);
 //        mSitRepViewModel.deleteSitRep(sitRepModelAtPos.getId());
 //    }
 
-    public void refreshData() {
-        Log.d(TAG, "refreshData");
-        setUpRecyclerData();
+//    public void refreshData() {
+//        Log.d(TAG, "refreshData");
+//        setUpRecyclerData();
+//
+////        if (mRecyclerAdapter != null) {
+////            mRecyclerAdapter.notifyDataSetChanged();
+////        }
+//    }
 
-//        if (mRecyclerAdapter != null) {
-//            mRecyclerAdapter.notifyDataSetChanged();
-//        }
-    }
-
+    /**
+     * Updates recycler view with new data
+     */
     public void addItemInRecycler() {
         if (mRecyclerAdapter != null) {
             mRecyclerAdapter.notifyItemInserted(mSitRepListItems.size() - 1);
@@ -232,331 +241,221 @@ public class SitRepFragment extends Fragment {
         }
     }
 
-    private void setUpRecyclerData() {
-        if (mSitRepListItems == null) {
-            mSitRepListItems = new ArrayList<>();
-        }
-
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String accessToken = pref.getString(SharedPreferenceConstants.ACCESS_TOKEN, "");
-
-        // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
-        // asynchronously in the background thread and apply changes on the main UI thread
-        SingleObserver<UserModel> singleObserverForUser = new SingleObserver<UserModel>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-                // add it to a CompositeDisposable
-            }
-
-            @Override
-            public void onSuccess(UserModel userModel) {
-                Log.d(TAG, "onSuccess singleObserverForUser, setUpRecyclerData. " +
-                        "User Id: " + userModel.getUserId());
-
-                SingleObserver<List<SitRepModel>> singleObserverOfSitRepsForUser = new SingleObserver<List<SitRepModel>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                    }
-
-                    @Override
-                    public void onSuccess(List<SitRepModel> sitRepModelList) {
-                        Log.d(TAG, "onSuccess singleObserverOfTasksForUser, setUpRecyclerData: " +
-                                "taskModelList.size() is " + sitRepModelList.size());
-                        if (sitRepModelList.size() == 0) {
-                            setUpDummySitReps();
-                        } else {
-                            mSitRepListItems.clear();
-                            mSitRepListItems.addAll(sitRepModelList);
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.d(TAG, "onError singleObserverOfTasksForUser, setUpRecyclerData. " +
-                                "Error Msg: " + e.toString());
-                    }
-                };
-
-                mUserSitRepJoinViewModel.querySitRepsForUser(userModel.getUserId(), singleObserverOfSitRepsForUser);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                // show an error message
-                Log.d(TAG, "onError singleObserverForUser, setUpRecyclerData. " +
-                        "Error Msg: " + e.toString());
-            }
-        };
-
-        mUserViewModel.queryUserByAccessToken(accessToken, singleObserverForUser);
-
-//        if (getTotalNumberOfSitReps() == 0) {
-//            SitRepModel sitRepModelOne = new SitRepModel();
-//            sitRepModelOne.setId(0);
-//            sitRepModelOne.setReporter(SharedPreferenceUtil.getCurrentUserCallsignID(getActivity()));
-//            sitRepModelOne.setLocation("BALESTIER");
-//            sitRepModelOne.setActivity("Fire Fighting");
-//            sitRepModelOne.setPersonnelT(6);
-//            sitRepModelOne.setPersonnelS(5);
-//            sitRepModelOne.setPersonnelD(4);
-//            sitRepModelOne.setNextCoa("Inform HQ");
-//            sitRepModelOne.setRequest("Additional MP");
-//            Date date1 = DateTimeUtil.getSpecifiedDate(2016, Calendar.DECEMBER, 29,
-//                    Calendar.AM, 11, 30, 30);
-//            String dateOneString = DateTimeUtil.dateToServerStringFormat(date1);
-//            sitRepModelOne.setReportedDateTime(dateOneString);
-//
-//            mSitRepListItems.add(sitRepModelOne);
-//
-//            addItemsToLocalDatabase();
-//
-//        } else {
-//            mSitRepListItems.clear();
-//
-//            for (int i = 0; i < getTotalNumberOfSitReps(); i++) {
-//                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//                String sitRepInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-//                        concat(SharedPreferenceConstants.HEADER_SITREP).concat(SharedPreferenceConstants.SEPARATOR).
-//                        concat(String.valueOf(i));
-//
-//                SitRepModel sitRepModel = new SitRepModel();
-//                sitRepModel.setId(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ID), SharedPreferenceConstants.DEFAULT_INT));
-//                sitRepModel.setReporter(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER), SharedPreferenceConstants.DEFAULT_STRING));
-////                taskItem.setAssigneeAvatar(Objects.requireNonNull(getContext()).getDrawable(pref.getInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-////                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE_AVATAR_ID), SharedPreferenceConstants.DEFAULT_INT)));
-//                sitRepModel.setLocation(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_LOCATION), SharedPreferenceConstants.DEFAULT_STRING));
-//                sitRepModel.setActivity(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ACTIVITY), SharedPreferenceConstants.DEFAULT_STRING));
-//                sitRepModel.setPersonnelT(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_T), SharedPreferenceConstants.DEFAULT_INT));
-//                sitRepModel.setPersonnelS(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_S), SharedPreferenceConstants.DEFAULT_INT));
-//                sitRepModel.setPersonnelD(pref.getInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_D), SharedPreferenceConstants.DEFAULT_INT));
-//                sitRepModel.setNextCoa(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_NEXT_COA), SharedPreferenceConstants.DEFAULT_STRING));
-//                sitRepModel.setRequest(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REQUEST), SharedPreferenceConstants.DEFAULT_STRING));
-//                sitRepModel.setReportedDateTime(pref.getString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_DATE), SharedPreferenceConstants.DEFAULT_STRING));
-//
-//                mSitRepListItems.add(sitRepModel);
-//            }
+//    private void setUpRecyclerData() {
+//        if (mSitRepListItems == null) {
+//            mSitRepListItems = new ArrayList<>();
 //        }
-    }
+//
+//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//        String accessToken = pref.getString(SharedPreferenceConstants.ACCESS_TOKEN, "");
+//
+//        // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
+//        // asynchronously in the background thread and apply changes on the main UI thread
+//        SingleObserver<UserModel> singleObserverForUser = new SingleObserver<UserModel>() {
+//            @Override
+//            public void onSubscribe(Disposable d) {
+//                // add it to a CompositeDisposable
+//            }
+//
+//            @Override
+//            public void onSuccess(UserModel userModel) {
+//                Log.d(TAG, "onSuccess singleObserverForUser, setUpRecyclerData. " +
+//                        "User Id: " + userModel.getUserId());
+//
+//                SingleObserver<List<SitRepModel>> singleObserverOfSitRepsForUser = new SingleObserver<List<SitRepModel>>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(List<SitRepModel> sitRepModelList) {
+//                        Log.d(TAG, "onSuccess singleObserverOfTasksForUser, setUpRecyclerData: " +
+//                                "taskModelList.size() is " + sitRepModelList.size());
+//                        if (sitRepModelList.size() == 0) {
+//                            setUpDummySitReps();
+//                        } else {
+//                            mSitRepListItems.clear();
+//                            mSitRepListItems.addAll(sitRepModelList);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        Log.d(TAG, "onError singleObserverOfTasksForUser, setUpRecyclerData. " +
+//                                "Error Msg: " + e.toString());
+//                    }
+//                };
+//
+//                mUserSitRepJoinViewModel.querySitRepsForUser(userModel.getUserId(), singleObserverOfSitRepsForUser);
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//                // show an error message
+//                Log.d(TAG, "onError singleObserverForUser, setUpRecyclerData. " +
+//                        "Error Msg: " + e.toString());
+//            }
+//        };
+//
+//        mUserViewModel.queryUserByAccessToken(accessToken, singleObserverForUser);
+//    }
 
-    private void setUpDummySitReps() {
-        SitRepModel sitRepModelOne = new SitRepModel();
-        sitRepModelOne.setReporter(SharedPreferenceUtil.getCurrentUserCallsignID(getActivity()));
-        byte[] imageByteArray = PhotoCaptureUtil.getByteArrayFromImage(
-                DrawableUtil.getBitmap(getResources().getDrawable(R.drawable.img_avatar_deck, null)),
-                100);
-        sitRepModelOne.setSnappedPhoto(imageByteArray);
-        sitRepModelOne.setLocation("BALESTIER");
-        sitRepModelOne.setActivity("Fire Fighting");
-        sitRepModelOne.setPersonnelT(6);
-        sitRepModelOne.setPersonnelS(5);
-        sitRepModelOne.setPersonnelD(4);
-        sitRepModelOne.setNextCoa("Inform HQ");
-        sitRepModelOne.setRequest("Additional MP");
-        Date date1 = DateTimeUtil.getSpecifiedDate(2016, Calendar.DECEMBER, 29,
-                Calendar.AM, 11, 30, 30);
-        String dateOneString = DateTimeUtil.dateToServerStringFormat(date1);
-        sitRepModelOne.setReportedDateTime(dateOneString);
+//    private void setUpDummySitReps() {
+//        SitRepModel sitRepModelOne = new SitRepModel();
+//        sitRepModelOne.setReporter(SharedPreferenceUtil.getCurrentUserCallsignID(getActivity()));
+//        byte[] imageByteArray = PhotoCaptureUtil.getByteArrayFromImage(
+//                DrawableUtil.getBitmap(getResources().getDrawable(R.drawable.img_avatar_deck, null)),
+//                100);
+//        sitRepModelOne.setSnappedPhoto(imageByteArray);
+//        sitRepModelOne.setLocation("BALESTIER");
+//        sitRepModelOne.setActivity("Fire Fighting");
+//        sitRepModelOne.setPersonnelT(6);
+//        sitRepModelOne.setPersonnelS(5);
+//        sitRepModelOne.setPersonnelD(4);
+//        sitRepModelOne.setNextCoa("Inform HQ");
+//        sitRepModelOne.setRequest("Additional MP");
+//        Date date1 = DateTimeUtil.getSpecifiedDate(2016, Calendar.DECEMBER, 29,
+//                Calendar.AM, 11, 30, 30);
+//        String dateOneString = DateTimeUtil.dateToServerStringFormat(date1);
+//        sitRepModelOne.setCreatedDateTime(dateOneString);
+//
+//        mSitRepListItems.add(sitRepModelOne);
+//
+//        addItemsToSqliteDatabase();
+//    }
 
-        mSitRepListItems.add(sitRepModelOne);
+//    private void addItemsToSqliteDatabase() {
+//        for (int i = 0; i < mSitRepListItems.size(); i++) {
+////            final int j = i;
+//
+//            SingleObserver<Long> singleObserverAddSitRep = new SingleObserver<Long>() {
+//                @Override
+//                public void onSubscribe(Disposable d) {
+//                    // add it to a CompositeDisposable
+//                }
+//
+//                @Override
+//                public void onSuccess(Long sitRepId) {
+//                    Log.d(TAG, "onSuccess singleObserverAddSitRep, " +
+//                            "addItemsToSqliteDatabase. " +
+//                            "SitRepId: " + sitRepId);
+//                    SharedPreferences pref = PreferenceManager.
+//                            getDefaultSharedPreferences(getActivity());
+//                    String accessToken = pref.getString(
+//                            SharedPreferenceConstants.ACCESS_TOKEN, "");
+//
+////                    mTaskListItems.get(j).setId(taskId);
+//                    addSitRepsToCompositeTableInDatabase(accessToken, sitRepId);
+//                }
+//
+//                @Override
+//                public void onError(Throwable e) {
+//                    Log.d(TAG, "onError singleObserverAddTask, addItemsToSqliteDatabase. " +
+//                            "Error Msg: " + e.toString());
+//                }
+//            };
+//
+//            mSitRepViewModel.insertSitRepWithObserver(mSitRepListItems.get(i), singleObserverAddSitRep);
+//        }
+//    }
 
-        addItemsToSqliteDatabase();
-    }
+//    private void addSitRepsToCompositeTableInDatabase(String accessToken, long sitRepId) {
+//        Log.d(TAG, "onSuccess singleObserverForGettingSitRepId, addItemsToSqliteDatabase. " +
+//                "sitRepId: " + sitRepId);
+//
+//        // TODO: Added this for second user. Remove this once users can be retrieved from excel file.
+//        // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
+//        // asynchronously in the background thread and apply changes on the main UI thread
+//        SingleObserver<UserModel> singleObserverUser = new SingleObserver<UserModel>() {
+//            @Override
+//            public void onSubscribe(Disposable d) {
+//                // add it to a CompositeDisposable
+//            }
+//
+//            @Override
+//            public void onSuccess(UserModel userModel) {
+//                Log.d(TAG, "onSuccess singleObserverUser, " +
+//                        "addSitRepsToCompositeTableInDatabase. " +
+//                        "UserId: " + userModel.getUserId());
+//                UserSitRepJoinModel userSitRepJoinModel = new UserSitRepJoinModel(userModel.getUserId(), sitRepId);
+//                mUserSitRepJoinViewModel.addUserSitRepJoin(userSitRepJoinModel);
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//                Log.d(TAG, "onError singleObserverUser, " +
+//                        "addSitRepsToCompositeTableInDatabase. " +
+//                        "Error Msg: " + e.toString());
+//            }
+//        };
+//
+//        mUserViewModel.queryUserByAccessToken(accessToken, singleObserverUser);
+//        mUserViewModel.queryUserByUserId("456", singleObserverUser);
+//    }
 
-    private void addItemsToSqliteDatabase() {
-        for (int i = 0; i < mSitRepListItems.size(); i++) {
-//            final int j = i;
-
-            SingleObserver<Long> singleObserverAddSitRep = new SingleObserver<Long>() {
-                @Override
-                public void onSubscribe(Disposable d) {
-                    // add it to a CompositeDisposable
-                }
-
-                @Override
-                public void onSuccess(Long sitRepId) {
-                    Log.d(TAG, "onSuccess singleObserverAddSitRep, " +
-                            "addItemsToSqliteDatabase. " +
-                            "SitRepId: " + sitRepId);
-                    SharedPreferences pref = PreferenceManager.
-                            getDefaultSharedPreferences(getActivity());
-                    String accessToken = pref.getString(
-                            SharedPreferenceConstants.ACCESS_TOKEN, "");
-
-//                    mTaskListItems.get(j).setId(taskId);
-                    addSitRepsToCompositeTableInDatabase(accessToken, sitRepId);
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    Log.d(TAG, "onError singleObserverAddTask, addItemsToSqliteDatabase. " +
-                            "Error Msg: " + e.toString());
-                }
-            };
-
-            mSitRepViewModel.addSitRep(mSitRepListItems.get(i), singleObserverAddSitRep);
-        }
-    }
-
-    private void addSitRepsToCompositeTableInDatabase(String accessToken, long sitRepId) {
-        Log.d(TAG, "onSuccess singleObserverForGettingSitRepId, addItemsToSqliteDatabase. " +
-                "sitRepId: " + sitRepId);
-
-        // TODO: Added this for second user. Remove this once users can be retrieved from excel file.
-        // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
-        // asynchronously in the background thread and apply changes on the main UI thread
-        SingleObserver<UserModel> singleObserverUser = new SingleObserver<UserModel>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-                // add it to a CompositeDisposable
-            }
-
-            @Override
-            public void onSuccess(UserModel userModel) {
-                Log.d(TAG, "onSuccess singleObserverUser, " +
-                        "addSitRepsToCompositeTableInDatabase. " +
-                        "UserId: " + userModel.getUserId());
-                UserSitRepJoinModel userSitRepJoinModel = new UserSitRepJoinModel(userModel.getUserId(), sitRepId);
-                mUserSitRepJoinViewModel.addUserSitRepJoin(userSitRepJoinModel);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverUser, " +
-                        "addSitRepsToCompositeTableInDatabase. " +
-                        "Error Msg: " + e.toString());
-            }
-        };
-
-        mUserViewModel.queryUserByAccessToken(accessToken, singleObserverUser);
-        mUserViewModel.queryUserByUserId("456", singleObserverUser);
-    }
-
-
-
+    /**
+     * Navigate to another fragment which displays details of selected Sit Rep
+     * @param sitRepModel
+     */
     private void navigateToSitRepDetailFragment(SitRepModel sitRepModel) {
-        Fragment sitRepInnerDetailFragment = new SitRepDetailFragment();
+        Fragment sitRepDetailFragment = new SitRepDetailFragment();
 
         EventBus.getDefault().postSticky(sitRepModel);
-
-//        Bundle bundle = new Bundle();
-//        bundle.putString(FragmentConstants.KEY_SITREP, FragmentConstants.VALUE_SITREP_VIEW);
-//        sitRepInnerDetailFragment.setArguments(bundle);
-
-//        Bundle bundle = new Bundle();
-//        bundle.putString(FragmentConstants.KEY_SITREP, FragmentConstants.VALUE_SITREP_VIEW);
-//        bundle.putLong(FragmentConstants.KEY_SITREP_ID, sitRepModelId);
-//        bundle.putString(FragmentConstants.KEY_SITREP_LOCATION, mSitRepListItems.get(position).getLocation());
-//        bundle.putString(FragmentConstants.KEY_SITREP_ACTIVITY, mSitRepListItems.get(position).getActivity());
-//        bundle.putInt(FragmentConstants.KEY_SITREP_PERSONNEL_T, mSitRepListItems.get(position).getPersonnelT());
-//        bundle.putInt(FragmentConstants.KEY_SITREP_PERSONNEL_S, mSitRepListItems.get(position).getPersonnelS());
-//        bundle.putInt(FragmentConstants.KEY_SITREP_PERSONNEL_D, mSitRepListItems.get(position).getPersonnelD());
-//        bundle.putString(FragmentConstants.KEY_SITREP_NEXT_COA, mSitRepListItems.get(position).getNextCoa());
-//        bundle.putString(FragmentConstants.KEY_SITREP_REQUEST, mSitRepListItems.get(position).getRequest());
-//        sitRepInnerDetailFragment.setArguments(bundle);
 
         // Pass info to fragment
         FragmentManager fm = getActivity().getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-        ft.replace(R.id.layout_sitrep_inner_fragment, sitRepInnerDetailFragment, sitRepInnerDetailFragment.getClass().getSimpleName());
-        ft.addToBackStack(sitRepInnerDetailFragment.getClass().getSimpleName());
+        ft.replace(R.id.layout_sitrep_fragment, sitRepDetailFragment, sitRepDetailFragment.getClass().getSimpleName());
+        ft.addToBackStack(sitRepDetailFragment.getClass().getSimpleName());
         ft.commit();
     }
-//    /*
-//     * Obtain total number of sit reps of user
-//     */
-//    private int getTotalNumberOfSitReps() {
-//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        int totalNumberOfSitReps = pref.getInt(SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER), 0);
-//
-//        return totalNumberOfSitReps;
-//    }
-//
-//    /*
-//     * Add sit rep items to local database
-//     */
-//    private void addItemsToLocalDatabase() {
-//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        SharedPreferences.Editor editor = pref.edit();
-//
-//        // Increment total number of sit reps by one, and store it
-//        String totalNumberOfSitRepsKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER);
-//
-//        editor.putInt(totalNumberOfSitRepsKey, mSitRepListItems.size());
-//
-//        for (int i = 0; i < mSitRepListItems.size(); i++) {
-//            SitRepModel sitRepModel = mSitRepListItems.get(i);
-//            addSingleItemToLocalDatabase(editor, sitRepModel.getId(), sitRepModel.getReporter(),
-//                    R.drawable.default_soldier_icon, sitRepModel.getLocation(), sitRepModel.getActivity(),
-//                    sitRepModel.getPersonnelT(), sitRepModel.getPersonnelS(), sitRepModel.getPersonnelD(),
-//                    sitRepModel.getNextCoa(), sitRepModel.getRequest(),
-//                    sitRepModel.getReportedDateTime());
-//        }
-//    }
-//
-//    /*
-//     * Add single sit rep with respective fields
-//     */
-//    private void addSingleItemToLocalDatabase(SharedPreferences.Editor editor, long id, String reporter, int reporterAvatarId,
-//                                              String location, String activity, int personnelT, int personnelS, int personnelD,
-//                                              String nextCoa, String request, String date) {
-//
-//        String sitRepInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.HEADER_SITREP).concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(String.valueOf(id));
-//
-//        editor.putLong(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ID), id);
-//        editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER), reporter);
-//        editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER_AVATAR_ID), reporterAvatarId);
-//        editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_LOCATION), location);
-//        editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ACTIVITY), activity);
-//        editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_T), personnelT);
-//        editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_S), personnelS);
-//        editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_D), personnelD);
-//        editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_NEXT_COA), nextCoa);
-//        editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REQUEST), request);
-//        editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_SITREP_DATE), date);
-//
-//        editor.apply();
-//    }
 
+    /**
+     * Set up observer for live updates on view models and update UI accordingly
+     */
     private void observerSetup() {
-        mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+//        mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         mSitRepViewModel = ViewModelProviders.of(this).get(SitRepViewModel.class);
-        mUserSitRepJoinViewModel = ViewModelProviders.of(this).get(UserSitRepJoinViewModel.class);
+//        mUserSitRepJoinViewModel = ViewModelProviders.of(this).get(UserSitRepJoinViewModel.class);
 
         /*
-         * Refreshes recyclerview UI whenever there is a change in task (insert, update or delete)
+         * Refreshes recyclerview UI whenever there is a change in Sit Rep (insert, update or delete)
          */
-        mSitRepViewModel.getAllSitReps().observe(this, new Observer<List<SitRepModel>>() {
+        mSitRepViewModel.getAllSitRepsLiveData().observe(this, new Observer<List<SitRepModel>>() {
             @Override
             public void onChanged(@Nullable List<SitRepModel> sitRepModelList) {
                 mRecyclerAdapter.setSitRepListItems(sitRepModelList);
-                mSitRepListItems.clear();
-                mSitRepListItems.addAll(sitRepModelList);
+
+                if (mSitRepListItems == null) {
+                    mSitRepListItems = new ArrayList<>();
+                } else {
+                    mSitRepListItems.clear();
+                    mSitRepListItems.addAll(sitRepModelList);
+                }
+
+                if (mSitRepListItems.size() == 0) {
+                    mLayoutAddNewItem.setVisibility(View.VISIBLE);
+                    mLayoutTotalCountDashboard.setVisibility(View.GONE);
+                } else {
+                    mLayoutAddNewItem.setVisibility(View.GONE);
+                    mLayoutTotalCountDashboard.setVisibility(View.VISIBLE);
+
+                    int totalPersonnelT = 0;
+                    int totalPersonnelS = 0;
+                    int totalPersonnelD = 0;
+                    for (int i = 0; i < sitRepModelList.size(); i++) {
+                        totalPersonnelT += sitRepModelList.get(i).getPersonnelT();
+                        totalPersonnelS += sitRepModelList.get(i).getPersonnelS();
+                        totalPersonnelD += sitRepModelList.get(i).getPersonnelD();
+                    }
+
+                    int totalCount = totalPersonnelT + totalPersonnelS + totalPersonnelD;
+                    mTvTotalCountNumber.setText(String.valueOf(totalCount));
+                    mTvPersonnelTCountNumber.setText(String.valueOf(totalPersonnelT));
+                    mTvPersonnelSCountNumber.setText(String.valueOf(totalPersonnelS));
+                    mTvPersonnelDCountNumber.setText(String.valueOf(totalPersonnelD));
+                }
             }
         });
     }

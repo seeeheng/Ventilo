@@ -20,13 +20,14 @@
     <!--<color name="background_main_dark_charcoal">#333333</color>-->
     <color name="background_2nd_level_grey">#BBBBBB</color>
     <color name="background_3rd_level_chinese_silver">#CCCCCC</color>
-    <color name="background_dark_grey">#1F1F1F</color>
+    <color name="background_dark_grey">#1C1C1C</color>
     <!--<color name="background_line_grey">#3E3E3E</color>-->
     <color name="background_main_dark_charcoal">#152538</color>
     <color name="background_media_controller_dark_grey">#336D6D6D</color>
     <color name="dark_cyan">#008B8B</color>
     <color name="primary_highlight_cyan">#00DCFF</color>
-    <color name="primary_text_white">#FFFFFF</color>
+    <color name="primary_white">#FFFFFF</color>
+    <color name="primary_text_grey">#ADADAD</color>
     <color name="primary_text_hint_dark_grey">#6D6D6D</color>
     <color name="divider_line_grey">#3E3E3E</color>
     <!--<color name="img_btn_space_blue">#1D2951</color>-->
@@ -36,27 +37,33 @@
     <!--<color name="img_btn_steel_blue">#4286B4</color>-->
     <!--<color name="img_btn_yale_blue">#0E4D92</color>-->
     <!--<color name="img_btn_carolina_blue">#57A0D3</color>-->
-    <color name="image_white">#FFFFFF</color>
     <color name="translucent">#00000000</color>
     <color name="circle_image_border_grey">#808080</color>
+    <color name="rounded_corner_light_grey">#ADADAD</color>
+
+    <color name="dull_green">#6ACC57</color>
+    <color name="dull_red">#FC605B</color>
+
+    <!-- Snackbar -->
 
     <!-- Spinner -->
     <color name="spinner_fill_grey">#282828</color>
-    <color name="spinner_broad_fill_grey">#181818</color>
     <color name="spinner_border_grey">#707070</color>
+    <color name="spinner_broad_fill_grey">#1C1C1C</color>
 
     <!-- Bottom Panel -->
-    <color name="link_status_green">#6ACC57</color>
-    <color name="link_status_red">#FC605B</color>
     <color name="sub_components_background_grey">#282828</color>
 
     <!--Task Status -->
-    <color name="task_status_cyan">#00DCFF</color>
     <color name="task_status_yellow">#F5CE51</color>
-    <color name="task_status_green">#6ACC57</color>
-    <color name="task_delete_red">#FC605B</color>
 
     <!-- Sit Rep -->
-    <color name="sitrep_light_grey">#ADADAD</color>
-    <color name="cursor_white">#FFFFFF</color>
+    <color name="input_others_icon_fill_grey">#1C1C1C</color>
+
+    <!-- Add New Item -->
+    <color name="add_new_item_light_grey">#ADADAD</color>
+
+    <!-- Settings -->
+    <color name="settings_light_grey">#1F1F1F</color>
+
 </resources>

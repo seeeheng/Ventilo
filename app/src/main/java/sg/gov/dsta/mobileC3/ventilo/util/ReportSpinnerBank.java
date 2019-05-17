@@ -4,6 +4,7 @@ import android.content.Context;
 
 import lombok.Data;
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 
 @Data
 public class ReportSpinnerBank {
@@ -22,43 +23,43 @@ public class ReportSpinnerBank {
     private String[] nextCoaList;
     private String[] requestList;
 
-    private ReportSpinnerBank(Context context) {
-        populateIncidentTitles(context);
-        populateTaskTitles(context);
-        populateLocationCodewords(context);
-        populateActivities(context);
-        populateNextCoa(context);
-        populateRequests(context);
+    private ReportSpinnerBank() {
+        populateTaskTitles();
+        populateLocationCodewords();
+        populateActivities();
+        populateNextCoa();
+        populateRequests();
     }
 
-    public static ReportSpinnerBank getInstance(Context context) {
+    public static ReportSpinnerBank getInstance() {
         if (instance == null) {
-            instance = new ReportSpinnerBank(context);
+            instance = new ReportSpinnerBank();
         }
         return instance;
     }
 
-    private void populateIncidentTitles(Context context) {
-        incidentTitleList = context.getResources().getStringArray(R.array.incident_title_items);
+    private void populateTaskTitles() {
+        taskTitleList = MainApplication.getAppContext().getResources().
+                getStringArray(R.array.task_title_items);
     }
 
-    private void populateTaskTitles(Context context) {
-        taskTitleList = context.getResources().getStringArray(R.array.task_title_items);
+    private void populateLocationCodewords() {
+        locationList = MainApplication.getAppContext().getResources().
+                getStringArray(R.array.sitrep_location_items);
     }
 
-    private void populateLocationCodewords(Context context) {
-        locationList = context.getResources().getStringArray(R.array.sitrep_location_items);
+    private void populateActivities() {
+        activityList = MainApplication.getAppContext().getResources().
+                getStringArray(R.array.sitrep_activity_items);
     }
 
-    private void populateActivities(Context context) {
-        activityList = context.getResources().getStringArray(R.array.sitrep_activity_items);
+    private void populateNextCoa() {
+        nextCoaList = MainApplication.getAppContext().getResources().
+                getStringArray(R.array.sitrep_next_coa_items);
     }
 
-    private void populateNextCoa(Context context) {
-        nextCoaList = context.getResources().getStringArray(R.array.sitrep_next_coa_items);
-    }
-
-    private void populateRequests(Context context) {
-        requestList = context.getResources().getStringArray(R.array.sitrep_request_items);
+    private void populateRequests() {
+        requestList = MainApplication.getAppContext().getResources().
+                getStringArray(R.array.sitrep_request_items);
     }
 }

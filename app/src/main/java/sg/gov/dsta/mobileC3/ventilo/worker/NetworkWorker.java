@@ -6,13 +6,14 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import java.io.File;
+
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.database.ExcelSpreadsheetUtil;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPubSubBrokerProxy;
-import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
-import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQSubscriber;
 
 public class NetworkWorker extends Worker {
 
@@ -37,7 +38,13 @@ public class NetworkWorker extends Worker {
         JeroMQPubSubBrokerProxy.getInstance().start();
 //        JeroMQPublisher.getInstance().start();
 //        JeroMQSubscriber.getInstance().start();
-        Log.i(TAG, "JeroMQ init");
+        Log.i(TAG, "JeroMQ initialised");
+    }
+
+    private void extractDataFromExcelFile() {
+        File excelFile = ExcelSpreadsheetUtil.getExcelFile(ExcelSpreadsheetUtil.EXCEL_FILE_RELATIVE_PATH, false);
+        ExcelSpreadsheetUtil.readXlsWorkBookDataAndStoreIntoDatabase(excelFile);
+        Log.i(TAG, "Excel file data stored into database");
     }
 
     @NonNull
@@ -53,7 +60,8 @@ public class NetworkWorker extends Worker {
             }
         }
 
-        initJeroMQ();
+//        initJeroMQ();
+//        extractDataFromExcelFile();
 
         return Result.success();
     }

@@ -2,7 +2,6 @@ package sg.gov.dsta.mobileC3.ventilo.activity.timeline;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,7 +19,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.util.CustomKeyboardUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 
 public class TimelineFragment extends Fragment {
@@ -111,11 +109,11 @@ public class TimelineFragment extends Fragment {
         // To set the Background Size of the row image in dp (optional)
         timelineRow.setBackgroundSize(BG_SIZE_IN_DP);
         // To set row Date text color (optional)
-        timelineRow.setDateColor(getResources().getColor(R.color.primary_text_white));
+        timelineRow.setDateColor(getResources().getColor(R.color.primary_white));
         // To set row Title text color (optional)
-        timelineRow.setTitleColor(getResources().getColor(R.color.primary_text_white));
+        timelineRow.setTitleColor(getResources().getColor(R.color.primary_white));
         // To set row Description text color (optional)
-        timelineRow.setDescriptionColor(getResources().getColor(R.color.primary_text_white));
+        timelineRow.setDescriptionColor(getResources().getColor(R.color.primary_white));
 
         return timelineRow;
     }

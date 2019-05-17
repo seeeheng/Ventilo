@@ -71,7 +71,7 @@ public class RabbitMQHelper {
                 System.out.println("mqRabbit failed");
 //                Toast.makeText(mContext, "RabbitMQ failed. C2 capabilities disabled", Toast.LENGTH_SHORT).show();
             }
-            Log.d(TAG, "Connection to MQ is successful: " + isSuccess);
+            Log.d(TAG, "Connection to MQ: " + isSuccess);
         }
 
         return isSuccess;

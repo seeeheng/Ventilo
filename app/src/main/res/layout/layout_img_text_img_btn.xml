@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/linear_layout_img_text_img_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/img_btn_background_cyan_border"
+        android:paddingStart="@dimen/elements_margin_spacing"
+        android:paddingTop="@dimen/elements_small_margin_spacing"
+        android:paddingEnd="@dimen/elements_margin_spacing"
+        android:paddingBottom="@dimen/elements_small_margin_spacing"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+            android:id="@+id/tv_text_img_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/elements_margin_spacing"
+            android:text="Sync Up"
+            android:textColor="@color/primary_highlight_cyan"
+            android:textSize="@dimen/text_view_text_size" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/img_pic_img_btn"
+            android:layout_width="@dimen/img_btn_icon_width"
+            android:layout_height="@dimen/img_btn_icon_height"
+            android:src="@drawable/icon_sync"
+            app:tint="@color/primary_highlight_cyan" />
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

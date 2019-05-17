@@ -4,12 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/toolbar_height"
     android:layout_alignParentBottom="true"
-    android:padding="@dimen/elements_margin_spacing"
     android:background="@color/background_dark_grey"
     android:gravity="center_vertical"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/elements_margin_spacing"
+    android:paddingTop="@dimen/elements_small_margin_spacing"
+    android:paddingEnd="@dimen/elements_margin_spacing"
+    android:paddingBottom="@dimen/elements_small_margin_spacing">
 
-    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
         android:id="@+id/tv_bottom_panel_fragment_title"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/bottom_panel_sub_components_height"
@@ -20,16 +23,21 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/bottom_panel_sub_components_height">
+        android:layout_height="@dimen/bottom_panel_sub_components_height"
+        android:gravity="center_vertical">
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/elements_margin_spacing"
+            android:layout_toStartOf="@+id/layout_bottom_panel_user_callsign"
             android:background="@drawable/bottom_panel_subcomponent_background"
             android:gravity="center"
             android:orientation="horizontal"
-            android:padding="@dimen/elements_small_margin_spacing">
+            android:paddingStart="@dimen/elements_small_margin_spacing"
+            android:paddingTop="@dimen/minor_margin"
+            android:paddingEnd="@dimen/elements_small_margin_spacing"
+            android:paddingBottom="@dimen/minor_margin">
 
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/img_bottom_panel_radio_link_status_icon"
@@ -38,35 +46,92 @@
                 android:layout_gravity="center_vertical"
                 app:srcCompat="@drawable/icon_radio_link_status_online" />
 
-            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
                 android:id="@+id/tv_bottom_panel_radio_link_status"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/bottom_panel_sub_components_text_height"
+                android:layout_height="@dimen/bottom_panel_sub_components_height"
                 android:layout_marginStart="@dimen/elements_small_margin_spacing"
                 android:gravity="center_vertical"
                 android:text="ONLINE"
-                android:textColor="@color/link_status_green"
-                android:textSize="@dimen/hint_text_size" />
+                android:textColor="@color/dull_green"
+                android:textSize="@dimen/text_view_small_text_size" />
 
-            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
                 android:id="@+id/tv_bottom_panel_last_connection_date"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/bottom_panel_sub_components_text_height"
+                android:layout_height="@dimen/bottom_panel_sub_components_height"
                 android:layout_marginStart="@dimen/elements_margin_spacing"
                 android:gravity="center_vertical"
                 android:text="1 Mar 2019"
-                android:textColor="@color/primary_text_white"
-                android:textSize="@dimen/hint_text_size" />
+                android:textColor="@color/primary_white"
+                android:textSize="@dimen/text_view_small_text_size" />
 
-            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
                 android:id="@+id/tv_bottom_panel_last_connection_time"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/bottom_panel_sub_components_text_height"
+                android:layout_height="@dimen/bottom_panel_sub_components_height"
                 android:layout_marginStart="@dimen/elements_margin_spacing"
                 android:gravity="center_vertical"
                 android:text="15:30"
                 android:textColor="@color/primary_highlight_cyan"
-                android:textSize="@dimen/hint_text_size" />
+                android:textSize="@dimen/text_view_small_text_size" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_bottom_panel_user_callsign"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/elements_margin_spacing"
+            android:layout_toStartOf="@+id/layout_bottom_panel_settings"
+            android:background="@drawable/bottom_panel_subcomponent_background"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/elements_small_margin_spacing"
+            android:paddingEnd="@dimen/elements_small_margin_spacing">
+
+            <LinearLayout
+                android:layout_width="@dimen/bottom_panel_user_callsign_icon_background_width"
+                android:layout_height="@dimen/bottom_panel_user_callsign_icon_background_height"
+                android:layout_marginEnd="@dimen/elements_small_margin_spacing"
+                android:background="@drawable/circle_img_icon_user_background"
+                android:gravity="center">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/img_bottom_panel_user_icon"
+                    android:layout_width="@dimen/bottom_panel_user_callsign_icon_width"
+                    android:layout_height="@dimen/bottom_panel_user_callsign_icon_height"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/icon_team"
+                    android:tint="@color/primary_white" />
+
+            </LinearLayout>
+
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
+                android:id="@+id/tv_bottom_panel_callsign"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/bottom_panel_sub_components_height"
+                android:gravity="center_vertical"
+                android:text="A22"
+                android:textColor="@color/primary_white"
+                android:textSize="@dimen/text_view_small_text_size" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_bottom_panel_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/img_bottom_panel_settings_icon"
+                android:layout_width="@dimen/bottom_panel_settings_icon_width"
+                android:layout_height="@dimen/bottom_panel_settings_icon_height"
+                android:scaleType="fitCenter"
+                android:src="@drawable/icon_settings" />
 
         </LinearLayout>
 

@@ -27,7 +27,10 @@ public interface UserDao {
     void deleteUserModel(String userId);
 
     @Query("SELECT * FROM User")
-    LiveData<List<UserModel>> getAllUsers();
+    LiveData<List<UserModel>> getAllUsersLiveData();
+
+    @Query("SELECT * FROM User")
+    List<UserModel> getAllUsers();
 
     @Query("SELECT * FROM User WHERE userId = :userId")
     Single<UserModel> getUserByUserId(String userId);

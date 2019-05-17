@@ -12,10 +12,12 @@ import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPubSubBrokerProxy;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQSubscriber;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
+import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQ;
+import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQAsyncTask;
 
 public class NetworkService extends IntentService {
 
-    private static final String TAG = "Ventilo:WakeLockTag";
+    private static final String TAG = NetworkService.class.getSimpleName();
 
     private final IBinder mBinder = new NetworkServiceBinder(this);
 
@@ -23,14 +25,14 @@ public class NetworkService extends IntentService {
 //    private BackgroundDataChangeIntentReceiver dataEnabledReceiver;
 //    private ConnectionStateMonitor mConnectionStateMonitor;
 
-    private static MqttHelper mqttHelper;
-    private static RabbitMQHelper rabbitMQHelper;
+//    private static MqttHelper mqttHelper;
+    public static RabbitMQHelper rabbitMQHelper;
 
     //checks if the service is trying to connect, to prevent race conditions between startService and dataEnabledReceiver
-    private boolean tryingToConnect;
+//    private boolean tryingToConnect;
 
     public NetworkService() {
-        super("NetworkService");
+        super(NetworkService.class.getSimpleName());
     }
 
     @Override
@@ -78,52 +80,31 @@ public class NetworkService extends IntentService {
     }
 
     @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        Log.d(TAG, "onTaskRemoved; Service is destroyed.");
+    }
+
+    @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
 
     @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
-
-    }
+    protected void onHandleIntent(@Nullable Intent intent) {}
 
     @Override
     public int onStartCommand(final Intent intent, int flags, final int startId) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                tryingToConnect = true;
-
-//                if (mqttHelper != null) {
-//                    boolean isMqttConnected = mqttHelper.handleStart();
-//                    if (isMqttConnected) {
-//                        notifyMqttConnectedBroadcastIntent();
-//                    }
+        if (rabbitMQHelper != null) {
+            RabbitMQAsyncTask rabbitMQAsyncTask = new RabbitMQAsyncTask();
+            rabbitMQAsyncTask.runRabbitMQ();
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//
 //                }
-
-                if (rabbitMQHelper != null) {
-                    System.out.println("rabbitMQHelper not null");
-                    boolean isRabbitMQConnected = rabbitMQHelper.startRabbitMQWithDefaultSetting();
-                    if (isRabbitMQConnected) {
-                        System.out.println("rabbitMQHelper notify");
-                        notifyRabbitMQConnectedBroadcastIntent();
-                    }
-                }
-
-//                if (mConnectionStateMonitor == null) {
-////                    dataEnabledReceiver = new BackgroundDataChangeIntentReceiver();
-//                    mConnectionStateMonitor = new ConnectionStateMonitor();
-//                    mConnectionStateMonitor.enable();
-////                    registerReceiver(dataEnabledReceiver,
-////                            new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-//                }
-
-                initJeroMQ();
-
-                tryingToConnect = false;
-            }
-        }, "RabbitMQ").start();
-
+//            }, RabbitMQ.class.getSimpleName()).start();
+        }
         // START_NOT_STICKY - Service will NOT be left running after it has been killed
         return START_NOT_STICKY;
     }
@@ -133,26 +114,19 @@ public class NetworkService extends IntentService {
         super.onDestroy();
     }
 
-    private void notifyMqttConnectedBroadcastIntent() {
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(MqttHelper.MQTT_CONNECT_INTENT_ACTION);
-//        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
-    }
+//    private void notifyMqttConnectedBroadcastIntent() {
+//        Intent broadcastIntent = new Intent();
+//        broadcastIntent.setAction(MqttHelper.MQTT_CONNECT_INTENT_ACTION);
+////        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+//    }
 
-    private void notifyRabbitMQConnectedBroadcastIntent() {
-        Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION);
-//        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
-    }
-
-    private void initJeroMQ() {
-        JeroMQPubSubBrokerProxy.getInstance().start();
-        JeroMQPublisher.getInstance().start();
-        JeroMQSubscriber.getInstance().start();
-        Log.i(TAG, "JeroMQ init");
-    }
+//    private void notifyRabbitMQConnectedBroadcastIntent() {
+//        Intent broadcastIntent = new Intent();
+//        broadcastIntent.setAction(RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION);
+////        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+//    }
 
 //    private class ConnectionStateMonitor extends ConnectivityManager.NetworkCallback {
 //

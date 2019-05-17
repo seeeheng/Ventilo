@@ -21,6 +21,10 @@
     <dimen name="toolbar_height">40dp</dimen>
     <dimen name="text_view_height">40dp</dimen>
     <dimen name="edit_text_view_height">40dp</dimen>
+    <dimen name="input_others_layout_icon_width">40dp</dimen>
+    <dimen name="input_others_layout_icon_height">40dp</dimen>
+    <dimen name="input_others_icon_width">20dp</dimen>
+    <dimen name="input_others_icon_height">20dp</dimen>
 
     <!-- Common Recycler Dimensions -->
     <dimen name="recycler_card_corner_radius">8dp</dimen>
@@ -35,41 +39,61 @@
     <!--<dimen name="recycler_avatar_height">48dp</dimen>-->
     <dimen name="recycler_row_header_title_text_size">18sp</dimen>
     <dimen name="recycler_row_header_poster_text_size">18sp</dimen>
-
     <dimen name="circle_img_border_width">1dp</dimen>
+
+    <!-- Text Size -->
+    <dimen name="sub_header_text_size">18sp</dimen>
+    <dimen name="error_hint_text_size">13sp</dimen>
+    <dimen name="hint_text_size">15sp</dimen>
+    <dimen name="edit_text_text_size">15sp</dimen>
+    <dimen name="text_view_small_text_size">13sp</dimen>
+    <dimen name="text_view_text_size">15sp</dimen>
+    <!--<dimen name="edit_text_size">14sp</dimen>-->
+
+    <!-- Image Button -->
+    <dimen name="img_btn_icon_width">20dp</dimen>
+    <dimen name="img_btn_icon_height">20dp</dimen>
 
     <!-- Bottom Navigation Bar (Do NOT change the default names. For overriding purpose) -->
     <dimen name="design_bottom_navigation_text_size" tools:override="true">9sp</dimen>
     <dimen name="design_bottom_navigation_active_text_size" tools:override="true">9sp</dimen>
 
     <!-- Snackbar -->
-    <dimen name="snackbar_margin">45dp</dimen>
+    <dimen name="snackbar_padding_start">27dp</dimen>
+    <dimen name="snackbar_margin_bottom">45dp</dimen>
+    <dimen name="snackbar_action_btn_width">30dp</dimen>
     <dimen name="snackbar_action_btn_height">30dp</dimen>
+    <dimen name="snackbar_action_icon_width">15dp</dimen>
+    <dimen name="snackbar_action_icon_height">15dp</dimen>
+    <dimen name="snackbar_side_icon_width">17dp</dimen>
+    <dimen name="snackbar_side_icon_height">40dp</dimen>
 
     <!-- Spinner -->
     <dimen name="spinner_width">200dp</dimen>
     <dimen name="spinner_height">25dp</dimen>
-    <dimen name="spinner_broad_width">550dp</dimen>
+    <dimen name="spinner_broad_width">600dp</dimen>
     <dimen name="spinner_broad_height">40dp</dimen>
-    <dimen name="spinner_layout_icon_width">40dp</dimen>
-    <dimen name="spinner_layout_icon_height">40dp</dimen>
-    <dimen name="spinner_icon_width">20dp</dimen>
-    <dimen name="spinner_icon_height">20dp</dimen>
     <dimen name="spinner_text_margin_end">28dp</dimen>
     
     <!-- Main Side Menu Panel -->
     <dimen name="side_menu_tab_panel_width">50dp</dimen>
     <dimen name="side_menu_tab_height">40dp</dimen>
     <!--<dimen name="side_menu_tab_width">40dp</dimen>-->
-    <dimen name="side_menu_icon_width">20dp</dimen>
-    <dimen name="side_menu_icon_height">20dp</dimen>
+    <dimen name="side_menu_icon_width">25dp</dimen>
+    <dimen name="side_menu_icon_height">25dp</dimen>
     <dimen name="side_menu_line_selector_width">4dp</dimen>
 
     <!-- Main Bottom Panel -->
     <dimen name="bottom_panel_sub_components_height">25dp</dimen>
     <dimen name="bottom_panel_radio_link_status_icon_width">10dp</dimen>
     <dimen name="bottom_panel_radio_link_status_icon_height">10dp</dimen>
-    <dimen name="bottom_panel_sub_components_text_height">20dp</dimen>
+    <dimen name="bottom_panel_user_callsign_icon_width">10dp</dimen>
+    <dimen name="bottom_panel_user_callsign_icon_height">10dp</dimen>
+    <dimen name="bottom_panel_user_callsign_icon_background_width">20dp</dimen>
+    <dimen name="bottom_panel_user_callsign_icon_background_height">20dp</dimen>
+    <dimen name="bottom_panel_settings_icon_width">18dp</dimen>
+    <dimen name="bottom_panel_settings_icon_height">18dp</dimen>
+    <!--<dimen name="bottom_panel_sub_components_text_height">18dp</dimen>-->
 
     <!-- Login Page -->
     <dimen name="login_outermost_padding">16dp</dimen>
@@ -85,44 +109,44 @@
     <dimen name="login_misc_text_size">12sp</dimen>
 
     <!-- Map Blueprint Page -->
-    <dimen name="map_blueprint_btn_width">25dp</dimen>
-    <dimen name="map_blueprint_btn_height">25dp</dimen>
+    <dimen name="map_blueprint_btn_width">35dp</dimen>
+    <dimen name="map_blueprint_btn_height">35dp</dimen>
 
     <!-- Video Stream Page -->
-    <dimen name="video_stream_btn_width">25dp</dimen>
-    <dimen name="video_stream_btn_height">25dp</dimen>
+    <dimen name="video_stream_btn_width">35dp</dimen>
+    <dimen name="video_stream_btn_height">35dp</dimen>
     <dimen name="video_stream_media_controller_height">275dp</dimen>
-    <dimen name="video_stream_media_controller_toolbar_height">25dp</dimen>
-    <dimen name="video_stream_media_controller_toolbar_btn_width">20dp</dimen>
-    <dimen name="video_stream_media_controller_toolbar_btn_height">20dp</dimen>
+    <dimen name="video_stream_media_controller_toolbar_height">35dp</dimen>
+    <dimen name="video_stream_media_controller_toolbar_btn_width">30dp</dimen>
+    <dimen name="video_stream_media_controller_toolbar_btn_height">30dp</dimen>
     <dimen name="video_stream_media_controller_btn_play_height">50dp</dimen>
     <dimen name="video_stream_media_controller_btn_play_width">50dp</dimen>
 
-    <!-- Text Size -->
-    <dimen name="sub_header_text_size">18sp</dimen>
-    <dimen name="error_hint_text_size">13sp</dimen>
-    <dimen name="hint_text_size">13sp</dimen>
-    <dimen name="edit_text_text_size">15sp</dimen>
-    <dimen name="text_view_small_text_size">13sp</dimen>
-    <dimen name="text_view_text_size">15sp</dimen>
-    <!--<dimen name="edit_text_size">14sp</dimen>-->
+    <!-- Add New Item -->
+    <dimen name="add_new_item_background_height">45dp</dimen>
+    <dimen name="add_new_item_background_icon_width">30dp</dimen>
+    <dimen name="add_new_item_background_icon_height">30dp</dimen>
+
+    <!-- Total Count Dashboard -->
+    <dimen name="count_number_width">40dp</dimen>
+    <dimen name="count_number_height">20dp</dimen>
 
     <!-- Sit Rep -->
     <dimen name="sitrep_row_height">40dp</dimen>
     <dimen name="sitrep_picture_icon_width">50dp</dimen>
     <dimen name="sitrep_picture_icon_height">50dp</dimen>
-    <dimen name="sitrep_btn_close_icon_width">25dp</dimen>
-    <dimen name="sitrep_btn_close_icon_height">25dp</dimen>
+    <dimen name="sitrep_btn_close_icon_width">35dp</dimen>
+    <dimen name="sitrep_btn_close_icon_height">35dp</dimen>
     <dimen name="sitrep_picture_width">400dp</dimen>
     <dimen name="sitrep_picture_height">250dp</dimen>
-    <dimen name="sitrep_personnel_width">85dp</dimen>
-    <dimen name="sitrep_personnel_height">90dp</dimen>
+    <dimen name="sitrep_personnel_width">90dp</dimen>
+    <dimen name="sitrep_personnel_height">100dp</dimen>
     <dimen name="sitrep_personnel_header_height">20dp</dimen>
     <dimen name="sitrep_personnel_content_height">70dp</dimen>
     <dimen name="sitrep_personnel_content_number_box_width">50dp</dimen>
     <dimen name="sitrep_personnel_content_number_box_height">40dp</dimen>
-    <dimen name="sitrep_personnel_content_btn_width">25dp</dimen>
-    <dimen name="sitrep_personnel_content_btn_height">25dp</dimen>
+    <dimen name="sitrep_personnel_content_btn_width">30dp</dimen>
+    <dimen name="sitrep_personnel_content_btn_height">30dp</dimen>
     <dimen name="sitrep_recycler_row_height">130dp</dimen>
     <dimen name="sitrep_recycler_row_container_information_width">540dp</dimen>
     <dimen name="sitrep_recycler_row_inner_detail_container_information_width">440dp</dimen>

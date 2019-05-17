@@ -188,7 +188,7 @@ public class TaskDetailFragment extends Fragment {
 
     private void initTitleSpinner(View rootView) {
         mSpinnerDropdownTitle = rootView.findViewById(R.id.spinner_task_title_detail);
-        String[] titleDetailStringArray = ReportSpinnerBank.getInstance(getActivity()).getTaskTitleList();
+        String[] titleDetailStringArray = ReportSpinnerBank.getInstance().getTaskTitleList();
 
         ArrayAdapter<String> adapter = new ArrayAdapter(getActivity(),
                 R.layout.spinner_row_task_title, R.id.text_item_task_title_detail, titleDetailStringArray) {
@@ -212,7 +212,7 @@ public class TaskDetailFragment extends Fragment {
                     // Set the hint text color gray
                     tv.setTextColor(Color.GRAY);
                 } else {
-                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_white, null));
+                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_white, null));
                 }
                 return view;
             }
@@ -267,7 +267,7 @@ public class TaskDetailFragment extends Fragment {
 
             mTaskViewModel.insertTask(newTaskModel);
 
-//            SnackbarUtil.showCustomSnackbarWithoutAction(mMainLayout, mViewSnackbar,
+//            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, mViewSnackbar,
 //                    getString(R.string.snackbar_sitrep_sent_message));
 //            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
 //            fragmentManager.popBackStack();

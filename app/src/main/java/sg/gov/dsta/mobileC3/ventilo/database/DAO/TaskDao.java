@@ -14,6 +14,12 @@ import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 @Dao
 public interface TaskDao {
 
+    @Query("SELECT * FROM Task WHERE id = :taskId")
+    Single<TaskModel> queryTaskById(long taskId);
+
+    @Query("SELECT * FROM Task WHERE refId = :taskId")
+    Single<TaskModel> queryTaskByRefId(long taskId);
+
     @Insert
     Long insertTaskModel(TaskModel task);
 
@@ -34,5 +40,8 @@ public interface TaskDao {
     void deleteTaskModelByRefId(long taskRefId);
 
     @Query("SELECT * FROM Task")
-    LiveData<List<TaskModel>> getAllTasks();
+    LiveData<List<TaskModel>> getAllTasksLiveData();
+
+    @Query("SELECT * FROM Task")
+    List<TaskModel> getAllTasks();
 }

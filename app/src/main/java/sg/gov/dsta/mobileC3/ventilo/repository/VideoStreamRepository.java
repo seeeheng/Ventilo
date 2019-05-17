@@ -18,7 +18,7 @@ import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 
 public class VideoStreamRepository {
 
-    private LiveData<List<VideoStreamModel>> mAllVideoStreamsForUser;
+    private LiveData<List<VideoStreamModel>> mAllVideoStreamsLiveDataForUser;
     private VideoStreamDao mVideoStreamDao;
 
     public VideoStreamRepository(Application application) {
@@ -34,10 +34,16 @@ public class VideoStreamRepository {
         return mVideoStreamDao.getAllVideoStreamNamesLiveDataForUser(userId);
     }
 
-    public void getAllVideoStreamsForUser(
-            String userId, SingleObserver singleObserver) {
+    public void getAllVideoStreams(SingleObserver singleObserver) {
         QueryAllVideoStreamsAsyncTask task = new
                 QueryAllVideoStreamsAsyncTask(mVideoStreamDao, singleObserver);
+        task.execute();
+    }
+
+    public void getAllVideoStreamsLiveDataForUser(
+            String userId, SingleObserver singleObserver) {
+        QueryAllVideoStreamsForUserAsyncTask task = new
+                QueryAllVideoStreamsForUserAsyncTask(mVideoStreamDao, singleObserver);
         task.execute(userId);
     }
 
@@ -49,9 +55,14 @@ public class VideoStreamRepository {
         task.execute(paramsForGetUrl);
     }
 
-    public void addVideoStream(VideoStreamModel videoStreamModel,
-                               SingleObserver singleObserver) {
-        InsertAsyncTask task = new InsertAsyncTask(mVideoStreamDao, singleObserver);
+    public void insertVideoStreamWithObserver(VideoStreamModel videoStreamModel,
+                                              SingleObserver singleObserver) {
+        InsertWithObserverAsyncTask task = new InsertWithObserverAsyncTask(mVideoStreamDao, singleObserver);
+        task.execute(videoStreamModel);
+    }
+
+    public void insertVideoStream(VideoStreamModel videoStreamModel) {
+        InsertAsyncTask task = new InsertAsyncTask(mVideoStreamDao);
         task.execute(videoStreamModel);
     }
 
@@ -77,21 +88,55 @@ public class VideoStreamRepository {
         }
 
         @Override
-        protected Void doInBackground(final String... userId) {
+        protected Void doInBackground(final String... param) {
             // Converts type Long to Observable, then to Single for RxJava use
-            List<VideoStreamModel> allVideoStreamId =
-                    asyncVideoStreamDao.getAllVideoStreamsForUser(userId[0]);
+            List<VideoStreamModel> allVideoStreamsList =
+                    asyncVideoStreamDao.getAllVideoStreams();
 
-            if (allVideoStreamId == null) {
-                allVideoStreamId = new ArrayList<>();
+            if (allVideoStreamsList == null) {
+                allVideoStreamsList = new ArrayList<>();
             }
 
-            Observable<List<VideoStreamModel>> observableAllVideoStreamId =
-                    Observable.just(allVideoStreamId);
-            Single<List<VideoStreamModel>> singleInsertedVideoStreamId =
-                    Single.fromObservable(observableAllVideoStreamId);
+            Observable<List<VideoStreamModel>> observableAllVideoStreams =
+                    Observable.just(allVideoStreamsList);
+            Single<List<VideoStreamModel>> singleAllVideoStreams =
+                    Single.fromObservable(observableAllVideoStreams);
 
-            singleInsertedVideoStreamId.subscribeOn(Schedulers.io())
+            singleAllVideoStreams.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(asyncSingleObserver);
+
+            return null;
+        }
+    }
+
+    private static class QueryAllVideoStreamsForUserAsyncTask extends
+            AsyncTask<String, Void, Void> {
+
+        private VideoStreamDao asyncVideoStreamDao;
+        private SingleObserver asyncSingleObserver;
+
+        QueryAllVideoStreamsForUserAsyncTask(VideoStreamDao dao, SingleObserver singleObserver) {
+            asyncVideoStreamDao = dao;
+            asyncSingleObserver = singleObserver;
+        }
+
+        @Override
+        protected Void doInBackground(final String... userId) {
+            // Converts type Long to Observable, then to Single for RxJava use
+            List<VideoStreamModel> allVideoStreamsForUser =
+                    asyncVideoStreamDao.getAllVideoStreamsForUser(userId[0]);
+
+            if (allVideoStreamsForUser == null) {
+                allVideoStreamsForUser = new ArrayList<>();
+            }
+
+            Observable<List<VideoStreamModel>> observableAllVideoStreamForUser =
+                    Observable.just(allVideoStreamsForUser);
+            Single<List<VideoStreamModel>> singleAllVideoStreamForUser =
+                    Single.fromObservable(observableAllVideoStreamForUser);
+
+            singleAllVideoStreamForUser.subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(asyncSingleObserver);
 
@@ -131,12 +176,12 @@ public class VideoStreamRepository {
         }
     }
 
-    private static class InsertAsyncTask extends AsyncTask<VideoStreamModel, Void, Void> {
+    private static class InsertWithObserverAsyncTask extends AsyncTask<VideoStreamModel, Void, Void> {
 
         private VideoStreamDao asyncVideoStreamDao;
         private SingleObserver asyncSingleObserver;
 
-        InsertAsyncTask(VideoStreamDao dao, SingleObserver singleObserver) {
+        InsertWithObserverAsyncTask(VideoStreamDao dao, SingleObserver singleObserver) {
             asyncVideoStreamDao = dao;
             asyncSingleObserver = singleObserver;
         }
@@ -155,6 +200,21 @@ public class VideoStreamRepository {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(asyncSingleObserver);
 
+            return null;
+        }
+    }
+
+    private static class InsertAsyncTask extends AsyncTask<VideoStreamModel, Void, Void> {
+
+        private VideoStreamDao asyncVideoStreamDao;
+
+        InsertAsyncTask(VideoStreamDao dao) {
+            asyncVideoStreamDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(final VideoStreamModel... videoStreamModel) {
+            asyncVideoStreamDao.insertVideoStreamModel(videoStreamModel[0]);
             return null;
         }
     }

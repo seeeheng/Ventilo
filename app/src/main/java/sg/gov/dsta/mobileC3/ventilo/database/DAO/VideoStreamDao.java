@@ -20,18 +20,21 @@ public interface VideoStreamDao {
     @Update
     void updateVideoStreamModel(VideoStreamModel videoStreamModel);
 
-    @Query("DELETE FROM VideoStreamModel WHERE id = :videoStreamId")
+    @Query("DELETE FROM VideoStream WHERE id = :videoStreamId")
     void deleteVideoStreamModel(long videoStreamId);
 
-    @Query("SELECT * FROM VideoStreamModel WHERE userId = :userId")
+    @Query("SELECT * FROM VideoStream WHERE userId = :userId")
     LiveData<List<VideoStreamModel>> getAllVideoStreamsLiveDataForUser(String userId);
 
-    @Query("SELECT * FROM VideoStreamModel WHERE userId = :userId")
+    @Query("SELECT * FROM VideoStream")
+    List<VideoStreamModel> getAllVideoStreams();
+
+    @Query("SELECT * FROM VideoStream WHERE userId = :userId")
     List<VideoStreamModel> getAllVideoStreamsForUser(String userId);
 
-    @Query("SELECT name FROM VideoStreamModel WHERE userId = :userId")
+    @Query("SELECT name FROM VideoStream WHERE userId = :userId")
     LiveData<List<String>> getAllVideoStreamNamesLiveDataForUser(String userId);
 
-    @Query("SELECT url FROM VideoStreamModel WHERE userId = :userId AND name = :name")
+    @Query("SELECT url FROM VideoStream WHERE userId = :userId AND name = :name")
     String getVideoStreamUrlForUserByName(String userId, String name);
 }

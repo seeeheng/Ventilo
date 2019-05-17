@@ -2,9 +2,9 @@ package sg.gov.dsta.mobileC3.ventilo.repository;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
-import android.arch.persistence.room.Query;
 import android.os.AsyncTask;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -18,22 +18,60 @@ import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 
 public class SitRepRepository {
 
-    private LiveData<List<SitRepModel>> mAllSitReps;
+    private LiveData<List<SitRepModel>> mAllSitRepsLiveData;
 
     private SitRepDao mSitRepDao;
 
     public SitRepRepository(Application application) {
         VentiloDatabase db = VentiloDatabase.getInstance(application);
         mSitRepDao = db.sitRepDao();
-        mAllSitReps = mSitRepDao.getAllSitReps();
+        mAllSitRepsLiveData = mSitRepDao.getAllSitRepsLiveData();
     }
 
     /**
      * Obtains all Sit Rep models from database
+     *
      * @return
      */
-    public LiveData<List<SitRepModel>> getAllSitReps() {
-        return mAllSitReps;
+    public LiveData<List<SitRepModel>> getAllSitRepsLiveData() {
+        return mAllSitRepsLiveData;
+    }
+
+    /**
+     * Obtains all Sit Rep models from database
+     *
+     * @param singleObserver
+     */
+    public void getAllSitReps(SingleObserver singleObserver) {
+        QueryAllSitRepsAsyncTask task = new
+                QueryAllSitRepsAsyncTask(mSitRepDao, singleObserver);
+        task.execute();
+    }
+
+    /**
+     * Obtain Sit Rep based on Id with Id from local database
+     *
+     * @param sitRepId
+     * @param singleObserver
+     */
+    public void querySitRepById(long sitRepId, SingleObserver<SitRepModel> singleObserver) {
+        Single<SitRepModel> single = mSitRepDao.querySitRepById(sitRepId);
+        single.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(singleObserver);
+    }
+
+    /**
+     * Obtain Sit Rep based on Ref Id with Id from local database
+     *
+     * @param sitRepId
+     * @param singleObserver
+     */
+    public void querySitRepByRefId(long sitRepId, SingleObserver<SitRepModel> singleObserver) {
+        Single<SitRepModel> single = mSitRepDao.querySitRepByRefId(sitRepId);
+        single.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(singleObserver);
     }
 
     /**
@@ -41,13 +79,14 @@ public class SitRepRepository {
      * @param sitRepModel
      * @param singleObserver
      */
-    public void addSitRep(SitRepModel sitRepModel, SingleObserver singleObserver) {
+    public void insertSitRepWithObserver(SitRepModel sitRepModel, SingleObserver singleObserver) {
         InsertWithObserverAsyncTask task = new InsertWithObserverAsyncTask(mSitRepDao, singleObserver);
         task.execute(sitRepModel);
     }
 
     /**
      * Insert Sit Rep model into local database
+     *
      * @param sitRepModel
      */
     public void insertSitRep(SitRepModel sitRepModel) {
@@ -56,19 +95,8 @@ public class SitRepRepository {
     }
 
     /**
-     * Obtain Sit Rep based on Sit Rep Id from local database
-     * @param sitRepId
-     * @param singleObserver
-     */
-    public void querySitRepBySitRepId(long sitRepId, SingleObserver<SitRepModel> singleObserver) {
-        Single<SitRepModel> single = mSitRepDao.querySitRepBySitRepId(sitRepId);
-        single.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(singleObserver);
-    }
-
-    /**
-     * Update Sit Rep model in local database
+     * Update Sit Rep model by Id with Id in local database
+     *
      * @param sitRepModel
      */
     public void updateSitRep(SitRepModel sitRepModel) {
@@ -77,7 +105,8 @@ public class SitRepRepository {
     }
 
     /**
-     * Update Sit Rep model by Ref Id in local database
+     * Update Sit Rep model by Ref Id with Id in local database
+     *
      * @param sitRepModel
      */
     public void updateSitRepByRefId(SitRepModel sitRepModel) {
@@ -86,7 +115,8 @@ public class SitRepRepository {
     }
 
     /**
-     * Delete Sit Rep model from local database
+     * Delete Sit Rep model by Id with Id from local database
+     *
      * @param sitRepId
      */
     public void deleteSitRep(long sitRepId) {
@@ -95,12 +125,50 @@ public class SitRepRepository {
     }
 
     /**
-     * Delete Sit Rep model By Ref Id from local database
-     * @param sitRepRefId
+     * Delete Sit Rep model by Ref Id with Id from local database
+     *
+     * @param sitRepId
      */
-    public void deleteSitRepByRefId(long sitRepRefId) {
+    public void deleteSitRepByRefId(long sitRepId) {
         DeleteByRefIdAsyncTask task = new DeleteByRefIdAsyncTask(mSitRepDao);
-        task.execute(sitRepRefId);
+        task.execute(sitRepId);
+    }
+
+    /**
+     * Query all Sit Rep models in database
+     *
+     */
+    private static class QueryAllSitRepsAsyncTask extends AsyncTask<String, Void, Void> {
+
+        private SitRepDao asyncSitRepDao;
+        private SingleObserver asyncSingleObserver;
+
+        QueryAllSitRepsAsyncTask(SitRepDao dao, SingleObserver singleObserver) {
+            asyncSitRepDao = dao;
+            asyncSingleObserver = singleObserver;
+        }
+
+        @Override
+        protected Void doInBackground(final String... param) {
+            // Converts type Long to Observable, then to Single for RxJava use
+            List<SitRepModel> allSitRepsList =
+                    asyncSitRepDao.getAllSitReps();
+
+            if (allSitRepsList == null) {
+                allSitRepsList = new ArrayList<>();
+            }
+
+            Observable<List<SitRepModel>> observableAllSitReps =
+                    Observable.just(allSitRepsList);
+            Single<List<SitRepModel>> singleAllSitReps =
+                    Single.fromObservable(observableAllSitReps);
+
+            singleAllSitReps.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(asyncSingleObserver);
+
+            return null;
+        }
     }
 
     /**
@@ -182,12 +250,12 @@ public class SitRepRepository {
         @Override
         protected Void doInBackground(final SitRepModel... sitRepModel) {
             SitRepModel sitRepModelToUpdate = sitRepModel[0];
-            asyncSitRepDao.updateSitRepModelByRefId(sitRepModelToUpdate.getReporter(),
-                    sitRepModelToUpdate.getSnappedPhoto(), sitRepModelToUpdate.getLocation(),
-                    sitRepModelToUpdate.getActivity(), sitRepModelToUpdate.getPersonnelT(),
-                    sitRepModelToUpdate.getPersonnelS(), sitRepModelToUpdate.getPersonnelD(),
-                    sitRepModelToUpdate.getNextCoa(), sitRepModelToUpdate.getRequest(),
-                    sitRepModelToUpdate.getReportedDateTime(), sitRepModelToUpdate.getRefId());
+            asyncSitRepDao.updateSitRepModelByRefId(sitRepModelToUpdate.getId(),
+                    sitRepModelToUpdate.getReporter(), sitRepModelToUpdate.getSnappedPhoto(),
+                    sitRepModelToUpdate.getLocation(), sitRepModelToUpdate.getActivity(),
+                    sitRepModelToUpdate.getPersonnelT(), sitRepModelToUpdate.getPersonnelS(),
+                    sitRepModelToUpdate.getPersonnelD(), sitRepModelToUpdate.getNextCoa(),
+                    sitRepModelToUpdate.getRequest(), sitRepModelToUpdate.getCreatedDateTime());
 
             return null;
         }

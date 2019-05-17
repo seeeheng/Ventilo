@@ -1,18 +1,17 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.main;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.os.IBinder;
+import android.graphics.PorterDuff;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,9 +19,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,20 +28,21 @@ import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.sitrep.SitRepFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.task.TaskFragment;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.eventbus.PageEvent;
-import sg.gov.dsta.mobileC3.ventilo.network.NetworkService;
-import sg.gov.dsta.mobileC3.ventilo.network.NetworkServiceBinder;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPubSubBrokerProxy;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQSubscriber;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
+import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQAsyncTask;
 import sg.gov.dsta.mobileC3.ventilo.util.JSONUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -55,9 +52,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String MQTT_TOPIC_TASK = "Task";
     private static final String MQTT_TOPIC_INCIDENT = "Incident";
 
-    private Intent mMqttIntent;
+//    public static Intent rabbitMQIntent;
 
-    private NetworkService mNetworkService;
+    //    public static NetworkService networkService;
+    public static boolean isServiceBound;
     //    private NetworkConnectivity mNetworkConnectivity;
     private MqttHelper mMqttHelper;
 
@@ -89,12 +87,17 @@ public class MainActivity extends AppCompatActivity {
 
     // Bottom Panel
     private View mViewBottomPanel;
-    private C2OpenSansSemiBoldTextView mTvFragmentTitle;
-    private C2OpenSansSemiBoldTextView mTvRadioLinkStatus;
-    private C2OpenSansSemiBoldTextView mTvLastConnectionDate;
-    private C2OpenSansSemiBoldTextView mTvLastConnectionTime;
+    private C2OpenSansBoldTextView mTvFragmentTitle;
+    private C2OpenSansBoldTextView mTvRadioLinkStatus;
+    private C2OpenSansBoldTextView mTvLastConnectionDate;
+    private C2OpenSansBoldTextView mTvLastConnectionTime;
+    private C2OpenSansBoldTextView mTvCallsign;
+    private LinearLayout mLayoutSetting;
 
-    private boolean mIsServiceRegistered;
+    // Snackbar
+    private View mViewSnackbar;
+
+    //    private boolean mIsServiceRegistered;
     private BroadcastReceiver mBroadcastReceiver;
 
     private IMQListener mIMQListener;
@@ -106,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initSideMenuPanel();
         initBottomPanel();
+        initSnackbar();
 //        ownUserId = 10;
 //        ownUserId = Long.parseLong(getIntent().getStringExtra("USER_ID"));
 
@@ -136,28 +140,28 @@ public class MainActivity extends AppCompatActivity {
         mViewSideMenuPanel = findViewById(R.id.layout_main_side_menu_panel);
 
         // Tab Views
-        mRelativeLayoutTabMap = findViewById(R.id.layout_tab_map_selector_status);
-        mRelativeLayoutTabVideoStream = findViewById(R.id.layout_tab_video_stream_selector_status);
-        mRelativeLayoutTabReport = findViewById(R.id.layout_tab_report_selector_status);
-        mRelativeLayoutTabTimeline = findViewById(R.id.layout_tab_timeline_selector_status);
-        mRelativeLayoutTabTask = findViewById(R.id.layout_tab_task_selector_status);
-        mRelativeLayoutTabRadioLink = findViewById(R.id.layout_tab_radio_link_selector_status);
+        mRelativeLayoutTabMap = mViewSideMenuPanel.findViewById(R.id.layout_tab_map_selector_status);
+        mRelativeLayoutTabVideoStream = mViewSideMenuPanel.findViewById(R.id.layout_tab_video_stream_selector_status);
+        mRelativeLayoutTabReport = mViewSideMenuPanel.findViewById(R.id.layout_tab_report_selector_status);
+        mRelativeLayoutTabTimeline = mViewSideMenuPanel.findViewById(R.id.layout_tab_timeline_selector_status);
+        mRelativeLayoutTabTask = mViewSideMenuPanel.findViewById(R.id.layout_tab_task_selector_status);
+        mRelativeLayoutTabRadioLink = mViewSideMenuPanel.findViewById(R.id.layout_tab_radio_link_selector_status);
 
         // Line within Tab View
-        mLinearLayoutLineSelectorMap = findViewById(R.id.linear_layout_map_line_selector);
-        mLinearLayoutLineSelectorVideoStream = findViewById(R.id.linear_layout_video_stream_line_selector);
-        mLinearLayoutLineSelectorReport = findViewById(R.id.linear_layout_report_line_selector);
-        mLinearLayoutLineSelectorTimeline = findViewById(R.id.linear_layout_timeline_line_selector);
-        mLinearLayoutLineSelectorTask = findViewById(R.id.linear_layout_task_line_selector);
-        mLinearLayoutLineSelectorRadioLink = findViewById(R.id.linear_layout_radio_link_line_selector);
+        mLinearLayoutLineSelectorMap = mViewSideMenuPanel.findViewById(R.id.linear_layout_map_line_selector);
+        mLinearLayoutLineSelectorVideoStream = mViewSideMenuPanel.findViewById(R.id.linear_layout_video_stream_line_selector);
+        mLinearLayoutLineSelectorReport = mViewSideMenuPanel.findViewById(R.id.linear_layout_report_line_selector);
+        mLinearLayoutLineSelectorTimeline = mViewSideMenuPanel.findViewById(R.id.linear_layout_timeline_line_selector);
+        mLinearLayoutLineSelectorTask = mViewSideMenuPanel.findViewById(R.id.linear_layout_task_line_selector);
+        mLinearLayoutLineSelectorRadioLink = mViewSideMenuPanel.findViewById(R.id.linear_layout_radio_link_line_selector);
 
         // Image Views within Tab View
-        mImgViewTabMap = findViewById(R.id.img_tab_map);
-        mImgViewTabVideoStream = findViewById(R.id.img_tab_video_stream);
-        mImgViewTabReport = findViewById(R.id.img_tab_report);
-        mImgViewTabTimeline = findViewById(R.id.img_tab_timeline);
-        mImgViewTabTask = findViewById(R.id.img_tab_task);
-        mImgViewTabRadioLink = findViewById(R.id.img_tab_radio_link);
+        mImgViewTabMap = mViewSideMenuPanel.findViewById(R.id.img_tab_map);
+        mImgViewTabVideoStream = mViewSideMenuPanel.findViewById(R.id.img_tab_video_stream);
+        mImgViewTabReport = mViewSideMenuPanel.findViewById(R.id.img_tab_report);
+        mImgViewTabTimeline = mViewSideMenuPanel.findViewById(R.id.img_tab_timeline);
+        mImgViewTabTask = mViewSideMenuPanel.findViewById(R.id.img_tab_task);
+        mImgViewTabRadioLink = mViewSideMenuPanel.findViewById(R.id.img_tab_radio_link);
 
         // Tab Views OnClickListeners
         mRelativeLayoutTabMap.setOnClickListener(onMapTabClickListener);
@@ -175,10 +179,23 @@ public class MainActivity extends AppCompatActivity {
     private void initBottomPanel() {
         mViewBottomPanel = findViewById(R.id.layout_main_bottom_panel);
 
-        mTvFragmentTitle = findViewById(R.id.tv_bottom_panel_fragment_title);
-        mTvRadioLinkStatus = findViewById(R.id.tv_bottom_panel_radio_link_status);
-        mTvLastConnectionDate = findViewById(R.id.tv_bottom_panel_last_connection_date);
-        mTvLastConnectionTime = findViewById(R.id.tv_bottom_panel_last_connection_time);
+        mTvFragmentTitle = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_fragment_title);
+        mTvRadioLinkStatus = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_radio_link_status);
+        mTvLastConnectionDate = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_last_connection_date);
+        mTvLastConnectionTime = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_last_connection_time);
+        mTvCallsign = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_callsign);
+        mLayoutSetting = mViewBottomPanel.findViewById(R.id.layout_bottom_panel_settings);
+
+        mTvCallsign.setText(SharedPreferenceUtil.getCurrentUserCallsignID(this));
+        mLayoutSetting.setOnClickListener(onSettingsClickListener);
+    }
+
+    private void initSnackbar() {
+        mViewSnackbar = getLayoutInflater().inflate(R.layout.layout_custom_snackbar, null);
+    }
+
+    public View getSnackbarView() {
+        return mViewSnackbar;
     }
 
     private OnClickListener onMapTabClickListener = new OnClickListener() {
@@ -279,38 +296,60 @@ public class MainActivity extends AppCompatActivity {
     private void setMapSelectedUI() {
         mLinearLayoutLineSelectorMap.setVisibility(View.VISIBLE);
         mImgViewTabMap.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
-                android.graphics.PorterDuff.Mode.MULTIPLY);
+                PorterDuff.Mode.SRC_ATOP);
     }
 
     private void setVideoStreamSelectedUI() {
         mLinearLayoutLineSelectorVideoStream.setVisibility(View.VISIBLE);
         mImgViewTabVideoStream.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
-                android.graphics.PorterDuff.Mode.MULTIPLY);
+                PorterDuff.Mode.SRC_ATOP);
     }
 
     private void setReportSelectedUI() {
         mLinearLayoutLineSelectorReport.setVisibility(View.VISIBLE);
         mImgViewTabReport.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
-                android.graphics.PorterDuff.Mode.MULTIPLY);
+                PorterDuff.Mode.SRC_ATOP);
     }
 
     private void setTimelineSelectedUI() {
         mLinearLayoutLineSelectorTimeline.setVisibility(View.VISIBLE);
         mImgViewTabTimeline.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
-                android.graphics.PorterDuff.Mode.MULTIPLY);
+                PorterDuff.Mode.SRC_ATOP);
     }
 
     private void setTaskSelectedUI() {
         mLinearLayoutLineSelectorTask.setVisibility(View.VISIBLE);
         mImgViewTabTask.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
-                android.graphics.PorterDuff.Mode.MULTIPLY);
+                PorterDuff.Mode.SRC_ATOP);
     }
 
     private void setRadioLinkSelectedUI() {
         mLinearLayoutLineSelectorRadioLink.setVisibility(View.VISIBLE);
         mImgViewTabRadioLink.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
-                android.graphics.PorterDuff.Mode.MULTIPLY);
+                PorterDuff.Mode.SRC_ATOP);
     }
+
+    private OnClickListener onSettingsClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            // TODO
+//            Fragment userSettingsFragment = new UserSettingsFragment();
+//
+//            FragmentManager fm = getSupportFragmentManager();
+//            FragmentTransaction ft = fm.beginTransaction();
+//            ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
+//            ft.replace(R.id.viewpager_main_nav, userSettingsFragment, userSettingsFragment.getClass().getSimpleName());
+//            ft.addToBackStack(userSettingsFragment.getClass().getSimpleName());
+//            ft.commit();
+
+            mNoSwipeViewPager.setCurrentItem(6,
+                    true);
+            mTvFragmentTitle.setText(mNoSwipeViewPager.getAdapter().
+                    getPageTitle(6));
+
+            mTvFragmentTitle.setText(getString(R.string.settings_page_title));
+        }
+    };
 
 //    private NoSwipeViewPager.OnPageChangeListener setPageChangeListener(
 //            final BottomNavigationView bottomNavigationView) {
@@ -492,7 +531,7 @@ public class MainActivity extends AppCompatActivity {
 
                                     if (sitRepFragment != null) {
                                         Log.d(TAG, "Sit Rep: Refresh Data");
-                                        sitRepFragment.refreshData();
+//                                        sitRepFragment.refreshData();
                                         sitRepFragment.addItemInRecycler();
                                     }
                             }
@@ -512,162 +551,162 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void setMqttCallback() {
-        mMqttHelper.setCallback(new MqttCallbackExtended() {
-            @Override
-            public void connectComplete(boolean b, String s) {
-
-            }
-
-            @Override
-            public void connectionLost(Throwable throwable) {
-
-            }
-
-            @Override
-            public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
-                Log.w("Debug", mqttMessage.toString());
-
-                System.out.println("Received new mqttMessage");
-                String mqttMessageString = mqttMessage.toString();
-                boolean isJSON = false;
-
-                if (JSONUtil.isJSONValid(mqttMessageString)) {
-                    try {
-                        JSONObject mqttMessageJSON = new JSONObject(mqttMessageString);
-                        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplication().getApplicationContext());
-                        SharedPreferences.Editor editor = pref.edit();
-
-                        System.out.println("Received valid mqttMessage");
-
-                        switch (mqttMessageJSON.getString("key")) {
-
-                            case FragmentConstants.KEY_TASK_ADD:
-                                String totalNumberOfTasksKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER);
-                                int totalNumberOfTasks = pref.getInt(totalNumberOfTasksKey, 0);
-                                editor.putInt(totalNumberOfTasksKey, totalNumberOfTasks + 1);
-
-                                String taskInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.HEADER_TASK).concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(String.valueOf(totalNumberOfTasks));
-
-                                editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ID), mqttMessageJSON.getInt("id"));
-                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNER), mqttMessageJSON.getString("assigner"));
-                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE), mqttMessageJSON.getString("assignee"));
-                                editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE_AVATAR_ID), R.drawable.default_soldier_icon);
-                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_TITLE), mqttMessageJSON.getString("title"));
-                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_DESCRIPTION), mqttMessageJSON.getString("description"));
-                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_STATUS), mqttMessageJSON.getString("status"));
-                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_DATE), mqttMessageJSON.getString("date"));
-
-                                editor.apply();
-
-                                TaskFragment taskFragment = (TaskFragment) MainStatePagerAdapter.getPageReferenceMap().
-                                        get(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID);
-
-                                if (taskFragment != null) {
-                                    Log.d(TAG, "Task: Refresh Data");
-                                    taskFragment.refreshData();
-                                    taskFragment.addItemInRecycler();
-                                }
-
-                            case FragmentConstants.KEY_SITREP_ADD:
-                                String totalNumberOfSitRepKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER);
-                                int totalNumberOfSitRep = pref.getInt(totalNumberOfSitRepKey, 0);
-                                editor.putInt(totalNumberOfSitRepKey, totalNumberOfSitRep + 1);
-
-                                System.out.println("main activity totalNumberOfSitRep + 1 is " + (totalNumberOfSitRep + 1));
-
-                                String sitRepInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.HEADER_SITREP).concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(String.valueOf(totalNumberOfSitRep));
-                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ID), mqttMessageJSON.getInt("id"));
-                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER), mqttMessageJSON.getString("reporter"));
-                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER_AVATAR_ID), R.drawable.default_soldier_icon);
-                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_LOCATION), mqttMessageJSON.getString("location"));
-                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ACTIVITY), mqttMessageJSON.getString("activity"));
-                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_T), mqttMessageJSON.getInt("personnel_t"));
-                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_S), mqttMessageJSON.getInt("personnel_s"));
-                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_D), mqttMessageJSON.getInt("personnel_d"));
-                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_NEXT_COA), mqttMessageJSON.getString("next_coa"));
-                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REQUEST), mqttMessageJSON.getString("request"));
-
-                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_DATE), mqttMessageJSON.getString("date"));
-
-                                editor.apply();
-
-                                SitRepFragment sitRepFragment = (SitRepFragment) MainStatePagerAdapter.getPageReferenceMap().
-                                        get(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID);
-
-                                if (sitRepFragment != null) {
-                                    Log.d(TAG, "Sit Rep: Refresh Data");
-                                    sitRepFragment.refreshData();
-                                    sitRepFragment.addItemInRecycler();
-                                }
-                        }
-
-                        isJSON = true;
-
-                    } catch (JSONException ex) {
-                        Log.d(TAG, "JSONException: " + ex);
-                    }
-
-                }
-                //
-//                checkMqttTaskTopic(topic, mqttMessage.toString());
-//                checkMqttIncidentTopic(topic, mqttMessage.toString());
-
-//                mDataReceived.setText(mqttMessage.toString());
-
-//                if (mqttMessage.toString().contains("PAYLOAD")) {
-//                    MapFragment.isTrackAllies = true;
-//                    MapFragment.coordString = mqttMessage.toString();
-//                    System.out.println("message arrived is " + mqttMessage.toString());
-//                }
-
-//                if (!isJSON) {
-//                    if (mqttMessage.toString().contains("publish")) {
-//                        MapFragment.isTrackAllies = true;
-//                        MapFragment.coordString = mqttMessage.toString();
-//                        System.out.println("message arrived is " + mqttMessage.toString());
+//    public void setMqttCallback() {
+//        mMqttHelper.setCallback(new MqttCallbackExtended() {
+//            @Override
+//            public void connectComplete(boolean b, String s) {
+//
+//            }
+//
+//            @Override
+//            public void connectionLost(Throwable throwable) {
+//
+//            }
+//
+//            @Override
+//            public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
+//                Log.w("Debug", mqttMessage.toString());
+//
+//                System.out.println("Received new mqttMessage");
+//                String mqttMessageString = mqttMessage.toString();
+//                boolean isJSON = false;
+//
+//                if (JSONUtil.isJSONValid(mqttMessageString)) {
+//                    try {
+//                        JSONObject mqttMessageJSON = new JSONObject(mqttMessageString);
+//                        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplication().getApplicationContext());
+//                        SharedPreferences.Editor editor = pref.edit();
+//
+//                        System.out.println("Received valid mqttMessage");
+//
+//                        switch (mqttMessageJSON.getString("key")) {
+//
+//                            case FragmentConstants.KEY_TASK_ADD:
+//                                String totalNumberOfTasksKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER);
+//                                int totalNumberOfTasks = pref.getInt(totalNumberOfTasksKey, 0);
+//                                editor.putInt(totalNumberOfTasksKey, totalNumberOfTasks + 1);
+//
+//                                String taskInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.HEADER_TASK).concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(String.valueOf(totalNumberOfTasks));
+//
+//                                editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ID), mqttMessageJSON.getInt("id"));
+//                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNER), mqttMessageJSON.getString("assigner"));
+//                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE), mqttMessageJSON.getString("assignee"));
+//                                editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE_AVATAR_ID), R.drawable.default_soldier_icon);
+//                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_TITLE), mqttMessageJSON.getString("title"));
+//                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_DESCRIPTION), mqttMessageJSON.getString("description"));
+//                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_STATUS), mqttMessageJSON.getString("status"));
+//                                editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_TASK_DATE), mqttMessageJSON.getString("date"));
+//
+//                                editor.apply();
+//
+//                                TaskFragment taskFragment = (TaskFragment) MainStatePagerAdapter.getPageReferenceMap().
+//                                        get(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID);
+//
+//                                if (taskFragment != null) {
+//                                    Log.d(TAG, "Task: Refresh Data");
+//                                    taskFragment.refreshData();
+//                                    taskFragment.addItemInRecycler();
+//                                }
+//
+//                            case FragmentConstants.KEY_SITREP_ADD:
+//                                String totalNumberOfSitRepKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER);
+//                                int totalNumberOfSitRep = pref.getInt(totalNumberOfSitRepKey, 0);
+//                                editor.putInt(totalNumberOfSitRepKey, totalNumberOfSitRep + 1);
+//
+//                                System.out.println("main activity totalNumberOfSitRep + 1 is " + (totalNumberOfSitRep + 1));
+//
+//                                String sitRepInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.HEADER_SITREP).concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(String.valueOf(totalNumberOfSitRep));
+//                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ID), mqttMessageJSON.getInt("id"));
+//                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER), mqttMessageJSON.getString("reporter"));
+//                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER_AVATAR_ID), R.drawable.default_soldier_icon);
+//                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_LOCATION), mqttMessageJSON.getString("location"));
+//                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ACTIVITY), mqttMessageJSON.getString("activity"));
+//                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_T), mqttMessageJSON.getInt("personnel_t"));
+//                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_S), mqttMessageJSON.getInt("personnel_s"));
+//                                editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_D), mqttMessageJSON.getInt("personnel_d"));
+//                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_NEXT_COA), mqttMessageJSON.getString("next_coa"));
+//                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REQUEST), mqttMessageJSON.getString("request"));
+//
+//                                editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                        concat(SharedPreferenceConstants.SUB_HEADER_SITREP_DATE), mqttMessageJSON.getString("date"));
+//
+//                                editor.apply();
+//
+//                                SitRepFragment sitRepFragment = (SitRepFragment) MainStatePagerAdapter.getPageReferenceMap().
+//                                        get(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID);
+//
+//                                if (sitRepFragment != null) {
+//                                    Log.d(TAG, "Sit Rep: Refresh Data");
+//                                    sitRepFragment.refreshData();
+//                                    sitRepFragment.addItemInRecycler();
+//                                }
+//                        }
+//
+//                        isJSON = true;
+//
+//                    } catch (JSONException ex) {
+//                        Log.d(TAG, "JSONException: " + ex);
 //                    }
 //
-//
-//                    if (mqttMessage.toString().contains("Coords:")) {
-//                        System.out.println("GOT THE STRING --> " + mqttMessage.toString());
-//                        MapFragment.isTrackAllies = true;
-//                        MapFragment.coordString = mqttMessage.toString();
-//                    }
 //                }
-            }
-
-            @Override
-            public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-
-            }
-        });
-    }
+//                //
+////                checkMqttTaskTopic(topic, mqttMessage.toString());
+////                checkMqttIncidentTopic(topic, mqttMessage.toString());
+//
+////                mDataReceived.setText(mqttMessage.toString());
+//
+////                if (mqttMessage.toString().contains("PAYLOAD")) {
+////                    MapFragment.isTrackAllies = true;
+////                    MapFragment.coordString = mqttMessage.toString();
+////                    System.out.println("message arrived is " + mqttMessage.toString());
+////                }
+//
+////                if (!isJSON) {
+////                    if (mqttMessage.toString().contains("publish")) {
+////                        MapFragment.isTrackAllies = true;
+////                        MapFragment.coordString = mqttMessage.toString();
+////                        System.out.println("message arrived is " + mqttMessage.toString());
+////                    }
+////
+////
+////                    if (mqttMessage.toString().contains("Coords:")) {
+////                        System.out.println("GOT THE STRING --> " + mqttMessage.toString());
+////                        MapFragment.isTrackAllies = true;
+////                        MapFragment.coordString = mqttMessage.toString();
+////                    }
+////                }
+//            }
+//
+//            @Override
+//            public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
+//
+//            }
+//        });
+//    }
 
 //    private void checkMqttTaskTopic(String topic, String message) {
 //        if (MQTT_TOPIC_TASK.equalsIgnoreCase(topic)) {
@@ -739,26 +778,26 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Defines callbacks for service binding, passed to bindService()
      */
-    private ServiceConnection mMqttServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            NetworkServiceBinder binder = (NetworkServiceBinder) service;
-            mNetworkService = binder.getService();
+//    private ServiceConnection rabbitMQServiceConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName className,
+//                                       IBinder service) {
+//            // We've bound to LocalService, cast the IBinder and get LocalService instance
+//            NetworkServiceBinder binder = (NetworkServiceBinder) service;
+//            mNetworkService = binder.getService();
+////            mNetworkService.deactivate();
+////            unbindService(this);
+////            System.out.println("Connected");
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName arg0) {
 //            mNetworkService.deactivate();
-//            unbindService(this);
-//            System.out.println("Connected");
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mNetworkService.deactivate();
-//            System.out.println("Disconnected");
-//            Toast.makeText(getApplicationContext(), "Service Disconnected", Toast.LENGTH_LONG).show();
-        }
-    };
+////            System.out.println("Disconnected");
+////            Toast.makeText(getApplicationContext(), "Service Disconnected", Toast.LENGTH_LONG).show();
+//        }
+//    };
 
 //    @Override
 //    public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -802,6 +841,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Defines callbacks for service binding, passed to bindService()
+     */
+//    public static ServiceConnection rabbitMQServiceConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName className,
+//                                       IBinder service) {
+//            // Bind to LocalService, cast the IBinder and get LocalService instance
+//            NetworkServiceBinder binder = (NetworkServiceBinder) service;
+//            networkService = binder.getService();
+////            isServiceBound = true;
+//            Log.i(TAG, "Network service activated.");
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName arg0) {
+//            Log.i(TAG, "Network service deactivating...");
+//            networkService.deactivate();
+////            isServiceBound = false;
+//            Log.i(TAG, "Network service deactivated.");
+//        }
+//    };
+
+//    private void subscribeToRabbitMQ() {
+//        rabbitMQIntent = new Intent(this, NetworkService.class);
+//        startService(rabbitMQIntent);
+//        bindService(rabbitMQIntent, rabbitMQServiceConnection, Context.BIND_AUTO_CREATE);
+//    }
     @Override
     public void onBackPressed() {
         System.out.println("Main Activity onBackPressed");
@@ -809,6 +877,7 @@ public class MainActivity extends AppCompatActivity {
         if (count == 0) {
             // Go to login page
             super.onBackPressed();
+            this.finish();
         } else {
             String taggedName = getSupportFragmentManager().getBackStackEntryAt(
                     getSupportFragmentManager().getBackStackEntryCount() - 1).getName();
@@ -867,10 +936,19 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 //        mqttIntent = new Intent(getApplicationContext(), NetworkService.class);
 //        startService(mqttIntent);
-//        mIsServiceRegistered = getApplicationContext().bindService(mqttIntent, mMqttServiceConnection, Context.BIND_AUTO_CREATE);
+//        mIsServiceRegistered = getApplicationContext().bindService(mqttIntent, rabbitMQServiceConnection, Context.BIND_AUTO_CREATE);
         registerMqttBroadcastReceiver();
 
 //        subscribeToMQTT();
+
+
+//        JeroMQAsyncTask jeroMQAsyncTask = new JeroMQAsyncTask();
+//        jeroMQAsyncTask.runJeroMQ();
+
+
+//        subscribeToRabbitMQ();
+//                    RabbitMQAsyncTask rabbitMQAsyncTask = new RabbitMQAsyncTask();
+//                    rabbitMQAsyncTask.runRabbitMQ();
 
 
 //        subscribeToRabbitMQ();
@@ -879,32 +957,20 @@ public class MainActivity extends AppCompatActivity {
 //    private void subscribeToMQTT() {
 //        mMqttIntent = new Intent(getApplicationContext(), NetworkService.class);
 //        startService(mMqttIntent);
-//        mIsServiceRegistered = getApplicationContext().bindService(mMqttIntent, mMqttServiceConnection, Context.BIND_AUTO_CREATE);
+//        mIsServiceRegistered = getApplicationContext().bindService(mMqttIntent, rabbitMQServiceConnection, Context.BIND_AUTO_CREATE);
 //        registerMqttBroadcastReceiver();
 //    }
-
-    private void subscribeToRabbitMQ() {
-        mMqttIntent = new Intent(getApplicationContext(), NetworkService.class);
-        startService(mMqttIntent);
-        mIsServiceRegistered = getApplicationContext().bindService(mMqttIntent, mMqttServiceConnection, Context.BIND_AUTO_CREATE);
-        registerMqttBroadcastReceiver();
-
-//        new RabbitMQTask().execute("");
-//        RabbitMQHelper.getInstance(this.getApplicationContext()).startRabbitMQWithDefaultSetting();
-//        if (RabbitMQHelper.connectionStatus == RabbitMQHelper.RabbitMQConnectionStatus.CONNECTED) {
-//            setupMQListener();
-//        }
-    }
 
     @Override
     protected void onStop() {
         super.onStop();
 //
+        Log.i(TAG, "Main Activity onStop...");
 //        System.out.println("Service not registered");
 //
 //        if (mIsServiceRegistered) {
 //            System.out.println("Service registered");
-//            getApplicationContext().unbindService(mMqttServiceConnection);
+//            getApplicationContext().unbindService(rabbitMQServiceConnection);
 //        }
 
 //        JeroMQPubSubBrokerProxy.getInstance().stop();
@@ -915,37 +981,37 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.i(TAG, "Destroying Main Activity...");
 
-        System.out.println("DESTROY");
         /* Close service properly. Currently, the service is not destroyed, only the mqtt connection and
          * connection status are closed.
          */
-//        if (mIsServiceRegistered) {
-////            stopService(mMqttIntent);
-//            getApplicationContext().unbindService(mMqttServiceConnection);
-//            mIsServiceRegistered = false;
-//        }
+        synchronized (MainActivity.class) {
+            if (RabbitMQAsyncTask.mIsServiceRegistered) {
+                Log.i(TAG, "Destroying RabbitMQ...");
 
-        JeroMQPubSubBrokerProxy.getInstance().stop();
-        JeroMQPublisher.getInstance().stop();
-        JeroMQSubscriber.getInstance().stop();
+                RabbitMQAsyncTask.stopRabbitMQ();
+                Log.i(TAG, "Stopped RabbitMQ Async Task.");
+
+                stopService(MainApplication.rabbitMQIntent);
+                Log.i(TAG, "Stopped RabbitMQ Intent Service.");
+
+                MainApplication.networkService.stopSelf();
+                Log.i(TAG, "Stop RabbitMQ Network Self.");
+
+                getApplicationContext().unbindService(MainApplication.rabbitMQServiceConnection);
+                Log.i(TAG, "Unbinded RabbitMQ Service.");
+
+                JeroMQPublisher.getInstance().stop();
+                JeroMQSubscriber.getInstance().stop();
+
+                Log.i(TAG, "Stopped all JeroMQ connections.");
+                RabbitMQAsyncTask.mIsServiceRegistered = false;
+
+                JeroMQPubSubBrokerProxy.getInstance().stop();
+            }
+        }
     }
-
-//    private class RabbitMQTask extends AsyncTask<String, Void, String> {
-//
-//        protected String doInBackground(String... urls) {
-//            RabbitMQHelper.getInstance().startRabbitMQWithDefaultSetting();
-//            if (RabbitMQHelper.connectionStatus == RabbitMQHelper.RabbitMQConnectionStatus.CONNECTED) {
-//                setupMQListener();
-//            }
-//            return "";
-//        }
-//
-//        protected void onPostExecute(String result) {
-//            // TODO: check this.exception
-//            // TODO: do something with the result
-//        }
-//    }
 
 //    public interface OnInitMQTTListener {
 //        public void onInitMQTT(MqttHelper mqttHelper);
@@ -956,6 +1022,6 @@ public class MainActivity extends AppCompatActivity {
 //    protected void onPause() {
 //        super.onPause();
 //
-////        getApplicationContext().unbindService(mMqttServiceConnection);
+////        getApplicationContext().unbindService(rabbitMQServiceConnection);
 //    }
 }

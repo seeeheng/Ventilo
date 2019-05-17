@@ -89,7 +89,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentStart="true"
-                    android:textColor="@color/primary_text_white"
+                    android:textColor="@color/primary_white"
                     android:textSize="@dimen/text_view_text_size" />
 
                 <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView

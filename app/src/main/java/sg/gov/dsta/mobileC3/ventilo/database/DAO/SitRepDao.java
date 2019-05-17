@@ -14,11 +14,14 @@ import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 @Dao
 public interface SitRepDao {
 
+    @Query("SELECT * FROM SitRep WHERE id = :sitRepId")
+    Single<SitRepModel> querySitRepById(long sitRepId);
+
+    @Query("SELECT * FROM SitRep WHERE refId = :sitRefId")
+    Single<SitRepModel> querySitRepByRefId(long sitRefId);
+
     @Insert
     Long insertSitRepModel(SitRepModel sitRep);
-
-    @Query("SELECT * FROM SitRep WHERE id = :sitRepId")
-    Single<SitRepModel> querySitRepBySitRepId(long sitRepId);
 
     @Update
     void updateSitRepModel(SitRepModel sitRep);
@@ -26,11 +29,11 @@ public interface SitRepDao {
     @Query("UPDATE SitRep SET reporter = :reporter, snappedPhoto = :snappedPhoto," +
             "location = :location, activity = :activity, personnelT = :personnelT," +
             "personnelS = :personnelS, personnelD = :personnelD, nextCoa = :nextCoa," +
-            "request = :request, reportedDateTime = :reportedDateTime WHERE refId = :refId")
-    void updateSitRepModelByRefId(String reporter, byte[] snappedPhoto, String location,
+            "request = :request, createdDateTime = :reportedDateTime WHERE refId = :id")
+    void updateSitRepModelByRefId(long id, String reporter, byte[] snappedPhoto, String location,
                                   String activity, int personnelT, int personnelS,
                                   int personnelD, String nextCoa, String request,
-                                  String reportedDateTime, long refId);
+                                  String reportedDateTime);
 
     @Query("DELETE FROM SitRep WHERE id = :sitRepId")
     void deleteSitRepModel(long sitRepId);
@@ -39,5 +42,8 @@ public interface SitRepDao {
     void deleteSitRepModelByRefId(long sitRepRefId);
 
     @Query("SELECT * FROM SitRep")
-    LiveData<List<SitRepModel>> getAllSitReps();
+    LiveData<List<SitRepModel>> getAllSitRepsLiveData();
+
+    @Query("SELECT * FROM SitRep")
+    List<SitRepModel> getAllSitReps();
 }

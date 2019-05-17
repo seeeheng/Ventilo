@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    android:id="@+id/layout_sitrep_inner_fragment"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_sitrep_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -14,22 +13,32 @@
         <!--android:id="@+id/toolbar_others"-->
         <!--layout="@layout/fragment_toolbar_others" />-->
 
+        <include
+            android:id="@+id/layout_total_count_dashboard"
+            layout="@layout/layout_total_count_dashboard"
+            android:visibility="gone" />
+
+        <include
+            android:id="@+id/layout_add_new_item"
+            layout="@layout/layout_add_new_item"
+            android:visibility="gone" />
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_sitrep"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/layout_total_count_dashboard"
             android:layout_marginStart="@dimen/recycler_outermost_margin_start"
             android:layout_marginEnd="@dimen/recycler_outermost_margin_end"
-            android:scrollbars="vertical">
-        </android.support.v7.widget.RecyclerView>
+            android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_sitrep_add"
+            style="@style/FloatingActionButton_StyleOne"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="@dimen/horizontal_2nd_level_margin"
             android:src="@drawable/fab_add"
-            app:fabSize="mini"
-            style="@style/FloatingActionButton_StyleOne" />
+            app:fabSize="mini" />
 
     </RelativeLayout>
 

@@ -21,22 +21,34 @@
 
     <!-- Button -->
     <string name="btn_back">Back</string>
-    <string name="btn_done">Done</string>
     <string name="btn_confirm">Confirm</string>
-    <string name="btn_report">Report</string>
+    <string name="btn_done">Done</string>
     <string name="btn_edit">Edit</string>
+    <string name="btn_report">Report</string>
+    <string name="btn_save">Save</string>
     <string name="btn_send">Send</string>
-    <string name="btn_update">Update</string>
     <string name="btn_stream">Stream</string>
-
+    <string name="btn_update">Update</string>
     <string name="btn_map_subscribe">Subscribe</string>
     <string name="btn_map_share_location">Share Location</string>
     <string name="btn_map_top">Top</string>
     <string name="btn_map_port">Port</string>
     <string name="btn_map_starboard">Starboard</string>
+    <string name="btn_pull_from_excel">Pull From Excel</string>
+    <string name="btn_push_to_excel">Push To Excel</string>
+    <string name="btn_sync_up">Sync Up</string>
+    <string name="btn_logout">Logout</string>
 
     <!-- Snackbar -->
+    <string name="snackbar_login_invalid_user">Invalid username and password</string>
+    <string name="snackbar_settings_save_message">Save Settings?</string>
+    <string name="snackbar_settings_pull_from_excel_message">Pull data from Excel?</string>
+    <string name="snackbar_settings_push_to_excel_message">Push data to Excel?</string>
+    <string name="snackbar_settings_sync_up_message">Sync with other devices?</string>
+    <string name="snackbar_settings_logout_message">Logout?</string>
     <string name="snackbar_screenshot_taken_message">Screenshot has been taken</string>
+    <string name="snackbar_form_incomplete_message">Form is incomplete.
+        Please fill in the following field(s):</string>
     <string name="snackbar_sitrep_sent_message">Sit Rep has been sent</string>
     <string name="snackbar_sitrep_updated_message">Sit Rep has been updated</string>
     <string name="snackbar_sitrep_send_confirmation_message">Send Sitrep?</string>
@@ -72,23 +84,12 @@
     <!--<string name="tab_layout_tabs_task_title">TASK</string>-->
     <!--<string name="tab_layout_tabs_sitrep_title">SIT REP</string>-->
 
-    <!-- Incident Inner Fragment -->
-    <string name="incident_title_header">Title</string>
+    <!-- Add New Item Layout -->
+    <string name="add_new_item_sitrep">To create new Sit Rep, click on</string>
+    <string name="add_new_item_task">To create new Task, click on</string>
+    <string name="add_new_item_below">below</string>
 
-    <string-array name="incident_title_items">
-        <item>Select Incident...</item>
-        <item>Found Explosive</item>
-        <item>Casualty</item>
-        <item>Others</item>
-    </string-array>
-
-    <string name="incident_title_detail_hint">Enter title here...</string>
-    <string name="incident_description_header">Description</string>
-    <string name="incident_description_detail_hint">Enter description here...</string>
-    <string name="error_empty_incident_title_detail">Please enter incident title</string>
-    <string name="error_empty_incident_description_detail">Please enter incident description</string>
-
-    <!-- Task Inner Fragment -->
+    <!-- Task Fragment -->
     <string name="task_page_title">Task</string>
     <string name="task_title_header">Title</string>
 
@@ -108,8 +109,10 @@
 
     <!-- Sitrep Fragment -->
     <string name="sitrep_page_title">Situation Report</string>
+    <string name="sitrep_total_count_title">Total</string>
     <string name="sitrep_new_title">New SITREP</string>
     <string name="sitrep_callsign_header">SITREP</string>
+    <string name="sitrep_team_header">Team</string>
     <string name="sitrep_picture">Pictures</string>
     <string name="sitrep_picture_general_title">SitRepImage</string>
     <string name="sitrep_location">Location</string>
@@ -123,6 +126,10 @@
     <string name="sitrep_T">T</string>
     <string name="sitrep_S">S</string>
     <string name="sitrep_D">D</string>
+    <string name="sitrep_location_hint">Enter Location</string>
+    <string name="sitrep_activity_hint">Enter Activity</string>
+    <string name="sitrep_next_coa_hint">Enter Next Course of Action</string>
+    <string name="sitrep_request_hint">Enter Request</string>
 
     <string-array name="sitrep_location_items">
         <item>-- Select Location --</item>
@@ -263,4 +270,7 @@
 
     <!-- Radio Link Status -->
     <string name="radio_link_status_page_title">Radio Link Status</string>
+
+    <!-- Settings -->
+    <string name="settings_page_title">Settings</string>
 </resources>

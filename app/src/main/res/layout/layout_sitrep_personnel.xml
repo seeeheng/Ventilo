@@ -12,8 +12,9 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:gravity="center"
+            android:gravity="center|end"
             android:layout_height="@dimen/sitrep_personnel_header_height"
+            android:layout_marginBottom="@dimen/elements_margin_spacing"
             android:orientation="horizontal">
 
             <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
@@ -22,8 +23,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:text="@string/sitrep_personnel"
-                android:textColor="@color/primary_text_white"
-                android:textSize="@dimen/text_view_text_size" />
+                android:textColor="@color/primary_text_grey"
+                android:textSize="@dimen/text_view_small_text_size" />
 
             <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
                 android:id="@+id/tv_sitrep_personnel_type"
@@ -33,7 +34,7 @@
                 android:layout_marginStart="@dimen/minor_margin"
                 android:text="@string/sitrep_T"
                 android:textColor="@color/primary_highlight_cyan"
-                android:textSize="@dimen/text_view_text_size" />
+                android:textSize="@dimen/text_view_small_text_size" />
 
         </LinearLayout>
 
@@ -48,8 +49,8 @@
                 android:layout_width="@dimen/sitrep_personnel_content_number_box_width"
                 android:layout_height="@dimen/sitrep_personnel_content_number_box_height"
                 android:layout_marginEnd="@dimen/elements_margin_spacing"
-                android:textColor="@color/primary_text_white"
-                android:background="@drawable/personnel_background"
+                android:textColor="@color/primary_white"
+                android:background="@drawable/rounded_corner_background"
                 android:gravity="center"/>
 
             <LinearLayout

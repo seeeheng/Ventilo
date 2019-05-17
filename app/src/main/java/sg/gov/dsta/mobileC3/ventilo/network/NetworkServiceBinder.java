@@ -2,21 +2,19 @@ package sg.gov.dsta.mobileC3.ventilo.network;
 
 import android.os.Binder;
 
-import sg.gov.dsta.mobileC3.ventilo.network.NetworkService;
-
 public class NetworkServiceBinder extends Binder {
 
-    private NetworkService mMqttService;
+    private NetworkService mRabbitMQService;
 
-    NetworkServiceBinder(NetworkService mqttService) {
-        this.mMqttService = mqttService;
+    NetworkServiceBinder(NetworkService rabbitMQService) {
+        this.mRabbitMQService = rabbitMQService;
     }
 
     /**
      * @return a reference to the Service
      */
     public NetworkService getService() {
-        return mMqttService;
+        return mRabbitMQService;
     }
 
 }

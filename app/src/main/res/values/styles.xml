@@ -28,7 +28,7 @@
     <!-- Recycler View Header Text -->
     <style name="RecyclerViewHeaderText">
         <item name="fontFamily">@font/lato_regular</item>
-        <item name="android:textColor">@color/primary_text_white</item>
+        <item name="android:textColor">@color/primary_white</item>
         <item name="android:textSize">@dimen/recycler_row_header_title_text_size</item>
     </style>
 

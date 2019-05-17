@@ -3,38 +3,36 @@ package sg.gov.dsta.mobileC3.ventilo.activity.login;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.List;
-
-import io.reactivex.Single;
 import io.reactivex.SingleObserver;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
-import sg.gov.dsta.mobileC3.ventilo.database.VentiloDatabase;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.MainViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPubSubBrokerProxy;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQSubscriber;
+import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQAsyncTask;
+import sg.gov.dsta.mobileC3.ventilo.repository.ExcelSpreadsheetRepository;
+import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.security.RandomString;
@@ -61,10 +59,14 @@ public class LoginActivity extends AppCompatActivity {
     private UserViewModel mUserViewModel;
 
     // UI references
+    private FrameLayout mMainLayout;
     private C2OpenSansBlackEditTextView mEtvUserId;
     private C2OpenSansBlackEditTextView mEtvPassword;
     private View mProgressView;
     private View mLoginFormView;
+
+    // Snackbar
+    private View mViewSnackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +81,10 @@ public class LoginActivity extends AppCompatActivity {
 //        startActivity(activityIntent);
 
         setContentView(R.layout.activity_login);
+
+        mMainLayout = findViewById(R.id.layout_login_activity);
+        initSnackbar();
+
         // Set up the login form.
         mEtvUserId = (C2OpenSansBlackEditTextView) findViewById(R.id.etv_login_username);
 //        populateAutoComplete();
@@ -109,9 +115,6 @@ public class LoginActivity extends AppCompatActivity {
                 SharedPreferenceConstants.INITIALS = SharedPreferenceConstants.TEAM_NUMBER.
                         concat(SharedPreferenceConstants.SEPARATOR).concat(SharedPreferenceConstants.CALLSIGN_USER);
 
-                // TODO: Remove after demo
-                SharedPreferenceUtil.setContext(getApplication());
-
                 checkIfValidUser();
             }
         });
@@ -130,6 +133,10 @@ public class LoginActivity extends AppCompatActivity {
         // TODO: Remove after testing
 //        mPasswordET.setText("Bella@com.sg");
 //        mPasswordET.setText("pass");
+    }
+
+    private void initSnackbar() {
+        mViewSnackbar = getLayoutInflater().inflate(R.layout.layout_custom_snackbar, null);
     }
 
     private void resetSharedPref() {
@@ -337,13 +344,21 @@ public class LoginActivity extends AppCompatActivity {
 
         UserViewModel userViewModel = new UserViewModel(getApplication());
         String password = "333";
-        UserModel newUser = new UserModel(USERNAME, password, "", "Alpha", "Member");
+        UserModel newUser = new UserModel(USERNAME);
+        newUser.setPassword(password);
+        newUser.setAccessToken("");
+        newUser.setTeam("Alpha");
+        newUser.setRole("Member");
 
         String passwordTwo = "444";
-        UserModel newUserTwo = new UserModel(USERNAME_TWO, passwordTwo, "", "Alpha", "Member");
+        UserModel newUserTwo = new UserModel(USERNAME_TWO);
+        newUserTwo.setPassword(passwordTwo);
+        newUserTwo.setAccessToken("");
+        newUserTwo.setTeam("Alpha");
+        newUserTwo.setRole("Member");
 
-        userViewModel.addUser(newUser);
-        userViewModel.addUser(newUserTwo);
+        userViewModel.insertUser(newUser);
+        userViewModel.insertUser(newUserTwo);
     }
 
     private void checkIfValidUser() {
@@ -358,8 +373,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(UserModel userModel) {
                 saveLoginDetails(userModel);
+                pullDataFromExcelToDatabase();
 
-                //TODO figure out a way to toggle when server is not available
                 Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(activityIntent);
             }
@@ -367,11 +382,13 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onError(Throwable e) {
                 Log.d(TAG, "Error adding Access Token. Error Msg: " + e.toString());
+                SnackbarUtil.showCustomInfoSnackbar(mMainLayout, mViewSnackbar,
+                        getString(R.string.snackbar_login_invalid_user));
             }
         };
 
-//        mUserViewModel.queryUserByUserId(mEtvUserId.getText().toString().trim(), singleObserver);
-        mUserViewModel.queryUserByUserId(USERNAME, singleObserver);
+        mUserViewModel.queryUserByUserId(mEtvUserId.getText().toString().trim(), singleObserver);
+//        mUserViewModel.queryUserByUserId(USERNAME, singleObserver);
     }
 
     private void saveLoginDetails(UserModel userModel) {
@@ -394,6 +411,13 @@ public class LoginActivity extends AppCompatActivity {
     private String generateAccessToken() {
         RandomString randomString = new RandomString();
         return randomString.nextString();
+    }
+
+    private void pullDataFromExcelToDatabase() {
+        Log.i(TAG, "Pulling data from Excel to Database...");
+        ExcelSpreadsheetRepository excelSpreadsheetRepository =
+                new ExcelSpreadsheetRepository();
+        excelSpreadsheetRepository.pullDataFromExcelToDatabase();
     }
 
     private void observerSetup() {
@@ -463,4 +487,45 @@ public class LoginActivity extends AppCompatActivity {
 //            showProgress(false);
 //        }
 //    }
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Log.i(TAG, "onStart.");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "Destroying Login Activity...");
+
+        /* Close service properly. Currently, the service is not destroyed, only the mqtt connection and
+         * connection status are closed.
+         */
+        synchronized (MainActivity.class) {
+            if (RabbitMQAsyncTask.mIsServiceRegistered) {
+                Log.i(TAG, "Destroying RabbitMQ...");
+
+                RabbitMQAsyncTask.stopRabbitMQ();
+                Log.i(TAG, "Stopped RabbitMQ Async Task.");
+
+                stopService(MainApplication.rabbitMQIntent);
+                Log.i(TAG, "Stopped RabbitMQ Intent Service.");
+
+                MainApplication.networkService.stopSelf();
+                Log.i(TAG, "Stop RabbitMQ Network Self.");
+
+                getApplicationContext().unbindService(MainApplication.rabbitMQServiceConnection);
+                Log.i(TAG, "Unbinded RabbitMQ Service.");
+
+                JeroMQPublisher.getInstance().stop();
+                JeroMQSubscriber.getInstance().stop();
+
+                Log.i(TAG, "Stopped all JeroMQ connections.");
+                RabbitMQAsyncTask.mIsServiceRegistered = false;
+
+                JeroMQPubSubBrokerProxy.getInstance().stop();
+            }
+        }
+    } // Stopping service sg.gov.dsta.mobileC3.ventilo/.network.NetworkService: remove task
 }

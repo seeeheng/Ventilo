@@ -7,9 +7,8 @@ import android.arch.lifecycle.LiveData;
 import java.util.List;
 
 import io.reactivex.SingleObserver;
-import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
+import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
-import sg.gov.dsta.mobileC3.ventilo.repository.TaskRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.VideoStreamRepository;
 
 public class VideoStreamViewModel extends AndroidViewModel {
@@ -21,6 +20,10 @@ public class VideoStreamViewModel extends AndroidViewModel {
         repository = new VideoStreamRepository(application);
     }
 
+    public void getAllVideoStreams(SingleObserver singleObserver) {
+        repository.getAllVideoStreams(singleObserver);
+    }
+
     public LiveData<List<VideoStreamModel>> getAllVideoStreamsLiveDataForUser(String userId) {
         return repository.getAllVideoStreamsLiveDataForUser(userId);
     }
@@ -30,7 +33,7 @@ public class VideoStreamViewModel extends AndroidViewModel {
     }
 
     public void getAllVideoStreamsForUser(String userId, SingleObserver singleObserver) {
-        repository.getAllVideoStreamsForUser(userId, singleObserver);
+        repository.getAllVideoStreamsLiveDataForUser(userId, singleObserver);
     }
 
     public void getVideoStreamUrlForUserByName(String userId, String videoName,
@@ -38,9 +41,13 @@ public class VideoStreamViewModel extends AndroidViewModel {
         repository.getVideoStreamUrlForUserByName(userId, videoName, singleObserver);
     }
 
-    public void addVideoStream(VideoStreamModel videoStreamModel,
-                               SingleObserver singleObserver) {
-        repository.addVideoStream(videoStreamModel, singleObserver);
+    public void insertVideoStream(VideoStreamModel videoStreamModel) {
+        repository.insertVideoStream(videoStreamModel);
+    }
+
+    public void insertVideoStream(VideoStreamModel videoStreamModel,
+                                  SingleObserver singleObserver) {
+        repository.insertVideoStreamWithObserver(videoStreamModel, singleObserver);
     }
 
     public void updateVideoStream(VideoStreamModel videoStreamModel) {

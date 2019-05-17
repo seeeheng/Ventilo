@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_user_settings"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/layout_toolbar_user_settings_text_left_text_right"
+        layout="@layout/layout_toolbar_text_left_text_right" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/elements_margin_spacing">
+
+        <include
+            android:id="@+id/layout_pull_from_excel_text_img_btn"
+            layout="@layout/layout_img_text_img_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="@dimen/elements_margin_spacing"
+            android:foreground="?android:selectableItemBackground" />
+
+        <include
+            android:id="@+id/layout_push_to_excel_img_text_img_btn"
+            layout="@layout/layout_img_text_img_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/layout_pull_from_excel_text_img_btn"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="@dimen/elements_margin_spacing"
+            android:foreground="?android:selectableItemBackground" />
+
+        <include
+            android:id="@+id/layout_sync_img_text_img_btn"
+            layout="@layout/layout_img_text_img_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/layout_push_to_excel_img_text_img_btn"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="@dimen/elements_margin_spacing"
+            android:foreground="?android:selectableItemBackground" />
+
+        <include
+            android:id="@+id/layout_logout_img_text_img_btn"
+            layout="@layout/layout_img_text_img_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/layout_sync_img_text_img_btn"
+            android:layout_alignParentEnd="true"
+            android:foreground="?android:selectableItemBackground" />
+
+    </RelativeLayout>
+
+</LinearLayout>

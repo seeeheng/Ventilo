@@ -7,6 +7,9 @@ public class FragmentConstants {
     public static final int DEFAULT_LONG = 0;
     public static final int DEFAULT_INT = 0;
 
+    //
+    public static final int LOCAL_REF_ID = -1;
+
     // Task
     public static final String KEY_TASK = "Task";
     public static final String KEY_TASK_ADD = "Task Add";
@@ -31,7 +34,7 @@ public class FragmentConstants {
 //    public static final String KEY_SITREP_NEXT_COA = "Sit Rep Next Course of Action";
 //    public static final String KEY_SITREP_REQUEST = "Sit Rep Request";
     public static final String VALUE_SITREP_ADD = "Add Sit Rep";
-    public static final String VALUE_SITREP_VIEW = "View Sit Rep";
+    public static final String VALUE_SITREP_UPDATE = "Update Sit Rep";
 
     // Video Stream
     public static final String KEY_VIDEO_STREAM = "Video Stream";

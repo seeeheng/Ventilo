@@ -408,7 +408,7 @@ public class TaskFragment extends Fragment {
         /*
          * Refreshes recyclerview UI whenever there is a change in task (insert, update or delete)
          */
-        mTaskViewModel.getAllTasks().observe(this, new Observer<List<TaskModel>>() {
+        mTaskViewModel.getAllTasksLiveData().observe(this, new Observer<List<TaskModel>>() {
             @Override
             public void onChanged(@Nullable List<TaskModel> taskModelList) {
                 mRecyclerAdapter.setTaskListItems(taskModelList);
@@ -524,6 +524,7 @@ public class TaskFragment extends Fragment {
         Log.d(TAG, "Setting up dummy tasks");
         TaskModel taskModel1 = new TaskModel();
 //            taskModel1.setId(0);
+        taskModel1.setRefId(FragmentConstants.LOCAL_REF_ID);
         taskModel1.setAssignedBy("Aaron (A01)");
         taskModel1.setAssignedTo("");
 //            taskModel1.setAssigneeAvatar(getContext().getDrawable(R.drawable.default_soldier_icon));
@@ -536,6 +537,7 @@ public class TaskFragment extends Fragment {
 
         TaskModel taskModel2 = new TaskModel();
 //            taskModel2.setId(1);
+        taskModel2.setRefId(FragmentConstants.LOCAL_REF_ID);
         taskModel2.setAssignedBy("Bastian (B01)");
         taskModel2.setAssignedTo("");
         taskModel2.setTitle("Rescue Hostage");
@@ -547,6 +549,7 @@ public class TaskFragment extends Fragment {
 
         TaskModel taskModel3 = new TaskModel();
 //            taskModel3.setId(2);
+        taskModel3.setRefId(FragmentConstants.LOCAL_REF_ID);
         taskModel3.setAssignedBy("Chris (C01)");
         taskModel3.setAssignedTo("");
         taskModel3.setTitle("Secure Nuclear Weapon");
@@ -637,7 +640,7 @@ public class TaskFragment extends Fragment {
         };
 
         mUserViewModel.queryUserByAccessToken(accessToken, singleObserverUser);
-        mUserViewModel.queryUserByUserId("456", singleObserverUser);
+//        mUserViewModel.queryUserByUserId("456", singleObserverUser);
     }
 
 //    private void addAssigneesToTaskList() {
@@ -888,12 +891,12 @@ public class TaskFragment extends Fragment {
 //                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_complete));
 //        } else if (EStatus.IN_PROGRESS.toString().equalsIgnoreCase(taskStatus)) {
 //            showFirstAndSecondSwipeActionButtons(viewHolder,
-//                    ResourcesCompat.getColor(getResources(), R.color.task_status_cyan, null),
+//                    ResourcesCompat.getColor(getResources(), R.color.primary_highlight_cyan, null),
 //                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_new),
 //                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_complete));
 //        } else {
 //            showFirstAndSecondSwipeActionButtons(viewHolder,
-//                    ResourcesCompat.getColor(getResources(), R.color.task_status_cyan, null),
+//                    ResourcesCompat.getColor(getResources(), R.color.primary_highlight_cyan, null),
 //                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_new),
 //                    getContext().getDrawable(R.drawable.btn_task_swipe_action_status_in_progress));
 //        }

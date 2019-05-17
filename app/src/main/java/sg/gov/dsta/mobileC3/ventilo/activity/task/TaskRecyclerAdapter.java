@@ -1,10 +1,6 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.task;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,9 +10,7 @@ import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
-import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.TaskViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.DrawableUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
 
 public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskViewHolder> {
@@ -53,7 +47,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
         if (status.equalsIgnoreCase(EStatus.NEW.toString())) {
             itemViewHolder.getTvStatus().setTextColor(
-                    mContext.getResources().getColor(R.color.primary_text_white));
+                    mContext.getResources().getColor(R.color.primary_white));
             itemViewHolder.getCircleImgStatus().
                     setImageDrawable(mContext.getDrawable(R.drawable.task_new));
         } else if (status.equalsIgnoreCase(EStatus.IN_PROGRESS.toString())) {

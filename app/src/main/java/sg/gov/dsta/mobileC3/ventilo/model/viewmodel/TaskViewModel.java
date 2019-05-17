@@ -8,21 +8,26 @@ import java.util.List;
 
 import io.reactivex.SingleObserver;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
+import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.repository.TaskRepository;
 
 public class TaskViewModel extends AndroidViewModel {
 
     private TaskRepository repository;
-    private LiveData<List<TaskModel>> mAllTasks;
+    private LiveData<List<TaskModel>> mAllTasksLiveData;
 
     public TaskViewModel(Application application) {
         super(application);
         repository = new TaskRepository(application);
-        mAllTasks = repository.getAllTasks();
+        mAllTasksLiveData = repository.getAllTasksLiveData();
     }
 
-    public LiveData<List<TaskModel>> getAllTasks() {
-        return mAllTasks;
+    public LiveData<List<TaskModel>> getAllTasksLiveData() {
+        return mAllTasksLiveData;
+    }
+
+    public void getAllTasks(SingleObserver<UserModel> singleObserver) {
+        repository.getAllTasks(singleObserver);
     }
 
     public void addTask(TaskModel taskModel, SingleObserver singleObserver) {

@@ -15,6 +15,7 @@ import sg.gov.dsta.mobileC3.ventilo.activity.radiolinkstatus.RadioLinkStatusFrag
 import sg.gov.dsta.mobileC3.ventilo.activity.sitrep.SitRepFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.task.TaskFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.timeline.TimelineFragment;
+import sg.gov.dsta.mobileC3.ventilo.activity.user.UserSettingsFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.videostream.VideoStreamFragment;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 
@@ -40,12 +41,13 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
 
         switch (i) {
             case MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID:
-                fragment = new MapShipBlueprintFragment();
+                fragment = new VideoStreamFragment();
                 mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID,
                         fragment);
                 mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID,
                         mContext.getResources().getString(R.string.map_page_title));
                 break;
+
             case MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID:
                 fragment = new VideoStreamFragment();
                 mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID,
@@ -53,6 +55,7 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
                 mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID,
                         mContext.getResources().getString(R.string.video_stream_page_title));
                 break;
+
             case MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID:
                 fragment = new SitRepFragment();
                 mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID,
@@ -60,6 +63,7 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
                 mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID,
                         mContext.getResources().getString(R.string.sitrep_page_title));
                 break;
+
             case MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID:
                 fragment = new TimelineFragment();
                 mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID,
@@ -67,6 +71,7 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
                 mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID,
                         mContext.getResources().getString(R.string.timeline_page_title));
                 break;
+
             case MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID:
                 fragment = new TaskFragment();
                 mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID,
@@ -74,6 +79,7 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
                 mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID,
                         mContext.getResources().getString(R.string.task_page_title));
                 break;
+
             case MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID:
                 fragment = new RadioLinkStatusFragment();
                 mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID,
@@ -81,6 +87,15 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
                 mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID,
                         mContext.getResources().getString(R.string.radio_link_status_page_title));
                 break;
+
+            case 6:
+                fragment = new UserSettingsFragment();
+                mPageFragmentReferenceHashMap.put(6,
+                        fragment);
+                mPageNameReferenceHashMap.put(6,
+                        mContext.getResources().getString(R.string.settings_page_title));
+                break;
+
             default:
                 fragment = new RadioLinkStatusFragment();
                 mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID,
@@ -99,7 +114,7 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return MainNavigationConstants.SIDE_MENU_TAB_TOTAL_COUNT;
+        return 7;
     }
 
     @Override

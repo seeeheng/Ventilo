@@ -281,6 +281,16 @@ public class JeroMQPubSubBrokerProxy extends JeroMQBrokerProxy {
             ZMQ.proxy(mXSubSocket, mXPubSocket, null);
             Log.i(TAG, "Proxy disconnected.");
 
+            if (mXSubSocket != null) {
+                mProxyZContext.destroySocket(mXSubSocket);
+                Log.i(TAG, "Server xSub socket closed.");
+            }
+
+            if (mXPubSocket != null) {
+                mProxyZContext.destroySocket(mXPubSocket);
+                Log.i(TAG, "Server xPub socket closed.");
+            }
+
             mProxyZContext.destroy();
             Log.i(TAG, "Proxy context destroyed.");
         }

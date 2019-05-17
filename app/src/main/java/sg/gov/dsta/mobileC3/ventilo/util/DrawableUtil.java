@@ -1,6 +1,7 @@
 package sg.gov.dsta.mobileC3.ventilo.util;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -81,5 +82,15 @@ public class DrawableUtil {
             drawable.draw(canvas);
         }
         return result;
+    }
+
+    public static boolean IsValidImage(byte[] bytes) {
+        Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+        if (bmp == null) {
+            return false;
+        }
+
+        return true;
     }
 }

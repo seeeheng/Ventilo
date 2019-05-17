@@ -52,7 +52,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_marginBottom="@dimen/elements_margin_spacing"
                 android:text="Team Alpha SITREP"
-                android:textColor="@color/primary_text_white"
+                android:textColor="@color/primary_white"
                 android:textSize="@dimen/text_view_text_size" />
 
             <!--</RelativeLayout>-->

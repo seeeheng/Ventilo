@@ -26,12 +26,8 @@ public class UserModel {
     private String team;        // For e.g., 1, Alpha
     private String role;        // For e.g., CCT, Lead, Member
 
-    public UserModel(String userId, String password, String accessToken, String team, String role) {
+    public UserModel(String userId) {
         this.userId = userId;
-        this.password = password;
-        this.accessToken = accessToken;
-        this.team = team;
-        this.role = role;
     }
 
     // --- GETTER ---

@@ -58,6 +58,7 @@ import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
+import sg.gov.dsta.mobileC3.ventilo.repository.ExcelSpreadsheetRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.PhotoCaptureUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
@@ -221,7 +222,7 @@ public class VideoStreamFragment extends Fragment {
                     // Set the hint text color gray
                     tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_hint_dark_grey, null));
                 } else {
-                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_white, null));
+                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_white, null));
                 }
                 return view;
             }
@@ -258,7 +259,7 @@ public class VideoStreamFragment extends Fragment {
                     // Set the hint text color gray
                     tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_hint_dark_grey, null));
                 } else {
-                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_white, null));
+                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_white, null));
                 }
                 return view;
             }
@@ -344,7 +345,7 @@ public class VideoStreamFragment extends Fragment {
     }
 
     private void initSurfaceViewVideoOneStream(View rootVideoStreamView) {
-//        mFilePath = "rtsp://184.72.239.149/vod/mp4:BigBuckBunny_175k.mov";
+//        mFilePath = "rtsp://184.72.239.149/vod/mp4:BigBuckBunny_115k.mov";
 
 //        Log.d(TAG, "Playing: " + mFilePath);
         mConstraintLayoutSurfaceViewOne = rootVideoStreamView.findViewById(R.id.constraint_layout_video_surface_one);
@@ -396,7 +397,7 @@ public class VideoStreamFragment extends Fragment {
 //                System.out.println("imagePath is " + imagePath);
 
                 if (imagePath != null) {
-                    SnackbarUtil.showCustomSnackbarWithoutAction(mRelativeLayoutMain, mViewSnackbar,
+                    SnackbarUtil.showCustomInfoSnackbar(mRelativeLayoutMain, mViewSnackbar,
                             getString(R.string.snackbar_screenshot_taken_message));
                 }
             }
@@ -473,7 +474,7 @@ public class VideoStreamFragment extends Fragment {
 //                System.out.println("imagePath is " + imagePath);
 
                 if (imagePath != null) {
-                    SnackbarUtil.showCustomSnackbarWithoutAction(mRelativeLayoutMain, mViewSnackbar,
+                    SnackbarUtil.showCustomInfoSnackbar(mRelativeLayoutMain, mViewSnackbar,
                             getString(R.string.snackbar_screenshot_taken_message));
                 }
             }

@@ -35,6 +35,7 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
     public static final String TOPIC_PREFIX_TASK = "PREFIX-TASK";
     //    public static final String TOPIC_PREFIX_USER_SITREP_JOIN = "PREFIX-USER-SITREP-JOIN";
 //    public static final String TOPIC_PREFIX_USER_TASK_JOIN = "PREFIX-USER-TASK-JOIN";
+    public static final String TOPIC_SYNC = "SYNC";
     public static final String TOPIC_INSERT = "INSERT";
     public static final String TOPIC_UPDATE = "UPDATE";
     public static final String TOPIC_DELETE = "DELETE";
@@ -273,6 +274,14 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
         PowerManagerUtil.releasePartialWakeLock();
     }
 
+    /**
+     * Combines initial prefix with action prefix
+     * For e.g., initial prefix - 'PREFIX-SITREP', action prefix - 'INSERT', result is 'PREFIX-SITREP-INSERT'
+     *
+     * @param initialPrefix
+     * @param actionPrefix
+     * @return
+     */
     private String getActionPrefix(String initialPrefix, String actionPrefix) {
         StringBuilder topicPrefix = new StringBuilder();
         topicPrefix.append(initialPrefix);

@@ -9,10 +9,13 @@ import lombok.Data;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 
 @Data
-@Entity(foreignKeys = @ForeignKey(entity = UserModel.class,
+@Entity(tableName = "VideoStream",
+        foreignKeys = @ForeignKey(entity = UserModel.class,
         parentColumns = "userId",
         childColumns = "userId"))
+
 public class VideoStreamModel {
+
     @PrimaryKey(autoGenerate = true)
     private long id;
     private String userId;

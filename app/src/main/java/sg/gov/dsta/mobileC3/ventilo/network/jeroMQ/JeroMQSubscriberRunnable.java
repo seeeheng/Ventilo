@@ -12,6 +12,7 @@ import org.zeromq.ZMQException;
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.database.DatabaseOperation;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserSitRepJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
@@ -58,8 +59,12 @@ public class JeroMQSubscriberRunnable implements Runnable {
             String messageTopic = ValidationUtil.getFirstWord(message);
             String messageContent = ValidationUtil.removeFirstWord(message);
             String[] messageTopicParts = messageTopic.split(StringUtil.HYPHEN);
+
+            // For e.g. PREFIX-BFT, PREFIX-SITREP, PREFIX-TASK
             String messageMainTopic = messageTopicParts[0].
                     concat(StringUtil.HYPHEN).concat(messageTopicParts[1]);
+
+            // For e.g. INSERT, UPDATE, DELETE, SYNC
             String messageTopicAction = messageTopicParts[2];
 
             switch (messageMainTopic) {
@@ -95,10 +100,14 @@ public class JeroMQSubscriberRunnable implements Runnable {
      */
     private void storeBFTMessage(String jsonMsg) {
         Log.i(TAG, "storeBFTMessage jsonMsg: " + jsonMsg);
+
+//        case JeroMQPublisher.TOPIC_PREFIX_BFT_SYNC:
+//        databaseOperation.insertBFTIntoDatabase(sitRepRepo, sitRepModel);
+//        break;
     }
 
     /**
-     * Stores/updates/deletes incoming Sit Rep JSON messages from other devices into local database
+     * Stores/updates/deletes/synchronises incoming Sit Rep JSON messages from other devices into local database
      *
      * @param jsonMsg
      */
@@ -106,72 +115,77 @@ public class JeroMQSubscriberRunnable implements Runnable {
         Log.i(TAG, "storeSitRepMessage jsonMsg: " + jsonMsg);
 
         if (MainApplication.getAppContext() instanceof Application) {
+            DatabaseOperation databaseOperation = new DatabaseOperation();
             SitRepRepository sitRepRepo = new SitRepRepository((Application) MainApplication.getAppContext());
             Gson gson = GsonCreator.createGson();
             SitRepModel sitRepModel = gson.fromJson(jsonMsg, SitRepModel.class);
 
             switch (messageTopicAction) {
+                case JeroMQPublisher.TOPIC_SYNC:
+                    handleSitRepDataSync(databaseOperation, sitRepRepo, sitRepModel);
+                    break;
                 case JeroMQPublisher.TOPIC_INSERT:
-                    insertSitRepIntoDatabase(sitRepRepo, sitRepModel);
+                    Log.i(TAG, "storeSitRepMessage insert.");
+                    databaseOperation.insertSitRepIntoDatabase(sitRepRepo, sitRepModel);
                     break;
                 case JeroMQPublisher.TOPIC_UPDATE:
-                    updateSitRepInDatabase(sitRepRepo, sitRepModel);
+                    Log.i(TAG, "storeSitRepMessage update.");
+                    databaseOperation.updateSitRepInDatabase(sitRepRepo, sitRepModel);
                     break;
                 case JeroMQPublisher.TOPIC_DELETE:
-                    deleteSitRepInDatabase(sitRepRepo, sitRepModel.getRefId());
+                    Log.i(TAG, "storeSitRepMessage delete.");
+                    databaseOperation.deleteSitRepInDatabase(sitRepRepo, sitRepModel.getRefId());
                     break;
             }
         }
     }
 
-    private void insertSitRepIntoDatabase(SitRepRepository sitRepRepo, SitRepModel sitRepModel) {
-        // Get sitRepId after adding Sit Rep model into database
-        // Use newly generated sitRepId to create UserSitRepJoin entry in composite table
-        SingleObserver<Long> singleObserverAddSitRep = new SingleObserver<Long>() {
+    /**
+     * Handles incoming Sit Rep model for Synchronisation
+     *
+     * @param databaseOperation
+     * @param sitRepRepo
+     * @param sitRepModel
+     */
+    private void handleSitRepDataSync(DatabaseOperation databaseOperation, SitRepRepository sitRepRepo,
+                                      SitRepModel sitRepModel) {
+        /**
+         * Query for Sit Rep (SR) model from database with id of received SR model.
+         *
+         * If model exists in database, result will return a valid SR model
+         * Else, result will return NULL.
+         *
+         * If result returns a valid SR model, update returned SR model with received SR model
+         * Else, insert received SR model into database.
+         */
+        SingleObserver<SitRepModel> singleObserverSyncSitRep = new SingleObserver<SitRepModel>() {
             @Override
             public void onSubscribe(Disposable d) {
             }
 
             @Override
-            public void onSuccess(Long sitRepId) {
-                Log.d(TAG, "onSuccess singleObserverAddSitRep, " +
-                        "insertSitRepIntoDatabase. " +
-                        "SitRepId: " + sitRepId);
-
-                UserSitRepJoinRepository userSitRepJoinRepository = new
-                        UserSitRepJoinRepository((Application) MainApplication.getAppContext());
-
-                // Reporter is used as userId for UserSitRepJoin composite table in local database
-                // Create row for UserSitRepJoin with userId and sitRepId
-                String sitRepReporterGroups = sitRepModel.getReporter();
-                String[] sitRepReporterGroupsArray = sitRepReporterGroups.split(",");
-                for (int i = 0; i < sitRepReporterGroupsArray.length; i++) {
-                    UserSitRepJoinModel userSitRepJoinModel = new
-                            UserSitRepJoinModel(sitRepReporterGroupsArray[i].trim(), sitRepId);
-                    userSitRepJoinRepository.addUserSitRepJoin(userSitRepJoinModel);
+            public void onSuccess(SitRepModel sitRepModel) {
+                if (sitRepModel == null) {
+                    Log.d(TAG, "Inserting new Sit Rep model from synchronisation...");
+                    databaseOperation.insertSitRepIntoDatabase(sitRepRepo, sitRepModel);
+                } else {
+                    Log.d(TAG, "Updating Sit Rep model from synchronisation...");
+                    databaseOperation.updateSitRepInDatabase(sitRepRepo, sitRepModel);
                 }
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverAddSitRep, insertSitRepIntoDatabase. " +
+                Log.d(TAG, "onError singleObserverSyncSitRep, syncSitRepInDatabase. " +
                         "Error Msg: " + e.toString());
             }
         };
 
-        sitRepRepo.addSitRep(sitRepModel, singleObserverAddSitRep);
-    }
-
-    private void updateSitRepInDatabase(SitRepRepository sitRepRepo, SitRepModel sitRepModel) {
-        sitRepRepo.updateSitRepByRefId(sitRepModel);
-    }
-
-    private void deleteSitRepInDatabase(SitRepRepository sitRepRepo, long sitRepId) {
-        sitRepRepo.deleteSitRepByRefId(sitRepId);
+        databaseOperation.querySitRepByRefIdInDatabase(sitRepRepo, sitRepModel.getId(), singleObserverSyncSitRep);
     }
 
     /**
-     * Stores/updates/deletes incoming Task JSON messages from other devices into local database
+     * Stores/updates/deletes/synchronises incoming Task JSON messages from other devices into local database
      *
      * @param jsonMsg
      */
@@ -179,68 +193,70 @@ public class JeroMQSubscriberRunnable implements Runnable {
         Log.i(TAG, "storeTaskMessage jsonMsg: " + jsonMsg);
 
         if (MainApplication.getAppContext() instanceof Application) {
+            DatabaseOperation databaseOperation = new DatabaseOperation();
             TaskRepository taskRepo = new TaskRepository((Application) MainApplication.getAppContext());
             Gson gson = GsonCreator.createGson();
             TaskModel taskModel = gson.fromJson(jsonMsg, TaskModel.class);
 
             switch (messageTopicAction) {
+                case JeroMQPublisher.TOPIC_SYNC:
+                    handleTaskRepDataSync(databaseOperation, taskRepo, taskModel);
+                    break;
                 case JeroMQPublisher.TOPIC_INSERT:
-                    insertTaskIntoDatabase(taskRepo, taskModel);
+                    databaseOperation.insertTaskIntoDatabase(taskRepo, taskModel);
                     break;
                 case JeroMQPublisher.TOPIC_UPDATE:
-                    updateTaskInDatabase(taskRepo, taskModel);
+                    databaseOperation.updateTaskInDatabase(taskRepo, taskModel);
                     break;
                 case JeroMQPublisher.TOPIC_DELETE:
-                    deleteTaskInDatabase(taskRepo, taskModel.getRefId());
+                    databaseOperation.deleteTaskInDatabase(taskRepo, taskModel.getRefId());
                     break;
             }
         }
     }
 
-    private void insertTaskIntoDatabase(TaskRepository taskRepo, TaskModel taskModel) {
-        // Get taskId after adding Task model into database
-        // Use newly generated taskId to create UserTaskJoin entry in composite table
-        SingleObserver<Long> singleObserverAddTask = new SingleObserver<Long>() {
+    /**
+     * Handles incoming Task model for Synchronisation
+     *
+     * @param databaseOperation
+     * @param taskRepo
+     * @param taskModel
+     */
+    private void handleTaskRepDataSync(DatabaseOperation databaseOperation, TaskRepository taskRepo,
+                                       TaskModel taskModel) {
+        /**
+         * Query for Task model from database with id of received Task model.
+         *
+         * If model exists in database, result will return a valid Task model
+         * Else, result will return NULL.
+         *
+         * If result returns a valid SR model, update returned SR model with received SR model
+         * Else, insert received SR model into database.
+         */
+        SingleObserver<TaskModel> singleObserverSyncTask = new SingleObserver<TaskModel>() {
             @Override
             public void onSubscribe(Disposable d) {
             }
 
             @Override
-            public void onSuccess(Long taskId) {
-                Log.d(TAG, "onSuccess singleObserverAddTask, " +
-                        "insertTaskIntoDatabase. " +
-                        "TaskId: " + taskId);
-
-                UserTaskJoinRepository userTaskJoinRepository = new
-                        UserTaskJoinRepository((Application) MainApplication.getAppContext());
-
-                // AssignedTo is used as userId(s) for UserTaskJoin composite table in local database
-                // Create row for UserTaskJoin with userId and taskId
-                String taskAssignedToGroups = taskModel.getAssignedTo();
-                String[] taskAssignedToGroupsArray = taskAssignedToGroups.split(",");
-                for (int i = 0; i < taskAssignedToGroupsArray.length; i++) {
-                    UserTaskJoinModel userTaskJoinModel = new
-                            UserTaskJoinModel(taskAssignedToGroupsArray[i].trim(), taskId);
-                    userTaskJoinRepository.addUserTaskJoin(userTaskJoinModel);
+            public void onSuccess(TaskModel taskModel) {
+                if (taskModel == null) {
+                    Log.d(TAG, "Inserting new Task model from synchronisation...");
+                    databaseOperation.insertTaskIntoDatabase(taskRepo, taskModel);
+                } else {
+                    Log.d(TAG, "Updating Task model from synchronisation...");
+                    databaseOperation.updateTaskInDatabase(taskRepo, taskModel);
                 }
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverAddTask, insertTaskIntoDatabase. " +
+                Log.d(TAG, "onError singleObserverSyncTask, syncTaskInDatabase. " +
                         "Error Msg: " + e.toString());
             }
         };
 
-        taskRepo.addTask(taskModel, singleObserverAddTask);
-    }
-
-    private void updateTaskInDatabase(TaskRepository taskRepo, TaskModel taskModel) {
-        taskRepo.updateTaskByRefId(taskModel);
-    }
-
-    private void deleteTaskInDatabase(TaskRepository taskRepo, long taskRefId) {
-        taskRepo.deleteTaskByRefId(taskRefId);
+        databaseOperation.queryTaskByRefIdInDatabase(taskRepo, taskModel.getId(), singleObserverSyncTask);
     }
 
     /**

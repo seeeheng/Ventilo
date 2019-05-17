@@ -2,14 +2,11 @@ package sg.gov.dsta.mobileC3.ventilo.model.sitrep;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
-import android.graphics.drawable.Drawable;
-
-import java.util.Date;
 
 import lombok.Data;
 
 @Data
-@Entity(tableName="SitRep")
+@Entity(tableName = "SitRep")
 public class SitRepModel {
 
     @PrimaryKey(autoGenerate = true)
@@ -24,7 +21,7 @@ public class SitRepModel {
     private int personnelD;
     private String nextCoa;
     private String request;
-    private String reportedDateTime;
+    private String createdDateTime;
 
     // --- GETTER ---
     public long getId() { return id; }
@@ -38,7 +35,7 @@ public class SitRepModel {
     public int getPersonnelD() { return personnelD; }
     public String getNextCoa() { return nextCoa; }
     public String getRequest() { return request; }
-    public String getReportedDateTime() { return reportedDateTime; }
+    public String getCreatedDateTime() { return createdDateTime; }
 
     // --- SETTER ---
     public void setId(long id) { this.id = id; }
@@ -52,5 +49,5 @@ public class SitRepModel {
     public void setPersonnelD(int personnelD) { this.personnelD = personnelD; }
     public void setNextCoa(String nextCoa) { this.nextCoa = nextCoa; }
     public void setRequest(String request) { this.request = request; }
-    public void setReportedDateTime(String reportedDateTime) { this.reportedDateTime = reportedDateTime; }
+    public void setCreatedDateTime(String createdDateTime) { this.createdDateTime = createdDateTime; }
 }

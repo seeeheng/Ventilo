@@ -4,6 +4,7 @@ import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.os.AsyncTask;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -17,22 +18,61 @@ import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 
 public class TaskRepository {
 
-    private LiveData<List<TaskModel>> mAllTasks;
+    private LiveData<List<TaskModel>> mAllTasksLiveData;
 
     private TaskDao mTaskDao;
 
     public TaskRepository(Application application) {
         VentiloDatabase db = VentiloDatabase.getInstance(application);
         mTaskDao = db.taskDao();
-        mAllTasks = mTaskDao.getAllTasks();
+        mAllTasksLiveData = mTaskDao.getAllTasksLiveData();
     }
 
     /**
-     * Obtains all Task models from database
+     * Obtains all Task models Live data from database
+     *
      * @return
      */
-    public LiveData<List<TaskModel>> getAllTasks() {
-        return mAllTasks;
+    public LiveData<List<TaskModel>> getAllTasksLiveData() {
+        return mAllTasksLiveData;
+    }
+
+
+    /**
+     * Obtains all Task models from database
+     *
+     * @param singleObserver
+     */
+    public void getAllTasks(SingleObserver singleObserver) {
+        QueryAllTasksAsyncTask task = new
+                QueryAllTasksAsyncTask(mTaskDao, singleObserver);
+        task.execute();
+    }
+
+    /**
+     * Obtain Task based on Id with Id from local database
+     *
+     * @param taskId
+     * @param singleObserver
+     */
+    public void queryTaskById(long taskId, SingleObserver<TaskModel> singleObserver) {
+        Single<TaskModel> single = mTaskDao.queryTaskById(taskId);
+        single.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(singleObserver);
+    }
+
+    /**
+     * Obtain Task based on Ref Id with Id from local database
+     *
+     * @param taskId
+     * @param singleObserver
+     */
+    public void queryTaskByRefId(long taskId, SingleObserver<TaskModel> singleObserver) {
+        Single<TaskModel> single = mTaskDao.queryTaskByRefId(taskId);
+        single.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(singleObserver);
     }
 
     /**
@@ -55,7 +95,7 @@ public class TaskRepository {
     }
 
     /**
-     * Update Task model in local database
+     * Update Task model by Id with Id in local database
      * @param taskModel
      */
     public void updateTask(TaskModel taskModel) {
@@ -64,7 +104,7 @@ public class TaskRepository {
     }
 
     /**
-     * Update Task model by Ref Id in local database
+     * Update Task model by Ref Id with Id in local database
      * @param taskModel
      */
     public void updateTaskByRefId(TaskModel taskModel) {
@@ -73,7 +113,7 @@ public class TaskRepository {
     }
 
     /**
-     * Delete Task model from local database
+     * Delete Task model by Id with Id from local database
      * @param taskId
      */
     public void deleteTask(long taskId) {
@@ -82,12 +122,49 @@ public class TaskRepository {
     }
 
     /**
-     * Delete Task model by Ref Id from local database
-     * @param taskRefId
+     * Delete Task model by Ref Id with Id from local database
+     * @param taskId
      */
-    public void deleteTaskByRefId(long taskRefId) {
+    public void deleteTaskByRefId(long taskId) {
         DeleteByRefIdAsyncTask task = new DeleteByRefIdAsyncTask(mTaskDao);
-        task.execute(taskRefId);
+        task.execute(taskId);
+    }
+
+    /**
+     * Query all Task models in database
+     *
+     */
+    private static class QueryAllTasksAsyncTask extends AsyncTask<String, Void, Void> {
+
+        private TaskDao asyncTaskDao;
+        private SingleObserver asyncSingleObserver;
+
+        QueryAllTasksAsyncTask(TaskDao dao, SingleObserver singleObserver) {
+            asyncTaskDao = dao;
+            asyncSingleObserver = singleObserver;
+        }
+
+        @Override
+        protected Void doInBackground(final String... param) {
+            // Converts type Long to Observable, then to Single for RxJava use
+            List<TaskModel> allTasksList =
+                    asyncTaskDao.getAllTasks();
+
+            if (allTasksList == null) {
+                allTasksList = new ArrayList<>();
+            }
+
+            Observable<List<TaskModel>> observableAllTasks =
+                    Observable.just(allTasksList);
+            Single<List<TaskModel>> singleAllTasks =
+                    Single.fromObservable(observableAllTasks);
+
+            singleAllTasks.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(asyncSingleObserver);
+
+            return null;
+        }
     }
 
     /**

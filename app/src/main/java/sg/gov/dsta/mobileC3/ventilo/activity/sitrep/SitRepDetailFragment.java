@@ -1,12 +1,16 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.sitrep;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.res.ResourcesCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,23 +21,26 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.List;
+
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
+import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.SitRepViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.PhotoCaptureUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.component.ImageClass;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 
 public class SitRepDetailFragment extends Fragment {
 
+    private static final String TAG = SitRepDetailFragment.class.getSimpleName();
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
-    // Toolbar section
-    private LinearLayout mLinearLayoutBtnEdit;
-    private C2OpenSansSemiBoldTextView mTvToolbarEdit;
+    // View models
+    private SitRepViewModel mSitRepViewModel;
 
     private C2OpenSansBoldTextView mTvTeamNameHeader;
     private C2OpenSansRegularTextView mTvReporter;
@@ -49,11 +56,14 @@ public class SitRepDetailFragment extends Fragment {
     private C2OpenSansRegularTextView mTvNextCoa;
     private C2OpenSansRegularTextView mTvRequest;
 
+    private SitRepModel mSitRepModelInDisplay;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_sitrep_detail, container, false);
+        observerSetup();
         initUI(rootView);
 
         return rootView;
@@ -78,34 +88,33 @@ public class SitRepDetailFragment extends Fragment {
 
 //        mSendButton = rootView.findViewById(R.id.btn_sitrep_detail_send);
 //        mSendButton.setOnClickListener(onEditClickListener);
-        refreshUI();
+        SitRepModel sitRepModel = EventBus.getDefault().removeStickyEvent(SitRepModel.class);
+
+        System.out.println("sitRepModel location is " + sitRepModel.getLocation());
+        updateUI(sitRepModel);
     }
 
     private void initToolbarUI(View rootView) {
-        View layoutToolbar = rootView.findViewById(R.id.layout_toolbar_sitrep_text_left_text_right);
+        View layoutToolbar = rootView.findViewById(R.id.layout_toolbar_sitrep_detail_text_left_text_right);
         LinearLayout linearLayoutBtnBack = layoutToolbar.findViewById(R.id.layout_toolbar_top_left_btn);
         linearLayoutBtnBack.setOnClickListener(onBackClickListener);
 
-        mLinearLayoutBtnEdit = layoutToolbar.findViewById(R.id.layout_toolbar_top_right_btn);
-        mLinearLayoutBtnEdit.setEnabled(false);
-        mLinearLayoutBtnEdit.setOnClickListener(onEditClickListener);
+        LinearLayout linearLayoutBtnEdit = layoutToolbar.findViewById(R.id.layout_toolbar_top_right_btn);
+        linearLayoutBtnEdit.setOnClickListener(onEditClickListener);
 
-        mTvToolbarEdit = layoutToolbar.findViewById(R.id.toolbar_top_right_btn_text);
-        mTvToolbarEdit.setTextColor(ResourcesCompat.getColor(getResources(),
+        C2OpenSansSemiBoldTextView tvToolbarEdit = layoutToolbar.findViewById(R.id.toolbar_top_right_btn_text);
+        tvToolbarEdit.setTextColor(ResourcesCompat.getColor(getResources(),
                 R.color.primary_highlight_cyan, null));
-        mTvToolbarEdit.setText(getString(R.string.btn_edit));
+        tvToolbarEdit.setText(getString(R.string.btn_edit));
     }
 
-    private void refreshUI() {
-        setSitRepInfo();
-//        setSendButton();
+    private void updateUI(SitRepModel sitRepModel) {
+        setSitRepInfo(sitRepModel);
     }
 
-    private void setSitRepInfo() {
-        SitRepModel sitRepModel = EventBus.getDefault().removeStickyEvent(SitRepModel.class);
-
+    private void setSitRepInfo(SitRepModel sitRepModel) {
         if (sitRepModel != null) {
-            System.out.println("setSitRepInfo sitRepModel not null");
+            mSitRepModelInDisplay = sitRepModel;
             // Team Name
             StringBuilder teamNameHeaderStringBuilder = new StringBuilder();
             teamNameHeaderStringBuilder.append("Team");
@@ -113,14 +122,15 @@ public class SitRepDetailFragment extends Fragment {
 
             if (sitRepModel.getReporter() != null) {
                 teamNameHeaderStringBuilder.append(sitRepModel.getReporter().trim());
+                teamNameHeaderStringBuilder.append(StringUtil.SPACE);
             }
 
-            teamNameHeaderStringBuilder.append("SITREP");
+            teamNameHeaderStringBuilder.append(getString(R.string.sitrep_callsign_header));
             mTvTeamNameHeader.setText(teamNameHeaderStringBuilder.toString());
 
             // Assigned team
             StringBuilder reporterStringBuilder = new StringBuilder();
-            reporterStringBuilder.append("Team");
+            reporterStringBuilder.append(getString(R.string.sitrep_team_header));
             reporterStringBuilder.append(StringUtil.SPACE);
 
             if (sitRepModel.getReporter() != null) {
@@ -131,15 +141,15 @@ public class SitRepDetailFragment extends Fragment {
 
             // Reported date/time
             StringBuilder reportedDateTimeStringBuilder = new StringBuilder();
-            String reportedDateTime = sitRepModel.getReportedDateTime();
+            String reportedDateTime = sitRepModel.getCreatedDateTime();
             String reportedDateTimeInCustomStrFormat = DateTimeUtil.dateToCustomStringFormat(
                     DateTimeUtil.stringToDate(reportedDateTime));
 
-            if (sitRepModel.getReportedDateTime() != null) {
+            if (sitRepModel.getCreatedDateTime() != null) {
                 reportedDateTimeStringBuilder.append(reportedDateTimeInCustomStrFormat);
-                reportedDateTimeStringBuilder.append("\t");
-                reportedDateTimeStringBuilder.append("\t");
-                reportedDateTimeStringBuilder.append("\t");
+                reportedDateTimeStringBuilder.append(StringUtil.TAB);
+                reportedDateTimeStringBuilder.append(StringUtil.TAB);
+                reportedDateTimeStringBuilder.append(StringUtil.TAB);
                 reportedDateTimeStringBuilder.append(StringUtil.OPEN_BRACKET);
                 reportedDateTimeStringBuilder.append(DateTimeUtil.getTimeDifference(getContext(),
                         DateTimeUtil.stringToDate(reportedDateTime)));
@@ -192,60 +202,12 @@ public class SitRepDetailFragment extends Fragment {
                 mTvRequest.setText(sitRepModel.getRequest().trim());
             }
         }
-
-//        Bundle bundle = this.getArguments();
-//
-//        if (!bundle.isEmpty()) {
-//
-//            mLocation = bundle.getString(FragmentConstants.KEY_SITREP_LOCATION,
-//                    FragmentConstants.DEFAULT_STRING);
-//            String locationInfo = getStringFromThirdWordOnwards(FragmentConstants.KEY_SITREP_LOCATION).
-//                    concat(SPACE).concat(mLocation);
-//
-//            mActivity = bundle.getString(FragmentConstants.KEY_SITREP_ACTIVITY,
-//                    FragmentConstants.DEFAULT_STRING);
-//            String activityInfo = getStringFromThirdWordOnwards(FragmentConstants.KEY_SITREP_ACTIVITY).
-//                    concat(SPACE).concat(mActivity);
-//
-//            mPersonnelT = bundle.getInt(FragmentConstants.KEY_SITREP_PERSONNEL_T,
-//                    FragmentConstants.DEFAULT_INT);
-//            String personnelTInfo = getStringFromThirdWordOnwards(FragmentConstants.KEY_SITREP_PERSONNEL_T).
-//                    concat(SPACE).concat(String.valueOf(mPersonnelT));
-//
-//            mPersonnelS = bundle.getInt(FragmentConstants.KEY_SITREP_PERSONNEL_S,
-//                    FragmentConstants.DEFAULT_INT);
-//            String personnelSInfo = getStringFromThirdWordOnwards(FragmentConstants.KEY_SITREP_PERSONNEL_S).
-//                    concat(SPACE).concat(String.valueOf(mPersonnelS));
-//
-//            mPersonnelD = bundle.getInt(FragmentConstants.KEY_SITREP_PERSONNEL_D,
-//                    FragmentConstants.DEFAULT_INT);
-//            String personnelDInfo = getStringFromThirdWordOnwards(FragmentConstants.KEY_SITREP_PERSONNEL_D).
-//                    concat(SPACE).concat(String.valueOf(mPersonnelD));
-//
-//            mNextCoa = bundle.getString(FragmentConstants.KEY_SITREP_NEXT_COA,
-//                    FragmentConstants.DEFAULT_STRING);
-//            String nextCoaInfo = getStringFromThirdWordOnwards(FragmentConstants.KEY_SITREP_NEXT_COA).
-//                    concat(SPACE).concat(mNextCoa);
-//
-//            mRequest = bundle.getString(FragmentConstants.KEY_SITREP_REQUEST,
-//                    FragmentConstants.DEFAULT_STRING);
-//            String requestInfo = getStringFromThirdWordOnwards(FragmentConstants.KEY_SITREP_REQUEST).
-//                    concat(SPACE).concat(mRequest);
-//
-//            String reportInfo = locationInfo + LINE_SEPARATOR + activityInfo + LINE_SEPARATOR
-//                    + personnelTInfo + LINE_SEPARATOR + personnelSInfo + LINE_SEPARATOR
-//                    + personnelDInfo + LINE_SEPARATOR + nextCoaInfo + LINE_SEPARATOR + requestInfo;
-//
-//            mTvReport.setText(reportInfo);
-//        } else {
-//            mTvReport.setText("Please return to the previous page and enter Sit Rep information again.");
-//        }
-//        }
     }
 
     private View.OnClickListener onBackClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            Log.i(TAG, "Sit Rep back button clicked.");
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             fragmentManager.popBackStack();
         }
@@ -254,9 +216,50 @@ public class SitRepDetailFragment extends Fragment {
     private View.OnClickListener onEditClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            Log.i(TAG, "Sit Rep edit button clicked.");
 
+            if (mSitRepModelInDisplay != null) {
+                Fragment sitRepAddUpdateFragment = new SitRepAddUpdateFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString(FragmentConstants.KEY_SITREP, FragmentConstants.VALUE_SITREP_UPDATE);
+                sitRepAddUpdateFragment.setArguments(bundle);
+
+                EventBus.getDefault().postSticky(mSitRepModelInDisplay);
+
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+//                fm.popBackStack();
+
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
+                ft.replace(R.id.layout_sitrep_detail_fragment, sitRepAddUpdateFragment, sitRepAddUpdateFragment.getClass().getSimpleName());
+                ft.addToBackStack(sitRepAddUpdateFragment.getClass().getSimpleName());
+                ft.commit();
+            }
         }
     };
+
+    /**
+     * Set up observer for live updates on view models and update UI accordingly
+     */
+    private void observerSetup() {
+        mSitRepViewModel = ViewModelProviders.of(this).get(SitRepViewModel.class);
+
+        /*
+         * Refreshes UI whenever there is a change in Sit Rep (insert, update or delete)
+         */
+        mSitRepViewModel.getAllSitRepsLiveData().observe(this, new Observer<List<SitRepModel>>() {
+            @Override
+            public void onChanged(@Nullable List<SitRepModel> sitRepModelList) {
+                for (int i = 0; i < sitRepModelList.size(); i++) {
+                    if (mSitRepModelInDisplay != null &&
+                            mSitRepModelInDisplay.getId() == sitRepModelList.get(i).getId()) {
+                        updateUI(sitRepModelList.get(i));
+                        break;
+                    }
+                }
+            }
+        });
+    }
 
 //    private String getStringFromThirdWordOnwards(String title) {
 //        if (!FragmentConstants.DEFAULT_STRING.equalsIgnoreCase(title)) {

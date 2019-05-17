@@ -9,12 +9,11 @@ import lombok.Data;
 //@Entity(foreignKeys = @ForeignKey(entity = UserModel.class,
 //        parentColumns = "userId",
 //        childColumns = "userId"))
-@Entity(tableName="Task")
+@Entity(tableName = "Task")
 public class TaskModel {
 
     @PrimaryKey(autoGenerate = true)
     private long id;
-//    private long userId;
     private long refId;
     private String assignedTo;
     private String assignedBy;
