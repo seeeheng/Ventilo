@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_add_update_task_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_main_black">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/layout_toolbar_add_update_task_text_left_text_right"
+            layout="@layout/layout_toolbar_text_left_text_right" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:orientation="vertical">
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                    android:id="@+id/tv_add_update_task_task_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/elements_margin_spacing"
+                    android:text="@string/task_task_type"
+                    android:textColor="@color/primary_text_grey"
+                    android:textSize="@dimen/text_view_small_text_size" />
+
+                <RadioGroup
+                    android:id="@+id/radio_group_add_update_task_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/radio_btn_add_update_task_type_ad_hoc"
+                        android:layout_width="@dimen/img_btn_fixed_width"
+                        android:layout_height="@dimen/img_btn_fixed_height"
+                        android:layout_marginEnd="@dimen/elements_margin_spacing"
+                        android:background="@drawable/radio_button_task_type_selector"
+                        android:button="@android:color/transparent"
+                        android:gravity="center"
+                        android:text="@string/task_type_ad_hoc"
+                        android:textColor="@drawable/radio_button_text_selector"
+                        android:textSize="@dimen/text_view_small_text_size" />
+
+                    <RadioButton
+                        android:id="@+id/radio_btn_add_update_task_type_planned"
+                        android:layout_width="@dimen/img_btn_fixed_width"
+                        android:layout_height="@dimen/img_btn_fixed_height"
+                        android:background="@drawable/radio_button_task_type_selector"
+                        android:button="@android:color/transparent"
+                        android:gravity="center"
+                        android:text="@string/task_type_planned"
+                        android:textColor="@drawable/radio_button_text_selector"
+                        android:textSize="@dimen/text_view_small_text_size" />
+
+                </RadioGroup>
+
+                <!--<ExpandableListView-->
+                <!--android:id="@+id/list_view_add_update_task_name"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="end" />-->
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                    android:id="@+id/tv_add_update_task_task_priority_phase"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/elements_margin_spacing"
+                    android:padding="@dimen/elements_margin_spacing"
+                    android:text="@string/task_task_phase"
+                    android:textColor="@color/primary_text_grey"
+                    android:textSize="@dimen/text_view_small_text_size" />
+
+                <include
+                    android:id="@+id/input_task_priority"
+                    layout="@layout/layout_expandable_listview_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <include
+                    android:id="@+id/input_task_phase"
+                    layout="@layout/layout_expandable_listview_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                    android:id="@+id/tv_add_update_task_task_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/elements_margin_spacing"
+                    android:padding="@dimen/elements_margin_spacing"
+                    android:text="@string/task_task_name"
+                    android:textColor="@color/primary_text_grey"
+                    android:textSize="@dimen/text_view_small_text_size" />
+
+                <include
+                    android:id="@+id/input_task_name"
+                    layout="@layout/layout_expandable_listview_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                    android:id="@+id/tv_add_update_task_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/elements_margin_spacing"
+                    android:padding="@dimen/elements_margin_spacing"
+                    android:text="@string/task_task_description"
+                    android:textColor="@color/primary_text_grey"
+                    android:textSize="@dimen/text_view_small_text_size" />
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
+                    android:id="@+id/etv_add_update_task_description_info"
+                    style="@style/EditTextView_Main"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:hint="@string/task_task_description_hint"
+                    android:textSize="@dimen/text_view_text_size" />
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                    android:id="@+id/tv_add_update_task_assign_to"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/elements_margin_spacing"
+                    android:padding="@dimen/elements_margin_spacing"
+                    android:text="@string/task_assign_to"
+                    android:textColor="@color/primary_text_grey"
+                    android:textSize="@dimen/text_view_small_text_size" />
+
+                <HorizontalScrollView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/elements_margin_spacing"
+                    android:animateLayoutChanges="true"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_task_assign_to"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:orientation="horizontal" />
+
+                </HorizontalScrollView>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
+
+</FrameLayout>

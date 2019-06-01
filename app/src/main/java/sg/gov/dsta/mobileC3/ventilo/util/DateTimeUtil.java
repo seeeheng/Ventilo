@@ -1,26 +1,27 @@
 package sg.gov.dsta.mobileC3.ventilo.util;
 
-import android.content.Context;
 import android.util.Log;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.Date;
 
 import org.qap.ctimelineview.R.plurals;
 import org.qap.ctimelineview.R.string;
-import org.threeten.bp.Instant;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 
 public class DateTimeUtil {
 
     public static final String TAG = "DateTimeUtil";
-    public static final String STANDARD_ISO_8601_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+        public static final String STANDARD_ISO_8601_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+//    public static final String STANDARD_ISO_8601_DATE_TIME_FORMAT = DateTimeFormatter.ISO_ZONED_DATE_TIME.toString();
     public static final String CUSTOM_DATE_TIME_FORMAT = "d MMM yyyy, HH:mm";
-//    public static final String CUSTOM_DATE_TIME_FORMAT = "EEE MMM d HH:mm:ss zz yyyy";
-    private static Context mContext;
+    public static final String CUSTOM_TIME_FORMAT = "HH:mm";
 
     public static Date getSpecifiedDateBySecond(int second) {
         return getSpecifiedDate(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH),
@@ -81,9 +82,7 @@ public class DateTimeUtil {
         return date;
     }
 
-    public static String getTimeDifference(Context context, Date date) {
-        mContext = context;
-
+    public static String getTimeDifference(Date date) {
         if (date == null) {
             return "";
         } else {
@@ -107,9 +106,10 @@ public class DateTimeUtil {
             } else if (minutes > 0L) {
                 appendPastTime(dateText, minutes, plurals.minutes, seconds, plurals.seconds);
             } else if (seconds >= 0L) {
-                dateText.append(mContext.getResources().getQuantityString(
+                dateText.append(MainApplication.getAppContext().getResources().getQuantityString(
                         plurals.seconds, (int) seconds, new Object[]{(int) seconds}));
-                dateText.append(' ').append(mContext.getResources().getString(R.string.timeline_ago));
+                dateText.append(' ').append(MainApplication.getAppContext().
+                        getResources().getString(R.string.timeline_ago));
             } else {
                 dateText = getTimeAhead(date);
             }
@@ -119,14 +119,16 @@ public class DateTimeUtil {
     }
 
     private static void appendPastTime(StringBuilder s, long timespan, int nameId, long timespanNext, int nameNextId) {
-        s.append(mContext.getResources().getQuantityString(nameId, (int) timespan, new Object[]{timespan}));
+        s.append(MainApplication.getAppContext().getResources().getQuantityString(
+                nameId, (int) timespan, new Object[]{timespan}));
 
         if (timespanNext > 0L) {
-            s.append(' ').append(mContext.getResources().getString(string.AND)).append(' ');
-            s.append(mContext.getResources().getQuantityString(nameNextId, (int) timespanNext, new Object[]{timespanNext}));
+            s.append(' ').append(MainApplication.getAppContext().getResources().getString(string.AND)).append(' ');
+            s.append(MainApplication.getAppContext().getResources().getQuantityString(
+                    nameNextId, (int) timespanNext, new Object[]{timespanNext}));
         }
 
-        s.append(' ').append(mContext.getResources().getString(R.string.timeline_ago));
+        s.append(' ').append(MainApplication.getAppContext().getResources().getString(R.string.timeline_ago));
     }
 
     private static StringBuilder getTimeAhead(Date date) {
@@ -150,47 +152,53 @@ public class DateTimeUtil {
         } else if (minutes > 0L) {
             appendFutureTime(dateText, minutes, plurals.minutes, seconds, plurals.seconds);
         } else if (seconds >= 0L) {
-            dateText.append(mContext.getResources().getQuantityString(plurals.seconds, (int) seconds, new Object[]{(int) seconds}));
+            dateText.append(MainApplication.getAppContext().getResources().getQuantityString(
+                    plurals.seconds, (int) seconds, new Object[]{(int) seconds}));
         }
 
         return dateText;
     }
 
     private static void appendFutureTime(StringBuilder s, long timespan, int nameId, long timespanNext, int nameNextId) {
-        s.append(mContext.getResources().getString(R.string.timeline_commencing_in)).append(' ');
-        s.append(mContext.getResources().getQuantityString(nameId, (int) timespan, new Object[]{timespan}));
+        s.append(MainApplication.getAppContext().getResources().getString(
+                R.string.timeline_commencing_in)).append(' ');
+        s.append(MainApplication.getAppContext().getResources().getQuantityString(
+                nameId, (int) timespan, new Object[]{timespan}));
         if (timespanNext > 0L) {
-            s.append(' ').append(mContext.getResources().getString(string.AND)).append(' ');
-            s.append(mContext.getResources().getQuantityString(nameNextId, (int) timespanNext, new Object[]{timespanNext}));
+            s.append(' ').append(MainApplication.getAppContext().getResources().getString(string.AND)).append(' ');
+            s.append(MainApplication.getAppContext().getResources().getQuantityString(
+                    nameNextId, (int) timespanNext, new Object[]{timespanNext}));
         }
     }
 
     public static String getCurrentTime() {
-        return Instant.now().toString();
+        return ZonedDateTime.now().toString();
     }
 
     public static Date stringToDate(String stringToConvert) {
-        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(STANDARD_ISO_8601_DATE_TIME_FORMAT);
-        Date date = new Date();
+        Date date = null;
+
         try {
-            date = dateTimeFormat.parse(stringToConvert);
-        } catch (ParseException e) {
-            e.printStackTrace();
+            DateTimeFormatter dtf = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+            ZonedDateTime zonedDateTime = ZonedDateTime.parse(stringToConvert, dtf);
+            date = Date.from(zonedDateTime.toInstant());
+
+        } catch (DateTimeParseException e) {
             Log.d(TAG, "stringToConvert is " + stringToConvert + ". Unparseable to Date format.");
-        } finally {
-            return date;
         }
+
+        return date;
     }
 
-    public static String dateToServerStringFormat(Date dateToConvert) {
-        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(STANDARD_ISO_8601_DATE_TIME_FORMAT);
+    public static String dateToCustomStringFormat(Date dateToConvert) {
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(CUSTOM_DATE_TIME_FORMAT);
         String dateTime = dateTimeFormat.format(dateToConvert);
 
         return dateTime;
     }
 
-    public static String dateToCustomStringFormat(Date dateToConvert) {
-        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(CUSTOM_DATE_TIME_FORMAT);
+    public static String dateToCustomTimeStringFormat(Date dateToConvert) {
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(CUSTOM_TIME_FORMAT);
         String dateTime = dateTimeFormat.format(dateToConvert);
 
         return dateTime;

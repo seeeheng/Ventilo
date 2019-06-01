@@ -7,13 +7,10 @@ import android.util.Log;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -44,7 +41,9 @@ import sg.gov.dsta.mobileC3.ventilo.util.DrawableUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.DatabaseTableConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.task.DataModelUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.DataModelUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.task.EAdHocTaskPriority;
+import sg.gov.dsta.mobileC3.ventilo.util.task.ERadioConnectionStatus;
 import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
 
 public class ExcelSpreadsheetUtil {
@@ -257,6 +256,7 @@ public class ExcelSpreadsheetUtil {
                     contentRow = rowIterator.next();
 
                     UserModel userModel = createUserModelFromDataRow(headerRow, contentRow, totalNoOfHeaderDataColumn);
+
                     if (userModel != null) {
                         UserRepository userRepo = new
                                 UserRepository((Application) MainApplication.getAppContext());
@@ -319,6 +319,26 @@ public class ExcelSpreadsheetUtil {
     }
 
     /**
+     * Checks if row is fully empty
+     *
+     * @param row
+     * @return
+     */
+    private static boolean isRowEmpty(Row row) {
+        boolean isEmpty = true;
+        DataFormatter dataFormatter = new DataFormatter();
+        if(row != null) {
+            for(Cell cell: row) {
+                if(dataFormatter.formatCellValue(cell).trim().length() > 0) {
+                    isEmpty = false;
+                    break;
+                }
+            }
+        }
+        return isEmpty;
+    }
+
+    /**
      * Creates User model from each data row in sheet
      *
      * @param headerRow
@@ -331,20 +351,25 @@ public class ExcelSpreadsheetUtil {
         UserModel userModel = null;
         HashMap<Integer, Object> dataFields = new HashMap<>();
 
+        // Checks if content row is actually empty
+        if (isRowEmpty(contentRow)) {
+            return null;
+        }
+
         // Iterate through all columns based on header columns
         for (int i = 0; i < totalNoOfHeaderDataColumn; i++) {
             Cell currentCell = contentRow.getCell(i);
 
-            if (CELL_TYPE_STRING.equalsIgnoreCase(currentCell.getCellType().toString())) {
-                dataFields.put(i, currentCell.getStringCellValue());
-            } else if (CELL_TYPE_NUMBERIC.equalsIgnoreCase(currentCell.getCellType().toString())) {
-                if (currentCell.getNumericCellValue() % 1 == 0) {
-                    dataFields.put(i, (int) currentCell.getNumericCellValue());
-                } else {
-                    dataFields.put(i, currentCell.getNumericCellValue());
+            if (currentCell != null) {
+                if (CELL_TYPE_STRING.equalsIgnoreCase(currentCell.getCellType().toString())) {
+                    dataFields.put(i, currentCell.getStringCellValue());
+                } else if (CELL_TYPE_NUMBERIC.equalsIgnoreCase(currentCell.getCellType().toString())) {
+                    if (currentCell.getNumericCellValue() % 1 == 0) {
+                        dataFields.put(i, (int) currentCell.getNumericCellValue());
+                    } else {
+                        dataFields.put(i, currentCell.getNumericCellValue());
+                    }
                 }
-            } else {
-                dataFields.put(i, StringUtil.EMPTY_STRING);
             }
         }
 
@@ -375,9 +400,11 @@ public class ExcelSpreadsheetUtil {
                 Log.i(TAG, "User model, role: " + dataFields.get(3).toString());
                 userModel = new UserModel(dataFields.get(0).toString());
                 userModel.setPassword(dataFields.get(1).toString());
-                userModel.setAccessToken(StringUtil.EMPTY_STRING);
+                userModel.setAccessToken(StringUtil.INVALID_STRING);
                 userModel.setTeam(dataFields.get(2).toString());
                 userModel.setRole(dataFields.get(3).toString());
+                userModel.setRadioConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
+                userModel.setLastKnownOnlineDateTime(StringUtil.INVALID_STRING);
 
             } else {
                 Log.i(TAG, "Table data from Excel does not match User data model");
@@ -411,17 +438,24 @@ public class ExcelSpreadsheetUtil {
         VideoStreamModel videoStreamModel = null;
         HashMap<Integer, Object> dataFields = new HashMap<>();
 
+        // Checks if content row is actually empty
+        if (isRowEmpty(contentRow)) {
+            return null;
+        }
+
         // Iterate through all columns based on header columns
         for (int i = 0; i < totalNoOfHeaderDataColumn; i++) {
             Cell currentCell = contentRow.getCell(i);
 
-            if (CELL_TYPE_STRING.equalsIgnoreCase(currentCell.getCellType().toString())) {
-                dataFields.put(i, currentCell.getStringCellValue());
-            } else if (CELL_TYPE_NUMBERIC.equalsIgnoreCase(currentCell.getCellType().toString())) {
-                if (currentCell.getNumericCellValue() % 1 == 0) {
-                    dataFields.put(i, (int) currentCell.getNumericCellValue());
-                } else {
-                    dataFields.put(i, currentCell.getNumericCellValue());
+            if (currentCell != null) {
+                if (CELL_TYPE_STRING.equalsIgnoreCase(currentCell.getCellType().toString())) {
+                    dataFields.put(i, currentCell.getStringCellValue());
+                } else if (CELL_TYPE_NUMBERIC.equalsIgnoreCase(currentCell.getCellType().toString())) {
+                    if (currentCell.getNumericCellValue() % 1 == 0) {
+                        dataFields.put(i, (int) currentCell.getNumericCellValue());
+                    } else {
+                        dataFields.put(i, currentCell.getNumericCellValue());
+                    }
                 }
             }
         }
@@ -496,20 +530,29 @@ public class ExcelSpreadsheetUtil {
         SitRepModel sitRepModel = null;
         HashMap<Integer, Object> dataFields = new HashMap<>();
 
+        // Checks if content row is actually empty
+        if (isRowEmpty(contentRow)) {
+            return null;
+        }
+
         // Iterate through all columns based on header columns
         for (int i = 0; i < totalNoOfHeaderDataColumn; i++) {
             Cell currentCell = contentRow.getCell(i);
 
-            if (CELL_TYPE_STRING.equalsIgnoreCase(currentCell.getCellType().toString())) {
-                dataFields.put(i, currentCell.getStringCellValue());
-            } else if (CELL_TYPE_NUMBERIC.equalsIgnoreCase(currentCell.getCellType().toString())) {
-                if (currentCell.getNumericCellValue() % 1 == 0) {
-                    dataFields.put(i, (int) currentCell.getNumericCellValue());
+            if (currentCell != null) {
+                if (CELL_TYPE_STRING.equalsIgnoreCase(currentCell.getCellType().toString())) {
+                    dataFields.put(i, currentCell.getStringCellValue());
+                } else if (CELL_TYPE_NUMBERIC.equalsIgnoreCase(currentCell.getCellType().toString())) {
+                    if (currentCell.getNumericCellValue() % 1 == 0) {
+                        dataFields.put(i, (int) currentCell.getNumericCellValue());
+                    } else {
+                        dataFields.put(i, currentCell.getNumericCellValue());
+                    }
                 } else {
-                    dataFields.put(i, currentCell.getNumericCellValue());
+                    dataFields.put(i, StringUtil.INVALID_STRING);
                 }
             } else {
-                dataFields.put(i, StringUtil.EMPTY_STRING);
+                dataFields.put(i, StringUtil.INVALID_STRING);
             }
         }
 
@@ -544,15 +587,24 @@ public class ExcelSpreadsheetUtil {
                 Log.i(TAG, "Sit Rep model, Request: " + dataFields.get(8).toString());
 
                 sitRepModel = new SitRepModel();
-                sitRepModel.setRefId(FragmentConstants.LOCAL_REF_ID);
+                sitRepModel.setRefId(DatabaseTableConstants.LOCAL_REF_ID);
                 sitRepModel.setReporter(dataFields.get(0).toString());
 
                 if (DrawableUtil.IsValidImage(dataFields.get(1).toString().getBytes())) {
                     sitRepModel.setSnappedPhoto(dataFields.get(1).toString().getBytes());
                 }
 
-                sitRepModel.setLocation(dataFields.get(2).toString());
-                sitRepModel.setActivity(dataFields.get(3).toString());
+                if (StringUtil.INVALID_STRING.equalsIgnoreCase(dataFields.get(2).toString())) {
+                    sitRepModel.setLocation(StringUtil.EMPTY_STRING);
+                } else {
+                    sitRepModel.setLocation(dataFields.get(2).toString());
+                }
+
+                if (StringUtil.INVALID_STRING.equalsIgnoreCase(dataFields.get(3).toString())) {
+                    sitRepModel.setActivity(StringUtil.EMPTY_STRING);
+                } else {
+                    sitRepModel.setActivity(dataFields.get(3).toString());
+                }
 
                 try {
                     sitRepModel.setPersonnelT(Integer.parseInt(dataFields.get(4).toString()));
@@ -578,8 +630,24 @@ public class ExcelSpreadsheetUtil {
                     return null;
                 }
 
-                sitRepModel.setNextCoa(dataFields.get(7).toString());
-                sitRepModel.setRequest(dataFields.get(8).toString());
+                if (StringUtil.INVALID_STRING.equalsIgnoreCase(dataFields.get(7).toString())) {
+                    sitRepModel.setNextCoa(StringUtil.EMPTY_STRING);
+                } else {
+                    sitRepModel.setNextCoa(dataFields.get(7).toString());
+                }
+
+                if (StringUtil.INVALID_STRING.equalsIgnoreCase(dataFields.get(8).toString())) {
+                    sitRepModel.setRequest(StringUtil.EMPTY_STRING);
+                } else {
+                    sitRepModel.setRequest(dataFields.get(8).toString());
+                }
+
+                if (StringUtil.INVALID_STRING.equalsIgnoreCase(dataFields.get(9).toString())) {
+                    sitRepModel.setOthers(StringUtil.EMPTY_STRING);
+                } else {
+                    sitRepModel.setOthers(dataFields.get(9).toString());
+                }
+
                 sitRepModel.setCreatedDateTime(DateTimeUtil.getCurrentTime());
 
             } else {
@@ -614,18 +682,29 @@ public class ExcelSpreadsheetUtil {
         TaskModel taskModel = null;
         HashMap<Integer, Object> dataFields = new HashMap<>();
 
+        // Checks if content row is actually empty
+        if (isRowEmpty(contentRow)) {
+            return null;
+        }
+
         // Iterate through all columns based on header columns
         for (int i = 0; i < totalNoOfHeaderDataColumn; i++) {
             Cell currentCell = contentRow.getCell(i);
 
-            if (CELL_TYPE_STRING.equalsIgnoreCase(currentCell.getCellType().toString())) {
-                dataFields.put(i, currentCell.getStringCellValue());
-            } else if (CELL_TYPE_NUMBERIC.equalsIgnoreCase(currentCell.getCellType().toString())) {
-                if (currentCell.getNumericCellValue() % 1 == 0) {
-                    dataFields.put(i, (int) currentCell.getNumericCellValue());
+            if (currentCell != null) {
+                if (CELL_TYPE_STRING.equalsIgnoreCase(currentCell.getCellType().toString())) {
+                    dataFields.put(i, currentCell.getStringCellValue());
+                } else if (CELL_TYPE_NUMBERIC.equalsIgnoreCase(currentCell.getCellType().toString())) {
+                    if (currentCell.getNumericCellValue() % 1 == 0) {
+                        dataFields.put(i, (int) currentCell.getNumericCellValue());
+                    } else {
+                        dataFields.put(i, currentCell.getNumericCellValue());
+                    }
                 } else {
-                    dataFields.put(i, currentCell.getNumericCellValue());
+                    dataFields.put(i, StringUtil.INVALID_STRING);
                 }
+            } else {
+                dataFields.put(i, StringUtil.INVALID_STRING);
             }
         }
 
@@ -650,19 +729,71 @@ public class ExcelSpreadsheetUtil {
             }
 
             if (isAllFieldsMatched) {
-                Log.i(TAG, "Task model, assignedTo: " + dataFields.get(0).toString());
-                Log.i(TAG, "Task model, assignedBy: " + dataFields.get(1).toString());
-                Log.i(TAG, "Task model, title: " + dataFields.get(2).toString());
-                Log.i(TAG, "Task model, description: " + dataFields.get(3).toString());
+                Log.i(TAG, "Task model, phaseNo: " + dataFields.get(0).toString());
+                Log.i(TAG, "Task model, adHocTaskPriority: " + dataFields.get(1).toString());
+                Log.i(TAG, "Task model, assignedTo: " + dataFields.get(2).toString());
+                Log.i(TAG, "Task model, assignedBy: " + dataFields.get(3).toString());
+                Log.i(TAG, "Task model, title: " + dataFields.get(4).toString());
+                Log.i(TAG, "Task model, description: " + dataFields.get(5).toString());
 
                 taskModel = new TaskModel();
-                taskModel.setRefId(FragmentConstants.LOCAL_REF_ID);
-                taskModel.setAssignedTo(dataFields.get(0).toString());
-                taskModel.setAssignedBy(dataFields.get(1).toString());
-                taskModel.setTitle(dataFields.get(2).toString());
-                taskModel.setDescription(dataFields.get(3).toString());
-                taskModel.setStatus(EStatus.NEW.toString());
+                taskModel.setRefId(DatabaseTableConstants.LOCAL_REF_ID);
+                taskModel.setPhaseNo(dataFields.get(0).toString());
+
+                String adHocTaskPriority;
+                if (dataFields.get(1).toString().equalsIgnoreCase(StringUtil.INVALID_STRING)) {
+                    adHocTaskPriority = StringUtil.INVALID_STRING;
+                } else if (dataFields.get(1).toString().equalsIgnoreCase(
+                        EAdHocTaskPriority.HIGH.toString())) {
+                    adHocTaskPriority = EAdHocTaskPriority.HIGH.toString();
+                } else {
+                    adHocTaskPriority = EAdHocTaskPriority.LOW.toString();
+                }
+
+                taskModel.setAdHocTaskPriority(adHocTaskPriority);
+
+                String assignedTo = dataFields.get(2).toString();
+
+                if (StringUtil.INVALID_STRING.equalsIgnoreCase(dataFields.get(2).toString())) {
+                    taskModel.setAssignedTo(StringUtil.EMPTY_STRING);
+                    taskModel.setStatus(StringUtil.EMPTY_STRING);
+                } else {
+                    String[] assignedToStrArray = StringUtil.removeCommasAndExtraSpaces(assignedTo);
+
+                    StringBuilder status = new StringBuilder();
+                    for (int i = 0; i < assignedToStrArray.length; i++) {
+                        status.append(EStatus.NEW.toString());
+
+                        if (i != assignedToStrArray.length - 1) {
+                            status.append(StringUtil.COMMA);
+                            status.append(StringUtil.SPACE);
+                        }
+                    }
+
+                    taskModel.setAssignedTo(assignedTo);
+                    taskModel.setStatus(status.toString());
+                }
+
+                if (StringUtil.INVALID_STRING.equalsIgnoreCase(dataFields.get(3).toString())) {
+                    taskModel.setAssignedBy(StringUtil.EMPTY_STRING);
+                } else {
+                    taskModel.setAssignedBy(dataFields.get(3).toString());
+                }
+
+                if (StringUtil.INVALID_STRING.equalsIgnoreCase(dataFields.get(4).toString())) {
+                    taskModel.setTitle(StringUtil.EMPTY_STRING);
+                } else {
+                    taskModel.setTitle(dataFields.get(4).toString());
+                }
+
+                if (StringUtil.INVALID_STRING.equalsIgnoreCase(dataFields.get(5).toString())) {
+                    taskModel.setDescription(StringUtil.EMPTY_STRING);
+                } else {
+                    taskModel.setDescription(dataFields.get(5).toString());
+                }
+
                 taskModel.setCreatedDateTime(DateTimeUtil.getCurrentTime());
+                taskModel.setCompletedDateTime(StringUtil.INVALID_STRING);
 
             } else {
                 Log.i(TAG, "Table data from Excel does not match Task data model");
@@ -1051,7 +1182,7 @@ public class ExcelSpreadsheetUtil {
                         if (sitRepModel.getSnappedPhoto() != null) {
                             c.setCellValue(sitRepModel.getSnappedPhoto().toString());
                         } else {
-                            c.setCellValue(StringUtil.EMPTY_STRING);
+                            c.setCellValue(StringUtil.INVALID_STRING);
                         }
 //                        c.setCellStyle(cs);
 
@@ -1183,18 +1314,24 @@ public class ExcelSpreadsheetUtil {
                         row = taskSheet.createRow(i + 1);
 
                         c = row.createCell(0);
+                        c.setCellValue(taskModel.getPhaseNo());
+
+                        c = row.createCell(1);
+                        c.setCellValue(taskModel.getAdHocTaskPriority());
+
+                        c = row.createCell(2);
                         c.setCellValue(taskModel.getAssignedTo());
 //                        c.setCellStyle(cs);
 
-                        c = row.createCell(1);
+                        c = row.createCell(3);
                         c.setCellValue(taskModel.getAssignedBy());
 //                        c.setCellStyle(cs);
 
-                        c = row.createCell(2);
+                        c = row.createCell(4);
                         c.setCellValue(taskModel.getTitle());
 //                        c.setCellStyle(cs);
 
-                        c = row.createCell(3);
+                        c = row.createCell(5);
                         c.setCellValue(taskModel.getDescription());
 //                        c.setCellStyle(cs);
                     }

@@ -29,11 +29,11 @@ public interface SitRepDao {
     @Query("UPDATE SitRep SET reporter = :reporter, snappedPhoto = :snappedPhoto," +
             "location = :location, activity = :activity, personnelT = :personnelT," +
             "personnelS = :personnelS, personnelD = :personnelD, nextCoa = :nextCoa," +
-            "request = :request, createdDateTime = :reportedDateTime WHERE refId = :id")
+            "request = :request, others = :others, createdDateTime = :reportedDateTime WHERE refId = :id")
     void updateSitRepModelByRefId(long id, String reporter, byte[] snappedPhoto, String location,
                                   String activity, int personnelT, int personnelS,
                                   int personnelD, String nextCoa, String request,
-                                  String reportedDateTime);
+                                  String others, String reportedDateTime);
 
     @Query("DELETE FROM SitRep WHERE id = :sitRepId")
     void deleteSitRepModel(long sitRepId);

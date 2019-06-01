@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/thin_line_margin"
+        android:background="@color/primary_highlight_cyan"
+        android:layout_gravity="center"/>
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+        android:id="@+id/tv_recycler_category_header_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/elements_small_margin_spacing"
+        android:paddingEnd="@dimen/elements_small_margin_spacing"
+        android:textColor="@color/primary_highlight_cyan"
+        android:layout_gravity="center"
+        android:background="@color/background_main_black"
+        android:textSize="@dimen/text_view_small_text_size"/>
+
+</FrameLayout>

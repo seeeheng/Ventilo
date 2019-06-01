@@ -29,7 +29,9 @@
     <color name="primary_white">#FFFFFF</color>
     <color name="primary_text_grey">#ADADAD</color>
     <color name="primary_text_hint_dark_grey">#6D6D6D</color>
-    <color name="divider_line_grey">#3E3E3E</color>
+    <color name="secondary_main_grey">#1F1F1F</color>
+    <color name="divider_line_primary_grey">#3E3E3E</color>
+    <color name="divider_line_secondary_grey">#707070</color>
     <!--<color name="img_btn_space_blue">#1D2951</color>-->
     <!--<color name="prussian_blue">#003152</color>-->
     <!--<color name="independence_blue">#4C516D</color>-->
@@ -43,27 +45,17 @@
 
     <color name="dull_green">#6ACC57</color>
     <color name="dull_red">#FC605B</color>
+    <color name="dull_orange">#F9A64A</color>
 
     <!-- Snackbar -->
 
     <!-- Spinner -->
     <color name="spinner_fill_grey">#282828</color>
-    <color name="spinner_border_grey">#707070</color>
-    <color name="spinner_broad_fill_grey">#1C1C1C</color>
 
     <!-- Bottom Panel -->
     <color name="sub_components_background_grey">#282828</color>
 
-    <!--Task Status -->
+    <!-- Task Status -->
     <color name="task_status_yellow">#F5CE51</color>
-
-    <!-- Sit Rep -->
-    <color name="input_others_icon_fill_grey">#1C1C1C</color>
-
-    <!-- Add New Item -->
-    <color name="add_new_item_light_grey">#ADADAD</color>
-
-    <!-- Settings -->
-    <color name="settings_light_grey">#1F1F1F</color>
 
 </resources>

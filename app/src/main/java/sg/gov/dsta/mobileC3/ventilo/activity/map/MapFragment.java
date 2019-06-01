@@ -2,7 +2,6 @@ package sg.gov.dsta.mobileC3.ventilo.activity.map;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.PointF;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -10,8 +9,6 @@ import android.speech.SpeechRecognizer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,17 +60,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import sg.gov.dsta.mobileC3.ventilo.PinView;
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.eventbus.PageEvent;
 import sg.gov.dsta.mobileC3.ventilo.util.CustomMapTileProvider;
 import sg.gov.dsta.mobileC3.ventilo.util.CustomRasterDataSource;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.VoiceCommands;
-import sg.gov.dh.utils.Coords;
-import sg.gov.dh.trackers.Event;
-import sg.gov.dh.trackers.NavisensLocalTracker;
-import sg.gov.dh.trackers.TrackerListener;
+//import sg.gov.dh.utils.Coords;
+//import sg.gov.dh.trackers.Event;
+//import sg.gov.dh.trackers.NavisensLocalTracker;
+//import sg.gov.dh.trackers.TrackerListener;
 import sg.gov.dsta.mobileC3.ventilo.util.map.MapUtil;
 
 public class MapFragment extends Fragment implements RecognitionListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -130,11 +128,11 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
     private String mResultText;
 
     // BFT Tracker
-    private NavisensLocalTracker mBftCustomTracker;
-    private PinView mPinView;
-    private PointF mOffsetLocationPoint;
+//    private NavisensLocalTracker mBftCustomTracker;
+//    private PinView mPinView;
+//    private PointF mOffsetLocationPoint;
 
-    private boolean mIsVisibleToUser;
+    private boolean mIsFragmentVisibleToUser;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -931,149 +929,149 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
 //        mPinView.setOwnPinCoordinates(mOffsetLocationPoint);
 //    }
 
-    private void updateHumanModelCoord(double x, double y, double altitude, double bearing) {
-        double newX = mInitialXCoord + x;
-        double newY = mInitialYCoord + y;
-        double newZ = mInitialZCoord + altitude;
-        MapPos newPos = new MapPos(newX, newY, newZ);
-
-//        mHumanModel.setMapPos(newPos);
-//        mHumanModel.setRotation(mHumanModel.getRotationAxis(), (float) bearing);
-    }
-
-    private void updateHumanModelCoord(Coords coords) {
-        double newX = mInitialXCoord + coords.getX();
-        double newY = mInitialYCoord + coords.getY();
-        double newZ = mInitialZCoord + coords.getAltitude();
-        MapPos newPos = new MapPos(newX, newY, newZ);
-
-//        mHumanModel.setMapPos(newPos);
-//        mHumanModel.setRotation(mHumanModel.getRotationAxis(), (float) coords.getBearing());
-    }
-
-//    private void setOffsetLocationPoint(float centerX, float centerY) {
-//        if (mOffsetLocationPoint == null) {
-//            mOffsetLocationPoint = new PointF(centerX, centerY);
-//        } else {
-//            mOffsetLocationPoint.set(centerX, centerY);
-//        }
+//    private void updateHumanModelCoord(double x, double y, double altitude, double bearing) {
+//        double newX = mInitialXCoord + x;
+//        double newY = mInitialYCoord + y;
+//        double newZ = mInitialZCoord + altitude;
+//        MapPos newPos = new MapPos(newX, newY, newZ);
+//
+////        mHumanModel.setMapPos(newPos);
+////        mHumanModel.setRotation(mHumanModel.getRotationAxis(), (float) bearing);
 //    }
-
-    // Note that this NavisensLocalTracker class can only register XYZ offsets in metres, NOT lat/long.
-    private void startBFTTracking() {
-        if (!mIsBFTTracking) {
-            mBftCustomTracker = new NavisensLocalTracker(getActivity());
-//            mBftCustomTracker.setActive(true);
-            mBftCustomTracker.setTrackerListener(new TrackerListener() {
-                @Override
-                public void onNewCoords(Coords coords) {
-                    //You receive the coordinates here, you can do whatever you want with it.
-                    Log.d(TAG, "X:" + coords.getX());
-                    Log.d(TAG, "Y:" + coords.getY());
-                    Log.d(TAG, "Z:" + coords.getAltitude());
-                    Log.d(TAG, "bearing:" + coords.getBearing());
-                    Log.d(TAG, "Action:" + coords.getAction());
-                    Log.d(TAG, "Lat:" + coords.getLatitude());
-
-                    // Update human pin coordinates on 2D image
-//                    update2DBlueprintBFCoord(coords);
-
-                    // Update human 3D model coordinates
-                    if (isShareLocation) {
-                        System.out.println("isShareLocation");
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("Coords:");
-                        sb.append(SPACE);
-                        sb.append(coords.getX());
-                        sb.append(SPACE);
-                        sb.append(coords.getY());
-                        sb.append(SPACE);
-                        sb.append(coords.getAltitude());
-                        sb.append(SPACE);
-                        sb.append(coords.getBearing());
-
-
-                        count++;
-                        if (count > 4) {
-//                            MqttHelper.getInstance().publishMessage("PAYLOAD_RELOADED_2");
-                            MqttHelper.getInstance().publishMessage(sb.toString());
-                            count = 0;
-                        }
-                    } else if (isTrackAllies) {
-                        System.out.println("isTrackAllies");
-//                        String mapCoord = getArguments().getCharSequence("mapCoord").toString();
-
-//                        Bundle mapCoordBundle = getActivity().getIntent().getExtras();
 //
-//                        if (mapCoordBundle != null) {
+//    private void updateHumanModelCoord(Coords coords) {
+//        double newX = mInitialXCoord + coords.getX();
+//        double newY = mInitialYCoord + coords.getY();
+//        double newZ = mInitialZCoord + coords.getAltitude();
+//        MapPos newPos = new MapPos(newX, newY, newZ);
 //
-//                            String mapCoord = mapCoordBundle.getString("mapCoord");
-//                            if (mapCoord != null) {
-                        if (!coordString.isEmpty()) {
-                            System.out.println("coordString is " + coordString);
-
-                            String mapCoordSplit[] = coordString.split(SPACE);
+////        mHumanModel.setMapPos(newPos);
+////        mHumanModel.setRotation(mHumanModel.getRotationAxis(), (float) coords.getBearing());
+//    }
 //
-                            System.out.println("final coord is :" + Double.valueOf(mapCoordSplit[1]) + " " +
-                                    Double.valueOf(mapCoordSplit[2]) + " " + Double.valueOf(mapCoordSplit[3]) +
-                                    " " + Double.valueOf(mapCoordSplit[4]));
-
-//                            updateHumanModelCoord(Double.valueOf(mapCoordSplit[1]), Double.valueOf(mapCoordSplit[2]),
-//                                    Double.valueOf(mapCoordSplit[3]), Double.valueOf(mapCoordSplit[4]));
-
-                            //Update Google Map own marker
-                            updateOwnMarkerPos(Double.valueOf(mapCoordSplit[1]),
-                                    Double.valueOf(mapCoordSplit[2]), Double.valueOf(mapCoordSplit[4]));
-                        } else {
-//                            updateHumanModelCoord(coords);
-                            updateOwnMarkerPos(coords.getX(), coords.getY(), coords.getBearing());
-                        }
-//                    }
-
-//                        else {
-//                            updateHumanModelCoord(coords);
-//                        }
-
-                    } else {
-                        System.out.println("none");
-                        updateOwnMarkerPos(coords.getX(), coords.getY(), coords.getBearing());
-                    }
-
-//                    if (mMqttHelper == null) {
-//                        mMqttHelper = (MqttHelper) getArguments().getSerializable("mqttHelper");
+////    private void setOffsetLocationPoint(float centerX, float centerY) {
+////        if (mOffsetLocationPoint == null) {
+////            mOffsetLocationPoint = new PointF(centerX, centerY);
+////        } else {
+////            mOffsetLocationPoint.set(centerX, centerY);
+////        }
+////    }
 //
-//                        if (mMqttHelper == null) {
-//                            updateHumanModelCoord(coords);
-//                        } else if (mMqttHelper.getMqttClient().isConnected()) {
-//                            String mapCoord = getArguments().getCharSequence("mapCoord").toString() ;
-//                            if (mapCoord != null || "".equalsIgnoreCase(mapCoord)) {
-//                                String mapCoordSplit[] = mapCoord.split(" ");
-//
-//                                updateHumanModelCoord(Double.valueOf(mapCoordSplit[0]), Double.valueOf(mapCoordSplit[1]),
-//                                        Double.valueOf(mapCoordSplit[2]), Double.valueOf(mapCoordSplit[3]));
-//                            }
-//                        }
-//                    }
-                }
-
-                @Override
-                public void onNewEvent(Event event) {
-                    //This is deprecated in current version. Replaced by coords.getAction().
-                }
-            });
-
-            mIsBFTTracking = true;
-        }
-
-    }
-
-    private void stopBFTTracking() {
-        if (mIsBFTTracking && mBftCustomTracker != null && mBftCustomTracker.isActive()) {
-            mBftCustomTracker.deactivate();
-            mBftCustomTracker = null;
-            mIsBFTTracking = false;
-        }
-    }
+////    // Note that this NavisensLocalTracker class can only register XYZ offsets in metres, NOT lat/long.
+////    private void startBFTTracking() {
+////        if (!mIsBFTTracking) {
+////            mBftCustomTracker = new NavisensLocalTracker(getActivity());
+//////            mBftCustomTracker.setActive(true);
+////            mBftCustomTracker.setTrackerListener(new TrackerListener() {
+////                @Override
+////                public void onNewCoords(Coords coords) {
+////                    //You receive the coordinates here, you can do whatever you want with it.
+////                    Log.d(TAG, "X:" + coords.getX());
+////                    Log.d(TAG, "Y:" + coords.getY());
+////                    Log.d(TAG, "Z:" + coords.getAltitude());
+////                    Log.d(TAG, "bearing:" + coords.getBearing());
+////                    Log.d(TAG, "Action:" + coords.getAction());
+////                    Log.d(TAG, "Lat:" + coords.getLatitude());
+////
+////                    // Update human pin coordinates on 2D image
+//////                    update2DBlueprintBFCoord(coords);
+////
+////                    // Update human 3D model coordinates
+////                    if (isShareLocation) {
+////                        System.out.println("isShareLocation");
+////                        StringBuilder sb = new StringBuilder();
+////                        sb.append("Coords:");
+////                        sb.append(SPACE);
+////                        sb.append(coords.getX());
+////                        sb.append(SPACE);
+////                        sb.append(coords.getY());
+////                        sb.append(SPACE);
+////                        sb.append(coords.getAltitude());
+////                        sb.append(SPACE);
+////                        sb.append(coords.getBearing());
+////
+////
+////                        count++;
+////                        if (count > 4) {
+//////                            MqttHelper.getInstance().publishMessage("PAYLOAD_RELOADED_2");
+////                            MqttHelper.getInstance().publishMessage(sb.toString());
+////                            count = 0;
+////                        }
+////                    } else if (isTrackAllies) {
+////                        System.out.println("isTrackAllies");
+//////                        String mapCoord = getArguments().getCharSequence("mapCoord").toString();
+////
+//////                        Bundle mapCoordBundle = getActivity().getIntent().getExtras();
+//////
+//////                        if (mapCoordBundle != null) {
+//////
+//////                            String mapCoord = mapCoordBundle.getString("mapCoord");
+//////                            if (mapCoord != null) {
+////                        if (!coordString.isEmpty()) {
+////                            System.out.println("coordString is " + coordString);
+////
+////                            String mapCoordSplit[] = coordString.split(SPACE);
+//////
+////                            System.out.println("final coord is :" + Double.valueOf(mapCoordSplit[1]) + " " +
+////                                    Double.valueOf(mapCoordSplit[2]) + " " + Double.valueOf(mapCoordSplit[3]) +
+////                                    " " + Double.valueOf(mapCoordSplit[4]));
+////
+//////                            updateHumanModelCoord(Double.valueOf(mapCoordSplit[1]), Double.valueOf(mapCoordSplit[2]),
+//////                                    Double.valueOf(mapCoordSplit[3]), Double.valueOf(mapCoordSplit[4]));
+////
+////                            //Update Google Map own marker
+////                            updateOwnMarkerPos(Double.valueOf(mapCoordSplit[1]),
+////                                    Double.valueOf(mapCoordSplit[2]), Double.valueOf(mapCoordSplit[4]));
+////                        } else {
+//////                            updateHumanModelCoord(coords);
+////                            updateOwnMarkerPos(coords.getX(), coords.getY(), coords.getBearing());
+////                        }
+//////                    }
+////
+//////                        else {
+//////                            updateHumanModelCoord(coords);
+//////                        }
+////
+////                    } else {
+////                        System.out.println("none");
+////                        updateOwnMarkerPos(coords.getX(), coords.getY(), coords.getBearing());
+////                    }
+////
+//////                    if (mMqttHelper == null) {
+//////                        mMqttHelper = (MqttHelper) getArguments().getSerializable("mqttHelper");
+//////
+//////                        if (mMqttHelper == null) {
+//////                            updateHumanModelCoord(coords);
+//////                        } else if (mMqttHelper.getMqttClient().isConnected()) {
+//////                            String mapCoord = getArguments().getCharSequence("mapCoord").toString() ;
+//////                            if (mapCoord != null || "".equalsIgnoreCase(mapCoord)) {
+//////                                String mapCoordSplit[] = mapCoord.split(" ");
+//////
+//////                                updateHumanModelCoord(Double.valueOf(mapCoordSplit[0]), Double.valueOf(mapCoordSplit[1]),
+//////                                        Double.valueOf(mapCoordSplit[2]), Double.valueOf(mapCoordSplit[3]));
+//////                            }
+//////                        }
+//////                    }
+////                }
+////
+////                @Override
+////                public void onNewEvent(Event event) {
+////                    //This is deprecated in current version. Replaced by coords.getAction().
+////                }
+////            });
+////
+////            mIsBFTTracking = true;
+////        }
+////
+////    }
+////
+////    private void stopBFTTracking() {
+////        if (mIsBFTTracking && mBftCustomTracker != null && mBftCustomTracker.isActive()) {
+////            mBftCustomTracker.deactivate();
+////            mBftCustomTracker = null;
+////            mIsBFTTracking = false;
+////        }
+////    }
 
     private void subscribeToMQTTTopic(String topic) {
         MqttHelper.getInstance().subscribeToTopic(topic);
@@ -1082,36 +1080,57 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
     private void navigateToMapShipBlueprintFragment() {
         dispose();
 
-        Fragment mapShipBlueprintFragment = new MapShipBlueprintFragment();
-        FragmentManager fm = getActivity().getSupportFragmentManager();
+        popChildBackStack();
 
-        int count = fm.getBackStackEntryCount();
-        boolean isMapShipBlueprintFragmentFound = false;
 
-        // Checks if MapShipBlueprintFragment was previous fragment; if it is, simply pop current stack
-        // By popping stack, we do not re-initialise blueprint in MapShipBlueprintFragment
-        for (int i = 0; i < count; i++) {
-            if (MapShipBlueprintFragment.class.getSimpleName().equalsIgnoreCase(
-                    fm.getBackStackEntryAt(i).getName())) {
-                if (i == (count - 2) || i == (count - 3)) {
-                    isMapShipBlueprintFragmentFound = true;
-                }
-            }
-        }
+//        Fragment mapShipBlueprintFragment = new MapShipBlueprintFragment();
+////        FragmentManager fm = getActivity().getSupportFragmentManager();
+//        FragmentManager fm = getChildFragmentManager();
+//
+//        int count = fm.getBackStackEntryCount();
+//        boolean isMapShipBlueprintFragmentFound = false;
+//
+//        // Checks if MapShipBlueprintFragment was previous fragment; if it is, simply pop current stack
+//        // By popping stack, we do not re-initialise blueprint in MapShipBlueprintFragment
+//        for (int i = 0; i < count; i++) {
+//            if (MapShipBlueprintFragment.class.getSimpleName().equalsIgnoreCase(
+//                    fm.getBackStackEntryAt(i).getName())) {
+//                if (i == (count - 2) || i == (count - 3)) {
+//                    isMapShipBlueprintFragmentFound = true;
+//                }
+//            }
+//        }
+//
+//        if (!isMapShipBlueprintFragmentFound) {
+//            Log.d(TAG, "MapShipBlueprintFragment not found in back stack. Creating new map fragment.");
+//            FragmentTransaction ft = fm.beginTransaction();
+//            ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right,
+//                    R.anim.slide_in_from_right, R.anim.slide_out_to_right);
+//            ft.replace(R.id.layout_map_fragment, mapShipBlueprintFragment,
+//                    mapShipBlueprintFragment.getClass().getSimpleName());
+////            ft.addToBackStack(mapShipBlueprintFragment.getClass().getSimpleName());
+//            ft.addToBackStack(null);
+//            ft.commit();
+//        } else {
+//            Log.d(TAG, "MapShipBlueprintFragment found in back stack. Popping " +
+//                    MapShipBlueprintFragment.class.getSimpleName() + ".");
+////            fm.popBackStack();
+//            popBackStack();
+//        }
+    }
 
-        if (!isMapShipBlueprintFragmentFound) {
-            Log.d(TAG, "MapShipBlueprintFragment not found in back stack. Creating new map fragment.");
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right,
-                    R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-            ft.replace(R.id.layout_map_fragment, mapShipBlueprintFragment,
-                    mapShipBlueprintFragment.getClass().getSimpleName());
-            ft.addToBackStack(mapShipBlueprintFragment.getClass().getSimpleName());
-            ft.commit();
-        } else {
-            Log.d(TAG, "MapShipBlueprintFragment found in back stack. Popping " +
-                    MapShipBlueprintFragment.class.getSimpleName() + ".");
-            fm.popBackStack();
+    /**
+     * Accesses child base fragment of current selected view pager item and remove this fragment
+     * from child base fragment's stack.
+     *
+     * Selected View Pager Item: Map
+     * Child Base Fragment: MapShipBlueprintFragment
+     */
+    private void popChildBackStack() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity mainActivity = ((MainActivity) getActivity());
+            mainActivity.popChildFragmentBackStack(
+                    MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID);
         }
     }
 
@@ -1201,6 +1220,27 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
             initUI(mRootMapView, mSavedInstanceState);
             System.out.println("MapFragment null mGoogleMapView!");
         }
+
+        Log.d(TAG, "onVisible");
+
+//        FragmentManager fm = getActivity().getSupportFragmentManager();
+//        boolean isFragmentFound = false;
+//
+//        int count = fm.getBackStackEntryCount();
+//
+//        // Checks if current fragment exists in Back stack
+//        for (int i = 0; i < count; i++) {
+//            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
+//                isFragmentFound = true;
+//            }
+//        }
+//
+//        // If not found, add to current fragment to Back stack
+//        if (!isFragmentFound) {
+//            FragmentTransaction ft = fm.beginTransaction();
+//            ft.addToBackStack(this.getClass().getSimpleName());
+//            ft.commit();
+//        }
     }
 
     private void onInvisible() {
@@ -1210,9 +1250,9 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        mIsVisibleToUser = isVisibleToUser;
+        mIsFragmentVisibleToUser = isVisibleToUser;
         if (isResumed()) { // fragment has been created at this point
-            if (mIsVisibleToUser) {
+            if (mIsFragmentVisibleToUser) {
                 onVisible();
             } else {
                 onInvisible();
@@ -1241,7 +1281,7 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
         super.onStart();
         EventBus.getDefault().register(this);
 
-        if (mIsVisibleToUser) {
+        if (mIsFragmentVisibleToUser) {
             onVisible();
         }
     }
@@ -1251,7 +1291,7 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
         super.onStop();
         EventBus.getDefault().unregister(this);
 
-        if (mIsVisibleToUser) {
+        if (mIsFragmentVisibleToUser) {
             onInvisible();
         }
     }

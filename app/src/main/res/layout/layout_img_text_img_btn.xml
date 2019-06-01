@@ -5,7 +5,7 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:id="@+id/linear_layout_img_text_img_btn"
+        android:id="@+id/layout_main_img_text_img_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/img_btn_background_cyan_border"

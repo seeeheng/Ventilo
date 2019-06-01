@@ -2,6 +2,7 @@ package sg.gov.dsta.mobileC3.ventilo.activity.videostream;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -22,9 +23,11 @@ public class VideoStreamDeleteOrSaveRecyclerAdapter extends RecyclerView.Adapter
     List<VideoStreamModel> mVideoStreamListItems;
 
     private Context mContext;
+    private Fragment mFragment;
 
-    public VideoStreamDeleteOrSaveRecyclerAdapter(Context context, List<VideoStreamModel> videoStreamListItems) {
+    public VideoStreamDeleteOrSaveRecyclerAdapter(Context context, Fragment fragment, List<VideoStreamModel> videoStreamListItems) {
         this.mContext = context;
+        mFragment = fragment;
         mVideoStreamListItems = videoStreamListItems;
     }
 
@@ -64,6 +67,10 @@ public class VideoStreamDeleteOrSaveRecyclerAdapter extends RecyclerView.Adapter
     public void setVideoStreamListItems(List<VideoStreamModel> videoStreamListItems) {
         mVideoStreamListItems = videoStreamListItems;
         notifyDataSetChanged();
+    }
+
+    public Fragment getVideoStreamAddFragment() {
+        return mFragment;
     }
 
     public List<VideoStreamModel> getVideoStreamListItems() {

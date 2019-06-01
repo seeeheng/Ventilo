@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/linear_layout_timeline_parent"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="@dimen/timeline_final_completed_time_width"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/timeline_final_completed_time_margin_top"
+        android:layout_marginEnd="@dimen/elements_margin_spacing">
+
+        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+            android:id="@+id/tv_recycler_timeline_final_completion_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/primary_white"
+            android:textSize="@dimen/text_view_text_size" />
+
+    </LinearLayout>
+
+    <!--<FrameLayout-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="match_parent">-->
+
+    <!--<View-->
+    <!--android:id="@+id/view_recycler_timeline_top_line"-->
+    <!--android:layout_width="@dimen/minor_margin"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:background="@color/secondary_main_grey" />-->
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/elements_large_margin_spacing"
+        android:background="@drawable/circle_grey_background">
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/img_timeline_line_status_icon"
+            android:layout_width="@dimen/timeline_outer_icon_width"
+            android:layout_height="@dimen/timeline_outer_icon_height"
+            android:layout_centerInParent="true"
+            android:src="@drawable/task_completed" />
+
+    </RelativeLayout>
+
+    <!--</FrameLayout>-->
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/timeline_triangle"
+        android:layout_width="@dimen/timeline_outer_icon_width"
+        android:layout_height="@dimen/timeline_outer_icon_height"
+        android:layout_marginTop="@dimen/timeline_triangle_margin_top"
+        app:srcCompat="@drawable/icon_triangle_pointed_left" />
+
+    <include
+        android:id="@+id/layout_row_timeline_inner_container"
+        layout="@layout/layout_row_timeline_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

@@ -109,7 +109,7 @@
                     android:layout_gravity="center"
                     android:background="@drawable/img_btn_background"
                     android:foreground="?android:selectableItemBackground"
-                    android:text="@string/btn_map_subscribe"
+                    android:text="@string/btn_subscribe"
                     android:visibility="gone" />
 
                 <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton
@@ -120,7 +120,7 @@
                     android:layout_gravity="center"
                     android:background="@drawable/img_btn_background"
                     android:foreground="?android:selectableItemBackground"
-                    android:text="@string/btn_map_share_location"
+                    android:text="@string/btn_share_location"
                     android:visibility="gone" />
 
             </RelativeLayout>
@@ -152,7 +152,7 @@
                     android:layout_gravity="center"
                     android:background="@drawable/img_btn_background"
                     android:foreground="?android:selectableItemBackground"
-                    android:text="@string/btn_map_top" />
+                    android:text="@string/btn_top" />
 
                 <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton
                     android:id="@+id/btn_map_port_view"
@@ -162,7 +162,7 @@
                     android:layout_gravity="center"
                     android:background="@drawable/img_btn_background"
                     android:foreground="?android:selectableItemBackground"
-                    android:text="@string/btn_map_port" />
+                    android:text="@string/btn_port" />
 
                 <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton
                     android:id="@+id/btn_map_sb_view"
@@ -172,7 +172,7 @@
                     android:layout_gravity="center"
                     android:background="@drawable/img_btn_background"
                     android:foreground="?android:selectableItemBackground"
-                    android:text="@string/btn_map_starboard" />
+                    android:text="@string/btn_starboard" />
 
             </RelativeLayout>
 

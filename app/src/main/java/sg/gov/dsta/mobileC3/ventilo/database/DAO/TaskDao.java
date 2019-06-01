@@ -26,12 +26,14 @@ public interface TaskDao {
     @Update
     void updateTaskModel(TaskModel task);
 
-    @Query("UPDATE Task SET assignedTo = :assignedTo, assignedBy = :assignedBy," +
+    @Query("UPDATE Task SET phaseNo = :phaseNo, adHocTaskPriority = :adHocTaskPriority, " +
+            "assignedTo = :assignedTo, assignedBy = :assignedBy," +
             "title = :title, description = :description, status = :status," +
-            "createdDateTime = :createdDateTime WHERE refId = :refId")
-    void updateTaskModelByRefId(String assignedTo, String assignedBy, String title,
-                                String description, String status, String createdDateTime,
-                                long refId);
+            "createdDateTime = :createdDateTime, completedDateTime = :completedDateTime " +
+            "WHERE refId = :id")
+    void updateTaskModelByRefId(long id, String phaseNo, String adHocTaskPriority, String assignedTo,
+                                String assignedBy, String title, String description, String status,
+                                String createdDateTime, String completedDateTime);
 
     @Query("DELETE FROM Task WHERE id = :taskId")
     void deleteTaskModel(long taskId);

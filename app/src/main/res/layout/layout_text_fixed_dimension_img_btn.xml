@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_text_fixed_dimension_img_btn"
+    android:layout_width="@dimen/img_btn_fixed_width"
+    android:layout_height="@dimen/img_btn_fixed_height"
+    android:background="@drawable/img_btn_background_without_border"
+    android:gravity="center">
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+        android:id="@+id/tv_text_fixed_dimension_text_img_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ad Hoc"
+        android:textColor="@color/primary_white"
+        android:textSize="@dimen/text_view_text_size" />
+
+</RelativeLayout>

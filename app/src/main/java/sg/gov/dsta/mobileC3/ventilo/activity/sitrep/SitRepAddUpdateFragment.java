@@ -1,5 +1,6 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.sitrep;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentValues;
@@ -14,12 +15,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -33,7 +36,6 @@ import android.widget.Toast;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
-import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -44,15 +46,15 @@ import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
+import sg.gov.dsta.mobileC3.ventilo.activity.main.MainStatePagerAdapter;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserSitRepJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.SitRepViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserSitRepJoinViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
-import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.GsonCreator;
 import sg.gov.dsta.mobileC3.ventilo.util.PhotoCaptureUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
@@ -61,7 +63,9 @@ import sg.gov.dsta.mobileC3.ventilo.util.ValidationUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.DatabaseTableConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 
 public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.SnackbarActionClickListener {
@@ -121,7 +125,12 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     private Spinner mSpinnerRequest;
     private C2OpenSansRegularEditTextView mEtvRequestOthers;
 
+    // Others section
+    private C2OpenSansRegularEditTextView mEtvOthers;
+
     private SitRepModel mSitRepModelToUpdate;
+
+    private boolean mIsFragmentVisibleToUser;
 
     @Nullable
     @Override
@@ -130,12 +139,18 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         View rootView = inflater.inflate(R.layout.fragment_add_update_sitrep, container, false);
         observerSetup();
         initUI(rootView);
+        checkBundle();
+
+//        setRetainInstance(true);
 
         Log.i(TAG, "Fragment view created.");
 
         return rootView;
     }
 
+    /**
+     * Set up observer for live updates on view models and update UI accordingly
+     */
     private void observerSetup() {
         mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         mSitRepViewModel = ViewModelProviders.of(this).get(SitRepViewModel.class);
@@ -148,7 +163,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
      * @param rootView
      */
     private void initUI(View rootView) {
-        mMainLayout = rootView.findViewById(R.id.layout_sitrep_add_fragment);
+        mMainLayout = rootView.findViewById(R.id.layout_add_update_sitrep_fragment);
 
         initToolbarUI(rootView);
         initCallsignTitleUI(rootView);
@@ -158,6 +173,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         initPersonnelUI(rootView);
         initNextCoaUI(rootView);
         initRequestUI(rootView);
+        initOthers(rootView);
 
 //        initLayouts(rootView);
 //        initSpinners(rootView);
@@ -165,6 +181,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
     /**
      * Initialise toolbar UI with back (left) and send/update (right) buttons
+     *
      * @param rootView
      */
     private void initToolbarUI(View rootView) {
@@ -181,10 +198,10 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     }
 
     private void initCallsignTitleUI(View rootView) {
-        mTvCallsignTitle = rootView.findViewById(R.id.tv_sitrep_callsign);
+        mTvCallsignTitle = rootView.findViewById(R.id.tv_add_update_sitrep_callsign);
 
         StringBuilder callsignTitleBuilder = new StringBuilder();
-        callsignTitleBuilder.append(SharedPreferenceUtil.getCurrentUserCallsignID(getActivity()));
+        callsignTitleBuilder.append(SharedPreferenceUtil.getCurrentUserCallsignID());
         callsignTitleBuilder.append(StringUtil.SPACE);
         callsignTitleBuilder.append(getString(R.string.sitrep_callsign_header));
 
@@ -192,11 +209,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     }
 
     private void initPicUI(View rootView) {
-        mImgPhotoGallery = rootView.findViewById(R.id.img_sitrep_photo_gallery);
-        mImgOpenCamera = rootView.findViewById(R.id.img_sitrep_open_camera);
-        mFrameLayoutPicture = rootView.findViewById(R.id.layout_sitrep_picture);
-        mImgPicture = rootView.findViewById(R.id.img_sitrep_picture);
-        mImgClose = rootView.findViewById(R.id.img_sitrep_picture_close);
+        mImgPhotoGallery = rootView.findViewById(R.id.img_add_update_sitrep_photo_gallery);
+        mImgOpenCamera = rootView.findViewById(R.id.img_add_update_sitrep_open_camera);
+        mFrameLayoutPicture = rootView.findViewById(R.id.layout_add_update_sitrep_picture);
+        mImgPicture = rootView.findViewById(R.id.img_add_update_sitrep_picture);
+        mImgClose = rootView.findViewById(R.id.img_add_update_sitrep_picture_close);
 
         mImgPhotoGallery.setOnClickListener(onPhotoGalleryClickListener);
         mImgOpenCamera.setOnClickListener(onOpenCameraClickListener);
@@ -212,9 +229,9 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     }
 
     private void initPersonnelUI(View rootView) {
-        View layoutContainerPersonnelT = rootView.findViewById(R.id.layout_sitrep_personnel_T);
-        View layoutContainerPersonnelS = rootView.findViewById(R.id.layout_sitrep_personnel_S);
-        View layoutContainerPersonnelD = rootView.findViewById(R.id.layout_sitrep_personnel_D);
+        View layoutContainerPersonnelT = rootView.findViewById(R.id.layout_add_update_sitrep_personnel_T);
+        View layoutContainerPersonnelS = rootView.findViewById(R.id.layout_add_update_sitrep_personnel_S);
+        View layoutContainerPersonnelD = rootView.findViewById(R.id.layout_add_update_sitrep_personnel_D);
 
         initPersonnelTextViewsUI(layoutContainerPersonnelT, layoutContainerPersonnelS, layoutContainerPersonnelD);
         initPersonnelBtns(layoutContainerPersonnelT, layoutContainerPersonnelS, layoutContainerPersonnelD);
@@ -268,8 +285,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     private View.OnClickListener onBackClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-            fragmentManager.popBackStack();
+            Log.i(TAG, "Back button pressed.");
+            popChildBackStack();
         }
     };
 
@@ -434,6 +451,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         ArrayAdapter<String> adapter = new ArrayAdapter(getActivity(),
                 R.layout.spinner_row_sitrep, R.id.tv_spinner_sitrep_text, stringArray) {
 
+
             @Override
             public boolean isEnabled(int position) {
                 if (position == 0) {
@@ -443,6 +461,12 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 } else {
                     return true;
                 }
+            }
+
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                return super.getView(position, convertView, parent);
             }
 
             @Override
@@ -462,12 +486,32 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         return adapter;
     }
 
+    /**
+     * Initialise Sit Rep input location UI
+     * <p>
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
     private void initInputLocationUI(View rootView) {
-        View viewInputLocation = rootView.findViewById(R.id.input_sitrep_location);
-        mLayoutLocationInputOthers = viewInputLocation.findViewById(R.id.layout_input_others_icon);
-        mImgLocationInputOthers = viewInputLocation.findViewById(R.id.img_input_others_icon);
+        View viewInputLocation = rootView.findViewById(R.id.layout_add_update_sitrep_input_location);
+        mLayoutLocationInputOthers = viewInputLocation.findViewById(R.id.layout_spinner_edittext_input_others_icon);
+        mImgLocationInputOthers = viewInputLocation.findViewById(R.id.img_spinner_edittext_input_others_icon);
         mSpinnerLocation = viewInputLocation.findViewById(R.id.spinner_broad);
-        mEtvLocationOthers = viewInputLocation.findViewById(R.id.etv_sitrep_others_info);
+
+        // Save Enabled set to false to prevent Android from restoring its state by default
+        // (This means that text contained in the last of such component (in this case, the spinner) will
+        // be saved and be used to populate all components on refresh-- For setSaveEnabled(true) )
+        // This is required as there are some layouts that use the same id for Spinners and EditTextView
+        mSpinnerLocation.setSaveEnabled(false);
+        mEtvLocationOthers = viewInputLocation.findViewById(R.id.etv_spinner_edittext_others_info);
+        mEtvLocationOthers.setSaveEnabled(false);
+        mEtvLocationOthers.setOnTouchListener(onViewTouchListener);
+
         String[] locationStringArray = ReportSpinnerBank.getInstance().getLocationList();
 
         mLayoutLocationInputOthers.setOnClickListener(onLocationInputOthersClickListener);
@@ -502,11 +546,29 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
     private void setLocationInputOthersUnselectedUI(View view) {
         view.setBackgroundColor(ResourcesCompat.getColor(getResources(),
-                R.color.input_others_icon_fill_grey, null));
+                R.color.background_dark_grey, null));
         mImgLocationInputOthers.setColorFilter(null);
         mEtvLocationOthers.setVisibility(View.GONE);
         mSpinnerLocation.setVisibility(View.VISIBLE);
     }
+
+    /**
+     * Enable internal vertical scrolling for edit text views where content exceed maximum height
+     */
+    private View.OnTouchListener onViewTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (view.hasFocus()) {
+                view.getParent().requestDisallowInterceptTouchEvent(true);
+                switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
+                    case MotionEvent.ACTION_SCROLL:
+                        view.getParent().requestDisallowInterceptTouchEvent(false);
+                        return true;
+                }
+            }
+            return false;
+        }
+    };
 
     private AdapterView.OnItemSelectedListener getLocationSpinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
         @Override
@@ -525,12 +587,27 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         }
     };
 
+    /**
+     * Initialise Sit Rep input activity request UI
+     * <p>
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
     private void initInputActivity(View rootView) {
-        View viewInputActivity = rootView.findViewById(R.id.input_sitrep_activity);
-        mLayoutActivityInputOthers = viewInputActivity.findViewById(R.id.layout_input_others_icon);
-        mImgActivityInputOthers = viewInputActivity.findViewById(R.id.img_input_others_icon);
+        View viewInputActivity = rootView.findViewById(R.id.layout_add_update_sitrep_input_activity);
+        mLayoutActivityInputOthers = viewInputActivity.findViewById(R.id.layout_spinner_edittext_input_others_icon);
+        mImgActivityInputOthers = viewInputActivity.findViewById(R.id.img_spinner_edittext_input_others_icon);
         mSpinnerActivity = viewInputActivity.findViewById(R.id.spinner_broad);
-        mEtvActivityOthers = viewInputActivity.findViewById(R.id.etv_sitrep_others_info);
+        mSpinnerActivity.setSaveEnabled(false);
+        mEtvActivityOthers = viewInputActivity.findViewById(R.id.etv_spinner_edittext_others_info);
+        mEtvActivityOthers.setSaveEnabled(false);
+        mEtvActivityOthers.setOnTouchListener(onViewTouchListener);
+
         String[] activityStringArray = ReportSpinnerBank.getInstance().getActivityList();
 
         mLayoutActivityInputOthers.setOnClickListener(onActivityInputOthersClickListener);
@@ -565,7 +642,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
     private void setActivityInputOthersUnselectedUI(View view) {
         view.setBackgroundColor(ResourcesCompat.getColor(getResources(),
-                R.color.input_others_icon_fill_grey, null));
+                R.color.background_dark_grey, null));
         mImgActivityInputOthers.setColorFilter(null);
         mEtvActivityOthers.setVisibility(View.GONE);
         mSpinnerActivity.setVisibility(View.VISIBLE);
@@ -588,12 +665,27 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         }
     };
 
+    /**
+     * Initialise Sit Rep input next course of action UI
+     * <p>
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
     private void initInputNextCoa(View rootView) {
-        View viewInputNextCoa = rootView.findViewById(R.id.input_sitrep_next_coa);
-        mLayoutNextCoaInputOthers = viewInputNextCoa.findViewById(R.id.layout_input_others_icon);
-        mImgNextCoaInputOthers = viewInputNextCoa.findViewById(R.id.img_input_others_icon);
+        View viewInputNextCoa = rootView.findViewById(R.id.layout_add_update_sitrep_input_next_coa);
+        mLayoutNextCoaInputOthers = viewInputNextCoa.findViewById(R.id.layout_spinner_edittext_input_others_icon);
+        mImgNextCoaInputOthers = viewInputNextCoa.findViewById(R.id.img_spinner_edittext_input_others_icon);
         mSpinnerNextCoa = viewInputNextCoa.findViewById(R.id.spinner_broad);
-        mEtvNextCoaOthers = viewInputNextCoa.findViewById(R.id.etv_sitrep_others_info);
+        mSpinnerNextCoa.setSaveEnabled(false);
+        mEtvNextCoaOthers = viewInputNextCoa.findViewById(R.id.etv_spinner_edittext_others_info);
+        mEtvNextCoaOthers.setSaveEnabled(false);
+        mEtvNextCoaOthers.setOnTouchListener(onViewTouchListener);
+
         String[] nextCoaStringArray = ReportSpinnerBank.getInstance().getNextCoaList();
 
         mLayoutNextCoaInputOthers.setOnClickListener(onNextCoaInputOthersClickListener);
@@ -628,7 +720,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
     private void setNextCoaInputOthersUnselectedUI(View view) {
         view.setBackgroundColor(ResourcesCompat.getColor(getResources(),
-                R.color.input_others_icon_fill_grey, null));
+                R.color.background_dark_grey, null));
         mImgNextCoaInputOthers.setColorFilter(null);
         mEtvNextCoaOthers.setVisibility(View.GONE);
         mSpinnerNextCoa.setVisibility(View.VISIBLE);
@@ -651,12 +743,26 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         }
     };
 
+    /**
+     * Initialise Sit Rep input request UI
+     * <p>
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
     private void initInputRequest(View rootView) {
-        View viewInputRequest = rootView.findViewById(R.id.input_sitrep_request);
-        mLayoutRequestInputOthers = viewInputRequest.findViewById(R.id.layout_input_others_icon);
-        mImgRequestInputOthers = viewInputRequest.findViewById(R.id.img_input_others_icon);
+        View viewInputRequest = rootView.findViewById(R.id.layout_add_update_sitrep_input_request);
+        mLayoutRequestInputOthers = viewInputRequest.findViewById(R.id.layout_spinner_edittext_input_others_icon);
+        mImgRequestInputOthers = viewInputRequest.findViewById(R.id.img_spinner_edittext_input_others_icon);
         mSpinnerRequest = viewInputRequest.findViewById(R.id.spinner_broad);
-        mEtvRequestOthers = viewInputRequest.findViewById(R.id.etv_sitrep_others_info);
+        mSpinnerRequest.setSaveEnabled(false);
+        mEtvRequestOthers = viewInputRequest.findViewById(R.id.etv_spinner_edittext_others_info);
+        mEtvRequestOthers.setSaveEnabled(false);
+        mEtvRequestOthers.setOnTouchListener(onViewTouchListener);
 
         mLayoutRequestInputOthers.setOnClickListener(onRequestInputOthersClickListener);
 
@@ -691,7 +797,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
     private void setRequestInputOthersUnselectedUI(View view) {
         view.setBackgroundColor(ResourcesCompat.getColor(getResources(),
-                R.color.input_others_icon_fill_grey, null));
+                R.color.background_dark_grey, null));
         mImgRequestInputOthers.setColorFilter(null);
         mEtvRequestOthers.setVisibility(View.GONE);
         mSpinnerRequest.setVisibility(View.VISIBLE);
@@ -717,122 +823,34 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         }
     };
 
+    /**
+     * Initialise Sit Rep others UI
+     * <p>
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initOthers(View rootView) {
+        mEtvOthers = rootView.findViewById(R.id.etv_add_update_sitrep_input_others);
+        mEtvOthers.setSaveEnabled(false);
+        mEtvOthers.setOnTouchListener(onViewTouchListener);
+    }
+
+    /**
+     * Get Snackbar view from main activity
+     *
+     * @return
+     */
     private View getSnackbarView() {
         if (getActivity() instanceof MainActivity) {
             return ((MainActivity) getActivity()).getSnackbarView();
         } else {
             return null;
         }
-    }
-
-    private void refreshUI() {
-        String fragmentType;
-        String defaultValue = FragmentConstants.VALUE_SITREP_ADD;
-        Bundle bundle = this.getArguments();
-
-        if (bundle != null) {
-            fragmentType = bundle.getString(FragmentConstants.KEY_SITREP, defaultValue);
-        } else {
-            fragmentType = defaultValue;
-        }
-
-        if (fragmentType.equalsIgnoreCase(FragmentConstants.VALUE_SITREP_UPDATE)) {
-            if (bundle != null) {
-                // Get Sitrep ID with all fields
-                Long sitRepId = bundle.getLong(FragmentConstants.KEY_SITREP_ID, FragmentConstants.DEFAULT_LONG);
-                querySitRepBySitRepIdFromDatabase(sitRepId);
-
-//                if (mTvHeaderTitle != null) {
-//                    String reporter = bundle.getString(
-//                            FragmentConstants.KEY_SITREP_REPORTER, FragmentConstants.DEFAULT_STRING);
-//                    StringBuilder sitRepTitleBuilder = new StringBuilder();
-//                    sitRepTitleBuilder.append("Team ");
-//                    sitRepTitleBuilder.append(reporter);
-//                    sitRepTitleBuilder.append(" SITREP");
-//                    mTvHeaderTitle.setText(sitRepTitleBuilder.toString().trim());
-//                }
-//
-//                if (mEtvDescriptionDetail != null) {
-//                    String description = bundle.getString(
-//                            FragmentConstants.KEY_TASK_DESCRIPTION, FragmentConstants.DEFAULT_STRING);
-//                    mEtvDescriptionDetail.setText(description);
-//                    mEtvDescriptionDetail.setEnabled(false);
-//                }
-//
-//                mSpinnerDropdownTitle.setEnabled(false);
-//
-//
-//                if (mEtvDescriptionDetail != null) {
-//                    String description = bundle.getString(
-//                            FragmentConstants.KEY_TASK_DESCRIPTION, FragmentConstants.DEFAULT_STRING);
-//                    mEtvDescriptionDetail.setText(description);
-//                    mEtvDescriptionDetail.setEnabled(false);
-//                }
-            }
-
-//            mBtnReport.setVisibility(View.GONE);
-        } else {
-//            resetToDefaultUI();
-        }
-    }
-
-    private void querySitRepBySitRepIdFromDatabase(long sitRepId) {
-        // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
-        // asynchronously in the background thread and apply changes on the main UI thread
-        SingleObserver<SitRepModel> singleObserverSitRep = new SingleObserver<SitRepModel>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-                // add it to a CompositeDisposable
-            }
-
-            @Override
-            public void onSuccess(SitRepModel sitRepModel) {
-                Log.d(TAG, "onSuccess singleObserverSitRep, " +
-                        "querySitRepBySitRepIdFromDatabase. " +
-                        "SitRepId: " + sitRepModel.getId());
-
-                if (mTvCallsignTitle != null) {
-                    StringBuilder sitRepTitleBuilder = new StringBuilder();
-                    sitRepTitleBuilder.append(getString(R.string.sitrep_team_header));
-                    sitRepTitleBuilder.append(StringUtil.SPACE);
-                    sitRepTitleBuilder.append(sitRepModel.getReporter());
-                    sitRepTitleBuilder.append(StringUtil.SPACE);
-                    sitRepTitleBuilder.append(getString(R.string.sitrep_callsign_header));
-                    mTvCallsignTitle.setText(sitRepTitleBuilder.toString().trim());
-                }
-
-                if (mSpinnerLocation != null) {
-//                    mSpinnerLocation.setSelection();
-//                    mSpinnerLocation.setEnabled(false);
-                }
-
-                if (mTvPersonnelNumberT != null) {
-                    mTvPersonnelNumberT.setText(sitRepModel.getPersonnelT());
-                }
-
-                if (mTvPersonnelNumberS != null) {
-                    mTvPersonnelNumberS.setText(sitRepModel.getPersonnelS());
-                }
-
-                if (mTvPersonnelNumberD != null) {
-                    mTvPersonnelNumberD.setText(sitRepModel.getPersonnelD());
-                }
-
-                if (mSpinnerRequest != null) {
-//                    mSpinnerRequest.setSelection();
-//                    mSpinnerRequest.setEnabled(false);
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverSitRep, " +
-                        "querySitRepBySitRepIdFromDatabase. " +
-                        "Error Msg: " + e.toString());
-            }
-        };
-
-        mSitRepViewModel.querySitRepBySitRepId(sitRepId, singleObserverSitRep);
     }
 
     /**
@@ -853,8 +871,10 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
      * Remove selected photo from UI
      */
     private void closeSelectedPictureUI() {
-        mFrameLayoutPicture.setVisibility(View.GONE);
-        mImgPicture.recycle();
+        if (mFrameLayoutPicture != null && mImgPicture != null) {
+            mFrameLayoutPicture.setVisibility(View.GONE);
+            mImgPicture.recycle();
+        }
     }
 
     /**
@@ -863,8 +883,10 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
      * @param bitmap
      */
     private void displaySelectedPictureUI(Bitmap bitmap) {
-        mFrameLayoutPicture.setVisibility(View.VISIBLE);
-        mImgPicture.setImage(ImageSource.bitmap(bitmap));
+        if (mFrameLayoutPicture != null && mImgPicture != null) {
+            mFrameLayoutPicture.setVisibility(View.VISIBLE);
+            mImgPicture.setImage(ImageSource.bitmap(bitmap));
+        }
     }
 
     /**
@@ -880,9 +902,9 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             newSitRepModel = mSitRepModelToUpdate;
         } else {
             newSitRepModel = new SitRepModel();
+            newSitRepModel.setRefId(DatabaseTableConstants.LOCAL_REF_ID);
         }
 
-        newSitRepModel.setRefId(FragmentConstants.LOCAL_REF_ID);
         newSitRepModel.setReporter(userId);
         byte[] imageByteArray = null;
         if (mCompressedFileBitmap != null) {
@@ -918,6 +940,9 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             request = mSpinnerRequest.getSelectedItem().toString();
         }
 
+        String others = "";
+        others = mEtvOthers.getText().toString().trim();
+
         newSitRepModel.setLocation(location);
         newSitRepModel.setActivity(activity);
         newSitRepModel.setPersonnelT(Integer.valueOf(mTvPersonnelNumberT.getText().toString().trim()));
@@ -925,39 +950,48 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         newSitRepModel.setPersonnelD(Integer.valueOf(mTvPersonnelNumberD.getText().toString().trim()));
         newSitRepModel.setNextCoa(nextCoa);
         newSitRepModel.setRequest(request);
+        newSitRepModel.setOthers(others);
+
+//        System.out.println("DateTimeFormatter.ISO_ZONED_DATE_TIME.toString() is " + DateTimeFormatter.ISO_ZONED_DATE_TIME.toString());
         newSitRepModel.setCreatedDateTime(DateTimeUtil.getCurrentTime());
 
         return newSitRepModel;
     }
 
-    /**
-     * Broadcasts update of data to connected devices in the network
-     *
-     * @param sitRepModel
-     */
-    private void broadcastDataUpdateOverSocket(SitRepModel sitRepModel) {
-        // Sit Rep table data
-        Gson gson = GsonCreator.createGson();
-        String newSitRepModelJson = gson.toJson(sitRepModel);
-        JeroMQPublisher.getInstance().sendSitRepMessage(newSitRepModelJson, JeroMQPublisher.TOPIC_UPDATE);
-    }
+//    /**
+//     * Broadcasts update of data to connected devices in the network
+//     *
+//     * @param sitRepModel
+//     */
+//    private void broadcastDataUpdateOverSocket(SitRepModel sitRepModel) {
+//        // Sit Rep table data
+//        Log.d(TAG, "broadcastDataUpdateOverSocket");
+//        Gson gson = GsonCreator.createGson();
+//        String newSitRepModelJson = gson.toJson(sitRepModel);
+//        JeroMQPublisher.getInstance().sendSitRepMessage(newSitRepModelJson, JeroMQPublisher.TOPIC_UPDATE);
+//    }
+//
+//    /**
+//     * Broadcasts insertion of data to connected devices in the network
+//     *
+//     * @param sitRepModel
+//     */
+//    private void broadcastDataInsertionOverSocket(SitRepModel sitRepModel) {
+//        // Sit Rep table data
+//        Log.d(TAG, "broadcastDataInsertionOverSocket");
+//        Gson gson = GsonCreator.createGson();
+//        String newSitRepModelJson = gson.toJson(sitRepModel);
+//        JeroMQPublisher.getInstance().sendSitRepMessage(newSitRepModelJson, JeroMQPublisher.TOPIC_INSERT);
+//    }
 
     /**
-     * Broadcasts insertion of data to connected devices in the network
+     * Stores Sit Rep data locally and broadcasts to other devices
      *
      * @param sitRepModel
+     * @param userId
      */
-    private void broadcastDataInsertionOverSocket(SitRepModel sitRepModel) {
-        // Sit Rep table data
-        Log.d(TAG, "broadcastDataInsertionOverSocket");
-        Gson gson = GsonCreator.createGson();
-        String newSitRepModelJson = gson.toJson(sitRepModel);
-        JeroMQPublisher.getInstance().sendSitRepMessage(newSitRepModelJson, JeroMQPublisher.TOPIC_INSERT);
-    }
-
     private void addItemToLocalDatabaseAndBroadcast(SitRepModel sitRepModel, String userId) {
-        // Store Sit Rep data locally
-//            mSitRepViewModel.insertSitRep(newSitRepModel);
+
         SingleObserver<Long> singleObserverAddSitRep = new SingleObserver<Long>() {
             @Override
             public void onSubscribe(Disposable d) {
@@ -979,7 +1013,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 mUserSitRepJoinViewModel.addUserSitRepJoin(newUserSitRepJoinModel);
 
                 // Send newly created Sit Rep model to all other devices
-                broadcastDataInsertionOverSocket(sitRepModel);
+                JeroMQBroadcastOperation.broadcastDataInsertionOverSocket(sitRepModel);
 
                 // Show snackbar message and return to main Sit Rep fragment page
                 if (getSnackbarView() != null) {
@@ -987,8 +1021,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                             getString(R.string.snackbar_sitrep_sent_message));
                 }
 
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                fragmentManager.popBackStack();
+                popChildBackStack();
             }
 
             @Override
@@ -1003,6 +1036,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
     /**
      * Validates form before enabling Save/Update button
+     *
+     * @return
      */
     private boolean isFormCompleteForFurtherAction() {
 
@@ -1110,13 +1145,18 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         return false;
     }
 
+    /**
+     * Populates form with Sit Rep model data that is to be updated
+     *
+     * @param sitRepModel
+     */
     private void updateFormData(SitRepModel sitRepModel) {
         if (sitRepModel != null) {
             mTvToolbarSendOrUpdate.setText(getString(R.string.btn_update));
             mTvToolbarSendOrUpdate.setOnClickListener(onUpdateClickListener);
 
             StringBuilder sitRepTitleBuilder = new StringBuilder();
-            sitRepTitleBuilder.append(getString(R.string.sitrep_team_header));
+            sitRepTitleBuilder.append(getString(R.string.team_header));
             sitRepTitleBuilder.append(StringUtil.SPACE);
             sitRepTitleBuilder.append(sitRepModel.getReporter());
             sitRepTitleBuilder.append(StringUtil.SPACE);
@@ -1199,9 +1239,14 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 setRequestInputOthersSelectedUI(mLayoutRequestInputOthers);
                 mEtvRequestOthers.setText(sitRepModel.getRequest());
             }
+
+            mEtvOthers.setText(sitRepModel.getOthers());
         }
     }
 
+    /**
+     * Performs Send or Update Task actions accordingly based on
+     */
     private void performActionClick() {
         // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
         // asynchronously in the background thread and apply changes on the main UI thread
@@ -1220,12 +1265,14 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 // Send button
                 if (getString(R.string.btn_send).equalsIgnoreCase(
                         mTvToolbarSendOrUpdate.getText().toString().trim())) {
+
                     // Create new Sit Rep, store in local database and broadcast to other connected devices
                     SitRepModel newSitRepModel = createNewOrUpdateSitRepModelFromForm(userModel.getUserId(),
                             false);
                     addItemToLocalDatabaseAndBroadcast(newSitRepModel, userModel.getUserId());
 
                 } else {    // Update button
+
                     // Update existing Sit Rep model
                     SitRepModel newSitRepModel = createNewOrUpdateSitRepModelFromForm(userModel.getUserId(),
                             true);
@@ -1234,7 +1281,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                     mSitRepViewModel.updateSitRep(newSitRepModel);
 
                     // Send updated Sit Rep data to other connected devices
-                    broadcastDataUpdateOverSocket(newSitRepModel);
+                    JeroMQBroadcastOperation.broadcastDataUpdateOverSocket(newSitRepModel);
 
                     // Show snackbar message and return to Sit Rep edit fragment page
                     if (getSnackbarView() != null) {
@@ -1242,8 +1289,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                                 getString(R.string.snackbar_sitrep_updated_message));
                     }
 
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    fragmentManager.popBackStack();
+                    popChildBackStack();
                 }
             }
 
@@ -1255,8 +1301,104 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             }
         };
 
-        mUserViewModel.queryUserByAccessToken(SharedPreferenceUtil.getCurrentUserAccessToken(getActivity()),
+        mUserViewModel.queryUserByAccessToken(SharedPreferenceUtil.getCurrentUserAccessToken(),
                 singleObserverUser);
+    }
+
+    /**
+     * Accesses child base fragment of current selected view pager item and remove this fragment
+     * from child base fragment's stack.
+     * <p>
+     * Possible Selected View Pager Item: Sit Rep / Video Stream
+     * Child Base Fragment: SitRepFragment / VideoStreamFragment
+     */
+    private void popChildBackStack() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity mainActivity = ((MainActivity) getActivity());
+
+            if (mainActivity.getViewPager().getCurrentItem() ==
+                    MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID) {
+                mainActivity.popChildFragmentBackStack(
+                        MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID);
+            } else if (mainActivity.getViewPager().getCurrentItem() ==
+                    MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID) {
+                mainActivity.popChildFragmentBackStack(
+                        MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID);
+            }
+        }
+    }
+
+    private void onVisible() {
+        Log.d(TAG, "onVisible");
+
+//        FragmentManager fm = getActivity().getSupportFragmentManager();
+//        boolean isFragmentFound = false;
+//
+//        int count = fm.getBackStackEntryCount();
+//
+//        // Checks if current fragment exists in Back stack
+//        for (int i = 0; i < count; i++) {
+//            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
+//                isFragmentFound = true;
+//            }
+//        }
+//
+//        // If not found, add to current fragment to Back stack
+//        if (!isFragmentFound) {
+//            FragmentTransaction ft = fm.beginTransaction();
+//            ft.addToBackStack(this.getClass().getSimpleName());
+//            ft.commit();
+//        }
+    }
+
+    private void onInvisible() {
+        Log.d(TAG, "onInvisible");
+    }
+
+    /**
+     * Checks for existing data transferred over by Bundle
+     */
+    private void checkBundle() {
+        // Checks if this current fragment is for creation of new Sit Rep or update of existing Sit Rep
+        // Else it is returning a selected
+        String fragmentType;
+        String defaultValue = FragmentConstants.VALUE_SITREP_ADD;
+        Bundle bundle = this.getArguments();
+
+        if (bundle != null) {
+            fragmentType = bundle.getString(FragmentConstants.KEY_SITREP, defaultValue);
+        } else {
+            fragmentType = defaultValue;
+        }
+
+        if (fragmentType.equalsIgnoreCase(FragmentConstants.VALUE_SITREP_UPDATE)) {
+
+//            System.out.println("mSitRepModelToUpdate is " + mSitRepModelToUpdate);
+//            mSitRepModelToUpdate = EventBus.getDefault().getStickyEvent(SitRepModel.class);
+//            SitRepModel sitRepModelToUpdate = null;
+            if (getActivity() instanceof MainActivity) {
+                Object objectToUpdate = ((MainActivity) getActivity()).
+                        getStickyModel(SitRepModel.class.getSimpleName());
+                if (objectToUpdate instanceof SitRepModel) {
+                    System.out.println("objectToUpdate is " + objectToUpdate);
+                    mSitRepModelToUpdate = (SitRepModel) objectToUpdate;
+                    System.out.println("mSitRepModelToUpdate is " + mSitRepModelToUpdate);
+                }
+            }
+
+            updateFormData(mSitRepModelToUpdate);
+
+        } else {
+            byte[] selectedImageByteArray = bundle.getByteArray(FragmentConstants.KEY_SITREP_PICTURE);
+            if (selectedImageByteArray != null) {
+                Bitmap selectedImageBitmap = BitmapFactory.decodeByteArray(selectedImageByteArray, 0,
+                        selectedImageByteArray.length);
+
+                if (selectedImageBitmap != null) {
+                    displaySelectedPictureUI(selectedImageBitmap);
+                }
+            }
+        }
     }
 
     @Override
@@ -1270,6 +1412,13 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         performActionClick();
     }
 
+    /**
+     * Executes screenshot capture of picture or retrieval of picture from Photo Gallery
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -1313,30 +1462,31 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        Log.i(TAG, "onStart.");
-
-        String fragmentType;
-        String defaultValue = FragmentConstants.VALUE_SITREP_ADD;
-        Bundle bundle = this.getArguments();
-
-        if (bundle != null) {
-            fragmentType = bundle.getString(FragmentConstants.KEY_SITREP, defaultValue);
-        } else {
-            fragmentType = defaultValue;
-        }
-
-        if (fragmentType.equalsIgnoreCase(FragmentConstants.VALUE_SITREP_UPDATE)) {
-            mSitRepModelToUpdate = EventBus.getDefault().removeStickyEvent(SitRepModel.class);
-            updateFormData(mSitRepModelToUpdate);
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        mIsFragmentVisibleToUser = isVisibleToUser;
+        if (isResumed()) { // fragment has been created at this point
+            if (mIsFragmentVisibleToUser) {
+                onVisible();
+            } else {
+                onInvisible();
+            }
         }
     }
 
-//    @Override
-//    public void onPause() {
-//        super.onPause();
-//        mSitRepModelToUpdate = null;
-//    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (mIsFragmentVisibleToUser) {
+            onVisible();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mIsFragmentVisibleToUser) {
+            onInvisible();
+        }
+    }
 }

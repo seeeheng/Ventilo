@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/add_new_item_background_height"
     android:layout_marginTop="@dimen/toolbar_height"
-    android:background="@color/divider_line_grey"
+    android:background="@color/divider_line_primary_grey"
     android:gravity="center"
     android:orientation="horizontal">
 
@@ -12,10 +12,11 @@
         android:id="@+id/tv_add_new_item_category"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/add_new_item_light_grey"
+        android:textColor="@color/primary_text_grey"
         android:textSize="@dimen/text_view_small_text_size" />
 
     <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/img_add_new_item_category"
         android:layout_width="@dimen/add_new_item_background_icon_width"
         android:layout_height="@dimen/add_new_item_background_icon_height"
         android:layout_marginStart="@dimen/elements_small_margin_spacing"
@@ -23,10 +24,11 @@
         app:srcCompat="@drawable/fab_add" />
 
     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+        android:id="@+id/tv_add_new_item_category_below"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/add_new_item_below"
-        android:textColor="@color/add_new_item_light_grey"
+        android:textColor="@color/primary_text_grey"
         android:textSize="@dimen/text_view_small_text_size" />
 
 </LinearLayout>

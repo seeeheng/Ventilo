@@ -1,4 +1,4 @@
-package sg.gov.dsta.mobileC3.ventilo.util.task;
+package sg.gov.dsta.mobileC3.ventilo.util;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -38,9 +38,12 @@ public class DataModelUtil {
     private static final String ID_FIELD = "id";
     private static final String REF_ID_FIELD = "refId";
     private static final String ACCESS_TOKEN_FIELD = "accessToken";
+    private static final String RADIO_CONNECTION_STATUS_FIELD = "radioConnectionStatus";
+    private static final String LAST_KNOWN_ONLINE_DATE_TIME_FIELD = "lastKnownOnlineDateTime";
     private static final String ICON_TYPE_FIELD = "iconType";
     private static final String STATUS_FIELD = "status";
     private static final String CREATED_DATE_TIME_FIELD = "createdDateTime";
+    private static final String COMPLETED_DATE_TIME_FIELD = "completedDateTime";
 
 
     /** -------------------- All Fields -------------------- **/
@@ -222,7 +225,9 @@ public class DataModelUtil {
     public static Field[] getUserModelFieldsOfExcel() {
         Stream<Field> streamFields = Arrays.stream(getUserModelFields());
         List<Field> userModelFieldsList = streamFields.filter(f ->
-                !f.getName().equalsIgnoreCase(ACCESS_TOKEN_FIELD)).
+                !f.getName().equalsIgnoreCase(ACCESS_TOKEN_FIELD) &&
+                        !f.getName().equalsIgnoreCase(RADIO_CONNECTION_STATUS_FIELD) &&
+                        !f.getName().equalsIgnoreCase(LAST_KNOWN_ONLINE_DATE_TIME_FIELD)).
                 collect(Collectors.toList());
 
         Field[] userModelFieldsArray = new Field[userModelFieldsList.size()];
@@ -279,7 +284,8 @@ public class DataModelUtil {
         List<Field> taskModelFieldsList = streamFields.filter(f ->
                 !f.getName().equalsIgnoreCase(REF_ID_FIELD) &&
                         !f.getName().equalsIgnoreCase(STATUS_FIELD) &&
-                        !f.getName().equalsIgnoreCase(CREATED_DATE_TIME_FIELD)).
+                        !f.getName().equalsIgnoreCase(CREATED_DATE_TIME_FIELD) &&
+                        !f.getName().equalsIgnoreCase(COMPLETED_DATE_TIME_FIELD)).
                 collect(Collectors.toList());
 
         Field[] taskModelFieldsArray = new Field[taskModelFieldsList.size()];

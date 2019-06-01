@@ -17,8 +17,10 @@ import sg.gov.dsta.mobileC3.ventilo.model.join.UserSitRepJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
+import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.repository.SitRepRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.TaskRepository;
+import sg.gov.dsta.mobileC3.ventilo.repository.UserRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserSitRepJoinRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserTaskJoinRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.GsonCreator;
@@ -56,11 +58,11 @@ public class JeroMQSubscriberRunnable implements Runnable {
                 break;
             }
 
-            String messageTopic = ValidationUtil.getFirstWord(message);
-            String messageContent = ValidationUtil.removeFirstWord(message);
+            String messageTopic = StringUtil.getFirstWord(message);
+            String messageContent = StringUtil.removeFirstWord(message);
             String[] messageTopicParts = messageTopic.split(StringUtil.HYPHEN);
 
-            // For e.g. PREFIX-BFT, PREFIX-SITREP, PREFIX-TASK
+            // For e.g. PREFIX-BFT, PREFIX-USER, PREFIX-SITREP, PREFIX-TASK
             String messageMainTopic = messageTopicParts[0].
                     concat(StringUtil.HYPHEN).concat(messageTopicParts[1]);
 
@@ -70,6 +72,9 @@ public class JeroMQSubscriberRunnable implements Runnable {
             switch (messageMainTopic) {
                 case JeroMQPublisher.TOPIC_PREFIX_BFT:
                     storeBFTMessage(messageContent);
+                    break;
+                case JeroMQPublisher.TOPIC_PREFIX_USER:
+                    storeUserMessage(messageContent, messageTopicAction);
                     break;
                 case JeroMQPublisher.TOPIC_PREFIX_SITREP:
                     storeSitRepMessage(messageContent, messageTopicAction);
@@ -107,6 +112,84 @@ public class JeroMQSubscriberRunnable implements Runnable {
     }
 
     /**
+     * Stores/updates/deletes/synchronises incoming User JSON messages from other devices into local database
+     *
+     * @param jsonMsg
+     */
+    private void storeUserMessage(String jsonMsg, String messageTopicAction) {
+        Log.i(TAG, "storeUserMessage jsonMsg: " + jsonMsg);
+
+        if (MainApplication.getAppContext() instanceof Application) {
+            DatabaseOperation databaseOperation = new DatabaseOperation();
+            UserRepository userRepo = new UserRepository((Application) MainApplication.getAppContext());
+            Gson gson = GsonCreator.createGson();
+            UserModel userModel = gson.fromJson(jsonMsg, UserModel.class);
+
+            switch (messageTopicAction) {
+                case JeroMQPublisher.TOPIC_SYNC:
+                    Log.i(TAG, "storeUserMessage sync");
+                    handleUserDataSync(databaseOperation, userRepo, userModel);
+                    break;
+                case JeroMQPublisher.TOPIC_INSERT:
+                    Log.i(TAG, "storeUserMessage insert");
+                    databaseOperation.insertUserIntoDatabase(userRepo, userModel);
+                    break;
+                case JeroMQPublisher.TOPIC_UPDATE:
+                    Log.i(TAG, "storeUserMessage update");
+                    databaseOperation.updateUserInDatabase(userRepo, userModel);
+                    break;
+                case JeroMQPublisher.TOPIC_DELETE:
+                    Log.i(TAG, "storeUserMessage delete");
+                    databaseOperation.deleteUserInDatabase(userRepo, userModel.getUserId());
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Handles incoming User model for Synchronisation
+     *
+     * @param databaseOperation
+     * @param userRepo
+     * @param userModel
+     */
+    private void handleUserDataSync(DatabaseOperation databaseOperation, UserRepository userRepo,
+                                      UserModel userModel) {
+        /**
+         * Query for User model from database with id of received User model.
+         *
+         * If model exists in database, result will return a valid User model
+         * Else, result will return NULL.
+         *
+         * If result returns a valid User model, update returned User model with received User model
+         * Else, insert received User model into database.
+         */
+        SingleObserver<UserModel> singleObserverSyncUser = new SingleObserver<UserModel>() {
+            @Override
+            public void onSubscribe(Disposable d) {}
+
+            @Override
+            public void onSuccess(UserModel userModel) {
+                if (userModel == null) {
+                    Log.d(TAG, "Inserting new User model from synchronisation...");
+                    databaseOperation.insertUserIntoDatabase(userRepo, userModel);
+                } else {
+                    Log.d(TAG, "Updating User model from synchronisation...");
+                    databaseOperation.updateUserInDatabase(userRepo, userModel);
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "onError singleObserverSyncUser, handleUserDataSync. " +
+                        "Error Msg: " + e.toString());
+            }
+        };
+
+        databaseOperation.queryUserByUserIdInDatabase(userRepo, userModel.getUserId(), singleObserverSyncUser);
+    }
+
+    /**
      * Stores/updates/deletes/synchronises incoming Sit Rep JSON messages from other devices into local database
      *
      * @param jsonMsg
@@ -122,18 +205,19 @@ public class JeroMQSubscriberRunnable implements Runnable {
 
             switch (messageTopicAction) {
                 case JeroMQPublisher.TOPIC_SYNC:
+                    Log.i(TAG, "storeSitRepMessage sync");
                     handleSitRepDataSync(databaseOperation, sitRepRepo, sitRepModel);
                     break;
                 case JeroMQPublisher.TOPIC_INSERT:
-                    Log.i(TAG, "storeSitRepMessage insert.");
+                    Log.i(TAG, "storeSitRepMessage insert");
                     databaseOperation.insertSitRepIntoDatabase(sitRepRepo, sitRepModel);
                     break;
                 case JeroMQPublisher.TOPIC_UPDATE:
-                    Log.i(TAG, "storeSitRepMessage update.");
+                    Log.i(TAG, "storeSitRepMessage update");
                     databaseOperation.updateSitRepInDatabase(sitRepRepo, sitRepModel);
                     break;
                 case JeroMQPublisher.TOPIC_DELETE:
-                    Log.i(TAG, "storeSitRepMessage delete.");
+                    Log.i(TAG, "storeSitRepMessage delete");
                     databaseOperation.deleteSitRepInDatabase(sitRepRepo, sitRepModel.getRefId());
                     break;
             }
@@ -160,8 +244,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
          */
         SingleObserver<SitRepModel> singleObserverSyncSitRep = new SingleObserver<SitRepModel>() {
             @Override
-            public void onSubscribe(Disposable d) {
-            }
+            public void onSubscribe(Disposable d) {}
 
             @Override
             public void onSuccess(SitRepModel sitRepModel) {
@@ -200,15 +283,19 @@ public class JeroMQSubscriberRunnable implements Runnable {
 
             switch (messageTopicAction) {
                 case JeroMQPublisher.TOPIC_SYNC:
+                    Log.i(TAG, "storeSitRepMessage sync");
                     handleTaskRepDataSync(databaseOperation, taskRepo, taskModel);
                     break;
                 case JeroMQPublisher.TOPIC_INSERT:
+                    Log.i(TAG, "storeSitRepMessage insert");
                     databaseOperation.insertTaskIntoDatabase(taskRepo, taskModel);
                     break;
                 case JeroMQPublisher.TOPIC_UPDATE:
+                    Log.i(TAG, "storeSitRepMessage update");
                     databaseOperation.updateTaskInDatabase(taskRepo, taskModel);
                     break;
                 case JeroMQPublisher.TOPIC_DELETE:
+                    Log.i(TAG, "storeSitRepMessage delete");
                     databaseOperation.deleteTaskInDatabase(taskRepo, taskModel.getRefId());
                     break;
             }

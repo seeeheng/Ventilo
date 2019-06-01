@@ -80,6 +80,16 @@ public class TaskRepository {
      * @param taskModel
      * @param singleObserver
      */
+    public void insertTaskWithObserver(TaskModel taskModel, SingleObserver singleObserver) {
+        InsertWithObserverAsyncTask task = new InsertWithObserverAsyncTask(mTaskDao, singleObserver);
+        task.execute(taskModel);
+    }
+
+    /**
+     * Insert Task model in local database with updates to Observer
+     * @param taskModel
+     * @param singleObserver
+     */
     public void addTask(TaskModel taskModel, SingleObserver singleObserver) {
         InsertWithObserverAsyncTask task = new InsertWithObserverAsyncTask(mTaskDao, singleObserver);
         task.execute(taskModel);
@@ -246,10 +256,11 @@ public class TaskRepository {
         @Override
         protected Void doInBackground(final TaskModel... taskModel) {
             TaskModel taskModelToUpdate = taskModel[0];
-            asyncTaskDao.updateTaskModelByRefId(taskModelToUpdate.getAssignedTo(),
+            asyncTaskDao.updateTaskModelByRefId(taskModelToUpdate.getId(), taskModelToUpdate.getPhaseNo(),
+                    taskModelToUpdate.getAdHocTaskPriority(),taskModelToUpdate.getAssignedTo(),
                     taskModelToUpdate.getAssignedBy(), taskModelToUpdate.getTitle(),
                     taskModelToUpdate.getDescription(), taskModelToUpdate.getStatus(),
-                    taskModelToUpdate.getCreatedDateTime(), taskModelToUpdate.getRefId());
+                    taskModelToUpdate.getCreatedDateTime(), taskModelToUpdate.getCompletedDateTime());
 
             return null;
         }

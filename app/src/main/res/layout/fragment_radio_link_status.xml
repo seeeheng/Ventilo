@@ -1,29 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_radio_link_status_fragment"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/status_link_outermost_margin_start"
+    android:paddingTop="@dimen/status_link_outermost_margin_top"
+    android:paddingEnd="@dimen/status_link_outermost_margin_end"
+    android:paddingBottom="@dimen/status_link_outermost_margin_bottom">
+
+    <LinearLayout
+        android:layout_width="@dimen/status_link_status_total_component_width"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/status_link_status_total_component_height"
+            android:background="@drawable/img_btn_background_without_border"
+            android:paddingStart="@dimen/elements_margin_spacing"
+            android:paddingEnd="@dimen/elements_margin_spacing">
+
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                android:id="@+id/tv_radio_link_status_offline_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="top|start"
+                android:paddingTop="@dimen/elements_small_margin_spacing"
+                android:text="@string/radio_link_status_total_offline"
+                android:textAllCaps="true"
+                android:textColor="@color/dull_red"
+                android:textSize="@dimen/sub_header_text_size" />
+
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansLightTextView
+                android:id="@+id/tv_radio_link_status_offline_total"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical|end"
+                android:text="7/8"
+                android:textColor="@color/dull_red"
+                android:textSize="@dimen/text_view_extra_large_text_size" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/status_link_status_total_component_height"
+            android:layout_marginTop="@dimen/elements_margin_spacing"
+            android:background="@drawable/img_btn_background_without_border"
+            android:paddingStart="@dimen/elements_margin_spacing"
+            android:paddingEnd="@dimen/elements_margin_spacing">
+
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                android:id="@+id/tv_radio_link_status_online_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="top|start"
+                android:paddingTop="@dimen/elements_small_margin_spacing"
+                android:text="@string/radio_link_status_total_online"
+                android:textAllCaps="true"
+                android:textColor="@color/dull_green"
+                android:textSize="@dimen/sub_header_text_size" />
+
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansLightTextView
+                android:id="@+id/tv_radio_link_status_online_total"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical|end"
+                android:text="1/8"
+                android:textColor="@color/dull_green"
+                android:textSize="@dimen/text_view_extra_large_text_size" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <!--<LinearLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content">-->
 
     <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/img_split_screens"
+        android:id="@+id/timeline_triangle"
+        android:layout_width="@dimen/timeline_outer_icon_width"
+        android:layout_height="@dimen/timeline_outer_icon_height"
+        android:layout_marginTop="@dimen/status_link_triangle_margin_top"
+        app:srcCompat="@drawable/icon_triangle_pointed_left" />
+
+    <!--</LinearLayout>-->
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_radio_status_link_offline"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY"
-        app:srcCompat="@drawable/split_screen_concept_lateral_view" />
+        android:layout_height="wrap_content"
+        android:background="@drawable/img_btn_background_without_border"
+        android:paddingStart="@dimen/elements_large_margin_spacing"
+        android:paddingEnd="@dimen/elements_large_margin_spacing"
+        android:scrollbars="vertical" />
 
-    <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/img_radio_link_status"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY"
-        app:srcCompat="@drawable/img_radio_link_status" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_task_change"
-        style="@style/FloatingActionButton_StyleOne"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="@dimen/horizontal_3rd_level_margin"
-        android:src="@drawable/fab_split_screen"
-        app:fabSize="mini" />
-
-</RelativeLayout>
+</LinearLayout>

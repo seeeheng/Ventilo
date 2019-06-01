@@ -1,10 +1,14 @@
 package sg.gov.dsta.mobileC3.ventilo.repository;
 
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.io.File;
 
+import sg.gov.dsta.mobileC3.ventilo.activity.user.UserSettingsFragment;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.database.ExcelSpreadsheetUtil;
 
 public class ExcelSpreadsheetRepository {
@@ -41,6 +45,7 @@ public class ExcelSpreadsheetRepository {
         @Override
         protected void onPostExecute(Void v) {
             super.onPostExecute(v);
+            notifyExcelDataPulledBroadcastIntent();
             Log.i(TAG, "Excel file data stored into database");
         }
     }
@@ -61,7 +66,20 @@ public class ExcelSpreadsheetRepository {
         @Override
         protected void onPostExecute(Void v) {
             super.onPostExecute(v);
+            notifyExcelDataPushedBroadcastIntent();
             Log.i(TAG, "Excel file data stored into database");
         }
+    }
+
+    private static void notifyExcelDataPulledBroadcastIntent() {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(UserSettingsFragment.EXCEL_DATA_PULLED_INTENT_ACTION);
+        LocalBroadcastManager.getInstance(MainApplication.getAppContext()).sendBroadcast(broadcastIntent);
+    }
+
+    private static void notifyExcelDataPushedBroadcastIntent() {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(UserSettingsFragment.EXCEL_DATA_PUSHED_INTENT_ACTION);
+        LocalBroadcastManager.getInstance(MainApplication.getAppContext()).sendBroadcast(broadcastIntent);
     }
 }

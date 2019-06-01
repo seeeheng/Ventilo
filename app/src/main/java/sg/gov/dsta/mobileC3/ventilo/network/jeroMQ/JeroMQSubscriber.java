@@ -72,14 +72,14 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber {
         // Add client IP Addresses to be connected to in this address list
 //        mClientSubEndpointList.add("tcp://192.168.1.3:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 //        mClientSubEndpointList.add("tcp://192.168.1.2:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
-//        mClientSubEndpointList.add("tcp://192.168.1.3:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
-//        mClientSubEndpointList.add("tcp://192.168.1.4:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
+        mClientSubEndpointList.add("tcp://192.168.1.3:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
+        mClientSubEndpointList.add("tcp://192.168.1.4:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 
 //        mClientSubEndpointList.add("tcp://192.168.1.17:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 //        mClientSubEndpointList.add("tcp://192.168.1.58:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 //        mClientSubEndpointList.add("tcp://192.168.1.94:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 
-        mClientSubEndpointList.add("tcp://192.168.43.58:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
+//        mClientSubEndpointList.add("tcp://192.168.43.58:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 //        mClientSubEndpointList.add("tcp://192.168.43.94:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 
 //        mClientSubEndpointList.add("tcp://*:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);

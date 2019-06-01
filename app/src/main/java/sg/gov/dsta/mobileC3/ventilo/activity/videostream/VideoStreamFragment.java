@@ -48,6 +48,7 @@ import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
 
+import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,16 +57,18 @@ import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
+import sg.gov.dsta.mobileC3.ventilo.activity.sitrep.SitRepAddUpdateFragment;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
-import sg.gov.dsta.mobileC3.ventilo.repository.ExcelSpreadsheetRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.PhotoCaptureUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.task.EAccessRight;
 
-public class VideoStreamFragment extends Fragment {
-// implements OnvifListener {
+public class VideoStreamFragment extends Fragment implements SnackbarUtil.SnackbarActionClickListener {
 
     private static final String TAG = "VideoStreamFragment";
     private static final int MEDIA_CONTROLLER_SHOW_DURATION = 3000;
@@ -114,35 +117,33 @@ public class VideoStreamFragment extends Fragment {
     private TextureView mSurfaceViewTwo;
     private SurfaceHolder mSurfaceHolderTwo;
 
-    // Snackbar
-    private View mViewSnackbar;
-
-    private boolean mIsVisibleToUser;
+    private boolean mIsFragmentVisibleToUser;
     private boolean mIsFullscreen;
+
+    // Screenshot
+    Bitmap mBitmapTakenScreenshot;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootVideoStreamView = inflater.inflate(R.layout.fragment_video_stream, container, false);
 
         observerSetup();
-        initSnackbar();
         initUI(rootVideoStreamView);
 
         return rootVideoStreamView;
-    }
-
-    private void initSnackbar() {
-        mViewSnackbar = getLayoutInflater().inflate(R.layout.layout_custom_snackbar, null);
     }
 
     private void initUI(View rootVideoStreamView) {
         mRelativeLayoutMain = rootVideoStreamView.findViewById(R.id.layout_video_stream_fragment);
 
         initVideoStreamOneToolbar(rootVideoStreamView);
-        initVideoStreamTwoToolbar(rootVideoStreamView);
-
         initSurfaceViewVideoOneStream(rootVideoStreamView);
-        initSurfaceViewVideoTwoStream(rootVideoStreamView);
+
+        // Display second video stream panel if current user access right is 'CCT'
+        if (EAccessRight.CCT.toString().equalsIgnoreCase(SharedPreferenceUtil.getCurrentUserAccessRight())) {
+            initVideoStreamTwoToolbar(rootVideoStreamView);
+            initSurfaceViewVideoTwoStream(rootVideoStreamView);
+        }
     }
 
     private void initVideoStreamOneToolbar(View rootVideoStreamView) {
@@ -390,15 +391,25 @@ public class VideoStreamFragment extends Fragment {
 
         public void takeScreenshot() {
 //            Bitmap imageBitmap = screenShot(mSurfaceViewOne);
-            Bitmap imageBitmap = mSurfaceViewOne.getBitmap();
-            if (imageBitmap != null) {
+            if (mBitmapTakenScreenshot != null) {
+                mBitmapTakenScreenshot.recycle();
+            }
+
+            mBitmapTakenScreenshot = mSurfaceViewOne.getBitmap();
+            if (mBitmapTakenScreenshot != null) {
                 String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
-                        imageBitmap, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
+                        mBitmapTakenScreenshot, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
 //                System.out.println("imagePath is " + imagePath);
 
-                if (imagePath != null) {
-                    SnackbarUtil.showCustomInfoSnackbar(mRelativeLayoutMain, mViewSnackbar,
-                            getString(R.string.snackbar_screenshot_taken_message));
+                if (imagePath != null && getSnackbarView() != null) {
+                    StringBuilder screenshotStringBuilder = new StringBuilder();
+                    screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_taken_message));
+                    screenshotStringBuilder.append(System.lineSeparator());
+                    screenshotStringBuilder.append(System.lineSeparator());
+                    screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_create_sitrep_message));
+
+                    SnackbarUtil.showCustomAlertSnackbar(mRelativeLayoutMain, getSnackbarView(),
+                            screenshotStringBuilder.toString(), VideoStreamFragment.this);
                 }
             }
         }
@@ -466,16 +477,26 @@ public class VideoStreamFragment extends Fragment {
 
         public void takeScreenshot() {
 //            Bitmap imageBitmap = screenShot(mSurfaceViewOne);
-            Bitmap imageBitmap = mSurfaceViewTwo.getBitmap();
+            if (mBitmapTakenScreenshot != null) {
+                mBitmapTakenScreenshot.recycle();
+            }
 
-            if (imageBitmap != null) {
+            mBitmapTakenScreenshot = mSurfaceViewTwo.getBitmap();
+
+            if (mBitmapTakenScreenshot != null) {
                 String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
-                        imageBitmap, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
+                        mBitmapTakenScreenshot, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
 //                System.out.println("imagePath is " + imagePath);
 
-                if (imagePath != null) {
-                    SnackbarUtil.showCustomInfoSnackbar(mRelativeLayoutMain, mViewSnackbar,
-                            getString(R.string.snackbar_screenshot_taken_message));
+                if (imagePath != null && getSnackbarView() != null) {
+                    StringBuilder screenshotStringBuilder = new StringBuilder();
+                    screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_taken_message));
+                    screenshotStringBuilder.append(System.lineSeparator());
+                    screenshotStringBuilder.append(System.lineSeparator());
+                    screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_create_sitrep_message));
+
+                    SnackbarUtil.showCustomAlertSnackbar(mRelativeLayoutMain, getSnackbarView(),
+                            screenshotStringBuilder.toString(), VideoStreamFragment.this);
                 }
             }
         }
@@ -598,13 +619,16 @@ public class VideoStreamFragment extends Fragment {
         @Override
         public void onClick(View view) {
             Fragment videoStreamAddFragment = new VideoStreamAddFragment();
+            navigateToFragment(videoStreamAddFragment);
 
-            FragmentManager fm = getActivity().getSupportFragmentManager();
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-            ft.replace(R.id.layout_video_stream_fragment, videoStreamAddFragment, videoStreamAddFragment.getClass().getSimpleName());
-            ft.addToBackStack(videoStreamAddFragment.getClass().getSimpleName());
-            ft.commit();
+//            navigateToFragmentTransition(R.id.layout_video_stream_fragment, videoStreamAddFragment);
+//            FragmentManager fm = getActivity().getSupportFragmentManager();
+//            FragmentTransaction ft = fm.beginTransaction();
+//            ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
+//            ft.replace(R.id.layout_video_stream_fragment, videoStreamAddFragment, videoStreamAddFragment.getClass().getSimpleName());
+////            ft.addToBackStack(videoStreamAddFragment.getClass().getSimpleName());
+//            ft.addToBackStack(null);
+//            ft.commit();
         }
     };
 
@@ -617,18 +641,6 @@ public class VideoStreamFragment extends Fragment {
             return bitmap;
         }
         return null;
-    }
-
-    private void onVisible() {
-    }
-
-    private void onInvisible() {
-        Log.d(TAG, "onInvisible");
-//        hideKeyboard();
-        releasePlayers();
-//        if (Util.SDK_INT <= 23) {
-//            releasePlayer();
-//        }
     }
 
     /**
@@ -812,6 +824,17 @@ public class VideoStreamFragment extends Fragment {
         }
     }
 
+    private View getSnackbarView() {
+        if (getActivity() instanceof MainActivity) {
+            return ((MainActivity) getActivity()).getSnackbarView();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Set up observer for live updates on view models and update UI accordingly
+     */
     private void observerSetup() {
         mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         mVideoStreamViewModel = ViewModelProviders.of(this).get(VideoStreamViewModel.class);
@@ -940,12 +963,82 @@ public class VideoStreamFragment extends Fragment {
         }
     };
 
+    private void navigateToFragment(Fragment toFragment) {
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).navigateWithAnimatedTransitionToFragment(
+                    R.id.layout_video_stream_fragment, this, toFragment);
+        }
+    }
+
+    /**
+     * Pops back stack of ONLY current tab
+     *
+     * @return
+     */
+    public boolean popBackStack() {
+        if (!isAdded())
+            return false;
+
+        if(getChildFragmentManager().getBackStackEntryCount() > 0) {
+            getChildFragmentManager().popBackStackImmediate();
+            return true;
+        } else
+            return false;
+    }
+
+    private void onVisible() {
+        Log.d(TAG, "onVisible");
+
+        FragmentManager fm = getChildFragmentManager();
+        boolean isFragmentFound = false;
+
+        int count = fm.getBackStackEntryCount();
+
+        // Checks if current fragment exists in Back stack
+        for (int i = 0; i < count; i++) {
+            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
+                isFragmentFound = true;
+            }
+        }
+
+        // If not found, add to current fragment to Back stack
+        if (!isFragmentFound) {
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.addToBackStack(this.getClass().getSimpleName());
+            ft.commit();
+        }
+    }
+
+    private void onInvisible() {
+        Log.d(TAG, "onInvisible");
+//        hideKeyboard();
+        releasePlayers();
+//        if (Util.SDK_INT <= 23) {
+//            releasePlayer();
+//        }
+    }
+
+    @Override
+    public void onSnackbarActionClick() {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        mBitmapTakenScreenshot.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] takenScreenshotByteArray = stream.toByteArray();
+
+        Fragment sitRepAddUpdateFragment = new SitRepAddUpdateFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString(FragmentConstants.KEY_SITREP, FragmentConstants.VALUE_SITREP_ADD);
+        bundle.putByteArray(FragmentConstants.KEY_SITREP_PICTURE, takenScreenshotByteArray);
+        sitRepAddUpdateFragment.setArguments(bundle);
+
+        navigateToFragment(sitRepAddUpdateFragment);
+    }
+
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        mIsVisibleToUser = isVisibleToUser;
+        mIsFragmentVisibleToUser = isVisibleToUser;
         if (isResumed()) { // fragment has been created at this point
-            if (mIsVisibleToUser) {
+            if (mIsFragmentVisibleToUser) {
                 onVisible();
             } else {
                 onInvisible();
@@ -962,7 +1055,7 @@ public class VideoStreamFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        if (mIsVisibleToUser) {
+        if (mIsFragmentVisibleToUser) {
             onVisible();
         }
     }
@@ -977,7 +1070,7 @@ public class VideoStreamFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if (mIsVisibleToUser) {
+        if (mIsFragmentVisibleToUser) {
             onInvisible();
         }
 

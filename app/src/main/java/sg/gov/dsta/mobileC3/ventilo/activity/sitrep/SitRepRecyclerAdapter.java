@@ -44,47 +44,9 @@ public class SitRepRecyclerAdapter extends RecyclerView.Adapter<SitRepViewHolder
         itemViewHolder.getTvRequest().setText(item.getRequest());
         itemViewHolder.getTvTeam().setText(item.getReporter());
 
-//        String dateTimeString = "Reported Time: ".concat(DateTimeUtil.getTimeDifference(mContext, item.getCreatedDateTime()));
-        itemViewHolder.getTvScheduledTime().setText(DateTimeUtil.getTimeDifference(mContext,
+        itemViewHolder.getTvScheduledTime().setText(DateTimeUtil.getTimeDifference(
                 DateTimeUtil.stringToDate(item.getCreatedDateTime())));
-
-//        itemViewHolder.get().setText(item.getCreatedBy());
-//        itemViewHolder.getMNumCommentTV().setText(String.valueOf(item.getComments().size()));
-////        itemViewHolder.getMTagTV().setText(item.get);
-//        Date date = new Date();
-//        itemViewHolder.getMTimeAgoTV().setText(DataAccess.timeAgo(date.getTime() - item.getCreatedDate().getTime()));
-        // left images
-
-
-//        itemViewHolder.mParentLinearLayout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Log.d(TAG, "onClick:" + mTaskListItems.get(i));
-//                Intent intent = new Intent(context, TasksViewActivity.class);
-//                context.startActivity(intent);
-//            }
-//        });
     }
-
-//    public void addItem(String reporter, String location, String activity, int personnelT, int personnelS, int personnelD,
-//                        String nextCoa, String request) {
-//        SitRepModel newSitRepModel = new SitRepModel();
-//        newSitRepModel.setId(mSitRepListItems.size() + 1);
-//        newSitRepModel.setReporter(reporter);
-//        newSitRepModel.setLocation("BALESTIER");
-//        newSitRepModel.setActivity("Fire Fighting");
-//        newSitRepModel.setPersonnelT(6);
-//        newSitRepModel.setPersonnelS(5);
-//        newSitRepModel.setPersonnelD(4);
-//        newSitRepModel.setNextCoa("Inform HQ");
-//        newSitRepModel.setRequest("Additional MP");
-//
-//        Date currentDateTime = Calendar.getInstance().getTime();
-//        newSitRepModel.setCreatedDateTime(DateTimeUtil.dateToServerStringFormat(currentDateTime));
-//
-//        mSitRepListItems.add(newSitRepModel);
-//        notifyDataSetChanged();
-//    }
 
     public void setSitRepListItems(List<SitRepModel> sitRepListItems) {
         mSitRepListItems = sitRepListItems;

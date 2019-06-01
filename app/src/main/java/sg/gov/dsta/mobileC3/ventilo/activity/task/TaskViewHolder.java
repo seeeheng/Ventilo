@@ -1,30 +1,30 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.task;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import org.greenrobot.eventbus.EventBus;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.model.eventbus.TaskEvent;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2FuturaBoldTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class TaskViewHolder extends RecyclerView.ViewHolder {
 
-    private C2OpenSansSemiBoldTextView tvTitle;
+    private LinearLayout linearLayoutAdHocHighPriority;
+    private C2FuturaBoldTextView tvPhase;
+    private C2OpenSansBoldTextView tvTitle;
     private C2OpenSansSemiBoldTextView tvStatus;
     private C2OpenSansRegularTextView tvAssignedTo;
     private C2OpenSansRegularTextView tvScheduledTime;
@@ -44,11 +44,13 @@ public class TaskViewHolder extends RecyclerView.ViewHolder {
     protected TaskViewHolder(View itemView) {
         super(itemView);
 
+        linearLayoutAdHocHighPriority = itemView.findViewById(R.id.layout_recycler_task_header_ad_hoc_high_priority);
+        tvPhase = itemView.findViewById(R.id.tv_recycler_task_header_phase);
         tvTitle = itemView.findViewById(R.id.tv_recycler_task_header_title);
         tvStatus = itemView.findViewById(R.id.tv_recycler_task_header_status);
         tvAssignedTo = itemView.findViewById(R.id.tv_recycler_task_assigned_to);
         tvScheduledTime = itemView.findViewById(R.id.tv_recycler_task_scheduled_time);
-        tvShortDescription = itemView.findViewById(R.id.tv_recycler_task_short_detail);
+        tvShortDescription = itemView.findViewById(R.id.tv_recycler_task_short_description);
         circleImgStatus = itemView.findViewById(R.id.circle_img_view_recyler_task_status);
 
         relativeLayoutBackground = itemView.findViewById(R.id.layout_recycler_task_view_background);

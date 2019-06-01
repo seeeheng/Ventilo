@@ -77,8 +77,8 @@
                 android:gravity="center_vertical">
 
                 <android.support.v7.widget.AppCompatImageView
-                    android:layout_width="@dimen/sitrep_row_icon_width"
-                    android:layout_height="@dimen/sitrep_row_icon_height"
+                    android:layout_width="@dimen/detail_row_icon_width"
+                    android:layout_height="@dimen/detail_row_icon_height"
                     android:layout_marginEnd="@dimen/elements_margin_spacing"
                     android:scaleType="fitCenter"
                     app:srcCompat="@drawable/icon_location" />
@@ -99,8 +99,8 @@
                 android:gravity="center_vertical">
 
                 <android.support.v7.widget.AppCompatImageView
-                    android:layout_width="@dimen/sitrep_row_icon_width"
-                    android:layout_height="@dimen/sitrep_row_icon_height"
+                    android:layout_width="@dimen/detail_row_icon_width"
+                    android:layout_height="@dimen/detail_row_icon_height"
                     android:layout_marginEnd="@dimen/elements_margin_spacing"
                     android:scaleType="fitCenter"
                     app:srcCompat="@drawable/icon_request" />
@@ -123,7 +123,7 @@
                 android:layout_height="@dimen/thin_line_margin"
                 android:layout_below="@+id/layout_sitrep_main_content"
                 android:layout_marginBottom="@dimen/elements_margin_spacing"
-                android:background="@color/divider_line_grey"
+                android:background="@color/divider_line_primary_grey"
                 android:orientation="vertical" />
 
             <LinearLayout
@@ -133,8 +133,8 @@
                 android:orientation="horizontal">
 
                 <android.support.v7.widget.AppCompatImageView
-                    android:layout_width="@dimen/sitrep_row_icon_width"
-                    android:layout_height="@dimen/sitrep_row_icon_height"
+                    android:layout_width="@dimen/detail_row_icon_width"
+                    android:layout_height="@dimen/detail_row_icon_height"
                     android:layout_marginEnd="@dimen/elements_margin_spacing"
                     android:scaleType="fitCenter"
                     app:srcCompat="@drawable/icon_team" />

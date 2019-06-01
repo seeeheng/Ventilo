@@ -8,7 +8,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -25,11 +24,14 @@ import java.util.List;
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
+import sg.gov.dsta.mobileC3.ventilo.activity.main.MainStatePagerAdapter;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 
 public class VideoStreamAddFragment extends Fragment {
@@ -43,6 +45,8 @@ public class VideoStreamAddFragment extends Fragment {
     private RecyclerView.LayoutManager mRecyclerLayoutManager;
 
     private List<VideoStreamModel> mVideoStreamListItems;
+
+    private boolean mIsFragmentVisibleToUser;
 
     @Nullable
     @Override
@@ -75,7 +79,7 @@ public class VideoStreamAddFragment extends Fragment {
         // Set data for recycler view
         setUpRecyclerData();
 
-        mRecyclerAdapter = new VideoStreamDeleteOrSaveRecyclerAdapter(getContext(), mVideoStreamListItems);
+        mRecyclerAdapter = new VideoStreamDeleteOrSaveRecyclerAdapter(getContext(), this, mVideoStreamListItems);
         recyclerView.setAdapter(mRecyclerAdapter);
         recyclerView.setItemAnimator(null);
 
@@ -87,8 +91,7 @@ public class VideoStreamAddFragment extends Fragment {
         @Override
         public void onClick(View view) {
             removeInvalidAndGetVideoStreamItems();
-            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-            fragmentManager.popBackStack();
+            popChildBackStack();
         }
     };
 
@@ -96,8 +99,7 @@ public class VideoStreamAddFragment extends Fragment {
         @Override
         public void onClick(View view) {
             removeInvalidAndGetVideoStreamItems();
-            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-            fragmentManager.popBackStack();
+            popChildBackStack();
         }
     };
 
@@ -214,126 +216,7 @@ public class VideoStreamAddFragment extends Fragment {
         }
 
         removeInvalidAndGetVideoStreamItems();
-
-//        for (int i = 0; i < getTotalNumberOfVideoStreams(); i++) {
-//            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//            String videoStreamInitials = SharedPreferenceConstants.HEADER_VIDEO_STREAM.concat(SharedPreferenceConstants.SEPARATOR).
-//                    concat(String.valueOf(i));
-//
-//            VideoStreamModel videoStreamModel = new VideoStreamModel();
-//            videoStreamModel.setId(pref.getInt(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                    concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_ID), SharedPreferenceConstants.DEFAULT_INT));
-//            videoStreamModel.setName(pref.getString(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                    concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_NAME), SharedPreferenceConstants.DEFAULT_STRING));
-//            videoStreamModel.setUrl(pref.getString(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                    concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_URL), SharedPreferenceConstants.DEFAULT_STRING));
-//            videoStreamModel.setIconType(pref.getString(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                    concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_ICON_TYPE), FragmentConstants.KEY_VIDEO_STREAM_SAVE));
-//
-//            mVideoStreamListItems.add(videoStreamModel);
-//        }
     }
-
-    /*
-     * Obtain total number of video streams
-     */
-//    private int getTotalNumberOfVideoStreams() {
-//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        int totalNumberOfVideoStreams = pref.getInt(SharedPreferenceConstants.VIDEO_STREAM_TOTAL_NUMBER, 0);
-//
-//        return totalNumberOfVideoStreams;
-//    }
-
-    /*
-     * Add single video stream with respective fields
-     */
-//    private void addSingleItemToLocalDatabase(SharedPreferences.Editor editor, int id, String name, String url, String iconType) {
-//        String videoStreamInitials = SharedPreferenceConstants.HEADER_VIDEO_STREAM.
-//                concat(SharedPreferenceConstants.SEPARATOR).concat(String.valueOf(id));
-//
-//        editor.putInt(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_ID), id);
-//        editor.putString(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_NAME), name);
-//        editor.putString(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_URL), url);
-//        editor.putString(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_ICON_TYPE), iconType);
-//        editor.putInt(SharedPreferenceConstants.VIDEO_STREAM_TOTAL_NUMBER,
-//                getTotalNumberOfVideoStreams() + 1);
-//
-//        editor.apply();
-//
-//        mRecyclerAdapter.addItem(name, url, iconType);
-//    }
-
-//    private void removeSingleItemFromLocalDatabase(int position) {
-//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        SharedPreferences.Editor editor = pref.edit();
-//
-//        // Overwrite all fields of specified video stream item with next stored item fields
-//        // E.g. id(2) is replaced with id(3)
-//        boolean isReplaced = false;
-//        for (int i = position; i < getTotalNumberOfVideoStreams() - 1; i++) {
-//            isReplaced = true;
-//            String videoStreamInitialsOfCurrentPos = SharedPreferenceConstants.HEADER_VIDEO_STREAM.
-//                    concat(SharedPreferenceConstants.SEPARATOR).concat(String.valueOf(i));
-//
-//            String videoStreamInitialsOfNextPos = SharedPreferenceConstants.HEADER_VIDEO_STREAM.
-//                    concat(SharedPreferenceConstants.SEPARATOR).concat(String.valueOf(i + 1));
-//
-//            editor.putInt(videoStreamInitialsOfCurrentPos.concat(SharedPreferenceConstants.SEPARATOR).
-//                            concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_ID),
-//                    pref.getInt(videoStreamInitialsOfNextPos.concat(SharedPreferenceConstants.SEPARATOR).
-//                            concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_ID), SharedPreferenceConstants.DEFAULT_INT));
-//            editor.putString(videoStreamInitialsOfCurrentPos.concat(SharedPreferenceConstants.SEPARATOR).
-//                            concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_NAME),
-//                    pref.getString(videoStreamInitialsOfNextPos.concat(SharedPreferenceConstants.SEPARATOR).
-//                            concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_NAME), SharedPreferenceConstants.DEFAULT_STRING));
-//            editor.putString(videoStreamInitialsOfCurrentPos.concat(SharedPreferenceConstants.SEPARATOR).
-//                            concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_URL),
-//                    pref.getString(videoStreamInitialsOfNextPos.concat(SharedPreferenceConstants.SEPARATOR).
-//                            concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_URL), SharedPreferenceConstants.DEFAULT_STRING));
-//            editor.putString(videoStreamInitialsOfCurrentPos.concat(SharedPreferenceConstants.SEPARATOR).
-//                            concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_ICON_TYPE),
-//                    pref.getString(videoStreamInitialsOfNextPos.concat(SharedPreferenceConstants.SEPARATOR).
-//                            concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_ICON_TYPE), SharedPreferenceConstants.DEFAULT_STRING));
-//        }
-//
-//        // Safely remove all fields of video stream item at the back of the queue
-//        int newPosToDelete;
-//
-//        if (isReplaced) {
-//            newPosToDelete = getTotalNumberOfVideoStreams() - 1;
-//        } else {
-//            newPosToDelete = position;
-//        }
-//
-//        String videoStreamInitials = SharedPreferenceConstants.HEADER_VIDEO_STREAM.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(String.valueOf(newPosToDelete));
-//
-//        editor.remove(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_ID));
-//        editor.remove(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_NAME));
-//        editor.remove(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_URL));
-//        editor.remove(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_ICON_TYPE));
-//
-//        // Decrement total number of video stream items by one, and store it
-//        editor.putInt(SharedPreferenceConstants.VIDEO_STREAM_TOTAL_NUMBER, getTotalNumberOfVideoStreams() - 1);
-//
-//        editor.apply();
-//    }
-
-//    private void onVisible() {
-//        refreshUI();
-//    }
-//
-//    private void onInvisible() {
-//        removeInvalidVideoStreamItems();
-//    }
 
     /*
      * Remove invalid video stream items when navigate to other fragments
@@ -342,38 +225,38 @@ public class VideoStreamAddFragment extends Fragment {
     private void removeInvalidAndGetVideoStreamItems() {
         SingleObserver<List<VideoStreamModel>> singleObserverAllVideoStreamForUser =
                 new SingleObserver<List<VideoStreamModel>>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-                // add it to a CompositeDisposable
-            }
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        // add it to a CompositeDisposable
+                    }
 
-            @Override
-            public void onSuccess(List<VideoStreamModel> videoStreamModelList) {
-                if (videoStreamModelList != null) {
-                    Log.d(TAG, "onSuccess singleObserverAllVideoStreamForUser, " +
-                            "removeInvalidVideoStreamItems. " +
-                            "VideoStreamId.size(): " + videoStreamModelList.size());
+                    @Override
+                    public void onSuccess(List<VideoStreamModel> videoStreamModelList) {
+                        if (videoStreamModelList != null) {
+                            Log.d(TAG, "onSuccess singleObserverAllVideoStreamForUser, " +
+                                    "removeInvalidVideoStreamItems. " +
+                                    "VideoStreamId.size(): " + videoStreamModelList.size());
 
-                    for (int i = 0; i < videoStreamModelList.size(); i++) {
-                        VideoStreamModel currentVideoStreamModel = videoStreamModelList.get(i);
+                            for (int i = 0; i < videoStreamModelList.size(); i++) {
+                                VideoStreamModel currentVideoStreamModel = videoStreamModelList.get(i);
 
-                        if (TextUtils.isEmpty(currentVideoStreamModel.getName().trim()) ||
-                                TextUtils.isEmpty(currentVideoStreamModel.getUrl().trim())) {
-                            mVideoStreamViewModel.deleteVideoStream(currentVideoStreamModel.getId());
+                                if (TextUtils.isEmpty(currentVideoStreamModel.getName().trim()) ||
+                                        TextUtils.isEmpty(currentVideoStreamModel.getUrl().trim())) {
+                                    mVideoStreamViewModel.deleteVideoStream(currentVideoStreamModel.getId());
+                                }
+                            }
+
+                            mVideoStreamListItems = videoStreamModelList;
                         }
                     }
 
-                    mVideoStreamListItems = videoStreamModelList;
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverAllVideoStreamForUser, " +
-                        "removeInvalidVideoStreamItems. " +
-                        "Error Msg: " + e.toString());
-            }
-        };
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError singleObserverAllVideoStreamForUser, " +
+                                "removeInvalidVideoStreamItems. " +
+                                "Error Msg: " + e.toString());
+                    }
+                };
 
         mVideoStreamViewModel.getAllVideoStreamsForUser(getUserID(), singleObserverAllVideoStreamForUser);
     }
@@ -404,51 +287,51 @@ public class VideoStreamAddFragment extends Fragment {
         mVideoStreamViewModel.insertVideoStream(videoStreamModel, singleObserverAddVideoStream);
     }
 
-//    private void attemptAddVideoStream() {
-//        // Reset errors.
-//        mEt.setError(null);
-//        mEtvPassword.setError(null);
-//
-//        // Store values at the time of the login attempt.
-//        String userId = mEtvUserId.getText().toString();
-//        String password = mEtvPassword.getText().toString();
-//
-//        boolean cancel = false;
-//        View focusView = null;
-//
-//        // Check for a valid password, if the user entered one.
-//        if (TextUtils.isEmpty(password)) {
-//            mEtvPassword.setError(getString(R.string.error_field_required));
-//            focusView = mEtvPassword;
-//            cancel = true;
-//        }
-//
-//        // Check for a valid user Id.
-//        if (TextUtils.isEmpty(userId)) {
-//            mEtvUserId.setError(getString(R.string.error_field_required));
-//            focusView = mEtvUserId;
-//            cancel = true;
-//        }
-//
-//        if (cancel) {
-//            // There was an error; don't attempt login and focus the first
-//            // form field with an error.
-//            focusView.requestFocus();
-//        } else {
-//
-//            // TODO: Add after design review
-//            // Show a progress spinner, and kick off a background task to
-//            // perform the user login attempt.
-//
-//            checkIfValidUser();
-////            LoginTx loginTx = new LoginTx(mEtvUserId.getText().toString()
-////                    , mPasswordET.getText().toString());
-////            StringRequest stringRequest = VolleyPostBuilder.getRequest(RestConstants.BASE_URL + RestConstants.POST_LOGIN, loginTx, loginListener, errorListener, getApplicationContext());
-////            QueueSingleton.getInstance(this).addToRequestQueue(stringRequest);
-////            showProgress(true);
-//        }
-//    }
+    /**
+     * Accesses child base fragment of current selected view pager item and remove this fragment
+     * from child base fragment's stack.
+     *
+     * Selected View Pager Item: Video Stream
+     * Child Base Fragment: VideoStreamFragment
+     */
+    private void popChildBackStack() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity mainActivity = ((MainActivity) getActivity());
+            mainActivity.popChildFragmentBackStack(
+                    MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID);
+        }
+    }
 
+    private void onVisible() {
+        Log.d(TAG, "onVisible");
+
+//        FragmentManager fm = getActivity().getSupportFragmentManager();
+//        boolean isFragmentFound = false;
+//
+//        int count = fm.getBackStackEntryCount();
+//
+//        // Checks if current fragment exists in Back stack
+//        for (int i = 0; i < count; i++) {
+//            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
+//                isFragmentFound = true;
+//            }
+//        }
+//
+//        // If not found, add to current fragment to Back stack
+//        if (!isFragmentFound) {
+//            FragmentTransaction ft = fm.beginTransaction();
+//            ft.addToBackStack(this.getClass().getSimpleName());
+//            ft.commit();
+//        }
+    }
+
+    private void onInvisible() {
+        Log.d(TAG, "onInvisible");
+    }
+
+    /**
+     * Set up observer for live updates on view models and update UI accordingly
+     */
     private void observerSetup() {
         mVideoStreamViewModel = ViewModelProviders.of(this).get(VideoStreamViewModel.class);
 
@@ -461,29 +344,25 @@ public class VideoStreamAddFragment extends Fragment {
          */
         mVideoStreamViewModel.getAllVideoStreamsLiveDataForUser(userId).observe(this,
                 new Observer<List<VideoStreamModel>>() {
-            @Override
-            public void onChanged(@Nullable List<VideoStreamModel> videoStreamModelList) {
-                mRecyclerAdapter.setVideoStreamListItems(videoStreamModelList);
-            }
-        });
+                    @Override
+                    public void onChanged(@Nullable List<VideoStreamModel> videoStreamModelList) {
+                        mRecyclerAdapter.setVideoStreamListItems(videoStreamModelList);
+                    }
+                });
     }
 
-//    @Override
-//    public void setUserVisibleHint(boolean isVisibleToUser) {
-//        super.setUserVisibleHint(isVisibleToUser);
-//        Log.d(TAG, "setUserVisibleHint is " + isVisibleToUser);
-//        mIsVisibleToUser = isVisibleToUser;
-//        if (isResumed()) { // fragment has been created at this point
-//            if (mIsVisibleToUser) {
-//                onVisible();
-//            } else {
-//                onInvisible();
-//            }
-//        }
-//    }
-
-    private void refreshUI() {
-        setUpRecyclerData();
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        Log.d(TAG, "setUserVisibleHint is " + isVisibleToUser);
+        mIsFragmentVisibleToUser = isVisibleToUser;
+        if (isResumed()) { // fragment has been created at this point
+            if (mIsFragmentVisibleToUser) {
+                onVisible();
+            } else {
+                onInvisible();
+            }
+        }
     }
 
     @Override
@@ -492,10 +371,9 @@ public class VideoStreamAddFragment extends Fragment {
 
         Log.d(TAG, "onStart");
 
-
-//        if (mIsVisibleToUser) {
-//            onVisible();
-//        }
+        if (mIsFragmentVisibleToUser) {
+            onVisible();
+        }
     }
 
     @Override
@@ -504,19 +382,8 @@ public class VideoStreamAddFragment extends Fragment {
 
         Log.d(TAG, "onStop");
 
-//        if (mIsVisibleToUser) {
-//            onInvisible();
-//        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        Log.d(TAG, "onPause");
-
-//        if (mIsVisibleToUser) {
-//            onInvisible();
-//        }
+        if (mIsFragmentVisibleToUser) {
+            onInvisible();
+        }
     }
 }

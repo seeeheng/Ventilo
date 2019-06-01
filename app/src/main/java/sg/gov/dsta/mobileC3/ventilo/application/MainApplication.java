@@ -26,6 +26,8 @@ public class MainApplication extends Application {
     public static NetworkService networkService;
     public static Intent rabbitMQIntent;
 
+    public static boolean isNetworkServiceRunning;
+
     public MainApplication() {}
 
     @Override
@@ -38,7 +40,11 @@ public class MainApplication extends Application {
                 if (!applicationLock && appContext == null) {
                     applicationLock = true;
                     appContext = getApplicationContext();
-                    subscribeToRabbitMQ();
+
+                    if (!isNetworkServiceRunning) {
+                        subscribeToRabbitMQ();
+                        isNetworkServiceRunning = true;
+                    }
 //                    startWorker();
 //                    initJeroMQ();
 
@@ -81,6 +87,7 @@ public class MainApplication extends Application {
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             networkService.deactivate();
+            isNetworkServiceRunning = false;
             Log.i(TAG, "Network service deactivated.");
         }
     };

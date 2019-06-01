@@ -1,45 +1,37 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.task;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.util.TypedValue;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 
-import com.google.gson.Gson;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Calendar;
+import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
+import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.TaskViewModel;
-import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.GsonCreator;
-import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
+import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicLightEditTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.task.EAccessRight;
+import sg.gov.dsta.mobileC3.ventilo.util.task.EPhaseNo;
 import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
 
 public class TaskDetailFragment extends Fragment {
@@ -49,16 +41,21 @@ public class TaskDetailFragment extends Fragment {
     // View models
     private TaskViewModel mTaskViewModel;
 
-    private C2OpenSansBlackTextView mTvTitleHeader;
-    private C2OpenSansItalicLightEditTextView mEtvTitleDetail;
-    private C2OpenSansBlackTextView mTvDescriptionHeader;
-    private C2OpenSansItalicLightEditTextView mEtvDescriptionDetail;
+    private C2OpenSansBoldTextView mTvTitleHeader;
+    private C2OpenSansSemiBoldTextView mTvTaskStatusHeader;
+    private C2OpenSansRegularTextView mTvReporter;
+
+    private C2OpenSansRegularTextView mTvCreatedDateTime;
+    private C2OpenSansRegularTextView mTvTaskType;
+    private C2OpenSansRegularTextView mTvTaskPriorityOrPhase;
+    private C2OpenSansRegularTextView mTvTaskAssignTo;
+    private C2OpenSansRegularTextView mTvTaskDescription;
 
     private Spinner mSpinnerDropdownTitle;
 
     private C2OpenSansBlackButton mBtnReport;
 
-    private boolean mIsVisibleToUser;
+    private TaskModel mTaskModelOnDisplay;
 
     @Nullable
     @Override
@@ -72,376 +69,231 @@ public class TaskDetailFragment extends Fragment {
         return rootView;
     }
 
+    /**
+     * Set up observer for live updates on view models and update UI accordingly
+     */
     private void observerSetup() {
         mTaskViewModel = ViewModelProviders.of(this).get(TaskViewModel.class);
+
+        /*
+         * Refreshes UI whenever there is a change in Task (insert, update or delete)
+         */
+        mTaskViewModel.getAllTasksLiveData().observe(this, new Observer<List<TaskModel>>() {
+            @Override
+            public void onChanged(@Nullable List<TaskModel> taskModelList) {
+                for (int i = 0; i < taskModelList.size(); i++) {
+                    if (mTaskModelOnDisplay != null &&
+                            mTaskModelOnDisplay.getId() == taskModelList.get(i).getId()) {
+                        updateUI(taskModelList.get(i));
+                        break;
+                    }
+                }
+            }
+        });
     }
 
     private void initUI(View rootView) {
-        mTvTitleHeader = rootView.findViewById(R.id.tv_task_title_header);
-        String titleHeader = getString(R.string.task_title_header).concat(":");
-        mTvTitleHeader.setText(titleHeader);
+        initToolbarUI(rootView);
 
-        initTitleSpinner(rootView);
+        mTvTitleHeader = rootView.findViewById(R.id.tv_task_detail_task_title_header);
+        mTvTaskStatusHeader = rootView.findViewById(R.id.tv_task_detail_task_status_header);
 
-        mEtvTitleDetail = rootView.findViewById(R.id.etv_task_title_detail);
-        mEtvTitleDetail.addTextChangedListener(titleDetailTextWatcher);
-        String titleDetailHint = getString(R.string.task_title_detail_hint);
-        mEtvTitleDetail.setHint(titleDetailHint);
-        mEtvTitleDetail.setVisibility(View.GONE);
+        mTvReporter = rootView.findViewById(R.id.tv_task_detail_reporter);
+        mTvCreatedDateTime = rootView.findViewById(R.id.tv_task_detail_created_date_time);
 
-        mTvDescriptionHeader = rootView.findViewById(R.id.tv_task_description_header);
-        String descriptionHeader = getString(R.string.task_description_header).concat(":");
-        mTvDescriptionHeader.setText(descriptionHeader);
+        mTvTaskType = rootView.findViewById(R.id.tv_task_detail_task_type);
+        mTvTaskPriorityOrPhase = rootView.findViewById(R.id.tv_task_detail_task_priority_phase);
+        mTvTaskAssignTo = rootView.findViewById(R.id.tv_task_detail_assign_to);
+        mTvTaskDescription = rootView.findViewById(R.id.tv_task_detail_task_description);
 
-        mEtvDescriptionDetail = rootView.findViewById(R.id.etv_task_description_detail);
-        mEtvDescriptionDetail.addTextChangedListener(descriptionDetailTextWatcher);
-        String descriptionDetailDisabledHint = getString(R.string.task_description_detail_hint);
-        mEtvDescriptionDetail.setHint(descriptionDetailDisabledHint);
+//        TaskModel taskModel = EventBus.getDefault().removeStickyEvent(TaskModel.class);
 
-        mBtnReport = rootView.findViewById(R.id.btn_task_detail_report);
-        mBtnReport.setOnClickListener(onReportClickListener);
-        mBtnReport.bringToFront();
+        TaskModel taskModel = null;
 
+        if (getActivity() instanceof MainActivity) {
+            Object objectToUpdate = ((MainActivity) getActivity()).
+                    getStickyModel(TaskModel.class.getSimpleName());
+            if (objectToUpdate instanceof TaskModel) {
+                taskModel = (TaskModel) objectToUpdate;
+            }
+        }
+
+        updateUI(taskModel);
     }
 
-    private TextWatcher titleDetailTextWatcher = new TextWatcher() {
-        boolean isHint = true;
+    private void initToolbarUI(View rootView) {
+        View layoutToolbar = rootView.findViewById(R.id.layout_toolbar_task_detail_text_left_text_right);
+        LinearLayout linearLayoutBtnBack = layoutToolbar.findViewById(R.id.layout_toolbar_top_left_btn);
+        linearLayoutBtnBack.setOnClickListener(onBackClickListener);
 
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        LinearLayout linearLayoutBtnEdit = layoutToolbar.findViewById(R.id.layout_toolbar_top_right_btn);
+        linearLayoutBtnEdit.setOnClickListener(onEditClickListener);
+
+        C2OpenSansSemiBoldTextView tvToolbarEdit = layoutToolbar.findViewById(R.id.toolbar_top_right_btn_text);
+
+        // Remove edit button if user is CCT
+        if (!EAccessRight.CCT.toString().equalsIgnoreCase(
+                SharedPreferenceUtil.getCurrentUserAccessRight())) {
+            tvToolbarEdit.setVisibility(View.GONE);
+        } else {
+            tvToolbarEdit.setTextColor(ResourcesCompat.getColor(getResources(),
+                    R.color.primary_highlight_cyan, null));
+            tvToolbarEdit.setText(getString(R.string.btn_edit));
+            tvToolbarEdit.setVisibility(View.VISIBLE);
         }
+    }
 
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+    private void updateUI(TaskModel taskModel) {
+        setTaskInfo(taskModel);
+    }
 
-            if (charSequence.toString().trim().length() == 0) {
-                // No text, hint is visible
-                isHint = true;
-                mEtvTitleDetail.setTextColor(getResources().getColor(R.color.circle_image_border_grey));
-                int hintTextSize = (int) (getResources().getDimension(R.dimen.hint_text_size) /
-                        getResources().getDisplayMetrics().density);
-                mEtvTitleDetail.setTextSize(TypedValue.COMPLEX_UNIT_SP, hintTextSize);
+    private void setTaskInfo(TaskModel taskModel) {
+        if (taskModel != null) {
+            mTaskModelOnDisplay = taskModel;
 
-                Typeface tfLatoLightItalic = ResourcesCompat.getFont(getContext(), R.font.lato_light_italic);
-                mEtvTitleDetail.setTypeface(tfLatoLightItalic); // setting the font
-            } else if (isHint) {
-                // Clear EditText empty error (if any)
-                mEtvTitleDetail.setError(null);
-
-                // No hint, text is visible
-                isHint = false;
-                mEtvTitleDetail.setTextColor(getResources().getColor(R.color.background_2nd_level_grey));
-                int etTextSize = (int) (getResources().getDimension(R.dimen.edit_text_text_size) /
-                        getResources().getDisplayMetrics().density);
-                mEtvTitleDetail.setTextSize(TypedValue.COMPLEX_UNIT_SP, etTextSize);
-
-                Typeface tfLatoBlack = ResourcesCompat.getFont(getContext(), R.font.lato_black);
-                mEtvTitleDetail.setTypeface(tfLatoBlack); // setting the font
+            // Title
+            if (taskModel.getTitle() != null) {
+                mTvTitleHeader.setText(taskModel.getTitle().trim());
             }
-        }
 
-        @Override
-        public void afterTextChanged(Editable editable) {
-        }
-    };
+            // Task Status
+            if (taskModel.getStatus() != null) {
+                String[] assignedToStrArray = StringUtil.removeCommasAndExtraSpaces(taskModel.getAssignedTo());
+                String[] statusStrArray = StringUtil.removeCommasAndExtraSpaces(taskModel.getStatus());
+                String status = EStatus.NEW.toString();
 
-    private TextWatcher descriptionDetailTextWatcher = new TextWatcher() {
-        boolean isHint = true;
+                for (int i = 0; i < assignedToStrArray.length; i++) {
+                    if (SharedPreferenceUtil.getCurrentUserCallsignID().
+                            equalsIgnoreCase(assignedToStrArray[i])) {
+                        status = statusStrArray[i];
+                    }
+                }
 
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            if (charSequence.toString().trim().length() == 0) {
-                // No text, hint is visible
-                isHint = true;
-                mEtvDescriptionDetail.setTextColor(getResources().getColor(R.color.circle_image_border_grey));
-                int hintTextSize = (int) (getResources().getDimension(R.dimen.hint_text_size) /
-                        getResources().getDisplayMetrics().density);
-                mEtvDescriptionDetail.setTextSize(TypedValue.COMPLEX_UNIT_SP, hintTextSize);
-
-                Typeface tfLatoLightItalic = ResourcesCompat.getFont(getContext(), R.font.lato_light_italic);
-                mEtvDescriptionDetail.setTypeface(tfLatoLightItalic);
-            } else if (isHint) {
-                // Clear EditText empty error (if any)
-                mEtvDescriptionDetail.setError(null);
-
-                // No hint, text is visible
-                isHint = false;
-                mEtvDescriptionDetail.setTextColor(getResources().getColor(R.color.background_2nd_level_grey));
-                int etTextSize = (int) (getResources().getDimension(R.dimen.edit_text_text_size) /
-                        getResources().getDisplayMetrics().density);
-                mEtvDescriptionDetail.setTextSize(TypedValue.COMPLEX_UNIT_SP, etTextSize);
-
-                Typeface tfLatoBlack = ResourcesCompat.getFont(getContext(), R.font.lato_black);
-                mEtvDescriptionDetail.setTypeface(tfLatoBlack);
-            }
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-        }
-    };
-
-    private void initTitleSpinner(View rootView) {
-        mSpinnerDropdownTitle = rootView.findViewById(R.id.spinner_task_title_detail);
-        String[] titleDetailStringArray = ReportSpinnerBank.getInstance().getTaskTitleList();
-
-        ArrayAdapter<String> adapter = new ArrayAdapter(getActivity(),
-                R.layout.spinner_row_task_title, R.id.text_item_task_title_detail, titleDetailStringArray) {
-
-            @Override
-            public boolean isEnabled(int position) {
-                if (position == 0) {
-                    // Disable the first item from Spinner
-                    // First item will be used as hint
-                    return false;
+                if (EStatus.NEW.toString().equalsIgnoreCase(status)) {
+                    mTvTaskStatusHeader.setTextColor(ContextCompat.getColor(getContext(),
+                            R.color.primary_white));
+                } else if (EStatus.IN_PROGRESS.toString().equalsIgnoreCase(status)) {
+                    mTvTaskStatusHeader.setTextColor(ContextCompat.getColor(getContext(),
+                            R.color.task_status_yellow));
                 } else {
-                    return true;
+                    mTvTaskStatusHeader.setTextColor(ContextCompat.getColor(getContext(),
+                            R.color.dull_green));
                 }
+
+                mTvTaskStatusHeader.setText(status);
             }
 
-            @Override
-            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = view.findViewById(R.id.text_item_task_title_detail);
-                if (position == 0) {
-                    // Set the hint text color gray
-                    tv.setTextColor(Color.GRAY);
+            // Reporter
+            if (taskModel.getAssignedBy() != null) {
+                mTvReporter.setText(taskModel.getAssignedBy().trim());
+            }
+
+            // Created date/time
+            StringBuilder createdDateTimeStringBuilder = new StringBuilder();
+            String createdDateTime = taskModel.getCreatedDateTime();
+            String createdDateTimeInCustomStrFormat = DateTimeUtil.dateToCustomStringFormat(
+                    DateTimeUtil.stringToDate(createdDateTime));
+
+            if (createdDateTime != null) {
+                createdDateTimeStringBuilder.append(createdDateTimeInCustomStrFormat);
+                createdDateTimeStringBuilder.append(StringUtil.TAB);
+                createdDateTimeStringBuilder.append(StringUtil.TAB);
+                createdDateTimeStringBuilder.append(StringUtil.TAB);
+                createdDateTimeStringBuilder.append(StringUtil.OPEN_BRACKET);
+                createdDateTimeStringBuilder.append(DateTimeUtil.getTimeDifference(
+                        DateTimeUtil.stringToDate(createdDateTime)));
+                createdDateTimeStringBuilder.append(StringUtil.CLOSE_BRACKET);
+            }
+
+            mTvCreatedDateTime.setText(createdDateTimeStringBuilder.toString());
+
+            // Task Type & Task Priority / Phase
+            if (taskModel.getPhaseNo() != null) {
+                if (EPhaseNo.AD_HOC.toString().equalsIgnoreCase(taskModel.getPhaseNo())) {
+                    mTvTaskType.setText(R.string.task_type_ad_hoc);
+                    mTvTaskPriorityOrPhase.setText(taskModel.getAdHocTaskPriority());
                 } else {
-                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_white, null));
-                }
-                return view;
-            }
-        };
-
-        mSpinnerDropdownTitle.setAdapter(adapter);
-        mSpinnerDropdownTitle.setOnItemSelectedListener(getTitleSpinnerItemSelectedListener());
-    }
-
-    private AdapterView.OnItemSelectedListener getTitleSpinnerItemSelectedListener() {
-        return new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedItemText = (String) parent.getItemAtPosition(position);
-//                System.out.print("parent.getAdapter().getCount() is " + parent.getAdapter().getCount());
-                // If user change the default selection
-                // First item is disable and it is used for hint
-                if (position == parent.getAdapter().getCount() - 1) {
-                    mEtvTitleDetail.setVisibility(View.VISIBLE);
-
-                } else if (position > 0) {
-                    // Notify the selected item text
-                    mEtvTitleDetail.setVisibility(View.GONE);
+                    mTvTaskType.setText(getString(R.string.task_type_planned));
+                    mTvTaskPriorityOrPhase.setText(taskModel.getPhaseNo());
                 }
             }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
+            // Task Assign To
+            if (taskModel.getAssignedTo() != null) {
+                mTvTaskAssignTo.setText(taskModel.getAssignedTo().trim());
             }
-        };
+
+            // Task Description
+            if (taskModel.getDescription() != null) {
+                mTvTaskDescription.setText(taskModel.getDescription().trim());
+            }
+        }
     }
 
-    private View.OnClickListener onReportClickListener = new View.OnClickListener() {
+    private View.OnClickListener onBackClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            System.out.println("send task start");
-            TaskModel newTaskModel = new TaskModel();
-            newTaskModel.setAssignedTo("Charlie");
-            newTaskModel.setAssignedTo("George");
-            newTaskModel.setTitle("Save the day");
-            newTaskModel.setDescription("Disarm and capture fugitive");
-            newTaskModel.setStatus("NEW");
-            newTaskModel.setCreatedDateTime(DateTimeUtil.getCurrentTime());
+            Log.i(TAG, "Back button pressed.");
 
-            Gson gson = GsonCreator.createGson();
-            String newTaskModelJson = gson.toJson(newTaskModel);
-//            StringBuilder taskSocketMsgBuilder = new StringBuilder();
-//            taskSocketMsgBuilder.append("Task Message");
-            JeroMQPublisher.getInstance().sendTaskMessage(newTaskModelJson, JeroMQPublisher.TOPIC_INSERT);
-            System.out.println("send task end");
+            // Remove sticky Sit Rep model as it is no longer valid
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).removeStickyModel(mTaskModelOnDisplay);
+            }
 
-            mTaskViewModel.insertTask(newTaskModel);
-
-//            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, mViewSnackbar,
-//                    getString(R.string.snackbar_sitrep_sent_message));
-//            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//            fragmentManager.popBackStack();
-
-
-//            if (validateTask()) {
-//                TaskFragment taskFragment = (TaskFragment) MainStatePagerAdapter.getPageReferenceMap().
-//                        get(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID);
-//
-//                if(taskFragment != null) {
-//                    String titleDetail;
-//                    if (mSpinnerDropdownTitle.getSelectedItemPosition() ==
-//                            mSpinnerDropdownTitle.getAdapter().getCount() - 1) {
-//                        titleDetail = mEtvTitleDetail.getText().toString().trim();
-//                    } else {
-//                        titleDetail = mSpinnerDropdownTitle.getSelectedItem().toString();
-//                    }
-//
-//                    String descriptionDetail = mEtvDescriptionDetail.getText().toString().trim();
-//                    publishTaskAdd(titleDetail, descriptionDetail);
-////                    taskFragment.refreshData();
-//
-//                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//                    fragmentManager.popBackStack();
-////                    taskFragment.getAdapter().addItem(titleDetail, descriptionDetail);
-//
-//                }
-//            };
+            popChildBackStack();
         }
     };
 
-    private boolean validateTask() {
-        String titleDetail = mEtvTitleDetail.getText().toString().trim();
-        String descriptionDetail = mEtvDescriptionDetail.getText().toString().trim();
-        boolean isValidateSuccess = true;
+    private View.OnClickListener onEditClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Log.i(TAG, "Edit button pressed.");
 
-        if (mEtvTitleDetail.getVisibility() == View.VISIBLE && TextUtils.isEmpty(titleDetail)) {
-            mEtvTitleDetail.requestFocus();
-            mEtvTitleDetail.setError(getString(R.string.error_empty_task_title_detail));
-            isValidateSuccess = false;
-        }
+            if (mTaskModelOnDisplay != null) {
+                Fragment taskAddUpdateFragment = new TaskAddUpdateFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString(FragmentConstants.KEY_TASK, FragmentConstants.VALUE_TASK_UPDATE);
+                taskAddUpdateFragment.setArguments(bundle);
 
-        if (TextUtils.isEmpty(descriptionDetail)) {
-            if (isValidateSuccess) {
-                mEtvDescriptionDetail.requestFocus();
+//                if (getActivity() instanceof MainActivity) {
+//                    ((MainActivity) getActivity()).postStickyModel(mTaskModelOnDisplay);
+//                }
+//                EventBus.getDefault().postSticky(mTaskModelOnDisplay);
+
+                navigateToFragment(taskAddUpdateFragment);
             }
-
-            mEtvDescriptionDetail.setError(getString(R.string.error_empty_task_description_detail));
-            isValidateSuccess = false;
         }
+    };
 
-        return isValidateSuccess;
-    }
-
-    private void resetToDefaultUI() {
-        if (mEtvTitleDetail != null && mEtvTitleDetail.getText().toString().length() > 0) {
-            mEtvTitleDetail.setText("");
-        }
-
-        if (mEtvDescriptionDetail != null && mEtvDescriptionDetail.getText().toString().length() > 0) {
-            mEtvDescriptionDetail.setText("");
-        }
-
-        if (mSpinnerDropdownTitle != null) {
-            mSpinnerDropdownTitle.setSelection(0);
+    /**
+     * Adds designated fragment to Back Stack of Base Child Fragment
+     * before navigating to it
+     *
+     * @param toFragment
+     */
+    private void navigateToFragment(Fragment toFragment) {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity mainActivity = ((MainActivity) getActivity());
+            mainActivity.navigateWithAnimatedTransitionToFragment(
+                    R.id.layout_task_detail_fragment,
+                    mainActivity.getBaseChildFragmentOfCurrentFragment(
+                            MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID), toFragment);
         }
     }
 
-    private void refreshUI() {
-        String fragmentType;
-        String defaultValue = FragmentConstants.VALUE_TASK_ADD;
-        Bundle bundle = this.getArguments();
-
-        if (bundle != null) {
-            fragmentType = bundle.getString(FragmentConstants.KEY_TASK, defaultValue);
-        } else {
-            fragmentType = defaultValue;
+    /**
+     * Accesses child base fragment of current selected view pager item and remove this fragment
+     * from child base fragment's stack.
+     *
+     * Selected View Pager Item: Task
+     * Child Base Fragment: TaskFragment
+     */
+    private void popChildBackStack() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity mainActivity = ((MainActivity) getActivity());
+            mainActivity.popChildFragmentBackStack(
+                    MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID);
         }
-
-        if (fragmentType.equalsIgnoreCase(FragmentConstants.VALUE_TASK_VIEW)) {
-            if (bundle != null) {
-                if (mEtvTitleDetail != null) {
-                    String title = bundle.getString(
-                            FragmentConstants.KEY_TASK_TITLE, FragmentConstants.DEFAULT_STRING);
-                    boolean isSpinnerOption = false;
-
-                    for (int i = 0; i < mSpinnerDropdownTitle.getAdapter().getCount(); i++) {
-                        if (mSpinnerDropdownTitle.getAdapter().getItem(i).toString().equalsIgnoreCase(title.trim())) {
-                            mSpinnerDropdownTitle.setSelection(i);
-                            isSpinnerOption = true;
-                            break;
-                        }
-                    }
-
-                    if (!isSpinnerOption) {
-                        mSpinnerDropdownTitle.setSelection(mSpinnerDropdownTitle.getAdapter().getCount() - 1);
-                        mEtvTitleDetail.setText(title);
-                        mEtvTitleDetail.setVisibility(View.VISIBLE);
-                        mEtvTitleDetail.setEnabled(false);
-                    } else {
-                        mEtvTitleDetail.setText("");
-                        mEtvTitleDetail.setVisibility(View.GONE);
-                    }
-
-                    mSpinnerDropdownTitle.setEnabled(false);
-                }
-
-                if (mEtvDescriptionDetail != null) {
-                    String description = bundle.getString(
-                            FragmentConstants.KEY_TASK_DESCRIPTION, FragmentConstants.DEFAULT_STRING);
-                    mEtvDescriptionDetail.setText(description);
-                    mEtvDescriptionDetail.setEnabled(false);
-                }
-            }
-
-            mBtnReport.setVisibility(View.GONE);
-        } else {
-            resetToDefaultUI();
-        }
-    }
-
-    private void publishTaskAdd(String titleDetail, String descriptionDetail) {
-        Bundle bundle = this.getArguments();
-        int numberOfTasks = bundle.getInt(
-                FragmentConstants.KEY_TASK_TOTAL_NUMBER, FragmentConstants.DEFAULT_INT);
-
-        JSONObject newTaskJSON = new JSONObject();
-        try {
-            newTaskJSON.put("key", FragmentConstants.KEY_TASK_ADD);
-            newTaskJSON.put("id", String.valueOf(numberOfTasks));
-            newTaskJSON.put("assigner", SharedPreferenceUtil.getCurrentUserCallsignID(getActivity()));
-            newTaskJSON.put("assignee", "George (A33)");
-            newTaskJSON.put("assigneeAvatarId", "default");
-            newTaskJSON.put("title", titleDetail);
-            newTaskJSON.put("description", descriptionDetail);
-            newTaskJSON.put("status", EStatus.NEW.toString());
-            newTaskJSON.put("date", String.valueOf(Calendar.getInstance().getTime()));
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        SharedPreferences.Editor editor = pref.edit();
-//
-//        String totalNumberOfTasksKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER);
-//        editor.putInt(totalNumberOfTasksKey, numberOfTasks + 1);
-//
-//        String taskInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.HEADER_TASK).concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(String.valueOf(numberOfTasks));
-//
-//        editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_ID), numberOfTasks);
-//        editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNER), "King (K44)");
-//        editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE), "George (A33)");
-//        editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE_AVATAR_ID), R.drawable.default_soldier_icon);
-//        editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_TITLE), titleDetail);
-//        editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_DESCRIPTION), descriptionDetail);
-//        editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_STATUS), EStatus.NEW.toString());
-//        editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                concat(SharedPreferenceConstants.SUB_HEADER_TASK_DATE), String.valueOf(Calendar.getInstance().getTime()));
-//
-//        editor.apply();
-
-//        MqttHelper.getInstance().publishMessage(newTaskJSON.toString());
-        RabbitMQHelper.getInstance().sendMessage(newTaskJSON.toString());
     }
 
 //    private void onVisible() {
@@ -462,7 +314,7 @@ public class TaskDetailFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        refreshUI();
+//        refreshUI();
 
 //        if (mIsVisibleToUser) {
 //            onVisible();

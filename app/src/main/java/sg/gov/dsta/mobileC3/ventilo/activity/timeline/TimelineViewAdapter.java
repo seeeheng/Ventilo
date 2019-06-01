@@ -68,7 +68,7 @@ public class TimelineViewAdapter extends ArrayAdapter<TimelineRow> {
             rowUpperLine.getLayoutParams().width = pixels2;
         }
 
-        rowDate.setText(DateTimeUtil.getTimeDifference(this.getContext(), row.getDate()));
+        rowDate.setText(DateTimeUtil.getTimeDifference(row.getDate()));
         if (row.getDateColor() != 0) {
             rowDate.setTextColor(row.getDateColor());
         }

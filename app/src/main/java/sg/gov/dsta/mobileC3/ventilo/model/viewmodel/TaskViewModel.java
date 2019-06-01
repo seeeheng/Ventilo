@@ -26,12 +26,16 @@ public class TaskViewModel extends AndroidViewModel {
         return mAllTasksLiveData;
     }
 
-    public void getAllTasks(SingleObserver<UserModel> singleObserver) {
+    public void getAllTasks(SingleObserver<List<TaskModel>> singleObserver) {
         repository.getAllTasks(singleObserver);
     }
 
     public void addTask(TaskModel taskModel, SingleObserver singleObserver) {
         repository.addTask(taskModel, singleObserver);
+    }
+
+    public void insertTaskWithObserver(TaskModel taskModel, SingleObserver singleObserver) {
+        repository.insertTaskWithObserver(taskModel, singleObserver);
     }
 
     public void insertTask(TaskModel taskModel) {

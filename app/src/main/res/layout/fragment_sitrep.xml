@@ -9,17 +9,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!--<include-->
-        <!--android:id="@+id/toolbar_others"-->
-        <!--layout="@layout/fragment_toolbar_others" />-->
-
         <include
             android:id="@+id/layout_total_count_dashboard"
             layout="@layout/layout_total_count_dashboard"
             android:visibility="gone" />
 
         <include
-            android:id="@+id/layout_add_new_item"
+            android:id="@+id/layout_sitrep_add_new_item"
             layout="@layout/layout_add_new_item"
             android:visibility="gone" />
 
@@ -30,7 +26,7 @@
             android:layout_below="@+id/layout_total_count_dashboard"
             android:layout_marginStart="@dimen/recycler_outermost_margin_start"
             android:layout_marginEnd="@dimen/recycler_outermost_margin_end"
-            android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>
+            android:scrollbars="vertical" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_sitrep_add"

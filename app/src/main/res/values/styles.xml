@@ -51,7 +51,13 @@
 
     <!-- EditTextView -->
     <style name="EditTextView_Main">
-        <item name="android:layout_height">@dimen/edit_text_view_height</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/edit_text_view_height</item>
+        <item name="android:maxHeight">@dimen/edit_text_view_max_height</item>
+        <item name="android:maxLines">4</item>
+        <item name="android:overScrollMode">always</item>
+        <item name="android:scrollbarStyle">insideInset</item>
+        <item name="android:scrollbars">vertical</item>
         <item name="android:padding">@dimen/elements_margin_spacing</item>
         <item name="android:background">@drawable/rounded_edit_text</item>
         <item name="android:textColorHint">@color/primary_text_hint_dark_grey</item>

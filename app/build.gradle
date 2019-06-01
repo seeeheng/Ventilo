@@ -36,9 +36,16 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    //noinspection GradleCompatible
-    implementation "com.android.support:appcompat-v7:$supportlib_version"
-    implementation "com.android.support:design:$supportlib_version"
+//    implementation "com.android.support:appcompat-v7:$supportlib_version"
+//    implementation "com.android.support:design:$supportlib_version"
+    // Standard support library (All MUST be in the same version)
+    implementation "com.android.support:appcompat-v7:28.0.0"
+    implementation "com.android.support:design:28.0.0"
+    implementation 'com.android.support:exifinterface:28.0.0'
+    implementation 'com.android.support:cardview-v7:28.0.0'
+    implementation 'com.android.support:support-media-compat:28.0.0'
+    implementation 'com.android.support:support-v4:28.0.0'
+
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 
     // Apache POI (Import/Export data in/out of Android app)
@@ -119,7 +126,7 @@ dependencies {
     // Threetenbp (Time)
     implementation 'org.threeten:threetenbp:1.3.8'
 
-    implementation 'com.esri.arcgisruntime:arcgis-android:100.4.0'
+//    implementation 'com.esri.arcgisruntime:arcgis-android:100.4.0'
     implementation 'de.hdodenhof:circleimageview:3.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

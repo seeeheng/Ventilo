@@ -6,30 +6,31 @@
     android:orientation="horizontal">
 
     <RelativeLayout
-        android:id="@+id/layout_input_others_icon"
+        android:id="@+id/layout_expandable_listview_edittext_input_others_icon"
         android:layout_width="@dimen/input_others_layout_icon_width"
         android:layout_height="@dimen/input_others_layout_icon_height"
-        android:background="@color/input_others_icon_fill_grey"
+        android:background="@color/background_dark_grey"
         android:gravity="center">
 
         <android.support.v7.widget.AppCompatImageView
-            android:id="@+id/img_input_others_icon"
+            android:id="@+id/img_expandable_listview_edittext_input_others_icon"
             android:layout_width="@dimen/input_others_icon_width"
             android:layout_height="@dimen/input_others_icon_height"
             app:srcCompat="@drawable/btn_other_options" />
 
     </RelativeLayout>
 
-    <Spinner
-        android:id="@+id/spinner_broad"
+    <ExpandableListView
+        android:id="@+id/listview_expandable_listview_edittext"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/expandable_list_view_row_height"
+        android:layout_gravity="end"
         android:layout_marginStart="@dimen/elements_small_margin_spacing"
-        android:background="@drawable/spinner_rect_broad"
-        android:spinnerMode="dropdown" />
+        android:choiceMode="singleChoice"
+        android:groupIndicator="@null" />
 
     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
-        android:id="@+id/etv_sitrep_others_info"
+        android:id="@+id/etv_expandable_listview_edittext_others_info"
         style="@style/EditTextView_Main"
         android:layout_width="match_parent"
         android:layout_marginStart="@dimen/elements_small_margin_spacing"

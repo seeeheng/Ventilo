@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/secondary_main_grey"
+    android:layout_marginBottom="@dimen/elements_small_margin_spacing">
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+        android:id="@+id/tv_user_settings_user_callsign"
+        android:layout_width="@dimen/user_settings_callsign_column_width"
+        android:layout_height="wrap_content"
+        android:textColor="@color/primary_text_grey"
+        android:textSize="@dimen/text_view_small_text_size" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+        android:id="@+id/tv_user_settings_user_team_profile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/elements_larger_margin_spacing"
+        android:textColor="@color/primary_white"
+        android:textSize="@dimen/text_view_small_text_size" />
+
+</LinearLayout>

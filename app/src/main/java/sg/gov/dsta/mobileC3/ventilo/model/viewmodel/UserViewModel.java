@@ -25,7 +25,7 @@ public class UserViewModel extends AndroidViewModel {
         return mAllUsersLiveData;
     }
 
-    public void getAllUsers(SingleObserver<UserModel> singleObserver) {
+    public void getAllUsers(SingleObserver<List<UserModel>> singleObserver) {
         repository.getAllUsers(singleObserver);
     }
 

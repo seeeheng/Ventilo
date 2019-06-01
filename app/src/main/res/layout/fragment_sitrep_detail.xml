@@ -17,12 +17,12 @@
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="@color/sub_components_background_grey">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_margin="@dimen/elements_margin_spacing"
                 android:orientation="vertical">
 
@@ -30,7 +30,6 @@
                     android:id="@+id/tv_sitrep_details_team_name_header"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/task_recycler_row_line_information_height"
-                    android:layout_alignParentStart="true"
                     android:layout_marginBottom="@dimen/elements_margin_spacing"
                     android:text="Team Alpha SITREP"
                     android:textColor="@color/primary_white"
@@ -38,12 +37,12 @@
 
                 <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="@dimen/sitrep_detail_line_information_height"
+                    android:layout_height="@dimen/detail_line_information_height"
                     android:layout_marginBottom="@dimen/elements_small_margin_spacing">
 
                     <android.support.v7.widget.AppCompatImageView
-                        android:layout_width="@dimen/sitrep_row_icon_width"
-                        android:layout_height="@dimen/sitrep_row_icon_height"
+                        android:layout_width="@dimen/detail_row_icon_width"
+                        android:layout_height="@dimen/detail_row_icon_height"
                         android:layout_gravity="center_vertical"
                         android:layout_marginEnd="@dimen/elements_margin_spacing"
                         android:scaleType="fitCenter"
@@ -60,12 +59,12 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/sitrep_detail_line_information_height"
+                    android:layout_height="@dimen/detail_line_information_height"
                     android:layout_marginBottom="@dimen/elements_small_margin_spacing">
 
                     <android.support.v7.widget.AppCompatImageView
-                        android:layout_width="@dimen/sitrep_row_icon_width"
-                        android:layout_height="@dimen/sitrep_row_icon_height"
+                        android:layout_width="@dimen/detail_row_icon_width"
+                        android:layout_height="@dimen/detail_row_icon_height"
                         android:layout_gravity="center_vertical"
                         android:layout_marginEnd="@dimen/elements_margin_spacing"
                         android:scaleType="fitCenter"
@@ -85,7 +84,7 @@
                     android:layout_height="@dimen/thin_line_margin"
                     android:layout_marginStart="@dimen/elements_margin_spacing"
                     android:layout_marginEnd="@dimen/elements_margin_spacing"
-                    android:background="@color/divider_line_grey" />
+                    android:background="@color/divider_line_primary_grey" />
 
                 <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
                     android:id="@+id/img_sitrep_detail_picture"
@@ -105,8 +104,8 @@
                     android:orientation="horizontal">
 
                     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                        android:layout_width="@dimen/sitrep_detail_column_title_information_width"
-                        android:layout_height="@dimen/sitrep_detail_line_information_height"
+                        android:layout_width="@dimen/detail_line_information_width"
+                        android:layout_height="@dimen/detail_line_information_height"
                         android:layout_gravity="top"
                         android:text="@string/sitrep_location"
                         android:textSize="@dimen/text_view_small_text_size" />
@@ -116,7 +115,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="top"
-                        android:minHeight="@dimen/sitrep_detail_line_information_height"
+                        android:minHeight="@dimen/detail_line_information_height"
                         android:textSize="@dimen/text_view_small_text_size" />
 
                 </LinearLayout>
@@ -128,8 +127,8 @@
                     android:orientation="horizontal">
 
                     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                        android:layout_width="@dimen/sitrep_detail_column_title_information_width"
-                        android:layout_height="@dimen/sitrep_detail_line_information_height"
+                        android:layout_width="@dimen/detail_line_information_width"
+                        android:layout_height="@dimen/detail_line_information_height"
                         android:layout_gravity="top"
                         android:text="@string/sitrep_activity"
                         android:textSize="@dimen/text_view_small_text_size" />
@@ -139,7 +138,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="top"
-                        android:minHeight="@dimen/sitrep_detail_line_information_height"
+                        android:minHeight="@dimen/detail_line_information_height"
                         android:textSize="@dimen/text_view_small_text_size" />
 
                 </LinearLayout>
@@ -151,8 +150,8 @@
                     android:orientation="horizontal">
 
                     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                        android:layout_width="@dimen/sitrep_detail_column_title_information_width"
-                        android:layout_height="@dimen/sitrep_detail_line_information_height"
+                        android:layout_width="@dimen/detail_line_information_width"
+                        android:layout_height="@dimen/detail_line_information_height"
                         android:layout_gravity="top"
                         android:text="@string/sitrep_personnel_T"
                         android:textSize="@dimen/text_view_small_text_size" />
@@ -162,7 +161,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="top"
-                        android:minHeight="@dimen/sitrep_detail_line_information_height"
+                        android:minHeight="@dimen/detail_line_information_height"
                         android:textSize="@dimen/text_view_small_text_size" />
 
                 </LinearLayout>
@@ -174,8 +173,8 @@
                     android:orientation="horizontal">
 
                     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                        android:layout_width="@dimen/sitrep_detail_column_title_information_width"
-                        android:layout_height="@dimen/sitrep_detail_line_information_height"
+                        android:layout_width="@dimen/detail_line_information_width"
+                        android:layout_height="@dimen/detail_line_information_height"
                         android:layout_gravity="top"
                         android:text="@string/sitrep_personnel_S"
                         android:textSize="@dimen/text_view_small_text_size" />
@@ -185,7 +184,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="top"
-                        android:minHeight="@dimen/sitrep_detail_line_information_height"
+                        android:minHeight="@dimen/detail_line_information_height"
                         android:textSize="@dimen/text_view_small_text_size" />
 
                 </LinearLayout>
@@ -197,8 +196,8 @@
                     android:orientation="horizontal">
 
                     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                        android:layout_width="@dimen/sitrep_detail_column_title_information_width"
-                        android:layout_height="@dimen/sitrep_detail_line_information_height"
+                        android:layout_width="@dimen/detail_line_information_width"
+                        android:layout_height="@dimen/detail_line_information_height"
                         android:layout_gravity="top"
                         android:text="@string/sitrep_personnel_D"
                         android:textSize="@dimen/text_view_small_text_size" />
@@ -208,7 +207,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="top"
-                        android:minHeight="@dimen/sitrep_detail_line_information_height"
+                        android:minHeight="@dimen/detail_line_information_height"
                         android:textSize="@dimen/text_view_small_text_size" />
 
                 </LinearLayout>
@@ -220,8 +219,8 @@
                     android:orientation="horizontal">
 
                     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                        android:layout_width="@dimen/sitrep_detail_column_title_information_width"
-                        android:layout_height="@dimen/sitrep_detail_line_information_height"
+                        android:layout_width="@dimen/detail_line_information_width"
+                        android:layout_height="@dimen/detail_line_information_height"
                         android:layout_gravity="top"
                         android:text="@string/sitrep_next_coa"
                         android:textSize="@dimen/text_view_small_text_size" />
@@ -231,7 +230,30 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="top"
-                        android:minHeight="@dimen/sitrep_detail_line_information_height"
+                        android:minHeight="@dimen/detail_line_information_height"
+                        android:textSize="@dimen/text_view_small_text_size" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/elements_small_margin_spacing"
+                    android:orientation="horizontal">
+
+                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                        android:layout_width="@dimen/detail_line_information_width"
+                        android:layout_height="@dimen/detail_line_information_height"
+                        android:layout_gravity="top"
+                        android:text="@string/sitrep_request"
+                        android:textSize="@dimen/text_view_small_text_size" />
+
+                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+                        android:id="@+id/tv_sitrep_detail_request"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:minHeight="@dimen/detail_line_information_height"
                         android:textSize="@dimen/text_view_small_text_size" />
 
                 </LinearLayout>
@@ -243,18 +265,18 @@
                     android:orientation="horizontal">
 
                     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                        android:layout_width="@dimen/sitrep_detail_column_title_information_width"
-                        android:layout_height="@dimen/sitrep_detail_line_information_height"
+                        android:layout_width="@dimen/detail_line_information_width"
+                        android:layout_height="@dimen/detail_line_information_height"
                         android:layout_gravity="top"
                         android:text="@string/sitrep_request"
                         android:textSize="@dimen/text_view_small_text_size" />
 
                     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
-                        android:id="@+id/tv_sitrep_detail_request"
+                        android:id="@+id/tv_sitrep_detail_others"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="top"
-                        android:minHeight="@dimen/sitrep_detail_line_information_height"
+                        android:minHeight="@dimen/detail_line_information_height"
                         android:textSize="@dimen/text_view_small_text_size" />
 
                 </LinearLayout>

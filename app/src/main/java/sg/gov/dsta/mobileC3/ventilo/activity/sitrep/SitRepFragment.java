@@ -15,17 +15,17 @@ import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.SitRepViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
@@ -64,6 +64,8 @@ public class SitRepFragment extends Fragment {
 
     private List<SitRepModel> mSitRepListItems;
 
+    private boolean mIsFragmentVisibleToUser;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -79,7 +81,7 @@ public class SitRepFragment extends Fragment {
         mLayoutTotalCountDashboard = rootView.findViewById(R.id.layout_total_count_dashboard);
         initTotalCountDashboardUI(mLayoutTotalCountDashboard);
 
-        mLayoutAddNewItem = rootView.findViewById(R.id.layout_add_new_item);
+        mLayoutAddNewItem = rootView.findViewById(R.id.layout_sitrep_add_new_item);
 //        mLayoutAddNewItem.setVisibility(View.GONE);
         mTvAddNewItemCategory = mLayoutAddNewItem.findViewById(R.id.tv_add_new_item_category);
         mTvAddNewItemCategory.setText(getString(R.string.add_new_item_sitrep));
@@ -92,8 +94,6 @@ public class SitRepFragment extends Fragment {
         mRecyclerView.addOnItemTouchListener(new SitRepRecyclerItemTouchListener(getContext(), mRecyclerView, new SitRepRecyclerItemTouchListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                System.out.println("position is " + position);
-                System.out.println("position location is " + mSitRepListItems.get(position).getLocation());
                 navigateToSitRepDetailFragment(mSitRepListItems.get(position));
             }
 
@@ -133,12 +133,16 @@ public class SitRepFragment extends Fragment {
                 bundle.putString(FragmentConstants.KEY_SITREP, FragmentConstants.VALUE_SITREP_ADD);
                 sitRepAddUpdateFragment.setArguments(bundle);
 
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                FragmentTransaction ft = fm.beginTransaction();
-                ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-                ft.replace(R.id.layout_sitrep_fragment, sitRepAddUpdateFragment, sitRepAddUpdateFragment.getClass().getSimpleName());
-                ft.addToBackStack(sitRepAddUpdateFragment.getClass().getSimpleName());
-                ft.commit();
+
+                navigateToFragment(sitRepAddUpdateFragment);
+
+//                FragmentManager fm = getActivity().getSupportFragmentManager();
+//                FragmentTransaction ft = fm.beginTransaction();
+//                ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
+//                ft.replace(R.id.layout_sitrep_fragment, sitRepAddUpdateFragment, sitRepAddUpdateFragment.getClass().getSimpleName());
+////                ft.addToBackStack(sitRepAddUpdateFragment.getClass().getSimpleName());
+//                ft.addToBackStack(null);
+//                ft.commit();
 
                 mFabAddSitRep.setEnabled(true);
             }
@@ -196,41 +200,6 @@ public class SitRepFragment extends Fragment {
         mTvPersonnelDCountNumber = layoutTotalCountView.findViewById(R.id.tv_third_count_number);
     }
 
-//    @Override
-//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-//        super.onActivityCreated(savedInstanceState);
-//
-//        //Floating Action Button to add new task
-//        mAddBtn = getView().findViewById(R.id.fab_task_add);
-//
-//        mAddBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//                Intent intent = new Intent(getContext(), TasksAddActivity.class);
-//                startActivity(intent);
-//            }
-//        });
-//    }
-
-//    public SitRepRecyclerAdapter getAdapter() {
-//        return mRecyclerAdapter;
-//    }
-
-//    private void deleteSitRep(int position) {
-//        SitRepModel sitRepModelAtPos = mRecyclerAdapter.getSitRepModelAtPosition(position);
-//        mSitRepViewModel.deleteSitRep(sitRepModelAtPos.getId());
-//    }
-
-//    public void refreshData() {
-//        Log.d(TAG, "refreshData");
-//        setUpRecyclerData();
-//
-////        if (mRecyclerAdapter != null) {
-////            mRecyclerAdapter.notifyDataSetChanged();
-////        }
-//    }
-
     /**
      * Updates recycler view with new data
      */
@@ -241,158 +210,6 @@ public class SitRepFragment extends Fragment {
         }
     }
 
-//    private void setUpRecyclerData() {
-//        if (mSitRepListItems == null) {
-//            mSitRepListItems = new ArrayList<>();
-//        }
-//
-//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        String accessToken = pref.getString(SharedPreferenceConstants.ACCESS_TOKEN, "");
-//
-//        // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
-//        // asynchronously in the background thread and apply changes on the main UI thread
-//        SingleObserver<UserModel> singleObserverForUser = new SingleObserver<UserModel>() {
-//            @Override
-//            public void onSubscribe(Disposable d) {
-//                // add it to a CompositeDisposable
-//            }
-//
-//            @Override
-//            public void onSuccess(UserModel userModel) {
-//                Log.d(TAG, "onSuccess singleObserverForUser, setUpRecyclerData. " +
-//                        "User Id: " + userModel.getUserId());
-//
-//                SingleObserver<List<SitRepModel>> singleObserverOfSitRepsForUser = new SingleObserver<List<SitRepModel>>() {
-//                    @Override
-//                    public void onSubscribe(Disposable d) {
-//                    }
-//
-//                    @Override
-//                    public void onSuccess(List<SitRepModel> sitRepModelList) {
-//                        Log.d(TAG, "onSuccess singleObserverOfTasksForUser, setUpRecyclerData: " +
-//                                "taskModelList.size() is " + sitRepModelList.size());
-//                        if (sitRepModelList.size() == 0) {
-//                            setUpDummySitReps();
-//                        } else {
-//                            mSitRepListItems.clear();
-//                            mSitRepListItems.addAll(sitRepModelList);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        Log.d(TAG, "onError singleObserverOfTasksForUser, setUpRecyclerData. " +
-//                                "Error Msg: " + e.toString());
-//                    }
-//                };
-//
-//                mUserSitRepJoinViewModel.querySitRepsForUser(userModel.getUserId(), singleObserverOfSitRepsForUser);
-//            }
-//
-//            @Override
-//            public void onError(Throwable e) {
-//                // show an error message
-//                Log.d(TAG, "onError singleObserverForUser, setUpRecyclerData. " +
-//                        "Error Msg: " + e.toString());
-//            }
-//        };
-//
-//        mUserViewModel.queryUserByAccessToken(accessToken, singleObserverForUser);
-//    }
-
-//    private void setUpDummySitReps() {
-//        SitRepModel sitRepModelOne = new SitRepModel();
-//        sitRepModelOne.setReporter(SharedPreferenceUtil.getCurrentUserCallsignID(getActivity()));
-//        byte[] imageByteArray = PhotoCaptureUtil.getByteArrayFromImage(
-//                DrawableUtil.getBitmap(getResources().getDrawable(R.drawable.img_avatar_deck, null)),
-//                100);
-//        sitRepModelOne.setSnappedPhoto(imageByteArray);
-//        sitRepModelOne.setLocation("BALESTIER");
-//        sitRepModelOne.setActivity("Fire Fighting");
-//        sitRepModelOne.setPersonnelT(6);
-//        sitRepModelOne.setPersonnelS(5);
-//        sitRepModelOne.setPersonnelD(4);
-//        sitRepModelOne.setNextCoa("Inform HQ");
-//        sitRepModelOne.setRequest("Additional MP");
-//        Date date1 = DateTimeUtil.getSpecifiedDate(2016, Calendar.DECEMBER, 29,
-//                Calendar.AM, 11, 30, 30);
-//        String dateOneString = DateTimeUtil.dateToServerStringFormat(date1);
-//        sitRepModelOne.setCreatedDateTime(dateOneString);
-//
-//        mSitRepListItems.add(sitRepModelOne);
-//
-//        addItemsToSqliteDatabase();
-//    }
-
-//    private void addItemsToSqliteDatabase() {
-//        for (int i = 0; i < mSitRepListItems.size(); i++) {
-////            final int j = i;
-//
-//            SingleObserver<Long> singleObserverAddSitRep = new SingleObserver<Long>() {
-//                @Override
-//                public void onSubscribe(Disposable d) {
-//                    // add it to a CompositeDisposable
-//                }
-//
-//                @Override
-//                public void onSuccess(Long sitRepId) {
-//                    Log.d(TAG, "onSuccess singleObserverAddSitRep, " +
-//                            "addItemsToSqliteDatabase. " +
-//                            "SitRepId: " + sitRepId);
-//                    SharedPreferences pref = PreferenceManager.
-//                            getDefaultSharedPreferences(getActivity());
-//                    String accessToken = pref.getString(
-//                            SharedPreferenceConstants.ACCESS_TOKEN, "");
-//
-////                    mTaskListItems.get(j).setId(taskId);
-//                    addSitRepsToCompositeTableInDatabase(accessToken, sitRepId);
-//                }
-//
-//                @Override
-//                public void onError(Throwable e) {
-//                    Log.d(TAG, "onError singleObserverAddTask, addItemsToSqliteDatabase. " +
-//                            "Error Msg: " + e.toString());
-//                }
-//            };
-//
-//            mSitRepViewModel.insertSitRepWithObserver(mSitRepListItems.get(i), singleObserverAddSitRep);
-//        }
-//    }
-
-//    private void addSitRepsToCompositeTableInDatabase(String accessToken, long sitRepId) {
-//        Log.d(TAG, "onSuccess singleObserverForGettingSitRepId, addItemsToSqliteDatabase. " +
-//                "sitRepId: " + sitRepId);
-//
-//        // TODO: Added this for second user. Remove this once users can be retrieved from excel file.
-//        // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
-//        // asynchronously in the background thread and apply changes on the main UI thread
-//        SingleObserver<UserModel> singleObserverUser = new SingleObserver<UserModel>() {
-//            @Override
-//            public void onSubscribe(Disposable d) {
-//                // add it to a CompositeDisposable
-//            }
-//
-//            @Override
-//            public void onSuccess(UserModel userModel) {
-//                Log.d(TAG, "onSuccess singleObserverUser, " +
-//                        "addSitRepsToCompositeTableInDatabase. " +
-//                        "UserId: " + userModel.getUserId());
-//                UserSitRepJoinModel userSitRepJoinModel = new UserSitRepJoinModel(userModel.getUserId(), sitRepId);
-//                mUserSitRepJoinViewModel.addUserSitRepJoin(userSitRepJoinModel);
-//            }
-//
-//            @Override
-//            public void onError(Throwable e) {
-//                Log.d(TAG, "onError singleObserverUser, " +
-//                        "addSitRepsToCompositeTableInDatabase. " +
-//                        "Error Msg: " + e.toString());
-//            }
-//        };
-//
-//        mUserViewModel.queryUserByAccessToken(accessToken, singleObserverUser);
-//        mUserViewModel.queryUserByUserId("456", singleObserverUser);
-//    }
-
     /**
      * Navigate to another fragment which displays details of selected Sit Rep
      * @param sitRepModel
@@ -400,15 +217,20 @@ public class SitRepFragment extends Fragment {
     private void navigateToSitRepDetailFragment(SitRepModel sitRepModel) {
         Fragment sitRepDetailFragment = new SitRepDetailFragment();
 
-        EventBus.getDefault().postSticky(sitRepModel);
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).postStickyModel(sitRepModel);
+        }
+//        EventBus.getDefault().postSticky(sitRepModel);
 
         // Pass info to fragment
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-        ft.replace(R.id.layout_sitrep_fragment, sitRepDetailFragment, sitRepDetailFragment.getClass().getSimpleName());
-        ft.addToBackStack(sitRepDetailFragment.getClass().getSimpleName());
-        ft.commit();
+        navigateToFragment(sitRepDetailFragment);
+//        FragmentManager fm = getActivity().getSupportFragmentManager();
+//        FragmentTransaction ft = fm.beginTransaction();
+//        ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
+//        ft.replace(R.id.layout_sitrep_fragment, sitRepDetailFragment, sitRepDetailFragment.getClass().getSimpleName());
+////        ft.addToBackStack(sitRepDetailFragment.getClass().getSimpleName());
+//        ft.addToBackStack(null);
+//        ft.commit();
     }
 
     /**
@@ -425,13 +247,18 @@ public class SitRepFragment extends Fragment {
         mSitRepViewModel.getAllSitRepsLiveData().observe(this, new Observer<List<SitRepModel>>() {
             @Override
             public void onChanged(@Nullable List<SitRepModel> sitRepModelList) {
-                mRecyclerAdapter.setSitRepListItems(sitRepModelList);
-
                 if (mSitRepListItems == null) {
                     mSitRepListItems = new ArrayList<>();
                 } else {
                     mSitRepListItems.clear();
+                }
+
+                if (sitRepModelList != null) {
                     mSitRepListItems.addAll(sitRepModelList);
+                }
+
+                if (mRecyclerAdapter != null) {
+                    mRecyclerAdapter.setSitRepListItems(mSitRepListItems);
                 }
 
                 if (mSitRepListItems.size() == 0) {
@@ -458,6 +285,91 @@ public class SitRepFragment extends Fragment {
                 }
             }
         });
+    }
+
+    /**
+     * Adds designated fragment to Back Stack of Base Child Fragment
+     * before navigating to it
+     *
+     * @param toFragment
+     */
+    private void navigateToFragment(Fragment toFragment) {
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).navigateWithAnimatedTransitionToFragment(
+                    R.id.layout_sitrep_fragment, this, toFragment);
+        }
+    }
+
+    /**
+     * Pops back stack of ONLY current tab
+     *
+     * @return
+     */
+    public boolean popBackStack() {
+        if (!isAdded())
+            return false;
+
+        if(getChildFragmentManager().getBackStackEntryCount() > 0) {
+            getChildFragmentManager().popBackStackImmediate();
+            return true;
+        } else
+            return false;
+    }
+
+    private void onVisible() {
+        Log.d(TAG, "onVisible");
+
+        FragmentManager fm = getChildFragmentManager();
+        boolean isFragmentFound = false;
+
+        int count = fm.getBackStackEntryCount();
+
+        // Checks if current fragment exists in Back stack
+        for (int i = 0; i < count; i++) {
+            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
+                isFragmentFound = true;
+            }
+        }
+
+        // If not found, add to current fragment to Back stack
+        if (!isFragmentFound) {
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.addToBackStack(this.getClass().getSimpleName());
+            ft.commit();
+        }
+    }
+
+    private void onInvisible() {
+        Log.d(TAG, "onInvisible");
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        mIsFragmentVisibleToUser = isVisibleToUser;
+        if (isResumed()) { // fragment has been created at this point
+            if (mIsFragmentVisibleToUser) {
+                onVisible();
+            } else {
+                onInvisible();
+            }
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (mIsFragmentVisibleToUser) {
+            onVisible();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mIsFragmentVisibleToUser) {
+            onInvisible();
+        }
     }
 
 //    private BroadcastReceiver receiver = new BroadcastReceiver() {

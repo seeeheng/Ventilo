@@ -21,7 +21,7 @@
         android:layout_width="@dimen/count_number_width"
         android:layout_height="@dimen/count_number_height"
         android:layout_marginEnd="@dimen/elements_margin_spacing"
-        android:background="@drawable/rounded_corner_background"
+        android:background="@drawable/rounded_corner_dark_grey_background_with_border"
         android:gravity="center"
         android:textColor="@color/primary_white"
         android:textSize="@dimen/text_view_text_size" />
@@ -39,7 +39,7 @@
         android:layout_width="@dimen/count_number_width"
         android:layout_height="@dimen/count_number_height"
         android:layout_marginEnd="@dimen/elements_margin_spacing"
-        android:background="@drawable/rounded_corner_background"
+        android:background="@drawable/rounded_corner_dark_grey_background_with_border"
         android:gravity="center"
         android:textColor="@color/primary_white"
         android:textSize="@dimen/text_view_text_size" />
@@ -57,7 +57,7 @@
         android:layout_width="@dimen/count_number_width"
         android:layout_height="@dimen/count_number_height"
         android:layout_marginEnd="@dimen/elements_margin_spacing"
-        android:background="@drawable/rounded_corner_background"
+        android:background="@drawable/rounded_corner_dark_grey_background_with_border"
         android:gravity="center"
         android:textColor="@color/primary_white"
         android:textSize="@dimen/text_view_text_size" />
@@ -75,7 +75,7 @@
         android:layout_width="@dimen/count_number_width"
         android:layout_height="@dimen/count_number_height"
         android:layout_marginEnd="@dimen/elements_margin_spacing"
-        android:background="@drawable/rounded_corner_background"
+        android:background="@drawable/rounded_corner_dark_grey_background_with_border"
         android:gravity="center"
         android:textColor="@color/primary_white"
         android:textSize="@dimen/text_view_text_size" />

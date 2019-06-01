@@ -1,14 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
-    <ListView
-        android:id="@+id/timeline_listView"
+    <FrameLayout
+        android:id="@+id/frame_layout_timeline_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:divider="@null"
-        android:dividerHeight="0dp" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-</LinearLayout>
+        <include
+            android:id="@+id/layout_timeline_add_new_item"
+            layout="@layout/layout_add_new_item"
+            android:visibility="gone" />
+
+        <View
+            android:id="@+id/view_recycler_timeline_top_line"
+            android:layout_width="@dimen/minor_margin"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/timeline_line_margin_start"
+            android:background="@color/secondary_main_grey" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/layout_recycler_category_header_planned"
+                layout="@layout/layout_recycler_category_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginStart="@dimen/timeline_category_header_margin_start" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_timeline_planned"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/recycler_timeline_outermost_margin_start"
+                android:layout_marginEnd="@dimen/recycler_timeline_outermost_margin_end"
+                android:scrollbars="none" />
+
+            <include
+                android:id="@+id/layout_recycler_category_header_ad_hoc"
+                layout="@layout/layout_recycler_category_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginStart="@dimen/timeline_category_header_margin_start"
+                android:layout_marginTop="@dimen/elements_large_margin_spacing" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_timeline_ad_hoc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/recycler_timeline_outermost_margin_start"
+                android:layout_marginEnd="@dimen/recycler_timeline_outermost_margin_end"
+                android:scrollbars="none" />
+
+        </LinearLayout>
+
+        <!--<ListView-->
+        <!--android:id="@+id/timeline_listView"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:divider="@null"-->
+        <!--android:dividerHeight="0dp" />-->
+
+    </FrameLayout>
+
+</android.support.v4.widget.NestedScrollView>

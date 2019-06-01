@@ -4,5 +4,5 @@
     <size
         android:width="@dimen/bottom_panel_user_callsign_icon_background_width"
         android:height="@dimen/bottom_panel_user_callsign_icon_background_height" />
-    <solid android:color="@color/divider_line_grey" />
+    <solid android:color="@color/divider_line_primary_grey" />
 </shape>

@@ -2,6 +2,8 @@ package sg.gov.dsta.mobileC3.ventilo.activity.map;
 
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,6 +11,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,9 +23,11 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import com.nutiteq.components.Color;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -35,13 +43,13 @@ import sg.gov.dh.beacons.BeaconManagerInterface;
 import sg.gov.dh.beacons.BeaconObject;
 import sg.gov.dh.beacons.DroppedBeacon;
 import sg.gov.dh.beacons.estimote.EstimoteBeaconManager;
-//import sg.gov.dh.mq.rabbitmq.MQRabbit;
 import sg.gov.dh.trackers.Event;
 import sg.gov.dh.trackers.NavisensLocalTracker;
 import sg.gov.dh.trackers.TrackerListener;
 import sg.gov.dh.utils.Coords;
 import sg.gov.dh.utils.FileSaver;
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.eventbus.PageEvent;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
@@ -52,10 +60,16 @@ public class MapShipBlueprintFragment extends Fragment {
 
     private static final String TAG = "BFTLOCAL";
     private static final String LOCAL_SHIP_BLUEPRINT_DIRECTORY = "file:///android_asset/ship/";
-//    private BottomNavigationView mBottomNavigationView;
+    //    private BottomNavigationView mBottomNavigationView;
     private EditText mTextXYZ;
     private EditText mTextBearing;
     private EditText mTextAction;
+
+    // Killed In Action (KIA)/Hazard and Deceased UI
+    RelativeLayout mRelativeLayoutHazardImgBtn;
+    AppCompatImageView mImgHazardIcon;
+    RelativeLayout mRelativeLayoutDeceasedImgBtn;
+    AppCompatImageView mImgDeceasedIcon;
 
     //Somehow need to think of a way to make these 2 variables eternal
     double currentHeight = 0.0;
@@ -73,7 +87,7 @@ public class MapShipBlueprintFragment extends Fragment {
     private BeaconZeroing beaconZeroing;
 
     private IMQListener mIMQListener;
-    private boolean mIsVisibleToUser;
+    private boolean mIsFragmentVisibleToUser;
 
     @Nullable
     @Override
@@ -87,24 +101,12 @@ public class MapShipBlueprintFragment extends Fragment {
         mTextBearing = rootMapShipBlueprintView.findViewById(R.id.img_btn_ship_blueprint_textBearing);
         mTextAction = rootMapShipBlueprintView.findViewById(R.id.img_btn_ship_blueprint_textAction);
 
+        initSideButtons(rootMapShipBlueprintView);
+
         prefs = new BFTLocalPreferences(this.getContext());
-        initBeacon();
-        initTracker();
 
         myWebView = rootMapShipBlueprintView.findViewById(R.id.bft_webview);
-
-        WebSettings webSettings = myWebView.getSettings();
-        webSettings.setLoadWithOverviewMode(true);
-        webSettings.setUseWideViewPort(true);
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setAllowFileAccess(true);
-        webSettings.setAllowContentAccess(true);
-        webSettings.setAllowFileAccessFromFileURLs(true);
-        webSettings.setAllowUniversalAccessFromFileURLs(true);
-        myWebView.setWebChromeClient(new WebChromeClient());
-        myWebView.loadUrl(LOCAL_SHIP_BLUEPRINT_DIRECTORY + prefs.getOverview());
-        myWebView.addJavascriptInterface(new WebAppInterface(this.getActivity(), prefs, tracker), "Android");
-
+        
         final ImageView imgUpDeck = rootMapShipBlueprintView.findViewById(R.id.img_ship_blueprint_upButton);
         imgUpDeck.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -130,40 +132,7 @@ public class MapShipBlueprintFragment extends Fragment {
         imgWorldMap.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 MapFragment mapFragment = new MapFragment();
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-
-                int count = fm.getBackStackEntryCount();
-                boolean isMapFragmentFound = false;
-
-                // Checks if MapFragment was previous fragment; if it is, simply pop current stack
-                // By popping stack, we do not re-initialise Google map in MapFragment
-                for (int i = 0; i < count; i++) {
-                    if (MapFragment.class.getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
-                        if (i == (count - 2) || i == (count - 3)) {
-                            isMapFragmentFound = true;
-                        }
-                    }
-                }
-
-                if (!isMapFragmentFound) {
-                    Log.d(TAG, "MapFragment not found in back stack. Creating new map fragment.");
-                    FragmentTransaction ft = fm.beginTransaction();
-                    ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-                    ft.replace(R.id.layout_map_ship_blueprint_fragment, mapFragment,
-                            mapFragment.getClass().getSimpleName());
-                    ft.addToBackStack(mapFragment.getClass().getSimpleName());
-                    ft.commit();
-                } else {
-                    Log.d(TAG, "MapFragment found in back stack. Popping " +
-                            MapShipBlueprintFragment.class.getSimpleName() + ".");
-                    fm.popBackStack();
-                }
-
-                // Notify mapfragment of previous fragment (MapShipBlueprintFragment) that it was switched from
-                EventBus.getDefault().post(PageEvent.getInstance().addPage(PageEvent.FRAGMENT_KEY, MapShipBlueprintFragment.class.getSimpleName()));
-
-//                BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.btm_nav_view_main_nav);
-//                bottomNavigationView.setVisibility(View.VISIBLE);
+                navigateToFragment(mapFragment);
             }
         });
 
@@ -174,14 +143,116 @@ public class MapShipBlueprintFragment extends Fragment {
             }
         });
 
-        setupMessageQueue();
-        setupFileSaver();
-
 //        myWebView.setOnTouchListener(webViewOnTouchListener);
 //        myWebView.setOnLongClickListener(webViewOnLongClickListener);
 
         return rootMapShipBlueprintView;
     }
+    
+    private void initWebviewSettings() {
+        WebSettings webSettings = myWebView.getSettings();
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setUseWideViewPort(true);
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setAllowFileAccess(true);
+        webSettings.setAllowContentAccess(true);
+        webSettings.setAllowFileAccessFromFileURLs(true);
+        webSettings.setAllowUniversalAccessFromFileURLs(true);
+        myWebView.setWebChromeClient(new WebChromeClient());
+        myWebView.loadUrl(LOCAL_SHIP_BLUEPRINT_DIRECTORY + prefs.getOverview());
+        myWebView.addJavascriptInterface(new WebAppInterface(this.getActivity(), prefs, tracker), "Android");
+
+        setupMessageQueue();
+        setupFileSaver();
+    }
+
+    private void initSideButtons(View rootMapShipBlueprintView) {
+        View layoutMainHazardImgBtn = rootMapShipBlueprintView.findViewById(R.id.layout_map_ship_blueprint_fragment_hazard_icon);
+        mRelativeLayoutHazardImgBtn = layoutMainHazardImgBtn.findViewById(R.id.relative_layout_img_with_img_btn);
+        mImgHazardIcon = layoutMainHazardImgBtn.findViewById(R.id.img_pic_within_img_btn);
+        mImgHazardIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+                R.drawable.icon_kia, null));
+        setHazardIconUnselectedStateUI();
+
+        mRelativeLayoutHazardImgBtn.setOnClickListener(onHazardIconClickListener);
+
+        View layoutDeceasedImgBtn = rootMapShipBlueprintView.findViewById(R.id.layout_map_ship_blueprint_fragment_deceased_icon);
+        mRelativeLayoutDeceasedImgBtn = layoutDeceasedImgBtn.findViewById(R.id.relative_layout_img_with_img_btn);
+        mImgDeceasedIcon = layoutDeceasedImgBtn.findViewById(R.id.img_pic_within_img_btn);
+        mImgDeceasedIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+                R.drawable.icon_deceased, null));
+        setDeceasedIconUnselectedStateUI();
+
+        mRelativeLayoutDeceasedImgBtn.setOnClickListener(onDeceasedIconClickListener);
+    }
+
+    private void setHazardIconUnselectedStateUI() {
+        Drawable layoutDrawable = mRelativeLayoutHazardImgBtn.getBackground();
+        layoutDrawable = DrawableCompat.wrap(layoutDrawable);
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+                R.color.primary_white));
+        mRelativeLayoutHazardImgBtn.setBackground(layoutDrawable);
+
+        mImgHazardIcon.setColorFilter(ContextCompat.getColor(getContext(), R.color.dull_orange),
+                PorterDuff.Mode.SRC_ATOP);
+    }
+
+    private void setHazardIconSelectedStateUI() {
+        Drawable layoutDrawable = mRelativeLayoutHazardImgBtn.getBackground();
+        layoutDrawable = DrawableCompat.wrap(layoutDrawable);
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+                R.color.primary_highlight_cyan));
+        mRelativeLayoutHazardImgBtn.setBackground(layoutDrawable);
+
+        mImgHazardIcon.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
+    }
+
+    private void setDeceasedIconUnselectedStateUI() {
+        Drawable layoutDrawable = mRelativeLayoutDeceasedImgBtn.getBackground();
+        layoutDrawable = DrawableCompat.wrap(layoutDrawable);
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+                R.color.primary_white));
+        mRelativeLayoutDeceasedImgBtn.setBackground(layoutDrawable);
+
+        mImgDeceasedIcon.setColorFilter(ContextCompat.getColor(getContext(), R.color.primary_text_grey),
+                PorterDuff.Mode.SRC_ATOP);
+    }
+
+    private void setDeceasedIconSelectedStateUI() {
+        Drawable layoutDrawable = mRelativeLayoutDeceasedImgBtn.getBackground();
+        layoutDrawable = DrawableCompat.wrap(layoutDrawable);
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+                R.color.primary_highlight_cyan));
+        mRelativeLayoutDeceasedImgBtn.setBackground(layoutDrawable);
+
+        mImgDeceasedIcon.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
+    }
+
+    private View.OnClickListener onHazardIconClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            view.setSelected(!view.isSelected());
+
+            if (view.isSelected()) {
+                setHazardIconSelectedStateUI();
+            } else {
+                setHazardIconUnselectedStateUI();
+            }
+        }
+    };
+
+    private View.OnClickListener onDeceasedIconClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            view.setSelected(!view.isSelected());
+
+            if (view.isSelected()) {
+                setDeceasedIconSelectedStateUI();
+            } else {
+                setDeceasedIconUnselectedStateUI();
+            }
+        }
+    };
 
     // the purpose of the touch listener is just to store the touch X,Y coordinates
 //    View.OnTouchListener webViewOnTouchListener = new View.OnTouchListener() {
@@ -371,7 +442,7 @@ public class MapShipBlueprintFragment extends Fragment {
 //        RabbitMQHelper.getInstance().startRabbitMQWithSetting(getActivity(), host, prefs.getMqUsername(), prefs.getMqPassword());
         if (RabbitMQHelper.connectionStatus == RabbitMQHelper.RabbitMQConnectionStatus.CONNECTED) {
             setupMQListener();
-        } else if (RabbitMQHelper.connectionStatus == RabbitMQHelper.RabbitMQConnectionStatus.DISCONNECTED)  {
+        } else if (RabbitMQHelper.connectionStatus == RabbitMQHelper.RabbitMQConnectionStatus.DISCONNECTED) {
             RabbitMQHelper.getInstance().startRabbitMQWithSetting(getActivity(), host, prefs.getMqUsername(), prefs.getMqPassword());
             if (RabbitMQHelper.connectionStatus == RabbitMQHelper.RabbitMQConnectionStatus.CONNECTED) {
                 setupMQListener();
@@ -466,13 +537,72 @@ public class MapShipBlueprintFragment extends Fragment {
         RabbitMQHelper.getInstance().sendBFTMessage(_coords.getX() + "," + _coords.getY() + "," + _coords.getAltitude() + "," + _coords.getBearing() + "," + beaconId + "," + BeaconZeroing.BEACONOBJ);
     }
 
+    /**
+     * Adds designated fragment to Back Stack of Base Child Fragment
+     * before navigating to it
+     *
+     * @param toFragment
+     */
+    private void navigateToFragment(Fragment toFragment) {
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).navigateWithAnimatedTransitionToFragment(
+                    R.id.layout_map_ship_blueprint_fragment, this, toFragment);
+        }
+    }
+
+    /**
+     * Pops back stack of ONLY current tab
+     *
+     * @return
+     */
+    public boolean popBackStack() {
+        if (!isAdded())
+            return false;
+
+        if (getChildFragmentManager().getBackStackEntryCount() > 0) {
+            getChildFragmentManager().popBackStackImmediate();
+            return true;
+        } else
+            return false;
+    }
+
     private void onVisible() {
         System.out.println("mapShipBlueprintFragment onVisible");
 
         if (tracker == null) {
             System.out.println("mapShipBlueprintFragment onResume");
+            initBeacon();
             initTracker();
+            initWebviewSettings();
+//            initTracker();
         }
+
+        Log.d(TAG, "onVisible");
+
+        FragmentManager fm = getChildFragmentManager();
+        boolean isFragmentFound = false;
+
+        int count = fm.getBackStackEntryCount();
+
+        // Checks if current fragment exists in Back stack
+        for (int i = 0; i < count; i++) {
+            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
+                isFragmentFound = true;
+            }
+        }
+
+        // If not found, add to current fragment to Back stack
+        if (!isFragmentFound) {
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.addToBackStack(this.getClass().getSimpleName());
+            ft.commit();
+        }
+
+        beaconManager.enableForegroundDispatch();
+    }
+
+    private void onInvisible() {
+        beaconManager.disableForegroundDispatch();
     }
 
     @Override
@@ -519,7 +649,7 @@ public class MapShipBlueprintFragment extends Fragment {
 
         EventBus.getDefault().unregister(this);
 
-        if (mIsVisibleToUser) {
+        if (mIsFragmentVisibleToUser) {
             onVisible();
         }
 
@@ -538,7 +668,7 @@ public class MapShipBlueprintFragment extends Fragment {
 //            tracker.deactivate();
 //        }
 
-        beaconManager.disableForegroundDispatch();
+//        beaconManager.disableForegroundDispatch();
     }
 
     @Override
@@ -546,7 +676,7 @@ public class MapShipBlueprintFragment extends Fragment {
         super.onStart();
         EventBus.getDefault().register(this);
 
-        if (mIsVisibleToUser) {
+        if (mIsFragmentVisibleToUser) {
             onVisible();
         }
     }
@@ -578,12 +708,11 @@ public class MapShipBlueprintFragment extends Fragment {
 //        }
 
 
-        beaconManager.enableForegroundDispatch();
+//        beaconManager.enableForegroundDispatch();
     }
 
     @Subscribe
-    public void onEvent(PageEvent pageEvent)
-    {
+    public void onEvent(PageEvent pageEvent) {
 
 //        if (SettingsActivity.class.getSimpleName().equalsIgnoreCase(pageEvent.getPreviousActivityName())) {
 //            System.out.println("Settings Activity found!");
@@ -595,16 +724,16 @@ public class MapShipBlueprintFragment extends Fragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        mIsVisibleToUser = isVisibleToUser;
+        mIsFragmentVisibleToUser = isVisibleToUser;
         Log.d(TAG, "setUserVisibleHint");
         if (isResumed()) { // fragment has been created at this point
-            if (mIsVisibleToUser) {
+            if (mIsFragmentVisibleToUser) {
                 Log.d(TAG, "setUserVisibleHint onVisible");
                 onVisible();
             }
-//            else {
-//                onInvisible();
-//            }
+            else {
+                onInvisible();
+            }
         }
     }
 

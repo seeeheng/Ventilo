@@ -21,6 +21,7 @@ public class SitRepModel {
     private int personnelD;
     private String nextCoa;
     private String request;
+    private String others;
     private String createdDateTime;
 
     // --- GETTER ---
@@ -35,6 +36,7 @@ public class SitRepModel {
     public int getPersonnelD() { return personnelD; }
     public String getNextCoa() { return nextCoa; }
     public String getRequest() { return request; }
+    public String getOthers() { return others; }
     public String getCreatedDateTime() { return createdDateTime; }
 
     // --- SETTER ---
@@ -49,5 +51,6 @@ public class SitRepModel {
     public void setPersonnelD(int personnelD) { this.personnelD = personnelD; }
     public void setNextCoa(String nextCoa) { this.nextCoa = nextCoa; }
     public void setRequest(String request) { this.request = request; }
+    public void setOthers(String others) { this.others = others; }
     public void setCreatedDateTime(String createdDateTime) { this.createdDateTime = createdDateTime; }
 }

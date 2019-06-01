@@ -31,6 +31,7 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
             JeroMQPubSubBrokerProxy.DEFAULT_XSUB_PORT;
 
     public static final String TOPIC_PREFIX_BFT = "PREFIX-BFT";
+    public static final String TOPIC_PREFIX_USER = "PREFIX-USER";
     public static final String TOPIC_PREFIX_SITREP = "PREFIX-SITREP";
     public static final String TOPIC_PREFIX_TASK = "PREFIX-TASK";
     //    public static final String TOPIC_PREFIX_USER_SITREP_JOIN = "PREFIX-USER-SITREP-JOIN";
@@ -181,6 +182,47 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 
         PowerManagerUtil.releasePartialWakeLock();
 //        }
+    }
+
+    /**
+     * Broadcasts User JSON message to all relevant devices for data storage
+     *
+     * @param message
+     */
+    public void sendUserMessage(String message, String actionPrefix) {
+        String topicPrefix = getActionPrefix(TOPIC_PREFIX_USER, actionPrefix);
+
+        if (StringUtil.EMPTY_STRING.equalsIgnoreCase(topicPrefix)) {
+            return;
+        }
+
+        Log.d(TAG, "Publishing User");
+
+        PowerManagerUtil.acquirePartialWakeLock();
+
+        mExecutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                StringBuilder userMessageToSend = new StringBuilder();
+                userMessageToSend.append(topicPrefix);
+                userMessageToSend.append(" ");
+                userMessageToSend.append(message);
+
+                Log.i(TAG, "Publishing User" + actionPrefix + " message: " + message + "...");
+
+                mPubSocket.send(userMessageToSend.toString());
+
+                Log.i(TAG, "User" + actionPrefix + " message sent");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "Interrupted while sleeping: " + e);
+                    return;
+                }
+            }
+        });
+
+        PowerManagerUtil.releasePartialWakeLock();
     }
 
     /**

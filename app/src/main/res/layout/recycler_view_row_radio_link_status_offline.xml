@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_video_stream_edit_delete"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/elements_margin_spacing"
+    android:gravity="center_vertical">
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/img_radio_link_status_row_icon"
+        android:layout_width="@dimen/status_link_recycler_status_icon_width"
+        android:layout_height="@dimen/status_link_recycler_status_icon_height"
+        app:srcCompat="@drawable/icon_radio_link_status_offline" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
+        android:id="@+id/tv_radio_link_status_row_team"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/elements_margin_spacing"
+        android:text="A22"
+        android:textColor="@color/primary_white"
+        android:textSize="@dimen/text_view_text_size" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansLightTextView
+        android:id="@+id/tv_radio_link_status_row_last_connected_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/elements_margin_spacing"
+        android:text="Online since 50 min ago"
+        android:textColor="@color/primary_white"
+        android:textSize="@dimen/text_view_small_text_size" />
+
+</LinearLayout>

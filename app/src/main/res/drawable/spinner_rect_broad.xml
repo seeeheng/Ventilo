@@ -12,7 +12,7 @@
                 android:left="10dp"
                 android:right="10dp" />
             <!--<corners android:radius="5dp" />-->
-            <solid android:color="@color/spinner_broad_fill_grey" />
+            <solid android:color="@color/background_dark_grey" />
         </shape>
     </item>
     <item>

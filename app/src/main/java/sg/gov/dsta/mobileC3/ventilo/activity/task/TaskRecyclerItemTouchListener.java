@@ -34,36 +34,36 @@ public class TaskRecyclerItemTouchListener implements RecyclerView.OnItemTouchLi
 
             @Override
             public void onLongPress(MotionEvent e) {
-//                super.onLongPress(e);
-                View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
-                if(child != null && mListener != null) {
-                    mListener.onLongItemClick(child, recyclerView.getChildAdapterPosition(child));
-                }
+                super.onLongPress(e);
+//                View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
+//                if(child != null && mListener != null) {
+//                    mListener.onLongItemClick(child, recyclerView.getChildAdapterPosition(child));
+//                }
             }
 
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                int dx = (int) (e2.getX() - e1.getX());
-                int dy = (int) (e2.getY() - e1.getY());
-                if(Math.abs(dy) > SWIPE_MAX_OFF_PATH) {
-                    return false;
-                }
-                if(Math.abs(dx) > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                    View child = recyclerView.findChildViewUnder(e1.getX(), e1.getY());
-                    if(dx < 0) {
-                        // Swipe Left
-                        if(child != null && mListener != null) {
-                            mListener.onSwipeLeft(child, recyclerView.getChildAdapterPosition(child));
-                        }
-                    } else if(dx > 0){
-                        // Swipe right
-                        if(child != null && mListener != null) {
-                            mListener.onSwipeRight(child, recyclerView.getChildAdapterPosition(child));
-                        }
-                    }
-                }
-                return false;
-//                return super.onFling(e1, e2, velocityX, velocityY);
+                return super.onFling(e1, e2, velocityX, velocityY);
+//                int dx = (int) (e2.getX() - e1.getX());
+//                int dy = (int) (e2.getY() - e1.getY());
+//                if(Math.abs(dy) > SWIPE_MAX_OFF_PATH) {
+//                    return false;
+//                }
+//                if(Math.abs(dx) > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+//                    View child = recyclerView.findChildViewUnder(e1.getX(), e1.getY());
+//                    if(dx < 0) {
+//                        // Swipe Left
+//                        if(child != null && mListener != null) {
+//                            mListener.onSwipeLeft(child, recyclerView.getChildAdapterPosition(child));
+//                        }
+//                    } else if(dx > 0){
+//                        // Swipe right
+//                        if(child != null && mListener != null) {
+//                            mListener.onSwipeRight(child, recyclerView.getChildAdapterPosition(child));
+//                        }
+//                    }
+//                }
+//                return false;
             }
         });
     }
@@ -79,13 +79,7 @@ public class TaskRecyclerItemTouchListener implements RecyclerView.OnItemTouchLi
     }
 
     @Override
-    public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {
-        System.out.println("onTouchEvent");
-//        View childView = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
-//        if(childView != null && mListener != null && mGestureDetector.onTouchEvent(motionEvent)) {
-//            mListener.onItemClick(childView, recyclerView.getChildAdapterPosition(childView));
-//        }
-    }
+    public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {}
 
     @Override
     public void onRequestDisallowInterceptTouchEvent(boolean b) {}

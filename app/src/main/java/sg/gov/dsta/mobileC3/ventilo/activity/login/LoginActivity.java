@@ -33,10 +33,12 @@ import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQSubscriber;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQAsyncTask;
 import sg.gov.dsta.mobileC3.ventilo.repository.ExcelSpreadsheetRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.security.RandomString;
-import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.task.EAccessRight;
+import sg.gov.dsta.mobileC3.ventilo.util.task.ERadioConnectionStatus;
 //import sg.com.superc2.utils.GsonCreator;
 //import sg.com.superc2.utils.constants.RestConstants;
 //import sg.com.superc2.utils.rest.QueueSingleton;
@@ -56,6 +58,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String USERNAME = "123";
     private static final String USERNAME_TWO = "456";
+    private static final String USERNAME_THREE = "853";
     private UserViewModel mUserViewModel;
 
     // UI references
@@ -349,16 +352,30 @@ public class LoginActivity extends AppCompatActivity {
         newUser.setAccessToken("");
         newUser.setTeam("Alpha");
         newUser.setRole("Member");
+        newUser.setRadioConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
+        newUser.setLastKnownOnlineDateTime(StringUtil.INVALID_STRING);
 
         String passwordTwo = "444";
         UserModel newUserTwo = new UserModel(USERNAME_TWO);
         newUserTwo.setPassword(passwordTwo);
         newUserTwo.setAccessToken("");
-        newUserTwo.setTeam("Alpha");
+        newUserTwo.setTeam("Alpha, Bravo, Charlie, Delta, Echo, Foxtrot");
         newUserTwo.setRole("Member");
+        newUserTwo.setRadioConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
+        newUserTwo.setLastKnownOnlineDateTime(StringUtil.INVALID_STRING);
+
+        String passwordThree = "321";
+        UserModel newUserThree = new UserModel(USERNAME_THREE);
+        newUserThree.setPassword(passwordThree);
+        newUserThree.setAccessToken("");
+        newUserThree.setTeam("Alpha, Bravo");
+        newUserThree.setRole("Member");
+        newUserThree.setRadioConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
+        newUserThree.setLastKnownOnlineDateTime(StringUtil.INVALID_STRING);
 
         userViewModel.insertUser(newUser);
         userViewModel.insertUser(newUserTwo);
+        userViewModel.insertUser(newUserThree);
     }
 
     private void checkIfValidUser() {
@@ -373,7 +390,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(UserModel userModel) {
                 saveLoginDetails(userModel);
-                pullDataFromExcelToDatabase();
+//                pullDataFromExcelToDatabase();
 
                 Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(activityIntent);
@@ -401,9 +418,14 @@ public class LoginActivity extends AppCompatActivity {
 //        prefsEditor.putString(General.USER_RANK, userRank);
 //        prefsEditor.putString(General.REFRESH_TOKEN, refreshToken);
         prefsEditor.putString(SharedPreferenceConstants.ACCESS_TOKEN, accessToken);
+
+        String accessRight = EAccessRight.CCT.toString();
+//        String accessRight = EAccessRight.TEAM_LEAD.toString();
+        prefsEditor.putString(SharedPreferenceConstants.ACCESS_RIGHT, accessRight);
         prefsEditor.apply();
 
         Log.d(TAG, "Added Access Token to User (" + userModel.getUserId() + ")");
+        Log.d(TAG, "accessToken is " + accessToken);
         userModel.setAccessToken(accessToken);
         mUserViewModel.updateUser(userModel);
     }
@@ -420,6 +442,9 @@ public class LoginActivity extends AppCompatActivity {
         excelSpreadsheetRepository.pullDataFromExcelToDatabase();
     }
 
+    /**
+     * Set up observer for live updates on view models and update UI accordingly
+     */
     private void observerSetup() {
         mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
 

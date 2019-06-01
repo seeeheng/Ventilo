@@ -50,7 +50,7 @@
                 android:layout_height="@dimen/sitrep_personnel_content_number_box_height"
                 android:layout_marginEnd="@dimen/elements_margin_spacing"
                 android:textColor="@color/primary_white"
-                android:background="@drawable/rounded_corner_background"
+                android:background="@drawable/rounded_corner_dark_grey_background_with_border"
                 android:gravity="center"/>
 
             <LinearLayout

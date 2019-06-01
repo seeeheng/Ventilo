@@ -79,16 +79,46 @@
             android:paddingBottom="@dimen/recycler_row_outermost_large_padding">
 
             <RelativeLayout
-                android:id="@+id/layout_header_container"
+                android:id="@+id/layout_task_header_container"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/task_recycler_row_line_information_height"
                 android:layout_marginBottom="@dimen/elements_margin_spacing">
 
-                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                <LinearLayout
+                    android:id="@+id/layout_recycler_task_header_ad_hoc_high_priority"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/elements_small_margin_spacing"
+                    android:gravity="center"
+                    android:visibility="gone">
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/img_recycler_task_header_ad_hoc_high_priority"
+                        android:layout_width="@dimen/ad_hoc_priority_icon_width"
+                        android:layout_height="@dimen/ad_hoc_priority_icon_height"
+                        app:srcCompat="@drawable/icon_high_priority" />
+
+                </LinearLayout>
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2FuturaBoldTextView
+                    android:id="@+id/tv_recycler_task_header_phase"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@+id/layout_recycler_task_header_ad_hoc_high_priority"
+                    android:background="@drawable/rounded_corner_grey_background"
+                    android:paddingStart="@dimen/elements_small_margin_spacing"
+                    android:paddingTop="@dimen/minor_margin"
+                    android:paddingEnd="@dimen/elements_small_margin_spacing"
+                    android:paddingBottom="@dimen/minor_margin"
+                    android:textColor="@color/secondary_main_grey"
+                    android:textSize="@dimen/text_view_minor_text_size" />
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
                     android:id="@+id/tv_recycler_task_header_title"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="@dimen/elements_small_margin_spacing"
+                    android:layout_toEndOf="@+id/tv_recycler_task_header_phase"
                     android:textColor="@color/primary_white"
                     android:textSize="@dimen/text_view_text_size" />
 
@@ -105,7 +135,7 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/task_recycler_row_container_information_height"
-                android:layout_below="@+id/layout_header_container">
+                android:layout_below="@+id/layout_task_header_container">
 
                 <LinearLayout
                     android:layout_width="@dimen/task_recycler_row_inner_detail_container_information_width"
@@ -154,7 +184,7 @@
                     </LinearLayout>
 
                     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
-                        android:id="@+id/tv_recycler_task_short_detail"
+                        android:id="@+id/tv_recycler_task_short_description"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:ellipsize="end"

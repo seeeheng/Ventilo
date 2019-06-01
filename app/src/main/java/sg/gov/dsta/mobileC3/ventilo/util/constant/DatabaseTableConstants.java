@@ -2,6 +2,10 @@ package sg.gov.dsta.mobileC3.ventilo.util.constant;
 
 public class DatabaseTableConstants {
 
+    // Default values
+    public static final int LOCAL_REF_ID = -1;
+    public static final String DEFAULT_CCT_ID = "999";
+
     // Table names
     public static final String TABLE_USER = "User";
     public static final String TABLE_VIDEO_STREAM = "VideoStream";
@@ -34,6 +38,8 @@ public class DatabaseTableConstants {
     public static final String SITREP_HEADER_REQUEST = "request";
 
     // Task
+    public static final String TASK_HEADER_PHASE_NO = "phaseNo";
+    public static final String TASK_HEADER_AD_HOC_TASK_PRIORITY = "adHocTaskPriority";
     public static final String TASK_HEADER_ASSIGNED_TO = "assignedTo";
     public static final String TASK_HEADER_ASSIGNED_BY = "assignedBy";
     public static final String TASK_HEADER_TITLE = "title";

@@ -255,7 +255,8 @@ public class SitRepRepository {
                     sitRepModelToUpdate.getLocation(), sitRepModelToUpdate.getActivity(),
                     sitRepModelToUpdate.getPersonnelT(), sitRepModelToUpdate.getPersonnelS(),
                     sitRepModelToUpdate.getPersonnelD(), sitRepModelToUpdate.getNextCoa(),
-                    sitRepModelToUpdate.getRequest(), sitRepModelToUpdate.getCreatedDateTime());
+                    sitRepModelToUpdate.getRequest(), sitRepModelToUpdate.getOthers(),
+                    sitRepModelToUpdate.getCreatedDateTime());
 
             return null;
         }

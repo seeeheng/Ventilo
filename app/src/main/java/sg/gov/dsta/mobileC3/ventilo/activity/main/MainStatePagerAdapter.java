@@ -22,13 +22,11 @@ import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
 
     private Context mContext;
-    private FragmentManager mFm;
-    private static HashMap<Integer, Fragment> mPageFragmentReferenceHashMap;
-    private static HashMap<Integer, String> mPageNameReferenceHashMap;
+    private HashMap<Integer, Fragment> mPageFragmentReferenceHashMap;
+    private HashMap<Integer, String> mPageNameReferenceHashMap;
 
     public MainStatePagerAdapter(FragmentManager fm, Context context) {
         super(fm);
-        mFm = fm;
         mContext = context;
         mPageFragmentReferenceHashMap = new HashMap<>();
         mPageNameReferenceHashMap = new HashMap<>();
@@ -37,10 +35,10 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int i) {
         Fragment fragment;
-        FragmentTransaction ft = mFm.beginTransaction();
 
         switch (i) {
             case MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID:
+//                fragment = new MapShipBlueprintFragment();
                 fragment = new VideoStreamFragment();
                 mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID,
                         fragment);
@@ -88,11 +86,11 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
                         mContext.getResources().getString(R.string.radio_link_status_page_title));
                 break;
 
-            case 6:
+            case MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID:
                 fragment = new UserSettingsFragment();
-                mPageFragmentReferenceHashMap.put(6,
+                mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID,
                         fragment);
-                mPageNameReferenceHashMap.put(6,
+                mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID,
                         mContext.getResources().getString(R.string.settings_page_title));
                 break;
 
@@ -105,16 +103,12 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
                 break;
         }
 
-
-        ft.addToBackStack(fragment.getClass().getSimpleName());
-        ft.commit();
-
         return fragment;
     }
 
     @Override
     public int getCount() {
-        return 7;
+        return MainNavigationConstants.SIDE_MENU_TAB_TOTAL_COUNT;
     }
 
     @Override
@@ -122,7 +116,11 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
         return mPageNameReferenceHashMap.get(position);
     }
 
-    public static HashMap<Integer, Fragment> getPageReferenceMap() {
+    public HashMap<Integer, Fragment> getPageReferenceMap() {
         return mPageFragmentReferenceHashMap;
+    }
+
+    public Fragment getFragment(int fragmentID) {
+        return mPageFragmentReferenceHashMap.get(fragmentID);
     }
 }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@color/secondary_main_grey" />
+    <size
+        android:width="@dimen/timeline_line_circle_background_icon_width"
+        android:height="@dimen/timeline_line_circle_background_icon_height" />
+</shape>
