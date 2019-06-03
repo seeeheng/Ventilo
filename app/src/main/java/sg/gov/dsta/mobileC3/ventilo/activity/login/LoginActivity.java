@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import io.reactivex.SingleObserver;
@@ -62,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
     private UserViewModel mUserViewModel;
 
     // UI references
-    private FrameLayout mMainLayout;
+    private LinearLayout mMainLayout;
     private C2OpenSansBlackEditTextView mEtvUserId;
     private C2OpenSansBlackEditTextView mEtvPassword;
     private View mProgressView;
@@ -79,11 +81,11 @@ public class LoginActivity extends AppCompatActivity {
         resetSharedPref();
         setUpDummyUser();
         observerSetup();
-
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 //        Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
 //        startActivity(activityIntent);
 
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.landscape_activity_login);
 
         mMainLayout = findViewById(R.id.layout_login_activity);
         initSnackbar();

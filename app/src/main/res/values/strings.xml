@@ -70,10 +70,10 @@
     <string name="snackbar_task_update_confirmation_message">Update Task?</string>
 
     <!-- Login -->
-    <string name="login_username">USERNAME</string>
-    <string name="login_password">PASSWORD</string>
+    <string name="login_username">User ID</string>
+    <string name="login_password">Password</string>
     <string name="sign_up">SIGN UP</string>
-    <string name="login_footprint">Designed And Developed by RSN-DSTA</string>
+    <string name="login_footprint">Designed And Developed by RSN</string>
     <string name="error_invalid_email">This email is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>

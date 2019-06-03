@@ -74,7 +74,7 @@
         <!-- </activity> -->
         <activity
             android:name=".activity.login.LoginActivity"
-            android:screenOrientation="sensorPortrait">
+            android:screenOrientation="sensorLandscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
