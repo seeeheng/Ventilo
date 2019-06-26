@@ -177,18 +177,28 @@ public class TaskFragment extends Fragment {
 
         // Set up floating action button
         mFabAddTask = rootView.findViewById(R.id.fab_task_add);
-        mFabAddTask.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-                Fragment taskAddUpdateFragment = new TaskAddUpdateFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString(FragmentConstants.KEY_TASK, FragmentConstants.VALUE_TASK_ADD);
-                taskAddUpdateFragment.setArguments(bundle);
+        if (EAccessRight.CCT.toString().equalsIgnoreCase(
+                SharedPreferenceUtil.getCurrentUserAccessRight())) {
+            mFabAddTask.show();
+            mFabAddTask.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mFabAddTask.setEnabled(false);
 
-                navigateToTaskAddUpdateFragment();
+                    Fragment taskAddUpdateFragment = new TaskAddUpdateFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FragmentConstants.KEY_TASK, FragmentConstants.VALUE_TASK_ADD);
+                    taskAddUpdateFragment.setArguments(bundle);
+
+                    navigateToTaskAddUpdateFragment();
+                }
+            });
+        } else {
+            if (mFabAddTask.isShown()) {
+                mFabAddTask.hide();
             }
-        });
+        }
 //        initOtherLayouts(inflater, container);
     }
 
@@ -780,6 +790,16 @@ public class TaskFragment extends Fragment {
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).navigateWithAnimatedTransitionToFragment(
                     R.id.layout_task_fragment, this, toFragment);
+            enableFabAddTask();
+        }
+    }
+
+    /**
+     * Allows other fragments to re-enable Floating Action Button
+     */
+    public void enableFabAddTask() {
+        if (mFabAddTask != null && !mFabAddTask.isEnabled()) {
+            mFabAddTask.setEnabled(true);
         }
     }
 
@@ -802,24 +822,7 @@ public class TaskFragment extends Fragment {
     private void onVisible() {
         Log.d(TAG, "onVisible");
 
-        FragmentManager fm = getChildFragmentManager();
-        boolean isFragmentFound = false;
-
-        int count = fm.getBackStackEntryCount();
-
-        // Checks if current fragment exists in Back stack
-        for (int i = 0; i < count; i++) {
-            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
-                isFragmentFound = true;
-            }
-        }
-
-        // If not found, add to current fragment to Back stack
-        if (!isFragmentFound) {
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.addToBackStack(this.getClass().getSimpleName());
-            ft.commit();
-        }
+        enableFabAddTask();
     }
 
     private void onInvisible() {

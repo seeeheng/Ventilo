@@ -23,6 +23,7 @@ public class VideoStreamModel {
     private String name;
     private String url;
     private String iconType;
+//    private String isSelected;
 
     // --- GETTER ---
     public long getId() { return id; }
@@ -30,6 +31,7 @@ public class VideoStreamModel {
     public String getName() { return name; }
     public String getUrl() { return url; }
     public String getIconType() { return iconType; }
+//    public String getIsSelected() { return isSelected; }
 
     // --- SETTER ---
     public void setId(long id) { this.id = id; }
@@ -37,4 +39,5 @@ public class VideoStreamModel {
     public void setName(String name) { this.name = name; }
     public void setUrl(String url) { this.url = url; }
     public void setIconType(String iconType) { this.iconType = iconType; }
+//    public void setIsSelected(String isSelected) { this.isSelected = isSelected; }
 }

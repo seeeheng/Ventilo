@@ -1,5 +1,7 @@
 package sg.gov.dsta.mobileC3.ventilo.util;
 
+import sg.gov.dsta.mobileC3.ventilo.util.security.RandomString;
+
 public class StringUtil {
 
     public static final String EMPTY_STRING = "";
@@ -52,5 +54,10 @@ public class StringUtil {
         } else {
             return "";                          // Remaining text is empty after removing first word
         }
+    }
+
+    public static String generateRandomString() {
+        RandomString randomString = new RandomString();
+        return randomString.nextString();
     }
 }

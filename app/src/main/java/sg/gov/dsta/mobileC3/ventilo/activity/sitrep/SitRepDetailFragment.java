@@ -21,6 +21,7 @@ import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.SitRepViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
@@ -113,7 +114,7 @@ public class SitRepDetailFragment extends Fragment {
         C2OpenSansSemiBoldTextView tvToolbarEdit = layoutToolbar.findViewById(R.id.toolbar_top_right_btn_text);
         tvToolbarEdit.setTextColor(ResourcesCompat.getColor(getResources(),
                 R.color.primary_highlight_cyan, null));
-        tvToolbarEdit.setText(getString(R.string.btn_edit));
+        tvToolbarEdit.setText(MainApplication.getAppContext().getString(R.string.btn_edit));
     }
 
     private void updateUI(SitRepModel sitRepModel) {
@@ -133,12 +134,14 @@ public class SitRepDetailFragment extends Fragment {
                 teamNameHeaderStringBuilder.append(StringUtil.SPACE);
             }
 
-            teamNameHeaderStringBuilder.append(getString(R.string.sitrep_callsign_header));
+            teamNameHeaderStringBuilder.append(MainApplication.getAppContext().
+                    getString(R.string.sitrep_callsign_header));
             mTvTeamNameHeader.setText(teamNameHeaderStringBuilder.toString());
 
             // Assigned team
             StringBuilder reporterStringBuilder = new StringBuilder();
-            reporterStringBuilder.append(getString(R.string.team_header));
+            reporterStringBuilder.append(MainApplication.getAppContext().
+                    getString(R.string.team_header));
             reporterStringBuilder.append(StringUtil.SPACE);
 
             if (sitRepModel.getReporter() != null) {

@@ -13,6 +13,64 @@ html, body {
     background-color:rgba(255,0,0,0.0);
 }
 
+@font-face {
+    font-family: latoBold;
+    src: url('file:///android_asset/fonts/lato_bold.ttf');
+}
 
+/* For Tooltip Label of markers */
 
+.leafletTooltipLabel-green {
+    font-size: 12px;
+    font-family: latoBold;
+    color: #6ACC57;
+    border: 1px solid #6ACC57;
+}
 
+.leafletTooltipLabel-red {
+    font-size: 12px;
+    font-family: latoBold;
+    color: #FC605B;
+    border: 1px solid #FC605B;
+}
+
+.leafletTooltipLabel-cyan {
+    font-size: 12px;
+    font-family: latoBold;
+    color: #00DCFF;
+    border: 1px solid #00DCFF;
+}
+
+.leafletTooltipLabel-orange {
+    font-size: 12px;
+    font-family: latoBold;
+    color: #F9A64A;
+    border: 1px solid #F9A64A;
+}
+
+.leafletTooltipLabel-grey {
+    font-size: 12px;
+    font-family: latoBold;
+    color: #707070;
+    border: 1px solid #707070;
+}
+
+.leaflet-tooltip-left,
+.leaflet-tooltip-top,
+.leaflet-tooltip-right,
+.leaflet-tooltip-bottom {
+    padding-left: 4px;
+    padding-top: 2px;
+    padding-right: 4px;
+    padding-bottom: 2px;
+    background: #1F1F1F;
+    opacity: 0.7;
+}
+
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-right:before,
+.leaflet-tooltip-bottom:before {
+    border: 0px;
+    background: transparent;
+}

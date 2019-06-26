@@ -30,8 +30,12 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
     protected static final String SERVER_PUB_IP_ADDRESS = "tcp://*:" +
             JeroMQPubSubBrokerProxy.DEFAULT_XSUB_PORT;
 
+//    protected static final String SERVER_PUB_IP_ADDRESS = "tcp://192.168.1.3:" +
+//            JeroMQPubSubBrokerProxy.DEFAULT_XSUB_PORT;
+
     public static final String TOPIC_PREFIX_BFT = "PREFIX-BFT";
     public static final String TOPIC_PREFIX_USER = "PREFIX-USER";
+    public static final String TOPIC_PREFIX_RADIO = "PREFIX-RADIO";
     public static final String TOPIC_PREFIX_SITREP = "PREFIX-SITREP";
     public static final String TOPIC_PREFIX_TASK = "PREFIX-TASK";
     //    public static final String TOPIC_PREFIX_USER_SITREP_JOIN = "PREFIX-USER-SITREP-JOIN";
@@ -101,8 +105,12 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
             synchronized (JeroMQPublisher.class) {
                 if (instance == null) {
                     instance = new JeroMQPublisher();
+                } else {
+                    instance.initExecutorService();
                 }
             }
+        } else {
+            instance.initExecutorService();
         }
 
         return instance;
@@ -131,6 +139,7 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 
         mZContext = new ZContext();
         mPubSocket = mZContext.createSocket(SocketType.PUB);
+        mPubSocket.setMaxMsgSize(-1);
         mPubSocket.setLinger(0);
 //        mPubSocket.connect(SERVER_PUB_IP_ADDRESS);
         mPubSocket.bind(SERVER_PUB_IP_ADDRESS);
@@ -155,6 +164,8 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
         }
 
         PowerManagerUtil.acquirePartialWakeLock();
+
+
 
         mExecutorService.submit(new Runnable() {
             @Override
@@ -205,14 +216,53 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
             public void run() {
                 StringBuilder userMessageToSend = new StringBuilder();
                 userMessageToSend.append(topicPrefix);
-                userMessageToSend.append(" ");
+                userMessageToSend.append(StringUtil.SPACE);
                 userMessageToSend.append(message);
 
-                Log.i(TAG, "Publishing User" + actionPrefix + " message: " + message + "...");
+                Log.i(TAG, "Publishing User " + actionPrefix + " message: " + userMessageToSend + "...");
 
                 mPubSocket.send(userMessageToSend.toString());
 
-                Log.i(TAG, "User" + actionPrefix + " message sent");
+                Log.i(TAG, "User " + actionPrefix + " message sent");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "Interrupted while sleeping: " + e);
+                    return;
+                }
+            }
+        });
+
+        PowerManagerUtil.releasePartialWakeLock();
+    }
+
+    /**
+     * Broadcasts WaveRelay Radio JSON message to all relevant devices for data storage
+     *
+     * @param message
+     */
+    public void sendWaveRelayRadioMessage(String message, String actionPrefix) {
+
+        String topicPrefix = getActionPrefix(TOPIC_PREFIX_RADIO, actionPrefix);
+
+        Log.d(TAG, "Publishing WaveRelay Radio");
+
+        PowerManagerUtil.acquirePartialWakeLock();
+
+        mExecutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                StringBuilder radioMessageToSend = new StringBuilder();
+                radioMessageToSend.append(topicPrefix);
+                radioMessageToSend.append(StringUtil.SPACE);
+                radioMessageToSend.append(message);
+
+                Log.i(TAG, "Publishing WaveRelay Radio " + actionPrefix + " message: " + message + "...");
+
+                mPubSocket.send(radioMessageToSend.toString());
+
+                Log.i(TAG, "WaveRelay Radio " + actionPrefix + " message sent");
+
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -236,9 +286,6 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 
         String topicPrefix = getActionPrefix(TOPIC_PREFIX_SITREP, actionPrefix);
 
-        if ("".equalsIgnoreCase(topicPrefix)) {
-            return;
-        }
         Log.d(TAG, "Publishing SitRep");
 
         PowerManagerUtil.acquirePartialWakeLock();
@@ -249,14 +296,14 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 //                    LOGGER.info("Creating and binding PUB socket with address={}", currentAddress);
                 StringBuilder sitRepMessageToSend = new StringBuilder();
                 sitRepMessageToSend.append(topicPrefix);
-                sitRepMessageToSend.append(" ");
+                sitRepMessageToSend.append(StringUtil.SPACE);
                 sitRepMessageToSend.append(message);
 
-                Log.i(TAG, "Publishing SitRep" + actionPrefix + " message: " + message + "...");
+                Log.i(TAG, "Publishing SitRep " + actionPrefix + " message: " + message + "...");
 
                 mPubSocket.send(sitRepMessageToSend.toString());
 
-                Log.i(TAG, "SitRep" + actionPrefix + " message sent");
+                Log.i(TAG, "SitRep " + actionPrefix + " message sent");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -283,10 +330,6 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 
         String topicPrefix = getActionPrefix(TOPIC_PREFIX_TASK, actionPrefix);
 
-        if ("".equalsIgnoreCase(topicPrefix)) {
-            return;
-        }
-
         PowerManagerUtil.acquirePartialWakeLock();
 
         mExecutorService.submit(new Runnable() {
@@ -296,14 +339,14 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 
                 StringBuilder taskMessageToSend = new StringBuilder();
                 taskMessageToSend.append(topicPrefix);
-                taskMessageToSend.append(" ");
+                taskMessageToSend.append(StringUtil.SPACE);
                 taskMessageToSend.append(message);
 
-                Log.i(TAG, "Publishing Task" + actionPrefix + " message: " + taskMessageToSend + "...");
+                Log.i(TAG, "Publishing Task " + actionPrefix + " message: " + taskMessageToSend + "...");
 
                 mPubSocket.send(taskMessageToSend.toString());
 
-                Log.i(TAG, "Task" + actionPrefix + " message sent");
+                Log.i(TAG, "Task " + actionPrefix + " message sent");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -424,41 +467,6 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
             Log.i(TAG, "Destroying ZContext.");
             mZContext.destroy();
             Log.i(TAG, "ZContext destroyed.");
-        }
-    }
-
-    private static class CloseSocketAsyncTask extends AsyncTask<String, Void, Void> {
-
-        private ZContext mZContext;
-        private Socket mPubSocket;
-
-        CloseSocketAsyncTask(ZContext zContext, Socket pubSocket) {
-            mZContext = zContext;
-            mPubSocket = pubSocket;
-        }
-
-        @Override
-        protected Void doInBackground(final String... param) {
-//            if (mPubSocket != null) {
-//                mZContext.destroySocket(mPubSocket);
-////                mPubSocket.disconnect(SERVER_PUB_IP_ADDRESS);
-////                mPubSocket.close();
-//
-//                Log.i(TAG, "Server pub socket closed.");
-//            }
-
-            if (mZContext != null) {
-                Log.i(TAG, "Destroying ZContext.");
-                mZContext.destroy();
-                Log.i(TAG, "ZContext destroyed.");
-
-//                List<Socket> socketList = mZContext.getSockets();
-//                for (int i = 0; i < mZContext.getSockets().size(); i++) {
-//                    mZContext.destroySocket(socketList.get(i));
-//                }
-            }
-
-            return null;
         }
     }
 }

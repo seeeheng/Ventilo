@@ -11,6 +11,6 @@
     </item>
 
     <item
-        android:width="@dimen/snackbar_side_icon_width"
-        android:drawable="@drawable/icon_snackbar_alert" />
+        android:width="@dimen/snackbar_side_background_icon_width"
+        android:drawable="@drawable/icon_snackbar_alert_background" />
 </layer-list>

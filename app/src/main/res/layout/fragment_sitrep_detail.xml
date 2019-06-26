@@ -268,7 +268,7 @@
                         android:layout_width="@dimen/detail_line_information_width"
                         android:layout_height="@dimen/detail_line_information_height"
                         android:layout_gravity="top"
-                        android:text="@string/sitrep_request"
+                        android:text="@string/sitrep_others"
                         android:textSize="@dimen/text_view_small_text_size" />
 
                     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView

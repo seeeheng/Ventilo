@@ -32,6 +32,10 @@ public class UserRepository {
         return mAllUsersLiveData;
     }
 
+    public LiveData<UserModel> getCurrentUserLiveData(String userId) {
+        return mUserDao.getCurrentUserLiveData(userId);
+    }
+
     /**
      * Obtains all User models from database
      *

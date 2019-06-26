@@ -1,31 +1,39 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.main;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
+import android.hardware.usb.UsbManager;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.PagerAdapter;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.reactivex.SingleObserver;
+import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.NoSwipeViewPager;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
@@ -36,16 +44,21 @@ import sg.gov.dsta.mobileC3.ventilo.activity.timeline.TimelineFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.user.UserSettingsFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.videostream.VideoStreamFragment;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
-import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
-import sg.gov.dsta.mobileC3.ventilo.model.eventbus.PageEvent;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
+import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
+import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
+import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.WaveRelayRadioViewModel;
+import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
+import sg.gov.dsta.mobileC3.ventilo.network.NetworkService;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQAsyncTask;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPubSubBrokerProxy;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQSubscriber;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
-import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQAsyncTask;
+import sg.gov.dsta.mobileC3.ventilo.network.waveRelayRadio.WaveRelayRadioAsyncTask;
+import sg.gov.dsta.mobileC3.ventilo.network.waveRelayRadio.WaveRelayRadioClient;
 import sg.gov.dsta.mobileC3.ventilo.util.JSONUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView;
@@ -53,6 +66,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.task.ERadioConnectionStatus;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -62,12 +76,16 @@ public class MainActivity extends AppCompatActivity {
     private static final String MQTT_TOPIC_TASK = "Task";
     private static final String MQTT_TOPIC_INCIDENT = "Incident";
 
-//    public static Intent rabbitMQIntent;
+//    public static Intent mRabbitMQIntent;
 
     //    public static NetworkService networkService;
     public static boolean isServiceBound;
     //    private NetworkConnectivity mNetworkConnectivity;
-    private MqttHelper mMqttHelper;
+//    private MqttHelper mMqttHelper;
+
+    // View Models
+    private UserViewModel mUserViewModel;
+    private WaveRelayRadioViewModel mWaveRelayRadioViewModel;
 
     // Main
     private RelativeLayout mLayoutMain;
@@ -101,11 +119,14 @@ public class MainActivity extends AppCompatActivity {
     // Bottom Panel
     private View mViewBottomPanel;
     private C2OpenSansBoldTextView mTvFragmentTitle;
+    private AppCompatImageView mImgRadioLinkStatus;
     private C2OpenSansBoldTextView mTvRadioLinkStatus;
     private C2OpenSansBoldTextView mTvLastConnectionDate;
     private C2OpenSansBoldTextView mTvLastConnectionTime;
     private C2OpenSansBoldTextView mTvCallsign;
     private LinearLayout mLayoutSetting;
+    private AppCompatImageView mImgSetting;
+    private C2OpenSansBoldTextView mTvSetting;
 
     // Snackbar
     private View mViewSnackbar;
@@ -117,12 +138,23 @@ public class MainActivity extends AppCompatActivity {
     private IMQListener mIMQListener;
 //    private MapView mMapView;
 
+    private WaveRelayRadioClient mWaveRelayRadioClient;
+
+    private BroadcastReceiver mUsbReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mLayoutMain = findViewById(R.id.layout_main_activity);
 
+//        DimensionUtil.convertPixelToDps(20);
+
+        setBroadcastReceivers();
+
+
+        observerSetup();
+        initNetwork();
         initSideMenuPanel();
         initBottomPanel();
         initSnackbar();
@@ -150,6 +182,64 @@ public class MainActivity extends AppCompatActivity {
 //
 //        mBtnPublish.setVisibility(View.GONE);
 //        mBtnPublish.setOnClickListener(publishOnClickListener());
+
+//        ProgressBarUtil.dismissProgressDialog();
+    }
+
+
+    private void setBroadcastReceivers() {
+        //Reference: http://www.codepool.biz/how-to-monitor-usb-events-on-android.html
+
+        mUsbReceiver = new BroadcastReceiver() {
+
+            String usbStateChangeAction = "android.hardware.usb.action.USB_STATE";
+
+            public void onReceive(Context context, Intent intent) {
+//                String action = intent.getAction();
+//                Log.d(LOG_TAG, "Received Broadcast: "+action);
+//                if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action) || UsbManager.ACTION_USB_ACCESSORY_ATTACHED.equals(action)) {
+//
+//                    updateUSBstatus();
+//                    Log.d(LOG_TAG, "USB Connected..");
+//                } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action) || UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
+//                    UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+//                    if (device != null) {
+//                        updateUSBstatus();
+//                    }
+//                    Log.d(LOG_TAG, "USB Disconnected..");
+//                }
+
+                String action = intent.getAction();
+                Log.d(TAG, "Received Broadcast: " + action);
+                if (action.equalsIgnoreCase(usbStateChangeAction)) { //Check if change in USB state
+                    if (intent.getExtras().getBoolean("connected")) {
+                        // USB was connected
+                        Toast.makeText(getApplicationContext(), "USB CONNECTED", Toast.LENGTH_LONG).show();
+                    } else {
+                        // USB was disconnected
+                        Toast.makeText(getApplicationContext(), "USB DISCONNECTED", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        };
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        //filter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED);
+        //filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
+//        registerReceiver(mUsbReceiver , filter);
+        Log.d(TAG, "mUsbReceiver Registered");
+    }
+
+    private void initNetwork() {
+        Bundle b = getIntent().getBundleExtra(MainNavigationConstants.WAVE_RELAY_RADIO_NO_BUNDLE_KEY);
+        long radioId = b.getLong(MainNavigationConstants.WAVE_RELAY_RADIO_NO_KEY);
+
+        getDeviceIpAddrAndRunWrRadioSocket(radioId);
+
+        JeroMQAsyncTask jeroMQAsyncTask = new JeroMQAsyncTask();
+        jeroMQAsyncTask.runJeroMQ();
     }
 
     private void initSideMenuPanel() {
@@ -196,11 +286,14 @@ public class MainActivity extends AppCompatActivity {
         mViewBottomPanel = findViewById(R.id.layout_main_bottom_panel);
 
         mTvFragmentTitle = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_fragment_title);
+        mImgRadioLinkStatus = mViewBottomPanel.findViewById(R.id.img_bottom_panel_radio_link_status_icon);
         mTvRadioLinkStatus = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_radio_link_status);
         mTvLastConnectionDate = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_last_connection_date);
         mTvLastConnectionTime = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_last_connection_time);
         mTvCallsign = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_callsign);
         mLayoutSetting = mViewBottomPanel.findViewById(R.id.layout_bottom_panel_settings);
+        mImgSetting = mViewBottomPanel.findViewById(R.id.img_bottom_panel_settings_icon);
+        mTvSetting = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_settings_text);
 
         mTvCallsign.setText(SharedPreferenceUtil.getCurrentUserCallsignID());
         mLayoutSetting.setOnClickListener(onSettingsClickListener);
@@ -307,42 +400,44 @@ public class MainActivity extends AppCompatActivity {
         mImgViewTabTimeline.setColorFilter(null);
         mImgViewTabTask.setColorFilter(null);
         mImgViewTabRadioLink.setColorFilter(null);
+        mImgSetting.setColorFilter(null);
+        mTvSetting.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.primary_white));
     }
 
     private void setMapSelectedUI() {
         mLinearLayoutLineSelectorMap.setVisibility(View.VISIBLE);
-        mImgViewTabMap.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
-                PorterDuff.Mode.SRC_ATOP);
+        mImgViewTabMap.setColorFilter(ContextCompat.getColor(getApplicationContext(),
+                R.color.primary_highlight_cyan), PorterDuff.Mode.SRC_ATOP);
     }
 
     private void setVideoStreamSelectedUI() {
         mLinearLayoutLineSelectorVideoStream.setVisibility(View.VISIBLE);
-        mImgViewTabVideoStream.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
-                PorterDuff.Mode.SRC_ATOP);
+        mImgViewTabVideoStream.setColorFilter(ContextCompat.getColor(getApplicationContext(),
+                R.color.primary_highlight_cyan), PorterDuff.Mode.SRC_ATOP);
     }
 
     private void setReportSelectedUI() {
         mLinearLayoutLineSelectorReport.setVisibility(View.VISIBLE);
-        mImgViewTabReport.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
-                PorterDuff.Mode.SRC_ATOP);
+        mImgViewTabReport.setColorFilter(ContextCompat.getColor(getApplicationContext(),
+                R.color.primary_highlight_cyan), PorterDuff.Mode.SRC_ATOP);
     }
 
     private void setTimelineSelectedUI() {
         mLinearLayoutLineSelectorTimeline.setVisibility(View.VISIBLE);
-        mImgViewTabTimeline.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
-                PorterDuff.Mode.SRC_ATOP);
+        mImgViewTabTimeline.setColorFilter(ContextCompat.getColor(getApplicationContext(),
+                R.color.primary_highlight_cyan), PorterDuff.Mode.SRC_ATOP);
     }
 
     private void setTaskSelectedUI() {
         mLinearLayoutLineSelectorTask.setVisibility(View.VISIBLE);
-        mImgViewTabTask.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
-                PorterDuff.Mode.SRC_ATOP);
+        mImgViewTabTask.setColorFilter(ContextCompat.getColor(getApplicationContext(),
+                R.color.primary_highlight_cyan), PorterDuff.Mode.SRC_ATOP);
     }
 
     private void setRadioLinkSelectedUI() {
         mLinearLayoutLineSelectorRadioLink.setVisibility(View.VISIBLE);
-        mImgViewTabRadioLink.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.primary_highlight_cyan),
-                PorterDuff.Mode.SRC_ATOP);
+        mImgViewTabRadioLink.setColorFilter(ContextCompat.getColor(getApplicationContext(),
+                R.color.primary_highlight_cyan), PorterDuff.Mode.SRC_ATOP);
     }
 
     private OnClickListener onSettingsClickListener = new OnClickListener() {
@@ -350,14 +445,59 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View view) {
             removeSelector();
 
+            mImgSetting.setColorFilter(ContextCompat.getColor(getApplicationContext(),
+                    R.color.primary_highlight_cyan),
+                    PorterDuff.Mode.SRC_ATOP);
+            mTvSetting.setTextColor(ContextCompat.getColor(getApplicationContext(),
+                    R.color.primary_highlight_cyan));
             mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID,
                     true);
             mTvFragmentTitle.setText(mNoSwipeViewPager.getAdapter().
                     getPageTitle(MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID));
 
-            mTvFragmentTitle.setText(getString(R.string.settings_page_title));
+            mTvFragmentTitle.setText(MainApplication.getAppContext().getString(R.string.settings_label));
         }
     };
+
+    private void getDeviceIpAddrAndRunWrRadioSocket(long radioId) {
+
+        SingleObserver<WaveRelayRadioModel> singleObserverWaveRelayRadioByRadioNo =
+                new SingleObserver<WaveRelayRadioModel>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        // add it to a CompositeDisposable
+                    }
+
+                    @Override
+                    public void onSuccess(WaveRelayRadioModel waveRelayRadioModel) {
+                        if (waveRelayRadioModel != null) {
+                            Log.d(TAG, "onSuccess singleObserverWaveRelayRadioByRadioNo, " +
+                                    "getDeviceIpAddrAndRunWrRadioSocket. " +
+                                    "waveRelayRadioModel: " + waveRelayRadioModel);
+
+                            UsbManager cm = (UsbManager) MainApplication.getAppContext().getSystemService(Context.USB_SERVICE);
+                            WaveRelayRadioAsyncTask waveRelayRadioAsyncTask = new WaveRelayRadioAsyncTask();
+                            waveRelayRadioAsyncTask.runWrRadioSocketConnection(
+                                    waveRelayRadioModel.getRadioIpAddress(), cm);
+                            mWaveRelayRadioClient = waveRelayRadioAsyncTask.getWaveRelayRadioClient();
+
+                        } else {
+                            Log.d(TAG, "onSuccess singleObserverWaveRelayRadioByRadioNo, " +
+                                    "getDeviceIpAddrAndRunWrRadioSocket. " +
+                                    "waveRelayRadioModel is null");
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError singleObserverWaveRelayRadioByRadioNo, " +
+                                "getDeviceIpAddrAndRunWrRadioSocket. " +
+                                "Error Msg: " + e.toString());
+                    }
+                };
+
+        mWaveRelayRadioViewModel.queryRadioByRadioId(radioId, singleObserverWaveRelayRadioByRadioNo);
+    }
 
 //    private NoSwipeViewPager.OnPageChangeListener setPageChangeListener(
 //            final BottomNavigationView bottomNavigationView) {
@@ -558,7 +698,6 @@ public class MainActivity extends AppCompatActivity {
 
             RabbitMQHelper.getInstance().addRabbitListener(mIMQListener);
         }
-
     }
 
     public View getMainSidePanel() {
@@ -573,7 +712,17 @@ public class MainActivity extends AppCompatActivity {
         mTvFragmentTitle.setText(title);
     }
 
-    public void setBottomPanelRadioLinkStatusText(String linkStatus) {
+    private void setBottomPanelRadioLinkStatus(String linkStatus) {
+        if (ERadioConnectionStatus.OFFLINE.toString().equalsIgnoreCase(linkStatus)) {
+            mImgRadioLinkStatus.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+                    R.drawable.icon_offline, null));
+            mTvRadioLinkStatus.setTextColor(ContextCompat.getColor(this, R.color.dull_red));
+        } else {
+            mImgRadioLinkStatus.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+                    R.drawable.icon_online, null));
+            mTvRadioLinkStatus.setTextColor(ContextCompat.getColor(this, R.color.dull_green));
+        }
+
         mTvRadioLinkStatus.setText(linkStatus);
     }
 
@@ -584,6 +733,11 @@ public class MainActivity extends AppCompatActivity {
     public void setBottomPanelLastConnectionTimeText(String time) {
         mTvLastConnectionTime.setText(time);
     }
+
+    public void closeWebSocketClient() {
+        mWaveRelayRadioClient.closeWebSocketClient();
+    }
+
 
     /**
      * Defines callbacks for service binding, passed to bindService()
@@ -622,6 +776,41 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //    }
 
+    /**
+     * Set up observer for live updates on view models and update UI accordingly
+     */
+    private void observerSetup() {
+        mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+        mWaveRelayRadioViewModel = ViewModelProviders.of(this).get(WaveRelayRadioViewModel.class);
+
+        String currentUserId = SharedPreferenceUtil.getCurrentUserCallsignID();
+
+        /*
+         * Refreshes bottom panel status UI whenever there is a change in user data (insert, update or delete)
+         */
+        mUserViewModel.getCurrentUserLiveData(currentUserId).observe(this, new Observer<UserModel>() {
+            @Override
+            public void onChanged(@Nullable UserModel userModel) {
+                if (userModel.getRadioFullConnectionStatus().
+                        equalsIgnoreCase(ERadioConnectionStatus.ONLINE.toString())) {
+                    setBottomPanelRadioLinkStatus(ERadioConnectionStatus.ONLINE.toString());
+                } else {
+                    setBottomPanelRadioLinkStatus(ERadioConnectionStatus.OFFLINE.toString());
+                }
+            }
+        });
+    }
+
+    // ---------------------------------------- EventBus ---------------------------------------- //
+
+    /**
+     * Allows fragments within this Main activity to transfer (post) data objects across each other
+     * The following object models are taken into consideration:
+     * 1) SitRepModel
+     * 2) TaskModel
+     *
+     * @param modelClass
+     */
     public void postStickyModel(Object modelClass) {
         if (modelClass instanceof SitRepModel) {
             SitRepModel sitRepModel = (SitRepModel) modelClass;
@@ -632,6 +821,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Allows fragments within this Main activity to receive data objects across each other
+     * The following object models are taken into consideration:
+     * 1) SitRepModel
+     * 2) TaskModel
+     *
+     * @param modelClassSimpleName
+     * @return
+     */
     public Object getStickyModel(String modelClassSimpleName) {
         Object modelToUpdate = null;
         if (modelClassSimpleName.equalsIgnoreCase(SitRepModel.class.getSimpleName())) {
@@ -643,8 +841,18 @@ public class MainActivity extends AppCompatActivity {
         return modelToUpdate;
     }
 
+    /**
+     * Allows fragments within this Main activity to receive AND remove data objects
+     * across each other at the same time
+     * The following object models are taken into consideration:
+     * 1) SitRepModel
+     * 2) TaskModel
+     *
+     * @param modelClass
+     * @return
+     */
     public Object removeStickyModel(Object modelClass) {
-        Object modelToRemove =  EventBus.getDefault().removeStickyEvent(modelClass.getClass());
+        Object modelToRemove = EventBus.getDefault().removeStickyEvent(modelClass.getClass());
         return modelToRemove;
     }
 
@@ -687,16 +895,20 @@ public class MainActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 if (UserSettingsFragment.EXCEL_DATA_PULLED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
                     SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
-                            getString(R.string.snackbar_settings_pull_from_excel_successful_message));
+                            MainApplication.getAppContext().
+                                    getString(R.string.snackbar_settings_pull_from_excel_successful_message));
                 } else if (UserSettingsFragment.EXCEL_DATA_PUSHED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
                     SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
-                            getString(R.string.snackbar_settings_push_to_excel_successful_message));
+                            MainApplication.getAppContext().
+                                    getString(R.string.snackbar_settings_push_to_excel_successful_message));
                 } else if (UserSettingsFragment.DATA_SYNCED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
                     SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
-                            getString(R.string.snackbar_settings_sync_up_successful_message));
+                            MainApplication.getAppContext().
+                                    getString(R.string.snackbar_settings_sync_up_successful_message));
                 } else if (UserSettingsFragment.LOGGED_OUT_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
                     SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
-                            getString(R.string.snackbar_settings_logout_successful_message));
+                            MainApplication.getAppContext().
+                                    getString(R.string.snackbar_settings_logout_successful_message));
                 }
             }
         };
@@ -724,6 +936,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Get main View Pager Adapter for getting fragments
+     *
      * @return
      */
     public MainStatePagerAdapter getViewPagerAdapter() {
@@ -753,7 +966,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean popChildFragmentBackStack(int fragmentPosID) {
         Fragment baseChildFragment = getViewPagerAdapter().getFragment(fragmentPosID);
 
-        if (baseChildFragment.getChildFragmentManager().getBackStackEntryCount() > 0) {
+        if (baseChildFragment != null && baseChildFragment.getChildFragmentManager().
+                getBackStackEntryCount() > 0) {
             baseChildFragment.getChildFragmentManager().popBackStack();
             return true;
         }
@@ -786,9 +1000,9 @@ public class MainActivity extends AppCompatActivity {
 //    };
 
 //    private void subscribeToRabbitMQ() {
-//        rabbitMQIntent = new Intent(this, NetworkService.class);
-//        startService(rabbitMQIntent);
-//        bindService(rabbitMQIntent, rabbitMQServiceConnection, Context.BIND_AUTO_CREATE);
+//        mRabbitMQIntent = new Intent(this, NetworkService.class);
+//        startService(mRabbitMQIntent);
+//        bindService(mRabbitMQIntent, rabbitMQServiceConnection, Context.BIND_AUTO_CREATE);
 //    }
     @Override
     public void onBackPressed() {
@@ -844,60 +1058,53 @@ public class MainActivity extends AppCompatActivity {
 //            getSupportFragmentManager().popBackStack();
 //        }
 
-        if (mNoSwipeViewPager.getAdapter() instanceof MainStatePagerAdapter) {
+        if (getViewPagerAdapter() != null) {
             switch (mNoSwipeViewPager.getCurrentItem()) {
                 case MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID:
                     MapShipBlueprintFragment mapShipBlueprintFragment = ((MapShipBlueprintFragment)
-                            ((MainStatePagerAdapter) mNoSwipeViewPager.getAdapter()).
-                                    getFragment(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID));
+                            getViewPagerAdapter().getFragment(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID));
                     if (!mapShipBlueprintFragment.popBackStack())
                         super.onBackPressed();
                     break;
 
                 case MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID:
                     VideoStreamFragment videoStreamFragment = ((VideoStreamFragment)
-                            ((MainStatePagerAdapter) mNoSwipeViewPager.getAdapter()).
-                                    getFragment(MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID));
+                            getViewPagerAdapter().getFragment(MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID));
                     if (!videoStreamFragment.popBackStack())
                         super.onBackPressed();
                     break;
 
                 case MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID:
                     SitRepFragment sitRepFragment = ((SitRepFragment)
-                            ((MainStatePagerAdapter) mNoSwipeViewPager.getAdapter()).
-                                    getFragment(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID));
+                            getViewPagerAdapter().getFragment(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID));
                     if (!sitRepFragment.popBackStack())
                         super.onBackPressed();
                     break;
 
                 case MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID:
                     TimelineFragment timelineFragment = ((TimelineFragment)
-                            ((MainStatePagerAdapter) mNoSwipeViewPager.getAdapter()).
-                                    getFragment(MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID));
+                            getViewPagerAdapter().getFragment(MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID));
                     if (!timelineFragment.popBackStack())
                         super.onBackPressed();
                     break;
 
                 case MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID:
                     TaskFragment taskFragment = ((TaskFragment)
-                            ((MainStatePagerAdapter) mNoSwipeViewPager.getAdapter()).
-                                    getFragment(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID));
+                            getViewPagerAdapter().getFragment(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID));
                     if (!taskFragment.popBackStack())
                         super.onBackPressed();
                     break;
 
                 case MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID:
                     RadioLinkStatusFragment radioLinkStatusFragment = ((RadioLinkStatusFragment)
-                            ((MainStatePagerAdapter) mNoSwipeViewPager.getAdapter()).
-                                    getFragment(MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID));
+                            getViewPagerAdapter().getFragment(MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID));
                     if (!radioLinkStatusFragment.popBackStack())
                         super.onBackPressed();
                     break;
 
                 case MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID:
                     UserSettingsFragment userSettingsFragment = ((UserSettingsFragment)
-                            ((MainStatePagerAdapter) mNoSwipeViewPager.getAdapter()).
-                                    getFragment(MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID));
+                            getViewPagerAdapter().getFragment(MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID));
                     if (!userSettingsFragment.popBackStack())
                         super.onBackPressed();
                     break;
@@ -922,13 +1129,23 @@ public class MainActivity extends AppCompatActivity {
 //        JeroMQAsyncTask jeroMQAsyncTask = new JeroMQAsyncTask();
 //        jeroMQAsyncTask.runJeroMQ();
 
-
 //        subscribeToRabbitMQ();
 //                    RabbitMQAsyncTask rabbitMQAsyncTask = new RabbitMQAsyncTask();
 //                    rabbitMQAsyncTask.runRabbitMQ();
 
 
 //        subscribeToRabbitMQ();
+
+
+        //Refernce: https://stackoverflow.com/questions/18015656/cant-receive-broadcast-intent-of-usbmanager-action-usb-device-attached-usbmanag
+//        Intent intent = getIntent();
+//        if (intent != null) {
+//            if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
+//                Toast.makeText(getApplicationContext(), "Attached", Toast.LENGTH_LONG).show();
+//            } else if(intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {
+//                Toast.makeText(getApplicationContext(), "Detached", Toast.LENGTH_LONG).show();
+//            }
+//        }
     }
 
 //    private void subscribeToMQTT() {
@@ -972,29 +1189,31 @@ public class MainActivity extends AppCompatActivity {
          * connection status are closed.
          */
         synchronized (MainActivity.class) {
-            if (RabbitMQAsyncTask.mIsServiceRegistered) {
+            if (NetworkService.mIsServiceRegistered) {
                 Log.i(TAG, "Destroying RabbitMQ...");
 
-                RabbitMQAsyncTask.stopRabbitMQ();
-                Log.i(TAG, "Stopped RabbitMQ Async Task.");
+//                RabbitMQAsyncTask.stopRabbitMQ();
+//                Log.i(TAG, "Stopped RabbitMQ Async Task.");
 
-                stopService(MainApplication.rabbitMQIntent);
-                Log.i(TAG, "Stopped RabbitMQ Intent Service.");
+                if (getApplication() instanceof MainApplication) {
+                    MainApplication mainApplication = (MainApplication) getApplication();
+                    mainApplication.stopService(mainApplication.getRabbitMQIntent());
+                    Log.i(TAG, "Stopped RabbitMQ Intent Service.");
 
-                MainApplication.networkService.stopSelf();
-                Log.i(TAG, "Stop RabbitMQ Network Self.");
+                    NetworkService.mIsServiceRegistered = false;
 
-                getApplicationContext().unbindService(MainApplication.rabbitMQServiceConnection);
-                Log.i(TAG, "Unbinded RabbitMQ Service.");
-
-                JeroMQPublisher.getInstance().stop();
-                JeroMQSubscriber.getInstance().stop();
-
-                Log.i(TAG, "Stopped all JeroMQ connections.");
-                RabbitMQAsyncTask.mIsServiceRegistered = false;
-
-                JeroMQPubSubBrokerProxy.getInstance().stop();
+//                    mainApplication.getNetworkService().stopSelf();
+//                    Log.i(TAG, "Stop RabbitMQ Network Self.");
+//
+//                    getApplicationContext().unbindService(MainApplication.rabbitMQServiceConnection);
+//                    Log.i(TAG, "Unbinded RabbitMQ Service.");
+                }
             }
+
+            JeroMQAsyncTask jeroMQAsyncTask = new JeroMQAsyncTask();
+            jeroMQAsyncTask.stopJeroMQ();
+
+            Log.i(TAG, "Stopped all JeroMQ connections.");
         }
     }
 

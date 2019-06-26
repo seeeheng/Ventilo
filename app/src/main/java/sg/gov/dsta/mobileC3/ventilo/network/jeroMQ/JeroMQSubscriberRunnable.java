@@ -18,11 +18,13 @@ import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
+import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.repository.SitRepRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.TaskRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserSitRepJoinRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserTaskJoinRepository;
+import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.GsonCreator;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.ValidationUtil;
@@ -62,19 +64,22 @@ public class JeroMQSubscriberRunnable implements Runnable {
             String messageContent = StringUtil.removeFirstWord(message);
             String[] messageTopicParts = messageTopic.split(StringUtil.HYPHEN);
 
-            // For e.g. PREFIX-BFT, PREFIX-USER, PREFIX-SITREP, PREFIX-TASK
+            // For e.g. PREFIX-USER, PREFIX-RADIO, PREFIX-BFT, PREFIX-SITREP, PREFIX-TASK
             String messageMainTopic = messageTopicParts[0].
                     concat(StringUtil.HYPHEN).concat(messageTopicParts[1]);
 
-            // For e.g. INSERT, UPDATE, DELETE, SYNC
+            // For e.g. SYNC, INSERT, UPDATE, DELETE
             String messageTopicAction = messageTopicParts[2];
 
             switch (messageMainTopic) {
-                case JeroMQPublisher.TOPIC_PREFIX_BFT:
-                    storeBFTMessage(messageContent);
-                    break;
                 case JeroMQPublisher.TOPIC_PREFIX_USER:
                     storeUserMessage(messageContent, messageTopicAction);
+                    break;
+                case JeroMQPublisher.TOPIC_PREFIX_RADIO:
+                    storeRadioMessage(messageContent, messageTopicAction);
+                    break;
+                case JeroMQPublisher.TOPIC_PREFIX_BFT:
+                    storeBFTMessage(messageContent);
                     break;
                 case JeroMQPublisher.TOPIC_PREFIX_SITREP:
                     storeSitRepMessage(messageContent, messageTopicAction);
@@ -109,6 +114,94 @@ public class JeroMQSubscriberRunnable implements Runnable {
 //        case JeroMQPublisher.TOPIC_PREFIX_BFT_SYNC:
 //        databaseOperation.insertBFTIntoDatabase(sitRepRepo, sitRepModel);
 //        break;
+    }
+
+    /**
+     * Stores/updates/deletes/synchronises incoming WaveRelay Radio JSON messages
+     * from other devices into local database
+     *
+     * @param jsonMsg
+     */
+    private void storeRadioMessage(String jsonMsg, String messageTopicAction) {
+        Log.i(TAG, "storeRadioMessage jsonMsg: " + jsonMsg);
+
+        if (MainApplication.getAppContext() instanceof Application) {
+            DatabaseOperation databaseOperation = new DatabaseOperation();
+            WaveRelayRadioRepository waveRelayRadioRepository = new
+                    WaveRelayRadioRepository((Application) MainApplication.getAppContext());
+            Gson gson = GsonCreator.createGson();
+            WaveRelayRadioModel waveRelayRadioModel = gson.fromJson(jsonMsg,
+                    WaveRelayRadioModel.class);
+
+            switch (messageTopicAction) {
+                case JeroMQPublisher.TOPIC_SYNC:
+                    Log.i(TAG, "storeRadioMessage sync");
+                    handleRadioDataSync(databaseOperation, waveRelayRadioRepository,
+                            waveRelayRadioModel);
+                    break;
+                case JeroMQPublisher.TOPIC_INSERT:
+                    Log.i(TAG, "storeRadioMessage insert");
+                    databaseOperation.insertRadioIntoDatabase(waveRelayRadioRepository,
+                            waveRelayRadioModel);
+                    break;
+                case JeroMQPublisher.TOPIC_UPDATE:
+                    Log.i(TAG, "storeRadioMessage update");
+                    databaseOperation.updateRadioInDatabase(waveRelayRadioRepository,
+                            waveRelayRadioModel);
+                    break;
+                case JeroMQPublisher.TOPIC_DELETE:
+                    Log.i(TAG, "storeRadioMessage delete");
+                    databaseOperation.deleteRadioInDatabase(waveRelayRadioRepository,
+                            waveRelayRadioModel.getRadioId());
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Handles incoming WaveRelayRadioModel model for Synchronisation
+     *
+     * @param databaseOperation
+     * @param waveRelayRadioRepository
+     * @param waveRelayRadioModel
+     */
+    private void handleRadioDataSync(DatabaseOperation databaseOperation,
+                                     WaveRelayRadioRepository waveRelayRadioRepository,
+                                     WaveRelayRadioModel waveRelayRadioModel) {
+        /**
+         * Query for WaveRelayRadio model from database with id of received WaveRelayRadio model.
+         *
+         * If model exists in database, result will return a valid User model
+         * Else, result will return NULL.
+         *
+         * If result returns a valid WaveRelayRadio model, update returned WaveRelayRadio model with
+         * received WaveRelayRadio model
+         * Else, insert received WaveRelayRadio model into database.
+         */
+        SingleObserver<WaveRelayRadioModel> singleObserverSyncRadio = new SingleObserver<WaveRelayRadioModel>() {
+            @Override
+            public void onSubscribe(Disposable d) {}
+
+            @Override
+            public void onSuccess(WaveRelayRadioModel matchedWaveRelayRadioModel) {
+                if (matchedWaveRelayRadioModel == null) {
+                    Log.d(TAG, "Inserting new WaveRelay Radio model from synchronisation...");
+                    databaseOperation.insertRadioIntoDatabase(waveRelayRadioRepository, waveRelayRadioModel);
+                } else {
+                    Log.d(TAG, "Updating WaveRelay Radio model from synchronisation...");
+                    databaseOperation.updateRadioInDatabase(waveRelayRadioRepository, waveRelayRadioModel);
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "onError singleObserverSyncRadio, handleRadioDataSync. " +
+                        "Error Msg: " + e.toString());
+            }
+        };
+
+        databaseOperation.queryRadioByRadioIdInDatabase(waveRelayRadioRepository,
+                waveRelayRadioModel.getRadioId(), singleObserverSyncRadio);
     }
 
     /**
@@ -169,8 +262,8 @@ public class JeroMQSubscriberRunnable implements Runnable {
             public void onSubscribe(Disposable d) {}
 
             @Override
-            public void onSuccess(UserModel userModel) {
-                if (userModel == null) {
+            public void onSuccess(UserModel matchedUserModel) {
+                if (matchedUserModel == null) {
                     Log.d(TAG, "Inserting new User model from synchronisation...");
                     databaseOperation.insertUserIntoDatabase(userRepo, userModel);
                 } else {
@@ -247,8 +340,8 @@ public class JeroMQSubscriberRunnable implements Runnable {
             public void onSubscribe(Disposable d) {}
 
             @Override
-            public void onSuccess(SitRepModel sitRepModel) {
-                if (sitRepModel == null) {
+            public void onSuccess(SitRepModel matchedSitRepModel) {
+                if (matchedSitRepModel == null) {
                     Log.d(TAG, "Inserting new Sit Rep model from synchronisation...");
                     databaseOperation.insertSitRepIntoDatabase(sitRepRepo, sitRepModel);
                 } else {
@@ -283,19 +376,19 @@ public class JeroMQSubscriberRunnable implements Runnable {
 
             switch (messageTopicAction) {
                 case JeroMQPublisher.TOPIC_SYNC:
-                    Log.i(TAG, "storeSitRepMessage sync");
+                    Log.i(TAG, "storeTaskMessage sync");
                     handleTaskRepDataSync(databaseOperation, taskRepo, taskModel);
                     break;
                 case JeroMQPublisher.TOPIC_INSERT:
-                    Log.i(TAG, "storeSitRepMessage insert");
+                    Log.i(TAG, "storeTaskMessage insert");
                     databaseOperation.insertTaskIntoDatabase(taskRepo, taskModel);
                     break;
                 case JeroMQPublisher.TOPIC_UPDATE:
-                    Log.i(TAG, "storeSitRepMessage update");
+                    Log.i(TAG, "storeTaskMessage update");
                     databaseOperation.updateTaskInDatabase(taskRepo, taskModel);
                     break;
                 case JeroMQPublisher.TOPIC_DELETE:
-                    Log.i(TAG, "storeSitRepMessage delete");
+                    Log.i(TAG, "storeTaskMessage delete");
                     databaseOperation.deleteTaskInDatabase(taskRepo, taskModel.getRefId());
                     break;
             }
@@ -326,8 +419,8 @@ public class JeroMQSubscriberRunnable implements Runnable {
             }
 
             @Override
-            public void onSuccess(TaskModel taskModel) {
-                if (taskModel == null) {
+            public void onSuccess(TaskModel matchedTaskModel) {
+                if (matchedTaskModel == null) {
                     Log.d(TAG, "Inserting new Task model from synchronisation...");
                     databaseOperation.insertTaskIntoDatabase(taskRepo, taskModel);
                 } else {
@@ -353,6 +446,8 @@ public class JeroMQSubscriberRunnable implements Runnable {
      */
     private void subscribeTopics(ZMQ.Socket socket) {
         socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_BFT.getBytes());
+        socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_USER.getBytes());
+        socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_RADIO.getBytes());
         socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_SITREP.getBytes());
         socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_TASK.getBytes());
     }

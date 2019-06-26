@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
+import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.util.GsonCreator;
 
 public class JeroMQBroadcastOperation {
@@ -25,6 +26,8 @@ public class JeroMQBroadcastOperation {
 
         if (model instanceof UserModel) {
             JeroMQPublisher.getInstance().sendUserMessage(modelJson, JeroMQPublisher.TOPIC_INSERT);
+        } else if (model instanceof WaveRelayRadioModel) {
+            JeroMQPublisher.getInstance().sendWaveRelayRadioMessage(modelJson, JeroMQPublisher.TOPIC_INSERT);
         } else if (model instanceof SitRepModel) {
             JeroMQPublisher.getInstance().sendSitRepMessage(modelJson, JeroMQPublisher.TOPIC_INSERT);
         } else if (model instanceof TaskModel) {
@@ -44,6 +47,8 @@ public class JeroMQBroadcastOperation {
 
         if (model instanceof UserModel) {
             JeroMQPublisher.getInstance().sendUserMessage(modelJson, JeroMQPublisher.TOPIC_UPDATE);
+        } else if (model instanceof WaveRelayRadioModel) {
+            JeroMQPublisher.getInstance().sendWaveRelayRadioMessage(modelJson, JeroMQPublisher.TOPIC_UPDATE);
         } else if (model instanceof SitRepModel) {
             JeroMQPublisher.getInstance().sendSitRepMessage(modelJson, JeroMQPublisher.TOPIC_UPDATE);
         } else if (model instanceof TaskModel) {

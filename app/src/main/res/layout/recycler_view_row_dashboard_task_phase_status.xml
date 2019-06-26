@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/elements_small_margin_spacing"
+    android:layout_marginBottom="@dimen/elements_small_margin_spacing"
+    android:orientation="horizontal">
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+        android:id="@+id/tv_dashboard_task_phase_status_team"
+        android:layout_width="@dimen/dashboard_sitrep_personnel_status_team_container_width"
+        android:layout_height="wrap_content"
+        android:textColor="@color/primary_white"
+        android:textSize="@dimen/text_view_small_text_size" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+        android:id="@+id/tv_dashboard_task_phase_status_phase_one"
+        android:layout_width="@dimen/dashboard_task_phase_status_phase_container_width"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/task_status_in_progress"
+        android:textColor="@color/primary_white"
+        android:textSize="@dimen/text_view_small_text_size" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+        android:id="@+id/tv_dashboard_task_phase_status_phase_two"
+        android:layout_width="@dimen/dashboard_task_phase_status_phase_container_width"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/task_status_in_progress"
+        android:textColor="@color/primary_white"
+        android:textSize="@dimen/text_view_small_text_size" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+        android:id="@+id/tv_dashboard_task_phase_status_phase_three"
+        android:layout_width="@dimen/dashboard_task_phase_status_phase_container_width"
+        android:layout_height="wrap_content"
+        android:text="@string/task_status_in_progress"
+        android:gravity="center_horizontal"
+        android:textColor="@color/primary_white"
+        android:textSize="@dimen/text_view_small_text_size" />
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+        android:id="@+id/tv_dashboard_task_phase_status_phase_four"
+        android:layout_width="@dimen/dashboard_task_phase_status_phase_container_width"
+        android:layout_height="wrap_content"
+        android:text="@string/task_status_in_progress"
+        android:gravity="center_horizontal"
+        android:textColor="@color/primary_white"
+        android:textSize="@dimen/text_view_small_text_size" />
+</LinearLayout>

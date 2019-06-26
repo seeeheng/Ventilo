@@ -3,7 +3,7 @@ package sg.gov.dsta.mobileC3.ventilo.util.task;
 import java.util.HashMap;
 
 public enum ERadioConnectionStatus {
-    ONLINE("Online"), OFFLINE("Offline");
+    CONNECTED("Connected"), DISCONNECTED("Disconnected"), ONLINE("Online"), OFFLINE("Offline");
 
     public static HashMap<String, ERadioConnectionStatus> statusMapping = new HashMap<>();
     private final String name;

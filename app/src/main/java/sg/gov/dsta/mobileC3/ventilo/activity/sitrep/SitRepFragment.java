@@ -26,28 +26,25 @@ import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.SitRepViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.task.EAccessRight;
 
 public class SitRepFragment extends Fragment {
 
     private static final String TAG = SitRepFragment.class.getSimpleName();
 
     // View Models
-//    private UserViewModel mUserViewModel;
     private SitRepViewModel mSitRepViewModel;
-//    private UserSitRepJoinViewModel mUserSitRepJoinViewModel;
 
     // Total count dashboard
     private View mLayoutTotalCountDashboard;
-    private C2OpenSansSemiBoldTextView mTvTotalCountTitle;
-    private C2OpenSansSemiBoldTextView mTvPersonnelTCountTitle;
-    private C2OpenSansSemiBoldTextView mTvPersonnelSCountTitle;
-    private C2OpenSansSemiBoldTextView mTvPersonnelDCountTitle;
     private C2OpenSansRegularTextView mTvTotalCountNumber;
     private C2OpenSansRegularTextView mTvPersonnelTCountNumber;
     private C2OpenSansRegularTextView mTvPersonnelSCountNumber;
@@ -55,11 +52,8 @@ public class SitRepFragment extends Fragment {
 
     // Add new item UI
     private View mLayoutAddNewItem;
-    private C2OpenSansRegularTextView mTvAddNewItemCategory;
 
-    private RecyclerView mRecyclerView;
     private SitRepRecyclerAdapter mRecyclerAdapter;
-    private RecyclerView.LayoutManager mRecyclerLayoutManager;
     private FloatingActionButton mFabAddSitRep;
 
     private List<SitRepModel> mSitRepListItems;
@@ -83,15 +77,15 @@ public class SitRepFragment extends Fragment {
 
         mLayoutAddNewItem = rootView.findViewById(R.id.layout_sitrep_add_new_item);
 //        mLayoutAddNewItem.setVisibility(View.GONE);
-        mTvAddNewItemCategory = mLayoutAddNewItem.findViewById(R.id.tv_add_new_item_category);
-        mTvAddNewItemCategory.setText(getString(R.string.add_new_item_sitrep));
+        C2OpenSansRegularTextView tvAddNewItemCategory = mLayoutAddNewItem.findViewById(R.id.tv_add_new_item_category);
+        tvAddNewItemCategory.setText(MainApplication.getAppContext().getString(R.string.add_new_item_sitrep));
 
-        mRecyclerView = rootView.findViewById(R.id.recycler_sitrep);
-        mRecyclerView.setHasFixedSize(true);
+        RecyclerView recyclerView = rootView.findViewById(R.id.recycler_sitrep);
+        recyclerView.setHasFixedSize(true);
 
-        mRecyclerLayoutManager = new LinearLayoutManager(getActivity());
-        mRecyclerView.setLayoutManager(mRecyclerLayoutManager);
-        mRecyclerView.addOnItemTouchListener(new SitRepRecyclerItemTouchListener(getContext(), mRecyclerView, new SitRepRecyclerItemTouchListener.OnItemClickListener() {
+        RecyclerView.LayoutManager recyclerLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(recyclerLayoutManager);
+        recyclerView.addOnItemTouchListener(new SitRepRecyclerItemTouchListener(getContext(), recyclerView, new SitRepRecyclerItemTouchListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 navigateToSitRepDetailFragment(mSitRepListItems.get(position));
@@ -118,35 +112,33 @@ public class SitRepFragment extends Fragment {
 //        setUpRecyclerData();
 
         mRecyclerAdapter = new SitRepRecyclerAdapter(getContext(), mSitRepListItems);
-        mRecyclerView.setAdapter(mRecyclerAdapter);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mRecyclerAdapter);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         // Set up floating action button
         mFabAddSitRep = rootView.findViewById(R.id.fab_sitrep_add);
-        mFabAddSitRep.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mFabAddSitRep.setEnabled(false);
 
-                Fragment sitRepAddUpdateFragment = new SitRepAddUpdateFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString(FragmentConstants.KEY_SITREP, FragmentConstants.VALUE_SITREP_ADD);
-                sitRepAddUpdateFragment.setArguments(bundle);
+        if (!EAccessRight.CCT.toString().equalsIgnoreCase(
+                SharedPreferenceUtil.getCurrentUserAccessRight())) {
+            mFabAddSitRep.show();
+            mFabAddSitRep.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mFabAddSitRep.setEnabled(false);
 
+                    Fragment sitRepAddUpdateFragment = new SitRepAddUpdateFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString(FragmentConstants.KEY_SITREP, FragmentConstants.VALUE_SITREP_ADD);
+                    sitRepAddUpdateFragment.setArguments(bundle);
 
-                navigateToFragment(sitRepAddUpdateFragment);
-
-//                FragmentManager fm = getActivity().getSupportFragmentManager();
-//                FragmentTransaction ft = fm.beginTransaction();
-//                ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-//                ft.replace(R.id.layout_sitrep_fragment, sitRepAddUpdateFragment, sitRepAddUpdateFragment.getClass().getSimpleName());
-////                ft.addToBackStack(sitRepAddUpdateFragment.getClass().getSimpleName());
-//                ft.addToBackStack(null);
-//                ft.commit();
-
-                mFabAddSitRep.setEnabled(true);
+                    navigateToFragment(sitRepAddUpdateFragment);
+                }
+            });
+        } else {
+            if (mFabAddSitRep.isShown()) {
+                mFabAddSitRep.hide();
             }
-        });
+        }
 
     }
 
@@ -156,43 +148,48 @@ public class SitRepFragment extends Fragment {
      * @param layoutTotalCountView
      */
     private void initTotalCountDashboardUI(View layoutTotalCountView) {
-        mTvTotalCountTitle = layoutTotalCountView.findViewById(R.id.tv_total_count_title);
-        mTvPersonnelTCountTitle = layoutTotalCountView.findViewById(R.id.tv_first_count_title);
-        mTvPersonnelSCountTitle = layoutTotalCountView.findViewById(R.id.tv_second_count_title);
-        mTvPersonnelDCountTitle = layoutTotalCountView.findViewById(R.id.tv_third_count_title);
+        C2OpenSansSemiBoldTextView tvTotalCountTitle = layoutTotalCountView.findViewById(R.id.tv_total_count_title);
+        C2OpenSansSemiBoldTextView tvPersonnelTCountTitle = layoutTotalCountView.findViewById(R.id.tv_first_count_title);
+        C2OpenSansSemiBoldTextView tvPersonnelSCountTitle = layoutTotalCountView.findViewById(R.id.tv_second_count_title);
+        C2OpenSansSemiBoldTextView tvPersonnelDCountTitle = layoutTotalCountView.findViewById(R.id.tv_third_count_title);
 
-        mTvTotalCountTitle.setText(getString(R.string.sitrep_total_count_title));
-        mTvTotalCountTitle.setTextColor(ResourcesCompat.getColor(getResources(),
+        tvTotalCountTitle.setText(MainApplication.getAppContext().
+                getString(R.string.sitrep_total_count_title));
+        tvTotalCountTitle.setTextColor(ResourcesCompat.getColor(getResources(),
                 R.color.primary_highlight_cyan, null));
 
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
-        SpannableString personnelTitle = new SpannableString(getString(R.string.sitrep_personnel));
+        SpannableString personnelTitle = new SpannableString(MainApplication.getAppContext().
+                getString(R.string.sitrep_personnel));
         personnelTitle.setSpan(new ForegroundColorSpan(ResourcesCompat.getColor(getResources(),
                 R.color.primary_text_grey, null)), 0, personnelTitle.length(), 0);
         builder.append(personnelTitle);
         builder.append(StringUtil.SPACE);
 
         // Highlight T, S and D to cyan
-        SpannableString threatTitle = new SpannableString(getString(R.string.sitrep_T));
+        SpannableString threatTitle = new SpannableString(MainApplication.getAppContext().
+                getString(R.string.sitrep_T));
         threatTitle.setSpan(new ForegroundColorSpan(ResourcesCompat.getColor(getResources(),
                 R.color.primary_highlight_cyan, null)), 0, threatTitle.length(), 0);
         builder.append(threatTitle);
-        mTvPersonnelTCountTitle.setText(builder, C2OpenSansSemiBoldTextView.BufferType.SPANNABLE);
+        tvPersonnelTCountTitle.setText(builder, C2OpenSansSemiBoldTextView.BufferType.SPANNABLE);
         builder.delete(personnelTitle.length() + StringUtil.SPACE.length(), builder.length());
 
-        SpannableString suspectTitle = new SpannableString(getString(R.string.sitrep_S));
+        SpannableString suspectTitle = new SpannableString(MainApplication.getAppContext().
+                getString(R.string.sitrep_S));
         suspectTitle.setSpan(new ForegroundColorSpan(ResourcesCompat.getColor(getResources(),
                 R.color.primary_highlight_cyan, null)), 0, suspectTitle.length(), 0);
         builder.append(suspectTitle);
-        mTvPersonnelSCountTitle.setText(builder, C2OpenSansSemiBoldTextView.BufferType.SPANNABLE);
+        tvPersonnelSCountTitle.setText(builder, C2OpenSansSemiBoldTextView.BufferType.SPANNABLE);
         builder.delete(personnelTitle.length() + StringUtil.SPACE.length(), builder.length());
 
-        SpannableString deadTitle = new SpannableString(getString(R.string.sitrep_D));
+        SpannableString deadTitle = new SpannableString(MainApplication.getAppContext().
+                getString(R.string.sitrep_D));
         deadTitle.setSpan(new ForegroundColorSpan(ResourcesCompat.getColor(getResources(),
                 R.color.primary_highlight_cyan, null)), 0, deadTitle.length(), 0);
         builder.append(deadTitle);
-        mTvPersonnelDCountTitle.setText(builder, C2OpenSansSemiBoldTextView.BufferType.SPANNABLE);
+        tvPersonnelDCountTitle.setText(builder, C2OpenSansSemiBoldTextView.BufferType.SPANNABLE);
 
         mTvTotalCountNumber = layoutTotalCountView.findViewById(R.id.tv_total_count_number);
         mTvPersonnelTCountNumber = layoutTotalCountView.findViewById(R.id.tv_first_count_number);
@@ -212,6 +209,7 @@ public class SitRepFragment extends Fragment {
 
     /**
      * Navigate to another fragment which displays details of selected Sit Rep
+     *
      * @param sitRepModel
      */
     private void navigateToSitRepDetailFragment(SitRepModel sitRepModel) {
@@ -297,6 +295,16 @@ public class SitRepFragment extends Fragment {
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).navigateWithAnimatedTransitionToFragment(
                     R.id.layout_sitrep_fragment, this, toFragment);
+            enableFabAddSitRep();
+        }
+    }
+
+    /**
+     * Allows other fragments to re-enable Floating Action Button
+     */
+    public void enableFabAddSitRep() {
+        if (mFabAddSitRep != null && !mFabAddSitRep.isEnabled()) {
+            mFabAddSitRep.setEnabled(true);
         }
     }
 
@@ -319,24 +327,7 @@ public class SitRepFragment extends Fragment {
     private void onVisible() {
         Log.d(TAG, "onVisible");
 
-        FragmentManager fm = getChildFragmentManager();
-        boolean isFragmentFound = false;
-
-        int count = fm.getBackStackEntryCount();
-
-        // Checks if current fragment exists in Back stack
-        for (int i = 0; i < count; i++) {
-            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
-                isFragmentFound = true;
-            }
-        }
-
-        // If not found, add to current fragment to Back stack
-        if (!isFragmentFound) {
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.addToBackStack(this.getClass().getSimpleName());
-            ft.commit();
-        }
+        enableFabAddSitRep();
     }
 
     private void onInvisible() {

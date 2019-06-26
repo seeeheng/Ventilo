@@ -3,6 +3,7 @@ package sg.gov.dsta.mobileC3.ventilo.network.jeroMQ;
 import android.util.Log;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public abstract class JeroMQParentPublisher {
@@ -13,6 +14,12 @@ public abstract class JeroMQParentPublisher {
 
     protected JeroMQParentPublisher(ExecutorService executorService) {
         this.mExecutorService = executorService;
+    }
+
+    protected void initExecutorService() {
+        if (mExecutorService.isShutdown()) {
+            mExecutorService = Executors.newSingleThreadExecutor();
+        }
     }
 
     public void start() {

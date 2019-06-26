@@ -1,16 +1,9 @@
 package sg.gov.dsta.mobileC3.ventilo.network.jeroMQ;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.AsyncTask;
-import android.os.IBinder;
 import android.util.Log;
 
-import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.network.NetworkService;
-import sg.gov.dsta.mobileC3.ventilo.network.NetworkServiceBinder;
 
 public class JeroMQAsyncTask {
 
@@ -19,17 +12,24 @@ public class JeroMQAsyncTask {
     public JeroMQAsyncTask() {}
 
     public void runJeroMQ() {
-        runJeroMQAsyncTask task =
-                new runJeroMQAsyncTask();
+        RunJeroMQAsyncTask task = new RunJeroMQAsyncTask();
         task.execute();
     }
 
-    private static class runJeroMQAsyncTask extends AsyncTask<String, Void, Void> {
+    public void stopJeroMQ() {
+        StopJeroMQAsyncTask task = new StopJeroMQAsyncTask();
+        task.execute();
+    }
 
-        runJeroMQAsyncTask() {}
+    private static class RunJeroMQAsyncTask extends AsyncTask<String, Void, Void> {
+
+        RunJeroMQAsyncTask() {}
 
         @Override
         protected Void doInBackground(final String... param) {
+//            JeroMQPublisher.getInstance().start();
+//            JeroMQSubscriber.getInstance().start();
+
             JeroMQPubSubBrokerProxy.getInstance().start();
             return null;
         }
@@ -38,6 +38,25 @@ public class JeroMQAsyncTask {
         protected void onPostExecute(Void v) {
             super.onPostExecute(v);
             Log.i(TAG, "JeroMQ started.");
+        }
+    }
+
+    private static class StopJeroMQAsyncTask extends AsyncTask<String, Void, Void> {
+
+        StopJeroMQAsyncTask() {}
+
+        @Override
+        protected Void doInBackground(final String... param) {
+//            JeroMQPublisher.getInstance().stop();
+//            JeroMQSubscriber.getInstance().stop();
+            JeroMQPubSubBrokerProxy.getInstance().stop();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+            Log.i(TAG, "JeroMQ fully stopped successfully.");
         }
     }
 }

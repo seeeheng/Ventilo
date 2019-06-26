@@ -17,7 +17,7 @@
             android:id="@+id/img_pic_within_img_btn"
             android:layout_width="@dimen/map_blueprint_btn_icon_width"
             android:layout_height="@dimen/map_blueprint_btn_icon_height"
-            android:src="@drawable/icon_kia"
+            android:src="@drawable/icon_btn_hazard"
             app:tint="@color/dull_orange" />
 
     </RelativeLayout>

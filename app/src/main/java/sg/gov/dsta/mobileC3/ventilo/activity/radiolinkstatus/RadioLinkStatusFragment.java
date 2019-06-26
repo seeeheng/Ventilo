@@ -89,7 +89,7 @@ public class RadioLinkStatusFragment extends Fragment {
         if (mRadioLinkStatusUserListItems != null) {
             // Extracts list of radio connection status from UserModel
             List<String> radioConnectionStatusList = mRadioLinkStatusUserListItems.stream().map(
-                UserModel -> UserModel.getRadioConnectionStatus()).collect(Collectors.toList());
+                UserModel -> UserModel.getRadioFullConnectionStatus()).collect(Collectors.toList());
 
             // Get count of number of users offline and online before displaying count
             long noOfUsersOffline = radioConnectionStatusList.stream().filter(status ->
@@ -157,24 +157,24 @@ public class RadioLinkStatusFragment extends Fragment {
     private void onVisible() {
         Log.d(TAG, "onVisible");
 
-        FragmentManager fm = getChildFragmentManager();
-        boolean isFragmentFound = false;
-
-        int count = fm.getBackStackEntryCount();
-
-        // Checks if current fragment exists in Back stack
-        for (int i = 0; i < count; i++) {
-            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
-                isFragmentFound = true;
-            }
-        }
-
-        // If not found, add to current fragment to Back stack
-        if (!isFragmentFound) {
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.addToBackStack(this.getClass().getSimpleName());
-            ft.commit();
-        }
+//        FragmentManager fm = getChildFragmentManager();
+//        boolean isFragmentFound = false;
+//
+//        int count = fm.getBackStackEntryCount();
+//
+//        // Checks if current fragment exists in Back stack
+//        for (int i = 0; i < count; i++) {
+//            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
+//                isFragmentFound = true;
+//            }
+//        }
+//
+//        // If not found, add current fragment to Back stack
+//        if (!isFragmentFound) {
+//            FragmentTransaction ft = fm.beginTransaction();
+//            ft.addToBackStack(this.getClass().getSimpleName());
+//            ft.commit();
+//        }
     }
 
     private void onInvisible() {
@@ -198,8 +198,8 @@ public class RadioLinkStatusFragment extends Fragment {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onStart() {
+        super.onStart();
 
         if (mIsFragmentVisibleToUser) {
             onVisible();
@@ -207,11 +207,11 @@ public class RadioLinkStatusFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onStop() {
+        super.onStop();
 
         if (mIsFragmentVisibleToUser) {
-            onVisible();
+            onInvisible();
         }
     }
 }

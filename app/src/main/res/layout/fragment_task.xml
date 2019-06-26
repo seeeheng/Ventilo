@@ -34,6 +34,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="@dimen/horizontal_2nd_level_margin"
             android:src="@drawable/fab_add"
+            android:visibility="gone"
             app:fabSize="mini" />
 
     </RelativeLayout>

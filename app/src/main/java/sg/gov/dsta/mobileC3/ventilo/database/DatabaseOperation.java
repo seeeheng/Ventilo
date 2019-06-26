@@ -8,19 +8,26 @@ import java.util.stream.Collectors;
 
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
+import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserSitRepJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
+import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
+import sg.gov.dsta.mobileC3.ventilo.repository.BFTRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.SitRepRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.TaskRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserSitRepJoinRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserTaskJoinRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.VideoStreamRepository;
+import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
+import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.DatabaseTableConstants;
 
@@ -31,7 +38,7 @@ public class DatabaseOperation {
     public DatabaseOperation() {
     }
 
-    /* -------------------- User -------------------- */
+    /* ---------------------------------------- User ---------------------------------------- */
 
     /**
      * Retrieve all Users from database
@@ -86,7 +93,76 @@ public class DatabaseOperation {
         userRepo.deleteUser(userId);
     }
 
-    /* -------------------- Video Stream -------------------- */
+    /* ---------------------------------------- Radio ---------------------------------------- */
+
+    /**
+     * Retrieve all WaveRelay Radios from database
+     *
+     * @param waveRelayRadioRepo
+     * @param singleObserver
+     */
+    public void getAllRadiosFromDatabase(WaveRelayRadioRepository waveRelayRadioRepo,
+                                        SingleObserver<List<WaveRelayRadioModel>> singleObserver) {
+        waveRelayRadioRepo.getAllWaveRelayRadios(singleObserver);
+    }
+
+    /**
+     * Obtain WaveRelay Radio by userId from database
+     *
+     * @param waveRelayRadioRepo
+     * @param radioId
+     * @param singleObserver
+     */
+    public void queryRadioByRadioIdInDatabase(WaveRelayRadioRepository waveRelayRadioRepo, long radioId,
+                                            SingleObserver<WaveRelayRadioModel> singleObserver) {
+        waveRelayRadioRepo.queryRadioByRadioId(radioId, singleObserver);
+    }
+
+    /**
+     * Insertion of WaveRelay Radio model into database
+     *
+     * @param waveRelayRadioRepo
+     * @param waveRelayRadioModel
+     */
+    public void insertRadioIntoDatabase(WaveRelayRadioRepository waveRelayRadioRepo,
+                                        WaveRelayRadioModel waveRelayRadioModel) {
+        waveRelayRadioRepo.insertWaveRelayRadio(waveRelayRadioModel);
+    }
+
+    /**
+     * Update of WaveRelay Radio model in database
+     *
+     * @param waveRelayRadioRepo
+     * @param waveRelayRadioModel
+     */
+    public void updateRadioInDatabase(WaveRelayRadioRepository waveRelayRadioRepo,
+                                     WaveRelayRadioModel waveRelayRadioModel) {
+        waveRelayRadioRepo.updateWaveRelayRadio(waveRelayRadioModel);
+    }
+
+    /**
+     * Deletion of WaveRelay Radio model in database
+     *
+     * @param waveRelayRadioRepo
+     * @param radioId
+     */
+    public void deleteRadioInDatabase(WaveRelayRadioRepository waveRelayRadioRepo, long radioId) {
+        waveRelayRadioRepo.deleteWaveRelayRadio(radioId);
+    }
+
+    /* ---------------------------------------- BFT ---------------------------------------- */
+
+    /**
+     * Insertion of BFT model into database
+     *
+     * @param bFTRepo
+     * @param bFTModel
+     */
+    public void insertBFTIntoDatabase(BFTRepository bFTRepo, BFTModel bFTModel) {
+        bFTRepo.insertBFT(bFTModel);
+    }
+
+    /* ---------------------------------------- Video Stream ---------------------------------------- */
 
     /**
      * Retrieve all Video Stream from database
@@ -132,7 +208,7 @@ public class DatabaseOperation {
         videoStreamRepo.deleteVideoStream(videoStreamId);
     }
 
-    /* -------------------- Sit Rep -------------------- */
+    /* ---------------------------------------- Sit Rep ---------------------------------------- */
 
     /**
      * Retrieve all Sit Reps from database
@@ -210,6 +286,66 @@ public class DatabaseOperation {
      */
     public void updateSitRepInDatabase(SitRepRepository sitRepRepo, SitRepModel sitRepModel) {
         sitRepRepo.updateSitRepByRefId(sitRepModel);
+
+        // If RefId is local refId, it means that received sitRepModel is from original creator
+        // i.e.  Team Alpha Lead originally creates a sit rep, and updates own sit rep info thereafter
+        if (sitRepModel.getRefId() == DatabaseTableConstants.LOCAL_REF_ID) {
+            sitRepRepo.updateSitRepByRefId(sitRepModel);
+        } else {    // Else received updated sitRepModel may not be from original creator,
+                    // but from a Team Lead who updated his sit rep details and sends this update to 2 users:
+                    // 1) CCT
+                    // 2) Other Team Leads
+                    //
+                    // Hence, to handle each user recipient, the following is to be done:
+                    // 1) For CCT - check if received RefId sitRepModel is
+                    // the same as a TaskId in his own sit rep list database, and update his own sitRepModel
+                    // 2) For other Team Leads - received RefId sitRepModel is
+                    // the same as a RefId in his own task list database, and update this sitRepModel
+
+            SingleObserver<List<SitRepModel>> singleObserverGetAllSitReps = new SingleObserver<List<SitRepModel>>() {
+                @Override
+                public void onSubscribe(Disposable d) {}
+
+                @Override
+                public void onSuccess(List<SitRepModel> sitRepModelList) {
+                    Log.d(TAG, "onSuccess singleObserverGetAllSitReps, " +
+                            "updateSitRepInDatabase. " +
+                            "sitRepModelList.size(): " + sitRepModelList.size());
+
+                    // Extracts a list of all Ref Id from the list of all SitRepModel objects
+                    // Finds a match between receiving model's RefId and own model's id from local database
+                    boolean isMatchedIdFound = sitRepModelList.stream().map(
+                            SitRepModel -> SitRepModel.getId()).anyMatch(id -> id == sitRepModel.getRefId());
+
+                    // Extracts a list of all Ref Id from the list of all SitRepModel objects
+                    // Finds a match between receiving model's RefId and own model's RefId from local database
+                    boolean isMatchedRefIdFound = sitRepModelList.stream().map(
+                            SitRepModel -> SitRepModel.getRefId()).anyMatch(refId -> refId == sitRepModel.getRefId());
+
+                    // Set received task model's id to its own refId
+                    // For both CCT and Team Lead recipients for update purpose
+                    sitRepModel.setId(sitRepModel.getRefId());
+
+                    if (isMatchedIdFound) {
+                        // Set refId to be local refId (-1) as current user is original creator
+                        sitRepModel.setRefId(DatabaseTableConstants.LOCAL_REF_ID);
+                        sitRepRepo.updateSitRep(sitRepModel);
+                    } else if (isMatchedRefIdFound) {
+                        // Update based on RefId with updated received id
+                        sitRepRepo.updateSitRepByRefId(sitRepModel);
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    Log.d(TAG, "onError singleObserverGetAllSitReps, updateSitRepInDatabase. " +
+                            "Error Msg: " + e.toString());
+                }
+            };
+
+            sitRepRepo.getAllSitReps(singleObserverGetAllSitReps);
+        }
+
     }
 
     /**
@@ -222,7 +358,7 @@ public class DatabaseOperation {
         sitRepRepo.deleteSitRepByRefId(sitRepId);
     }
 
-    /* -------------------- Task -------------------- */
+    /* ---------------------------------------- Task ---------------------------------------- */
 
     /**
      * Retrieve all Tasks from database
@@ -292,6 +428,55 @@ public class DatabaseOperation {
     }
 
     /**
+     * Insertion of TaskModel into database and broadcasts to other devices
+     *
+     * @param taskModel
+     */
+    public void insertTaskIntoDatabaseAndBroadcast(TaskRepository taskRepo, TaskModel taskModel) {
+
+        SingleObserver<Long> singleObserverAddTask = new SingleObserver<Long>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                // add it to a CompositeDisposable
+            }
+
+            @Override
+            public void onSuccess(Long taskId) {
+                Log.d(TAG, "onSuccess singleObserverAddTask, " +
+                        "insertTaskIntoDatabaseAndBroadcast. " +
+                        "TaskId: " + taskId);
+
+                taskModel.setRefId(taskId);
+                taskRepo.updateTask(taskModel);
+
+                UserTaskJoinRepository userTaskJoinRepository = new
+                        UserTaskJoinRepository((Application) MainApplication.getAppContext());
+
+                // AssignedTo is used as userId(s) for UserTaskJoin composite table in local database
+                // Create row for UserTaskJoin with userId and taskId
+                String assignedToGroup = taskModel.getAssignedTo();
+                String[] assignedToGroupsArray = StringUtil.removeCommasAndExtraSpaces(assignedToGroup);
+                for (int i = 0; i < assignedToGroupsArray.length; i++) {
+                    UserTaskJoinModel userTaskJoinModel = new
+                            UserTaskJoinModel(assignedToGroupsArray[i].trim(), taskId);
+                    userTaskJoinRepository.addUserTaskJoin(userTaskJoinModel);
+                }
+
+                // Send newly created Task model to all other devices
+                JeroMQBroadcastOperation.broadcastDataInsertionOverSocket(taskModel);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "onError singleObserverAddTask, insertTaskIntoDatabaseAndBroadcast. " +
+                        "Error Msg: " + e.toString());
+            }
+        };
+
+        taskRepo.insertTaskWithObserver(taskModel, singleObserverAddTask);
+    }
+
+    /**
      * Update of TaskModel in database
      *
      * @param taskRepo
@@ -299,11 +484,10 @@ public class DatabaseOperation {
      */
     public void updateTaskInDatabase(TaskRepository taskRepo, TaskModel taskModel) {
         // If RefId is local refId, it means that received taskModel is from original creator
-        // i.e. CCT originally creates a task, and updates task info thereafter,
-        // where current user (e.g. Team Lead) receives it
+        // i.e. CCT originally creates a task, and updates his own task info thereafter
         if (taskModel.getRefId() == DatabaseTableConstants.LOCAL_REF_ID) {
             taskRepo.updateTaskByRefId(taskModel);
-        } else {    // Else received taskModel is not from original creator,
+        } else {    // Else received taskModel may not be from original creator,
                     // but from a Team Lead who updated his task status and sends this update to 2 users:
                     // 1) CCT (for viewing in Tasks and Timeline)
                     // 2) Other Team Leads (for viewing in Timeline)
@@ -316,8 +500,7 @@ public class DatabaseOperation {
 
             SingleObserver<List<TaskModel>> singleObserverGetAllTasks = new SingleObserver<List<TaskModel>>() {
                 @Override
-                public void onSubscribe(Disposable d) {
-                }
+                public void onSubscribe(Disposable d) {}
 
                 @Override
                 public void onSuccess(List<TaskModel> taskModelList) {
@@ -350,7 +533,6 @@ public class DatabaseOperation {
                     // For CCT
                     if (isMatchedIdFound) {
                         // Set refId to be local refId (-1) as current user is original creator
-                        taskModel.setId(taskModel.getRefId());
                         taskModel.setRefId(DatabaseTableConstants.LOCAL_REF_ID);
                         taskRepo.updateTask(taskModel);
                     } else if (isMatchedRefIdFound) { // For Team Leads
@@ -367,7 +549,6 @@ public class DatabaseOperation {
             };
 
             taskRepo.getAllTasks(singleObserverGetAllTasks);
-
         }
     }
 

@@ -2,17 +2,18 @@ package sg.gov.dsta.mobileC3.ventilo.util.constant;
 
 public class SharedPreferenceConstants {
 //    public static final String TITLE = "VentiloPref";
-    public static final String ACCESS_TOKEN = "AccessToken";
+    public static final String ACCESS_TOKEN = "Access Token";
     public static final String USER_ID = "UserID";
-    public static final String ACCESS_RIGHT = "AccessRight";
-    public static final int DEFAULT_INT = 0;
+    public static final String USER_DEVICE_IP_ADDRESS = "User Device IP Address";
+    public static final String USER_TEAM = "User Team";
+    public static final String ACCESS_RIGHT = "Access Right";
     public static final String DEFAULT_STRING = "";
     public static final String SEPARATOR = "_";
 
     // Standard Format is (Team of User)_(Callsign of User)_(Main Header)_(Task Number)_(Sub Header)
     // E.g. 1_Alpha_Task_1_Title
     public static final String TEAM_NUMBER = "1";
-    public static String CALLSIGN_USER = "Call Sign";
+    public static String USER_CALLSIGN = "Call Sign";
     public static String DEFAULT_CALLSIGN_USER = "A11";
 
     public static String INITIALS = TEAM_NUMBER.concat(SEPARATOR).concat(DEFAULT_CALLSIGN_USER);

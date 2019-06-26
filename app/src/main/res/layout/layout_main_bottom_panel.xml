@@ -44,7 +44,7 @@
                 android:layout_width="@dimen/bottom_panel_radio_link_status_icon_width"
                 android:layout_height="@dimen/bottom_panel_radio_link_status_icon_height"
                 android:layout_gravity="center_vertical"
-                app:srcCompat="@drawable/icon_radio_link_status_online" />
+                app:srcCompat="@drawable/icon_online" />
 
             <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
                 android:id="@+id/tv_bottom_panel_radio_link_status"
@@ -123,15 +123,28 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
+            android:background="@drawable/bottom_panel_subcomponent_background"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/elements_small_margin_spacing"
+            android:paddingEnd="@dimen/elements_small_margin_spacing">
 
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/img_bottom_panel_settings_icon"
-                android:layout_width="@dimen/bottom_panel_settings_icon_width"
-                android:layout_height="@dimen/bottom_panel_settings_icon_height"
+                android:layout_width="@dimen/bottom_panel_settings_component_width"
+                android:layout_height="@dimen/bottom_panel_settings_component_height"
                 android:scaleType="fitCenter"
                 android:src="@drawable/icon_settings" />
+
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
+                android:id="@+id/tv_bottom_panel_settings_text"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/bottom_panel_settings_component_height"
+                android:layout_marginStart="@dimen/elements_small_margin_spacing"
+                android:gravity="center_vertical"
+                android:text="@string/settings_label"
+                android:textColor="@color/primary_white"
+                android:textSize="@dimen/text_view_small_text_size" />
 
         </LinearLayout>
 

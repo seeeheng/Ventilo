@@ -29,6 +29,9 @@ public interface UserDao {
     @Query("SELECT * FROM User")
     LiveData<List<UserModel>> getAllUsersLiveData();
 
+    @Query("SELECT * FROM User WHERE userId = :userId")
+    LiveData<UserModel> getCurrentUserLiveData(String userId);
+
     @Query("SELECT * FROM User")
     List<UserModel> getAllUsers();
 
@@ -37,4 +40,7 @@ public interface UserDao {
 
     @Query("SELECT * FROM User WHERE accessToken = :accessToken")
     Single<UserModel> getUserByAccessToken(String accessToken);
+
+    @Query("SELECT * FROM User WHERE userId = :userId")
+    Single<UserModel> getUserByUserIP(String userId);
 }

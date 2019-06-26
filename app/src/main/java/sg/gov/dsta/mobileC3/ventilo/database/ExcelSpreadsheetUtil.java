@@ -32,6 +32,7 @@ import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.repository.SitRepRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.TaskRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserRepository;
@@ -261,7 +262,8 @@ public class ExcelSpreadsheetUtil {
                         UserRepository userRepo = new
                                 UserRepository((Application) MainApplication.getAppContext());
                         databaseOperation.insertUserIntoDatabase(userRepo, userModel);
-                        Log.i(TAG, "storeDataModelsIntoDatabase new User inserted.");
+                        JeroMQBroadcastOperation.broadcastDataInsertionOverSocket(userModel);
+                        Log.i(TAG, "storeDataModelsIntoDatabase new User inserted and broadcasted.");
                     }
                 }
                 break;
@@ -277,7 +279,8 @@ public class ExcelSpreadsheetUtil {
                         VideoStreamRepository videoStreamRepo = new
                                 VideoStreamRepository((Application) MainApplication.getAppContext());
                         databaseOperation.insertVideoStreamIntoDatabase(videoStreamRepo, videoStreamModel);
-                        Log.i(TAG, "storeDataModelsIntoDatabase new Video Stream inserted.");
+                        JeroMQBroadcastOperation.broadcastDataInsertionOverSocket(videoStreamModel);
+                        Log.i(TAG, "storeDataModelsIntoDatabase new Video Stream inserted and broadcasted.");
                     }
                 }
                 break;
@@ -293,7 +296,8 @@ public class ExcelSpreadsheetUtil {
                         SitRepRepository sitRepRepo = new
                                 SitRepRepository((Application) MainApplication.getAppContext());
                         databaseOperation.insertSitRepIntoDatabase(sitRepRepo, sitRepModel);
-                        Log.i(TAG, "storeDataModelsIntoDatabase new Sit Rep inserted.");
+                        JeroMQBroadcastOperation.broadcastDataInsertionOverSocket(sitRepModel);
+                        Log.i(TAG, "storeDataModelsIntoDatabase new Sit Rep inserted and broadcasted.");
                     }
                 }
                 break;
@@ -307,8 +311,9 @@ public class ExcelSpreadsheetUtil {
 
                     if (taskModel != null) {
                         TaskRepository taskRepo = new TaskRepository((Application) MainApplication.getAppContext());
-                        databaseOperation.insertTaskIntoDatabase(taskRepo, taskModel);
-                        Log.i(TAG, "storeDataModelsIntoDatabase new Task inserted.");
+                        databaseOperation.insertTaskIntoDatabaseAndBroadcast(taskRepo, taskModel);
+
+                        Log.i(TAG, "storeDataModelsIntoDatabase new Task inserted and broadcasted.");
                     }
                 }
                 break;
@@ -327,9 +332,9 @@ public class ExcelSpreadsheetUtil {
     private static boolean isRowEmpty(Row row) {
         boolean isEmpty = true;
         DataFormatter dataFormatter = new DataFormatter();
-        if(row != null) {
-            for(Cell cell: row) {
-                if(dataFormatter.formatCellValue(cell).trim().length() > 0) {
+        if (row != null) {
+            for (Cell cell : row) {
+                if (dataFormatter.formatCellValue(cell).trim().length() > 0) {
                     isEmpty = false;
                     break;
                 }
@@ -403,7 +408,9 @@ public class ExcelSpreadsheetUtil {
                 userModel.setAccessToken(StringUtil.INVALID_STRING);
                 userModel.setTeam(dataFields.get(2).toString());
                 userModel.setRole(dataFields.get(3).toString());
-                userModel.setRadioConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
+                userModel.setPhoneToRadioConnectionStatus(ERadioConnectionStatus.DISCONNECTED.toString());
+                userModel.setRadioToNetworkConnectionStatus(ERadioConnectionStatus.DISCONNECTED.toString());
+                userModel.setRadioFullConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
                 userModel.setLastKnownOnlineDateTime(StringUtil.INVALID_STRING);
 
             } else {
@@ -752,27 +759,35 @@ public class ExcelSpreadsheetUtil {
 
                 taskModel.setAdHocTaskPriority(adHocTaskPriority);
 
+                taskModel.setAssignedTo(dataFields.get(2).toString());
+
                 String assignedTo = dataFields.get(2).toString();
+                String[] assignedToStrArray = StringUtil.removeCommasAndExtraSpaces(assignedTo);
 
-                if (StringUtil.INVALID_STRING.equalsIgnoreCase(dataFields.get(2).toString())) {
-                    taskModel.setAssignedTo(StringUtil.EMPTY_STRING);
-                    taskModel.setStatus(StringUtil.EMPTY_STRING);
-                } else {
-                    String[] assignedToStrArray = StringUtil.removeCommasAndExtraSpaces(assignedTo);
+                // Status and CompletedDateTime fields
+                StringBuilder status = new StringBuilder();
+                StringBuilder completedDateTime = new StringBuilder();
+                for (int i = 0; i < assignedToStrArray.length; i++) {
 
-                    StringBuilder status = new StringBuilder();
-                    for (int i = 0; i < assignedToStrArray.length; i++) {
+                    if (StringUtil.INVALID_STRING.equalsIgnoreCase(assignedToStrArray[i])) {
+                        status.append(StringUtil.INVALID_STRING);
+                        completedDateTime.append(StringUtil.INVALID_STRING);
+                    } else {
+
                         status.append(EStatus.NEW.toString());
+                        completedDateTime.append(StringUtil.INVALID_STRING);
 
                         if (i != assignedToStrArray.length - 1) {
                             status.append(StringUtil.COMMA);
                             status.append(StringUtil.SPACE);
+                            completedDateTime.append(StringUtil.COMMA);
+                            completedDateTime.append(StringUtil.SPACE);
                         }
                     }
-
-                    taskModel.setAssignedTo(assignedTo);
-                    taskModel.setStatus(status.toString());
                 }
+
+                taskModel.setStatus(status.toString());
+                taskModel.setCompletedDateTime(completedDateTime.toString());
 
                 if (StringUtil.INVALID_STRING.equalsIgnoreCase(dataFields.get(3).toString())) {
                     taskModel.setAssignedBy(StringUtil.EMPTY_STRING);
@@ -793,7 +808,6 @@ public class ExcelSpreadsheetUtil {
                 }
 
                 taskModel.setCreatedDateTime(DateTimeUtil.getCurrentTime());
-                taskModel.setCompletedDateTime(StringUtil.INVALID_STRING);
 
             } else {
                 Log.i(TAG, "Table data from Excel does not match Task data model");
@@ -1278,7 +1292,7 @@ public class ExcelSpreadsheetUtil {
                     taskSheet = wb.createSheet(DatabaseTableConstants.TABLE_TASK);
 
                     // Generate column headings
-                    Row row = taskSheet.createRow(0 );
+                    Row row = taskSheet.createRow(0);
                     Cell c;
 
 //                    Field[] taskModelFields = DataModelUtil.getTaskModelFieldsOfExcel();

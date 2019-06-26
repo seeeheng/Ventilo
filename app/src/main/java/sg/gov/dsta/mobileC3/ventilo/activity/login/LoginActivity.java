@@ -1,23 +1,31 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.login;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.FrameLayout;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
@@ -25,48 +33,39 @@ import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
-import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.MainViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
-import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPubSubBrokerProxy;
-import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
-import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQSubscriber;
-import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQAsyncTask;
-import sg.gov.dsta.mobileC3.ventilo.repository.ExcelSpreadsheetRepository;
+import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.WaveRelayRadioViewModel;
+import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
+import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ProgressBarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackEditTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldEditTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.security.RandomString;
+import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.task.EAccessRight;
-import sg.gov.dsta.mobileC3.ventilo.util.task.ERadioConnectionStatus;
-//import sg.com.superc2.utils.GsonCreator;
-//import sg.com.superc2.utils.constants.RestConstants;
-//import sg.com.superc2.utils.rest.QueueSingleton;
-//import sg.com.superc2.utils.rest.VolleyPostBuilder;
 
-/**
- * A login screen that offers login via email/password.
- */
 public class LoginActivity extends AppCompatActivity {
 //        implements LoaderCallbacks<Cursor> {
 
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
     private static final String TAG = LoginActivity.class.getSimpleName();
 
-    private static final String USERNAME = "123";
-    private static final String USERNAME_TWO = "456";
-    private static final String USERNAME_THREE = "853";
+    // View models
     private UserViewModel mUserViewModel;
+    private WaveRelayRadioViewModel mWaveRelayRadioViewModel;
 
     // UI references
-    private FrameLayout mMainLayout;
-    private C2OpenSansBlackEditTextView mEtvUserId;
-    private C2OpenSansBlackEditTextView mEtvPassword;
-    private View mProgressView;
-    private View mLoginFormView;
+    private LinearLayout mMainLayout;
+    private C2OpenSansSemiBoldEditTextView mEtvUserId;
+    private C2OpenSansSemiBoldEditTextView mEtvPassword;
+
+    private Spinner mSpinnerRadioNo;
+    private ArrayAdapter mSpinnerRadioNoAdapter;
+    private List<WaveRelayRadioModel> mWaveRelayRadioModelList;
+
+    private ImageView mLoginBtn;
 
     // Snackbar
     private View mViewSnackbar;
@@ -74,79 +73,158 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // TODO: remove after demo
-        resetSharedPref();
-        setUpDummyUser();
-        observerSetup();
-
-//        Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
-//        startActivity(activityIntent);
-
         setContentView(R.layout.activity_login);
 
-        mMainLayout = findViewById(R.id.layout_login_activity);
+        resetSharedPref();
+//        setUpDummyUser();
+        observerSetup();
+        initUI();
         initSnackbar();
+    }
+
+    private void initUI() {
+        mMainLayout = findViewById(R.id.layout_login_activity);
 
         // Set up the login form.
-        mEtvUserId = (C2OpenSansBlackEditTextView) findViewById(R.id.etv_login_username);
-//        populateAutoComplete();
+        mEtvUserId = findViewById(R.id.etv_login_username);
+        mEtvPassword = findViewById(R.id.etv_login_password);
 
-        mEtvPassword = (C2OpenSansBlackEditTextView) findViewById(R.id.etv_login_password);
-        mEtvPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-//                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
+        mSpinnerRadioNo = findViewById(R.id.spinner_login_radio_number);
+        mSpinnerRadioNo.setOnItemSelectedListener(getRadioSpinnerItemSelectedListener);
 
-        ImageView mLoginBtn = (ImageView) findViewById(R.id.img_btn_sign_in);
+        if (mWaveRelayRadioModelList != null) {
+            mWaveRelayRadioModelList = new ArrayList<>();
+        }
+
+        mLoginBtn = findViewById(R.id.img_login_btn_login);
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                attemptLogin();
-
-                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplication());
-                SharedPreferences.Editor editor = pref.edit();
-                editor.putString(SharedPreferenceConstants.CALLSIGN_USER, mEtvUserId.getText().toString().trim());
-                editor.apply();
-
-                SharedPreferenceConstants.INITIALS = SharedPreferenceConstants.TEAM_NUMBER.
-                        concat(SharedPreferenceConstants.SEPARATOR).concat(SharedPreferenceConstants.CALLSIGN_USER);
-
-                checkIfValidUser();
+                mLoginBtn.setEnabled(false);
+                attemptLogin();
             }
         });
-
-//        mForgotPasswordTV = (C2LatoBlackTextView) findViewById(R.id.tv_login_footnote);
-//        mForgotPasswordTV.setOnClickListener(new View.OnClickListener(){
-//            public void onClick(View v){
-//                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-//                startActivity(intent);
-//            }
-//        });
-
-        mLoginFormView = findViewById(R.id.inner_login_form);
-        mProgressView = findViewById(R.id.login_progress);
-
-        // TODO: Remove after testing
-//        mPasswordET.setText("Bella@com.sg");
-//        mPasswordET.setText("pass");
     }
 
     private void initSnackbar() {
         mViewSnackbar = getLayoutInflater().inflate(R.layout.layout_custom_snackbar, null);
     }
 
+    private AdapterView.OnItemSelectedListener getRadioSpinnerItemSelectedListener =
+            new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    parent.setSelected(true);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            };
+
     private void resetSharedPref() {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = pref.edit();
         editor.clear();
         editor.apply();
+    }
+
+    private synchronized void populateAndSetRadioNoAdapterList() {
+        ProgressBarUtil.createProgressDialog(this);
+
+        SingleObserver<List<WaveRelayRadioModel>> singleObserverAllWaveRelayRadiosForUser =
+                new SingleObserver<List<WaveRelayRadioModel>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        // add it to a CompositeDisposable
+                    }
+
+                    @Override
+                    public void onSuccess(List<WaveRelayRadioModel> waveRelayRadioModelList) {
+
+                        if (waveRelayRadioModelList != null) {
+                            Log.d(TAG, "onSuccess singleObserverAllWaveRelayRadiosForUser, " +
+                                    "populateRadioNoList. " +
+                                    "waveRelayRadioModelList.size(): " + waveRelayRadioModelList.size());
+
+                            mWaveRelayRadioModelList = waveRelayRadioModelList;
+
+                            List<Long> radioNoList = waveRelayRadioModelList.stream().map(
+                                    WaveRelayRadioModel -> WaveRelayRadioModel.getRadioId()).
+                                    collect(Collectors.toList());
+
+                            ArrayList<String> radioNoStrList = new ArrayList<>();
+                            for (long radioNo : radioNoList) {
+                                radioNoStrList.add(String.valueOf(radioNo));
+                            }
+
+                            mSpinnerRadioNoAdapter = getSpinnerArrayAdapter(radioNoStrList);
+                            mSpinnerRadioNo.setAdapter(mSpinnerRadioNoAdapter);
+
+                            ProgressBarUtil.dismissProgressDialog();
+
+                        } else {
+                            Log.d(TAG, "onSuccess singleObserverAllWaveRelayRadiosForUser, " +
+                                    "populateRadioNoList. " +
+                                    "waveRelayRadioModelList is null");
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError singleObserverAllWaveRelayRadiosForUser, " +
+                                "populateRadioNoList. " +
+                                "Error Msg: " + e.toString());
+                    }
+                };
+
+        mWaveRelayRadioViewModel.getAllWaveRelayRadios(singleObserverAllWaveRelayRadiosForUser);
+    }
+
+    private ArrayAdapter<String> getSpinnerArrayAdapter(ArrayList<String> stringArrayList) {
+
+        return new ArrayAdapter<String>(this,
+                R.layout.spinner_row_item, R.id.tv_spinner_row_item_text, stringArrayList) {
+
+            @Override
+            public boolean isEnabled(int position) {
+                return true;
+            }
+
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                LinearLayout layoutSpinner = view.findViewById(R.id.layout_spinner_text_item);
+                layoutSpinner.setGravity(Gravity.END);
+                layoutSpinner.setPadding(0, 0,
+                        (int) getResources().getDimension(R.dimen.elements_large_margin_spacing), 0);
+
+                return view;
+            }
+
+            @Override
+            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+
+                // Set appropriate height for spinner items
+                DimensionUtil.setDimensions(view,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        (int) getResources().getDimension(R.dimen.spinner_broad_height),
+                        new LinearLayout(getContext()));
+
+                LinearLayout layoutSpinner = view.findViewById(R.id.layout_spinner_text_item);
+                layoutSpinner.setGravity(Gravity.CENTER);
+                layoutSpinner.setPadding(0, 0,
+                        (int) getResources().getDimension(R.dimen.elements_large_margin_spacing), 0);
+
+                TextView tv = view.findViewById(R.id.tv_spinner_row_item_text);
+                tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_white, null));
+
+                return view;
+            }
+        };
     }
 
     @Override
@@ -162,9 +240,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made. U
+     * Attempts to sign in. If there are form errors (invalid
+     * username, missing fields, etc.), errors will be presented
+     * and no actual login attempt is made.
      */
     private void attemptLogin() {
 
@@ -175,21 +253,30 @@ public class LoginActivity extends AppCompatActivity {
         // Store values at the time of the login attempt.
         String userId = mEtvUserId.getText().toString();
         String password = mEtvPassword.getText().toString();
+        boolean isRadioSelected = mSpinnerRadioNo.isSelected();
 
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
+        // Check for a valid user Id.
+        if (TextUtils.isEmpty(userId)) {
+            mEtvUserId.setError(MainApplication.getAppContext().
+                    getString(R.string.error_field_required));
+            focusView = mEtvUserId;
+            cancel = true;
+        }
+
+        // Check for a valid password
         if (TextUtils.isEmpty(password)) {
-            mEtvPassword.setError(getString(R.string.error_field_required));
+            mEtvPassword.setError(MainApplication.getAppContext().
+                    getString(R.string.error_field_required));
             focusView = mEtvPassword;
             cancel = true;
         }
 
-        // Check for a valid user Id.
-        if (TextUtils.isEmpty(userId)) {
-            mEtvUserId.setError(getString(R.string.error_field_required));
-            focusView = mEtvUserId;
+        // Check if radio number is selected
+        if (!isRadioSelected) {
+            focusView = mSpinnerRadioNo;
             cancel = true;
         }
 
@@ -197,26 +284,15 @@ public class LoginActivity extends AppCompatActivity {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
+            mLoginBtn.setEnabled(true);
         } else {
 
             // TODO: Add after design review
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-
             checkIfValidUser();
-//            LoginTx loginTx = new LoginTx(mEtvUserId.getText().toString()
-//                    , mPasswordET.getText().toString());
-//            StringRequest stringRequest = VolleyPostBuilder.getRequest(RestConstants.BASE_URL + RestConstants.POST_LOGIN, loginTx, loginListener, errorListener, getApplicationContext());
-//            QueueSingleton.getInstance(this).addToRequestQueue(stringRequest);
-//            showProgress(true);
         }
     }
-
-//    private void storeAccessToken(String userId) {
-//        RandomString randomString = new RandomString();
-//        String accessToken = randomString.nextString();
-//        saveLoginDetails(userId, accessToken);
-//    }
 
     // TODO: Add after design review
 //    Response.Listener<String> loginListener = new Response.Listener<String>() {
@@ -240,51 +316,6 @@ public class LoginActivity extends AppCompatActivity {
 //        }
 //    };
 
-//    private boolean isUsernameValid(String username) {
-////        return email.contains("@");
-//        return username.length() >= 0;
-//    }
-//
-//    private boolean isPasswordValid(String password) {
-////        return password.length() >= 4;
-//        return password.length() >= 0;
-//    }
-
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-    }
 
 //    @Override
 //    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
@@ -339,44 +370,11 @@ public class LoginActivity extends AppCompatActivity {
 //        int IS_PRIMARY = 1;
 //    }
 
-    private void setUpDummyUser() {
-        // TODO: Remove for actual deployment
-        // Added for testing; Clears all data from database
-        MainViewModel mainViewModel = new MainViewModel(getApplication());
-        mainViewModel.clearAllData();
-
-        UserViewModel userViewModel = new UserViewModel(getApplication());
-        String password = "333";
-        UserModel newUser = new UserModel(USERNAME);
-        newUser.setPassword(password);
-        newUser.setAccessToken("");
-        newUser.setTeam("Alpha");
-        newUser.setRole("Member");
-        newUser.setRadioConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
-        newUser.setLastKnownOnlineDateTime(StringUtil.INVALID_STRING);
-
-        String passwordTwo = "444";
-        UserModel newUserTwo = new UserModel(USERNAME_TWO);
-        newUserTwo.setPassword(passwordTwo);
-        newUserTwo.setAccessToken("");
-        newUserTwo.setTeam("Alpha, Bravo, Charlie, Delta, Echo, Foxtrot");
-        newUserTwo.setRole("Member");
-        newUserTwo.setRadioConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
-        newUserTwo.setLastKnownOnlineDateTime(StringUtil.INVALID_STRING);
-
-        String passwordThree = "321";
-        UserModel newUserThree = new UserModel(USERNAME_THREE);
-        newUserThree.setPassword(passwordThree);
-        newUserThree.setAccessToken("");
-        newUserThree.setTeam("Alpha, Bravo");
-        newUserThree.setRole("Member");
-        newUserThree.setRadioConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
-        newUserThree.setLastKnownOnlineDateTime(StringUtil.INVALID_STRING);
-
-        userViewModel.insertUser(newUser);
-        userViewModel.insertUser(newUserTwo);
-        userViewModel.insertUser(newUserThree);
-    }
+//    private void setUpDummyUser() {
+//        // Added for testing; Clears all data from database
+//        MainViewModel mainViewModel = new MainViewModel(getApplication());
+//        mainViewModel.clearAllData();
+//    }
 
     private void checkIfValidUser() {
         // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
@@ -384,16 +382,48 @@ public class LoginActivity extends AppCompatActivity {
         SingleObserver<UserModel> singleObserver = new SingleObserver<UserModel>() {
             @Override
             public void onSubscribe(Disposable d) {
-                // add it to a CompositeDisposable
             }
 
             @Override
             public void onSuccess(UserModel userModel) {
-                saveLoginDetails(userModel);
-//                pullDataFromExcelToDatabase();
 
-                Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(activityIntent);
+                // Successful login
+                if (mEtvPassword.getText().toString().trim().equalsIgnoreCase(userModel.getPassword())) {
+                    saveLoginDetails(userModel);
+
+                    long selectedRadioNo = Long.valueOf(mSpinnerRadioNo.getSelectedItem().toString());
+                    saveAndBroadcastRadioInfo(userModel, selectedRadioNo);
+
+                    Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
+
+                    // Transfer Radio Number to Main Activity
+                    Bundle bundle = new Bundle();
+                    bundle.putLong(MainNavigationConstants.WAVE_RELAY_RADIO_NO_KEY,
+                            selectedRadioNo);
+                    activityIntent.putExtra(MainNavigationConstants.WAVE_RELAY_RADIO_NO_BUNDLE_KEY, bundle);
+
+                    startActivity(activityIntent);
+
+//                    if (executePingCommand(ownPhoneIPAddress)) {
+//                        Toast.makeText(getApplicationContext(), "Ping Successful", Toast.LENGTH_LONG).show();
+//                    } else {
+//                        Toast.makeText(getApplicationContext(), "Ping Failed", Toast.LENGTH_LONG).show();
+//                    }
+//
+//                    String pingResult = executePingCommand(ownPhoneIPAddress);
+//                    boolean isNetOk = true;
+//                    if (pingResult == null) {
+//                        // not reachable!!!!!
+//                        isNetOk = false;
+//                    }
+//
+//                    Intent activityIntent = new Intent(getApplicationContext(), TestActivity.class);
+                } else {
+                    mEtvPassword.setError(MainApplication.getAppContext().
+                            getString(R.string.error_incorrect_password));
+                    mEtvPassword.requestFocus();
+                    mLoginBtn.setEnabled(true);
+                }
             }
 
             @Override
@@ -401,26 +431,56 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "Error adding Access Token. Error Msg: " + e.toString());
                 SnackbarUtil.showCustomInfoSnackbar(mMainLayout, mViewSnackbar,
                         getString(R.string.snackbar_login_invalid_user));
+                mLoginBtn.setEnabled(true);
             }
         };
 
         mUserViewModel.queryUserByUserId(mEtvUserId.getText().toString().trim(), singleObserver);
-//        mUserViewModel.queryUserByUserId(USERNAME, singleObserver);
     }
 
+//    private boolean executePingCommand(String ipAddr) {
+//        System.out.println("executeCommand");
+//        Runtime runtime = Runtime.getRuntime();
+//        try {
+//            Process mIpAddrProcess = runtime.exec("/system/bin/ping -c 1 " + ipAddr);
+//            int mExitValue = mIpAddrProcess.waitFor();
+//            System.out.println(" mExitValue " + mExitValue);
+//            if (mExitValue == 0) {
+//                return true;
+//            } else {
+//                return false;
+//            }
+//        } catch (InterruptedException ignore) {
+//            ignore.printStackTrace();
+//            System.out.println(" Exception:" + ignore);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            System.out.println(" Exception:" + e);
+//        }
+//        return false;
+//    }
+
+    /**
+     * Store user information with generated login access token upon successful login
+     *
+     * @param userModel
+     */
     private void saveLoginDetails(UserModel userModel) {
-        String accessToken = generateAccessToken();
+        String accessToken = StringUtil.generateRandomString();
 
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor prefsEditor = sharedPrefs.edit();
         prefsEditor.putString(SharedPreferenceConstants.USER_ID, userModel.getUserId());
-//        prefsEditor.putString(General.USER_HANDLE, userHandle);
-//        prefsEditor.putString(General.USER_RANK, userRank);
-//        prefsEditor.putString(General.REFRESH_TOKEN, refreshToken);
+        prefsEditor.putString(SharedPreferenceConstants.USER_TEAM, userModel.getTeam());
         prefsEditor.putString(SharedPreferenceConstants.ACCESS_TOKEN, accessToken);
 
-        String accessRight = EAccessRight.CCT.toString();
-//        String accessRight = EAccessRight.TEAM_LEAD.toString();
+        String accessRight;
+        if (EAccessRight.CCT.toString().equalsIgnoreCase(userModel.getRole())) {
+            accessRight = EAccessRight.CCT.toString();
+        } else {
+            accessRight = EAccessRight.TEAM_LEAD.toString();
+        }
+
         prefsEditor.putString(SharedPreferenceConstants.ACCESS_RIGHT, accessRight);
         prefsEditor.apply();
 
@@ -430,16 +490,29 @@ public class LoginActivity extends AppCompatActivity {
         mUserViewModel.updateUser(userModel);
     }
 
-    private String generateAccessToken() {
-        RandomString randomString = new RandomString();
-        return randomString.nextString();
-    }
+    /**
+     * Update radio information with userId account and broadcast updated model to other devices
+     *
+     * @param userModel
+     * @param selectedRadioNo
+     */
+    private void saveAndBroadcastRadioInfo(UserModel userModel, long selectedRadioNo) {
 
-    private void pullDataFromExcelToDatabase() {
-        Log.i(TAG, "Pulling data from Excel to Database...");
-        ExcelSpreadsheetRepository excelSpreadsheetRepository =
-                new ExcelSpreadsheetRepository();
-        excelSpreadsheetRepository.pullDataFromExcelToDatabase();
+        List<WaveRelayRadioModel> waveRelayRadioModelList = mWaveRelayRadioModelList.stream().
+                filter(waveRelayRadioModel -> waveRelayRadioModel.getRadioId()
+                        == selectedRadioNo).
+                collect(Collectors.toList());
+
+        WaveRelayRadioModel waveRelayRadioModelToUpdate = waveRelayRadioModelList.get(0);
+        waveRelayRadioModelToUpdate.setUserId(userModel.getUserId());
+
+        mWaveRelayRadioViewModel.updateWaveRelayRadio(waveRelayRadioModelToUpdate);
+
+        // Send newly created WaveRelay model to all other devices
+        JeroMQBroadcastOperation.broadcastDataUpdateOverSocket(waveRelayRadioModelToUpdate);
+
+        SharedPreferenceUtil.setSharedPreference(SharedPreferenceConstants.USER_DEVICE_IP_ADDRESS,
+                waveRelayRadioModelToUpdate.getPhoneIpAddress());
     }
 
     /**
@@ -447,76 +520,20 @@ public class LoginActivity extends AppCompatActivity {
      */
     private void observerSetup() {
         mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
-
-//        mUserViewModel.getUserByAccessTokenOrUserId().observe(this, new Observer<UserModel>() {
-//            @Override
-//            public void onChanged(@Nullable UserModel userModel) {
-//
-//            }
-//        });
+        mWaveRelayRadioViewModel = ViewModelProviders.of(this).get(WaveRelayRadioViewModel.class);
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-//    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-//
-//        private final String mEmail;
-//        private final String mPassword;
-//
-//        UserLoginTask(String email, String password) {
-//            mEmail = email;
-//            mPassword = password;
-//        }
-//
-//        @Override
-//        protected Boolean doInBackground(Void... params) {
-//            // TODO: attempt authentication against a network service.
-//
-//            try {
-//                // Simulate network access.
-//                Thread.sleep(2000);
-//            } catch (InterruptedException e) {
-//                return false;
-//            }
-//
-//            for (String credential : DUMMY_CREDENTIALS) {
-//                String[] pieces = credential.split(":");
-//                if (pieces[0].equals(mEmail)) {
-//                    // Account exists, return true if the password matches.
-//                    return pieces[1].equals(mPassword);
-//                }
-//            }
-//
-//            // TODO: register the new account here.
-//            return true;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(final Boolean success) {
-//            mAuthTask = null;
-//            showProgress(false);
-//
-//            if (success) {
-//                finish();
-//            } else {
-//                mPasswordView.setError(getString(R.string.error_incorrect_password));
-//                mPasswordView.requestFocus();
-//            }
-//        }
-//
-//        @Override
-//        protected void onCancelled() {
-//            mAuthTask = null;
-//            showProgress(false);
-//        }
-//    }
     @Override
     public void onStart() {
         super.onStart();
 
         Log.i(TAG, "onStart.");
+
+        populateAndSetRadioNoAdapterList();
+
+        if (mLoginBtn != null) {
+            mLoginBtn.setEnabled(true);
+        }
     }
 
     @Override
@@ -524,33 +541,35 @@ public class LoginActivity extends AppCompatActivity {
         super.onDestroy();
         Log.i(TAG, "Destroying Login Activity...");
 
-        /* Close service properly. Currently, the service is not destroyed, only the mqtt connection and
-         * connection status are closed.
-         */
-        synchronized (MainActivity.class) {
-            if (RabbitMQAsyncTask.mIsServiceRegistered) {
-                Log.i(TAG, "Destroying RabbitMQ...");
+        resetSharedPref();
 
-                RabbitMQAsyncTask.stopRabbitMQ();
-                Log.i(TAG, "Stopped RabbitMQ Async Task.");
-
-                stopService(MainApplication.rabbitMQIntent);
-                Log.i(TAG, "Stopped RabbitMQ Intent Service.");
-
-                MainApplication.networkService.stopSelf();
-                Log.i(TAG, "Stop RabbitMQ Network Self.");
-
-                getApplicationContext().unbindService(MainApplication.rabbitMQServiceConnection);
-                Log.i(TAG, "Unbinded RabbitMQ Service.");
-
-                JeroMQPublisher.getInstance().stop();
-                JeroMQSubscriber.getInstance().stop();
-
-                Log.i(TAG, "Stopped all JeroMQ connections.");
-                RabbitMQAsyncTask.mIsServiceRegistered = false;
-
-                JeroMQPubSubBrokerProxy.getInstance().stop();
-            }
-        }
+//        /* Close service properly. Currently, the service is not destroyed, only the mqtt connection and
+//         * connection status are closed.
+//         */
+//        synchronized (MainActivity.class) {
+//            if (RabbitMQAsyncTask.mIsServiceRegistered) {
+//                Log.i(TAG, "Destroying RabbitMQ...");
+//
+//                RabbitMQAsyncTask.stopRabbitMQ();
+//                Log.i(TAG, "Stopped RabbitMQ Async Task.");
+//
+//                stopService(MainApplication.mRabbitMQIntent);
+//                Log.i(TAG, "Stopped RabbitMQ Intent Service.");
+//
+//                MainApplication.networkService.stopSelf();
+//                Log.i(TAG, "Stop RabbitMQ Network Self.");
+//
+//                getApplicationContext().unbindService(MainApplication.rabbitMQServiceConnection);
+//                Log.i(TAG, "Unbinded RabbitMQ Service.");
+//
+//                JeroMQPublisher.getInstance().stop();
+//                JeroMQSubscriber.getInstance().stop();
+//
+//                Log.i(TAG, "Stopped all JeroMQ connections.");
+//                RabbitMQAsyncTask.mIsServiceRegistered = false;
+//
+//                JeroMQPubSubBrokerProxy.getInstance().stop();
+//            }
+//        }
     } // Stopping service sg.gov.dsta.mobileC3.ventilo/.network.NetworkService: remove task
 }

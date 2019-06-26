@@ -84,27 +84,27 @@ public class BFTLocalPreferences {
         floors.add(11, "leaflet-avatar-lateral.html");
     }
 
-    private int getOneFloorUp() {
-        if ((currentFloor + 1) < floors.size()) {
-            currentFloor = currentFloor + 1;
-        }
-        return currentFloor;
-    }
-
-    private int getOneFloorDown() {
-        if (currentFloor > 0) {
-            currentFloor = currentFloor - 1;
-        }
-        return currentFloor;
-    }
-
-    public String getNextFloorUp() {
-        return floors.get(getOneFloorUp());
-    }
-
-    public String getNextFloorDown() {
-        return floors.get(getOneFloorDown());
-    }
+//    private int getOneFloorUp() {
+//        if ((currentFloor + 1) < floors.size()) {
+//            currentFloor = currentFloor + 1;
+//        }
+//        return currentFloor;
+//    }
+//
+//    private int getOneFloorDown() {
+//        if (currentFloor > 0) {
+//            currentFloor = currentFloor - 1;
+//        }
+//        return currentFloor;
+//    }
+//
+//    public String getNextFloorUp() {
+//        return floors.get(getOneFloorUp());
+//    }
+//
+//    public String getNextFloorDown() {
+//        return floors.get(getOneFloorDown());
+//    }
 
     public String getOverview() {
         return floors.get(floors.size() - 1);

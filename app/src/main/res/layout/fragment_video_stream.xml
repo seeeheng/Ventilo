@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_video_stream_fragment"
+    android:padding="@dimen/elements_margin_spacing"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -12,72 +13,86 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="100">
 
-            <RelativeLayout
-                android:id="@+id/layout_video_stream_one_toolbar"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:id="@+id/layout_video_stream_one"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="start"
-                android:padding="@dimen/elements_margin_spacing">
+                android:orientation="vertical"
+                android:layout_weight="50">
 
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/img_btn_video_stream_setting"
-                    android:layout_width="@dimen/map_blueprint_btn_width"
-                    android:layout_height="@dimen/map_blueprint_btn_height"
-                    android:background="?android:selectableItemBackground"
-                    app:srcCompat="@drawable/btn_setting" />
-
-                <Spinner
-                    android:id="@+id/spinner_video_stream_selector_one"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:background="@drawable/spinner_rect"
-                    android:gravity="center_vertical"
-                    android:spinnerMode="dropdown" />
-
-            </RelativeLayout>
-
-            <android.support.constraint.ConstraintLayout
-                android:id="@+id/constraint_layout_video_surface_one"
-                android:layout_width="375dp"
-                android:layout_height="250dp"
-                android:layout_gravity="center"
-                android:background="@drawable/img_view_background_with_border"
-                android:foregroundGravity="clip_horizontal|clip_vertical"
-                tools:ignore="true">
-                <!--android:background="@color/image_white">-->
-
-                <!--<com.google.android.exoplayer2.ui.PlayerView-->
-                <!--android:id="@+id/video_view_stream_one_exo"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:layout_gravity="center"-->
-                <!--android:layout_margin="@dimen/thin_line_margin" />-->
-
-                <!--<ProgressBar-->
-                <!--android:id="@+id/loading"-->
-                <!--android:layout_width="70dp"-->
-                <!--android:layout_height="70dp"-->
-                <!--android:layout_gravity="center"/>-->
-
-                <TextureView
-                    android:id="@+id/texture_view_stream_one"
+                <RelativeLayout
+                    android:id="@+id/layout_video_stream_one_toolbar"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <android.support.v7.widget.AppCompatImageView
+                            android:id="@+id/img_btn_video_stream_setting"
+                            android:layout_width="@dimen/video_stream_btn_width"
+                            android:layout_height="@dimen/video_stream_btn_height"
+                            android:background="?android:selectableItemBackground"
+                            app:srcCompat="@drawable/btn_setting" />
+
+                    </RelativeLayout>
+
+                    <Spinner
+                        android:id="@+id/spinner_video_stream_selector_one"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:background="@drawable/spinner_rect"
+                        android:gravity="end"
+                        android:spinnerMode="dropdown" />
+
+                </RelativeLayout>
+
+                <android.support.constraint.ConstraintLayout
+                    android:id="@+id/constraint_layout_video_surface_one"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/video_stream_double_texture_view_height"
                     android:layout_gravity="center"
-                    android:layout_margin="@dimen/thin_line_margin" />
+                    android:layout_marginTop="@dimen/elements_margin_spacing"
+                    android:background="@drawable/img_view_background_with_border"
+                    android:foregroundGravity="clip_horizontal|clip_vertical"
+                    tools:ignore="true">
+                    <!--android:background="@color/image_white">-->
 
-                <!--<VideoView-->
-                <!--android:id="@+id/video_view_stream_one"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:layout_margin="@dimen/thin_line_margin"/>-->
+                    <!--<com.google.android.exoplayer2.ui.PlayerView-->
+                    <!--android:id="@+id/video_view_stream_one_exo"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_gravity="center"-->
+                    <!--android:layout_margin="@dimen/thin_line_margin" />-->
 
-            </android.support.constraint.ConstraintLayout>
+                    <!--<ProgressBar-->
+                    <!--android:id="@+id/loading"-->
+                    <!--android:layout_width="70dp"-->
+                    <!--android:layout_height="70dp"-->
+                    <!--android:layout_gravity="center"/>-->
 
+                    <TextureView
+                        android:id="@+id/texture_view_stream_one"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/thin_line_margin" />
+
+                    <!--<VideoView-->
+                    <!--android:id="@+id/video_view_stream_one"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_margin="@dimen/thin_line_margin"/>-->
+
+                </android.support.constraint.ConstraintLayout>
+
+            </LinearLayout>
             <!--<LinearLayout-->
             <!--android:layout_width="match_parent"-->
             <!--android:layout_height="wrap_content"-->
@@ -150,41 +165,53 @@
 
             <!--</LinearLayout>-->
 
-            <RelativeLayout
-                android:id="@+id/layout_video_stream_two_toolbar"
-                android:layout_width="match_parent"
+
+            <LinearLayout
+                android:id="@+id/layout_video_stream_two"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="start"
-                android:padding="@dimen/elements_margin_spacing">
+                android:orientation="vertical"
+                android:layout_weight="50"
+                android:layout_marginStart="@dimen/elements_margin_spacing">
 
-                <Spinner
-                    android:id="@+id/spinner_video_stream_selector_two"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:background="@drawable/spinner_rect"
-                    android:gravity="center_vertical"
-                    android:spinnerMode="dropdown" />
-
-            </RelativeLayout>
-
-            <android.support.constraint.ConstraintLayout
-                android:id="@+id/constraint_layout_video_surface_two"
-                android:layout_width="375dp"
-                android:layout_height="250dp"
-                android:layout_gravity="center"
-                android:background="@drawable/img_view_background_with_border"
-                android:foregroundGravity="clip_horizontal|clip_vertical"
-                tools:ignore="true">
-
-                <TextureView
-                    android:id="@+id/surface_view_stream_two"
+                <RelativeLayout
+                    android:id="@+id/layout_video_stream_two_toolbar"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_margin="@dimen/thin_line_margin" />
+                    android:layout_height="wrap_content"
+                    android:gravity="start">
 
-            </android.support.constraint.ConstraintLayout>
+                    <Spinner
+                        android:id="@+id/spinner_video_stream_selector_two"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:background="@drawable/spinner_rect"
+                        android:gravity="center_vertical"
+                        android:spinnerMode="dropdown" />
+
+                </RelativeLayout>
+
+                <android.support.constraint.ConstraintLayout
+                    android:id="@+id/constraint_layout_video_surface_two"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/video_stream_double_texture_view_height"
+                    android:layout_gravity="center"
+                    android:background="@drawable/img_view_background_with_border"
+                    android:foregroundGravity="clip_horizontal|clip_vertical"
+                    android:layout_marginTop="@dimen/elements_margin_spacing"
+                    tools:ignore="true">
+
+                    <TextureView
+                        android:id="@+id/surface_view_stream_two"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/thin_line_margin" />
+
+                </android.support.constraint.ConstraintLayout>
+
+            </LinearLayout>
+
         </LinearLayout>
 
     </ScrollView>

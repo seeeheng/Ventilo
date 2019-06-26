@@ -11,7 +11,7 @@
         android:id="@+id/img_radio_link_status_row_icon"
         android:layout_width="@dimen/status_link_recycler_status_icon_width"
         android:layout_height="@dimen/status_link_recycler_status_icon_height"
-        app:srcCompat="@drawable/icon_radio_link_status_offline" />
+        app:srcCompat="@drawable/icon_offline" />
 
     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
         android:id="@+id/tv_radio_link_status_row_team"

@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
@@ -40,12 +39,12 @@ public class RadioLinkStatusOfflineRecyclerAdapter extends RecyclerView.Adapter<
         UserModel userModel = mUserListItems.get(i);
 
         // Radio connection status
-        if (ERadioConnectionStatus.OFFLINE.toString().equalsIgnoreCase(userModel.getRadioConnectionStatus())) {
+        if (ERadioConnectionStatus.OFFLINE.toString().equalsIgnoreCase(userModel.getRadioFullConnectionStatus())) {
             itemViewHolder.getImgRadioLinkStatusIcon().setImageDrawable(ResourcesCompat.getDrawable(
-                    mContext.getResources(), R.drawable.icon_radio_link_status_offline, null));
+                    mContext.getResources(), R.drawable.icon_offline, null));
         } else {
             itemViewHolder.getImgRadioLinkStatusIcon().setImageDrawable(ResourcesCompat.getDrawable(
-                    mContext.getResources(), R.drawable.icon_radio_link_status_online, null));
+                    mContext.getResources(), R.drawable.icon_online, null));
         }
 
         // Team

@@ -9,4 +9,7 @@ public class MainNavigationConstants {
     public static final int SIDE_MENU_TAB_TASK_POSITION_ID = 4;
     public static final int SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID = 5;
     public static final int SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID = 6;
+
+    public static final String WAVE_RELAY_RADIO_NO_KEY = "Wave Relay Radio No";
+    public static final String WAVE_RELAY_RADIO_NO_BUNDLE_KEY  = "Wave Relay Radio No Bundle";
 }

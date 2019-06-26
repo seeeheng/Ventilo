@@ -42,8 +42,18 @@ public class SnackbarUtil {
 
         if (DrawableUtil.areDrawablesIdentical(backgroundDrawable, infoBackgroundDrawable)) {
             snackbar = Snackbar.make(parentView, "", Snackbar.LENGTH_LONG);
+
+            AppCompatImageView imgSnackbarBackgroundIcon = snackbarView.
+                    findViewById(R.id.img_snackbar_background_icon);
+            imgSnackbarBackgroundIcon.setImageDrawable(ResourcesCompat.getDrawable(snackbarView.getContext().
+                            getResources(), R.drawable.icon_snackbar_info, null));
         } else {
             snackbar = Snackbar.make(parentView, "", Snackbar.LENGTH_INDEFINITE);
+
+            AppCompatImageView imgSnackbarBackgroundIcon = snackbarView.
+                    findViewById(R.id.img_snackbar_background_icon);
+            imgSnackbarBackgroundIcon.setImageDrawable(ResourcesCompat.getDrawable(snackbarView.getContext().
+                    getResources(), R.drawable.icon_snackbar_alert, null));
         }
 
         // Get the Snackbar's default layout view

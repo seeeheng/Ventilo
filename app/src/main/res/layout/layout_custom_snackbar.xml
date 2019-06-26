@@ -23,8 +23,19 @@
                 android:layout_height="wrap_content"
                 android:layout_alignStart="@id/layout_snackbar_content"
                 android:layout_alignTop="@+id/layout_snackbar_content"
+                android:background="@drawable/snackbar_info_background"
                 android:layout_alignEnd="@id/layout_snackbar_content"
                 android:layout_alignBottom="@id/layout_snackbar_content" />
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/img_snackbar_background_icon"
+                android:layout_width="@dimen/snackbar_side_icon_width"
+                android:layout_height="@dimen/snackbar_side_icon_height"
+                android:layout_marginStart="@dimen/snackbar_side_icon_margin_start_end"
+                android:layout_marginEnd="@dimen/snackbar_side_icon_margin_start_end"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                app:srcCompat="@drawable/icon_snackbar_info"/>
 
             <LinearLayout
                 android:id="@+id/layout_snackbar_content"
@@ -44,6 +55,7 @@
                     android:ellipsize="end"
                     android:maxWidth="250dp"
                     android:maxLines="6"
+                    android:text="@string/btn_send"
                     android:textColor="@color/primary_white"
                     android:textSize="@dimen/text_view_text_size" />
 

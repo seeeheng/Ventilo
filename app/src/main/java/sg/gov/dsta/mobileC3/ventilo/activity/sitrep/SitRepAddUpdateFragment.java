@@ -14,13 +14,12 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,8 +36,6 @@ import android.widget.Toast;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -46,7 +43,7 @@ import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
-import sg.gov.dsta.mobileC3.ventilo.activity.main.MainStatePagerAdapter;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserSitRepJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
@@ -55,8 +52,9 @@ import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserSitRepJoinViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.PhotoCaptureUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.ReportSpinnerBank;
+import sg.gov.dsta.mobileC3.ventilo.util.SpinnerItemListDataBank;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.ValidationUtil;
@@ -193,7 +191,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         mLinearLayoutBtnSendOrUpdate = layoutToolbar.findViewById(R.id.layout_toolbar_top_right_btn);
 
         mTvToolbarSendOrUpdate = layoutToolbar.findViewById(R.id.toolbar_top_right_btn_text);
-        mTvToolbarSendOrUpdate.setText(getString(R.string.btn_send));
+        mTvToolbarSendOrUpdate.setText(MainApplication.getAppContext().getString(R.string.btn_send));
         mLinearLayoutBtnSendOrUpdate.setOnClickListener(onSendClickListener);
     }
 
@@ -203,7 +201,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         StringBuilder callsignTitleBuilder = new StringBuilder();
         callsignTitleBuilder.append(SharedPreferenceUtil.getCurrentUserCallsignID());
         callsignTitleBuilder.append(StringUtil.SPACE);
-        callsignTitleBuilder.append(getString(R.string.sitrep_callsign_header));
+        callsignTitleBuilder.append(MainApplication.getAppContext().
+                getString(R.string.sitrep_callsign_header));
 
         mTvCallsignTitle.setText(callsignTitleBuilder.toString());
     }
@@ -243,9 +242,9 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         C2OpenSansSemiBoldTextView tvPersonnelS = layoutContainerPersonnelS.findViewById(R.id.tv_sitrep_personnel_type);
         C2OpenSansSemiBoldTextView tvPersonnelD = layoutContainerPersonnelD.findViewById(R.id.tv_sitrep_personnel_type);
 
-        tvPersonnelT.setText(getString(R.string.sitrep_T));
-        tvPersonnelS.setText(getString(R.string.sitrep_S));
-        tvPersonnelD.setText(getString(R.string.sitrep_D));
+        tvPersonnelT.setText(MainApplication.getAppContext().getString(R.string.sitrep_T));
+        tvPersonnelS.setText(MainApplication.getAppContext().getString(R.string.sitrep_S));
+        tvPersonnelD.setText(MainApplication.getAppContext().getString(R.string.sitrep_D));
 
         mTvPersonnelNumberT = layoutContainerPersonnelT.findViewById(R.id.tv_sitrep_personnel_number);
         mTvPersonnelNumberS = layoutContainerPersonnelS.findViewById(R.id.tv_sitrep_personnel_number);
@@ -296,7 +295,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             if (isFormCompleteForFurtherAction()) {
                 if (getSnackbarView() != null) {
                     SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
-                            getString(R.string.snackbar_sitrep_send_confirmation_message),
+                            MainApplication.getAppContext().
+                                    getString(R.string.snackbar_sitrep_send_confirmation_message),
                             SitRepAddUpdateFragment.this);
                 }
             }
@@ -309,7 +309,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             if (isFormCompleteForFurtherAction()) {
                 if (getSnackbarView() != null) {
                     SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
-                            getString(R.string.snackbar_sitrep_update_confirmation_message),
+                            MainApplication.getAppContext().
+                                    getString(R.string.snackbar_sitrep_update_confirmation_message),
                             SitRepAddUpdateFragment.this);
                 }
             }
@@ -340,7 +341,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     };
 
     private void openCameraIntent() {
-        ContentValues values = new ContentValues();
+//        ContentValues values = new ContentValues();
 
 //        StringBuilder imageFullTitle = new StringBuilder();
 //        imageFullTitle.append(getString(R.string.sitrep_picture_general_title));
@@ -448,9 +449,9 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     };
 
     private ArrayAdapter<String> getSpinnerArrayAdapter(String[] stringArray) {
-        ArrayAdapter<String> adapter = new ArrayAdapter(getActivity(),
-                R.layout.spinner_row_sitrep, R.id.tv_spinner_sitrep_text, stringArray) {
 
+        return new ArrayAdapter<String> (getActivity(),
+                R.layout.spinner_row_item, R.id.tv_spinner_row_item_text, stringArray) {
 
             @Override
             public boolean isEnabled(int position) {
@@ -466,24 +467,41 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             @NonNull
             @Override
             public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                return super.getView(position, convertView, parent);
+                View view = super.getView(position, convertView, parent);
+                LinearLayout layoutSpinner = view.findViewById(R.id.layout_spinner_text_item);
+                layoutSpinner.setGravity(Gravity.END);
+                layoutSpinner.setPadding(0, 0,
+                        (int) getResources().getDimension(R.dimen.elements_large_margin_spacing), 0);
+
+                return view;
             }
 
             @Override
             public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
                 View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = view.findViewById(R.id.tv_spinner_sitrep_text);
+
+                // Set appropriate height for spinner items
+                DimensionUtil.setDimensions(view,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        (int) getResources().getDimension(R.dimen.spinner_broad_height),
+                        new LinearLayout(getContext()));
+
+                LinearLayout layoutSpinner = view.findViewById(R.id.layout_spinner_text_item);
+                layoutSpinner.setGravity(Gravity.END);
+                layoutSpinner.setPadding(0, 0,
+                        (int) getResources().getDimension(R.dimen.elements_large_margin_spacing), 0);
+
+                TextView tv = view.findViewById(R.id.tv_spinner_row_item_text);
                 if (position == 0) {
                     // Set the hint text color gray
                     tv.setTextColor(Color.GRAY);
                 } else {
                     tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_white, null));
                 }
+
                 return view;
             }
         };
-
-        return adapter;
     }
 
     /**
@@ -512,14 +530,15 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         mEtvLocationOthers.setSaveEnabled(false);
         mEtvLocationOthers.setOnTouchListener(onViewTouchListener);
 
-        String[] locationStringArray = ReportSpinnerBank.getInstance().getLocationList();
+        String[] locationStringArray = SpinnerItemListDataBank.getInstance().getLocationStrArray();
 
         mLayoutLocationInputOthers.setOnClickListener(onLocationInputOthersClickListener);
 
         mSpinnerLocation.setAdapter(getSpinnerArrayAdapter(locationStringArray));
         mSpinnerLocation.setOnItemSelectedListener(getLocationSpinnerItemSelectedListener);
 
-        mEtvLocationOthers.setHint(getString(R.string.sitrep_location_hint));
+        mEtvLocationOthers.setHint(MainApplication.getAppContext().
+                getString(R.string.sitrep_location_hint));
     }
 
     private View.OnClickListener onLocationInputOthersClickListener = new View.OnClickListener() {
@@ -608,14 +627,15 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         mEtvActivityOthers.setSaveEnabled(false);
         mEtvActivityOthers.setOnTouchListener(onViewTouchListener);
 
-        String[] activityStringArray = ReportSpinnerBank.getInstance().getActivityList();
+        String[] activityStringArray = SpinnerItemListDataBank.getInstance().getActivityStrArray();
 
         mLayoutActivityInputOthers.setOnClickListener(onActivityInputOthersClickListener);
 
         mSpinnerActivity.setAdapter(getSpinnerArrayAdapter(activityStringArray));
         mSpinnerActivity.setOnItemSelectedListener(getActivitySpinnerItemSelectedListener);
 
-        mEtvActivityOthers.setHint(getString(R.string.sitrep_activity_hint));
+        mEtvActivityOthers.setHint(MainApplication.getAppContext().
+                getString(R.string.sitrep_activity_hint));
     }
 
     private View.OnClickListener onActivityInputOthersClickListener = new View.OnClickListener() {
@@ -686,14 +706,15 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         mEtvNextCoaOthers.setSaveEnabled(false);
         mEtvNextCoaOthers.setOnTouchListener(onViewTouchListener);
 
-        String[] nextCoaStringArray = ReportSpinnerBank.getInstance().getNextCoaList();
+        String[] nextCoaStringArray = SpinnerItemListDataBank.getInstance().getNextCoaStrArray();
 
         mLayoutNextCoaInputOthers.setOnClickListener(onNextCoaInputOthersClickListener);
 
         mSpinnerNextCoa.setAdapter(getSpinnerArrayAdapter(nextCoaStringArray));
         mSpinnerNextCoa.setOnItemSelectedListener(getNextCoaSpinnerItemSelectedListener);
 
-        mEtvNextCoaOthers.setHint(getString(R.string.sitrep_next_coa_hint));
+        mEtvNextCoaOthers.setHint(MainApplication.getAppContext().
+                getString(R.string.sitrep_next_coa_hint));
     }
 
     private View.OnClickListener onNextCoaInputOthersClickListener = new View.OnClickListener() {
@@ -766,11 +787,12 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
         mLayoutRequestInputOthers.setOnClickListener(onRequestInputOthersClickListener);
 
-        String[] requestStringArray = ReportSpinnerBank.getInstance().getRequestList();
+        String[] requestStringArray = SpinnerItemListDataBank.getInstance().getRequestStrArray();
         mSpinnerRequest.setAdapter(getSpinnerArrayAdapter(requestStringArray));
         mSpinnerRequest.setOnItemSelectedListener(getRequestSpinnerItemSelectedListener);
 
-        mEtvRequestOthers.setHint(getString(R.string.sitrep_request_hint));
+        mEtvRequestOthers.setHint(MainApplication.getAppContext().
+                getString(R.string.sitrep_request_hint));
     }
 
     private View.OnClickListener onRequestInputOthersClickListener = new View.OnClickListener() {
@@ -1018,7 +1040,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 // Show snackbar message and return to main Sit Rep fragment page
                 if (getSnackbarView() != null) {
                     SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
-                            getString(R.string.snackbar_sitrep_sent_message));
+                            MainApplication.getAppContext().
+                                    getString(R.string.snackbar_sitrep_sent_message));
                 }
 
                 popChildBackStack();
@@ -1045,7 +1068,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         // 4 means form is completed, otherwise it is incomplete
         int formCompletedCount = 0;
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(getString(R.string.snackbar_form_incomplete_message));
+        stringBuilder.append(MainApplication.getAppContext().
+                getString(R.string.snackbar_form_incomplete_message));
 
         // Validate location field
         if (!mLayoutLocationInputOthers.isSelected()) {
@@ -1055,7 +1079,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 stringBuilder.append(System.lineSeparator());
                 stringBuilder.append(StringUtil.HYPHEN);
                 stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(getString(R.string.sitrep_location));
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_location));
             }
         } else {
             if (!TextUtils.isEmpty(mEtvLocationOthers.getText().toString().trim())) {
@@ -1064,7 +1089,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 stringBuilder.append(System.lineSeparator());
                 stringBuilder.append(StringUtil.HYPHEN);
                 stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(getString(R.string.sitrep_location));
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_location));
             }
         }
 
@@ -1076,7 +1102,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 stringBuilder.append(System.lineSeparator());
                 stringBuilder.append(StringUtil.HYPHEN);
                 stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(getString(R.string.sitrep_activity));
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_activity));
             }
         } else {
             if (!TextUtils.isEmpty(mEtvActivityOthers.getText().toString().trim())) {
@@ -1085,7 +1112,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 stringBuilder.append(System.lineSeparator());
                 stringBuilder.append(StringUtil.HYPHEN);
                 stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(getString(R.string.sitrep_activity));
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_activity));
             }
         }
 
@@ -1097,7 +1125,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 stringBuilder.append(System.lineSeparator());
                 stringBuilder.append(StringUtil.HYPHEN);
                 stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(getString(R.string.sitrep_next_coa));
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_next_coa));
             }
         } else {
             if (!TextUtils.isEmpty(mEtvNextCoaOthers.getText().toString().trim())) {
@@ -1106,7 +1135,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 stringBuilder.append(System.lineSeparator());
                 stringBuilder.append(StringUtil.HYPHEN);
                 stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(getString(R.string.sitrep_next_coa));
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_next_coa));
             }
         }
 
@@ -1118,7 +1148,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 stringBuilder.append(System.lineSeparator());
                 stringBuilder.append(StringUtil.HYPHEN);
                 stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(getString(R.string.sitrep_request));
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_request));
             }
         } else {
             if (!TextUtils.isEmpty(mEtvRequestOthers.getText().toString().trim())) {
@@ -1127,7 +1158,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 stringBuilder.append(System.lineSeparator());
                 stringBuilder.append(StringUtil.HYPHEN);
                 stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(getString(R.string.sitrep_request));
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_request));
             }
         }
 
@@ -1152,19 +1184,22 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
      */
     private void updateFormData(SitRepModel sitRepModel) {
         if (sitRepModel != null) {
-            mTvToolbarSendOrUpdate.setText(getString(R.string.btn_update));
+            mTvToolbarSendOrUpdate.setText(MainApplication.getAppContext().
+                    getString(R.string.btn_update));
             mTvToolbarSendOrUpdate.setOnClickListener(onUpdateClickListener);
 
             StringBuilder sitRepTitleBuilder = new StringBuilder();
-            sitRepTitleBuilder.append(getString(R.string.team_header));
+            sitRepTitleBuilder.append(MainApplication.getAppContext().
+                    getString(R.string.team_header));
             sitRepTitleBuilder.append(StringUtil.SPACE);
             sitRepTitleBuilder.append(sitRepModel.getReporter());
             sitRepTitleBuilder.append(StringUtil.SPACE);
-            sitRepTitleBuilder.append(getString(R.string.sitrep_callsign_header));
+            sitRepTitleBuilder.append(MainApplication.getAppContext().
+                    getString(R.string.sitrep_callsign_header));
             mTvCallsignTitle.setText(sitRepTitleBuilder.toString().trim());
 
             // Display selected location information
-            String[] locationStringArray = ReportSpinnerBank.getInstance().getLocationList();
+            String[] locationStringArray = SpinnerItemListDataBank.getInstance().getLocationStrArray();
             String sitRepLocation = sitRepModel.getLocation();
             boolean isLocationFoundInSpinner = false;
             for (int i = 0; i < locationStringArray.length; i++) {
@@ -1182,7 +1217,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             }
 
             // Display selected activity information
-            String[] activityStringArray = ReportSpinnerBank.getInstance().getActivityList();
+            String[] activityStringArray = SpinnerItemListDataBank.getInstance().getActivityStrArray();
             String sitRepActivity = sitRepModel.getActivity();
             boolean isActivityFoundInSpinner = false;
             for (int i = 0; i < activityStringArray.length; i++) {
@@ -1205,7 +1240,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             mTvPersonnelNumberD.setText(String.valueOf(sitRepModel.getPersonnelD()));
 
             // Display selected next course of action information
-            String[] nextCoaStringArray = ReportSpinnerBank.getInstance().getNextCoaList();
+            String[] nextCoaStringArray = SpinnerItemListDataBank.getInstance().getNextCoaStrArray();
             String sitRepNextCoa = sitRepModel.getNextCoa();
             boolean isNextCoaFoundInSpinner = false;
             for (int i = 0; i < nextCoaStringArray.length; i++) {
@@ -1223,7 +1258,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             }
 
             // Display selected request information
-            String[] requestStringArray = ReportSpinnerBank.getInstance().getRequestList();
+            String[] requestStringArray = SpinnerItemListDataBank.getInstance().getRequestStrArray();
             String sitRepRequest = sitRepModel.getRequest();
             boolean isRequestFoundInSpinner = false;
             for (int i = 0; i < requestStringArray.length; i++) {
@@ -1263,7 +1298,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                         "UserId: " + userModel.getUserId());
 
                 // Send button
-                if (getString(R.string.btn_send).equalsIgnoreCase(
+                if (MainApplication.getAppContext().getString(R.string.btn_send).equalsIgnoreCase(
                         mTvToolbarSendOrUpdate.getText().toString().trim())) {
 
                     // Create new Sit Rep, store in local database and broadcast to other connected devices
@@ -1286,7 +1321,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                     // Show snackbar message and return to Sit Rep edit fragment page
                     if (getSnackbarView() != null) {
                         SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
-                                getString(R.string.snackbar_sitrep_updated_message));
+                                MainApplication.getAppContext().
+                                        getString(R.string.snackbar_sitrep_updated_message));
                     }
 
                     popChildBackStack();
@@ -1301,14 +1337,14 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             }
         };
 
-        mUserViewModel.queryUserByAccessToken(SharedPreferenceUtil.getCurrentUserAccessToken(),
+        mUserViewModel.queryUserByUserId(SharedPreferenceUtil.getCurrentUserCallsignID(),
                 singleObserverUser);
     }
 
     /**
      * Accesses child base fragment of current selected view pager item and remove this fragment
      * from child base fragment's stack.
-     * <p>
+     *
      * Possible Selected View Pager Item: Sit Rep / Video Stream
      * Child Base Fragment: SitRepFragment / VideoStreamFragment
      */
@@ -1380,9 +1416,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 Object objectToUpdate = ((MainActivity) getActivity()).
                         getStickyModel(SitRepModel.class.getSimpleName());
                 if (objectToUpdate instanceof SitRepModel) {
-                    System.out.println("objectToUpdate is " + objectToUpdate);
                     mSitRepModelToUpdate = (SitRepModel) objectToUpdate;
-                    System.out.println("mSitRepModelToUpdate is " + mSitRepModelToUpdate);
                 }
             }
 

@@ -32,8 +32,10 @@
         <EditTextPreference
             android:key="@string/mqhost"
             android:summary="Enter the hostname or IP address of MQ server"
-            android:defaultValue="jax79sg.hopto.org"
+            android:defaultValue="198.18.2.15"
             android:title="@string/mqhost"/>
+
+        <!--android:defaultValue="jax79sg.hopto.org"-->
 
         <EditTextPreference
             android:key="@string/mqport"

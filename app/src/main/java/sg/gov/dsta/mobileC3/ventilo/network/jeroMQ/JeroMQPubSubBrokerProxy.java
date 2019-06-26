@@ -56,8 +56,12 @@ public class JeroMQPubSubBrokerProxy extends JeroMQBrokerProxy {
             synchronized (JeroMQPublisher.class) {
                 if (instance == null) {
                     instance = new JeroMQPubSubBrokerProxy();
+                } else {
+                    instance.initExecutorService();
                 }
             }
+        } else {
+            instance.initExecutorService();
         }
 
         return instance;
@@ -241,8 +245,6 @@ public class JeroMQPubSubBrokerProxy extends JeroMQBrokerProxy {
      */
     @Override
     public void stop() {
-        super.stop();
-
 //        CloseSocketAsyncTask task = new CloseSocketAsyncTask(mZContext);
 //        task.execute();
 
@@ -251,6 +253,8 @@ public class JeroMQPubSubBrokerProxy extends JeroMQBrokerProxy {
             mZContext.destroy();
             Log.i(TAG, "ZContext destroyed.");
         }
+
+        super.stop();
     }
 
     private class ProxyAsyncTask extends Thread {
@@ -264,11 +268,14 @@ public class JeroMQPubSubBrokerProxy extends JeroMQBrokerProxy {
         public void run() {
             // Frontend
             mXSubSocket = mZContext.createSocket(SocketType.XSUB);
+            mXSubSocket.setMaxMsgSize(-1); // -1 means no limit
+            mXSubSocket.setLinger(0);
 
             // Backend
             mXPubSocket = mZContext.createSocket(SocketType.XPUB);
-            mXSubSocket.setLinger(0);
+            mXPubSocket.setMaxMsgSize(-1); // -1 means no limit
             mXPubSocket.setLinger(0);
+
 
             Log.i(TAG, "Proxy sockets created.");
 

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_spinner_text_item"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/spinner_row_item_height">
+
+    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
+        android:id="@+id/tv_spinner_row_item_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:text="@string/team_profile"
+        android:layout_marginStart="@dimen/elements_margin_spacing"
+        android:textColor="@color/primary_white"
+        android:textSize="@dimen/text_view_small_text_size" />
+
+</LinearLayout>

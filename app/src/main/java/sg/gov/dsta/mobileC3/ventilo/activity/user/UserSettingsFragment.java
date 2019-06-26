@@ -15,6 +15,7 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,7 @@ import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
@@ -40,15 +42,15 @@ import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.task.EAccessRight;
 
 public class UserSettingsFragment extends Fragment implements SnackbarUtil.SnackbarActionClickListener {
 
     private static final String TAG = UserSettingsFragment.class.getSimpleName();
-    public static final int SNACKBAR_SAVE_SETTINGS_ID = 0;
-    public static final int SNACKBAR_PULL_FROM_EXCEL_ID = 1;
-    public static final int SNACKBAR_PUSH_TO_EXCEL_ID = 2;
-    public static final int SNACKBAR_SYNC_UP_ID = 3;
-    public static final int SNACKBAR_LOGOUT_ID = 4;
+    public static final int SNACKBAR_PULL_FROM_EXCEL_ID = 0;
+    public static final int SNACKBAR_PUSH_TO_EXCEL_ID = 1;
+    public static final int SNACKBAR_SYNC_UP_ID = 2;
+    public static final int SNACKBAR_LOGOUT_ID = 3;
 
     // Intent Filters
     public static final String EXCEL_DATA_PULLED_INTENT_ACTION = "Excel Data Pulled Successfully";
@@ -64,7 +66,7 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
 
     // Current user callsign / team profile section
     private C2OpenSansRegularTextView mTvCurrentUserCallsign;
-    private LinearLayout mLinearLayoutTeamProfile;
+    private LinearLayout mLinearLayoutTeamProfileSelection;
     private LinearLayout mLinearLayoutEditSaveIcon;
     private AppCompatImageView mImgEditSaveIcon;
 
@@ -105,25 +107,9 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     private void initUI(LayoutInflater inflater, View rootView) {
         mLayoutMain = rootView.findViewById(R.id.layout_user_settings);
 
-        initToolbar(rootView);
         initAllCallsignTeamProfileUI(rootView);
         initCurrentUserCallsignTeamProfileUI(inflater, rootView);
         initImageButtons(rootView);
-    }
-
-    private void initToolbar(View rootView) {
-        View layoutToolbar = rootView.findViewById(R.id.layout_toolbar_user_settings_text_left_text_right);
-        layoutToolbar.setClickable(true);
-
-        LinearLayout linearLayoutBtnBack = layoutToolbar.findViewById(R.id.layout_toolbar_top_left_btn);
-        linearLayoutBtnBack.setOnClickListener(onBackClickListener);
-        LinearLayout linearLayoutBtnSave = layoutToolbar.findViewById(R.id.layout_toolbar_top_right_btn);
-        linearLayoutBtnSave.setOnClickListener(onSaveClickListener);
-
-        C2OpenSansSemiBoldTextView tvToolbarSave = layoutToolbar.findViewById(R.id.toolbar_top_right_btn_text);
-        tvToolbarSave.setText(getString(R.string.btn_save));
-        tvToolbarSave.setTextColor(ResourcesCompat.getColor(getResources(),
-                R.color.primary_highlight_cyan, null));
     }
 
     private void initAllCallsignTeamProfileUI(View rootView) {
@@ -152,7 +138,7 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         mTvCurrentUserCallsign = rootView.findViewById(R.id.tv_user_settings_current_user_callsign);
         mTvCurrentUserCallsign.setText(SharedPreferenceUtil.getCurrentUserCallsignID());
 
-        mLinearLayoutTeamProfile = rootView.findViewById(R.id.layout_user_settings_team_profile_selection);
+        mLinearLayoutTeamProfileSelection = rootView.findViewById(R.id.layout_user_settings_team_profile_selection);
 
         mLinearLayoutEditSaveIcon = rootView.findViewById(R.id.layout_user_settings_edit_save);
         mLinearLayoutEditSaveIcon.setOnClickListener(onEditOrSaveTeamProfileClickListener);
@@ -233,20 +219,22 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
 
                     // Set Team Name
                     StringBuilder teamProfileName = new StringBuilder();
-                    teamProfileName.append(getString(R.string.team_header));
+                    teamProfileName.append(MainApplication.getAppContext().getString(R.string.team_header));
                     teamProfileName.append(StringUtil.SPACE);
                     teamProfileName.append(flatListOfDistinctTeamsProfileNames.get(i).toString().trim());
                     tvTeamProfileName.setText(teamProfileName.toString());
 
-                    // Set fixed height for newly created button
-                    DimensionUtil.setDimensions(viewBtnTeamProfileName,
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            (int) getResources().getDimension(R.dimen.img_btn_fixed_height),
-                            new LinearLayout(getContext()));
+                    if (getContext() != null) {
+                        // Set fixed height for newly created button
+                        DimensionUtil.setDimensions(viewBtnTeamProfileName,
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                (int) getResources().getDimension(R.dimen.img_btn_fixed_height),
+                                new LinearLayout(getContext()));
 
-                    // Set margin at the end of each button
-                    DimensionUtil.setMargins(viewBtnTeamProfileName, 0, 0,
-                            (int) getResources().getDimension(R.dimen.elements_margin_spacing), 0);
+                        // Set margin at the end of each button
+                        DimensionUtil.setMargins(viewBtnTeamProfileName, 0, 0,
+                                (int) getResources().getDimension(R.dimen.elements_margin_spacing), 0);
+                    }
 
                     String currentTeamNameToCompare = flatListOfDistinctTeamsProfileNames.get(i).toString();
 
@@ -283,7 +271,7 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                         }
                     });
 
-                    mLinearLayoutTeamProfile.addView(viewBtnTeamProfileName);
+                    mLinearLayoutTeamProfileSelection.addView(viewBtnTeamProfileName);
                 }
 
 //                // Checks Bundle here ONLY after inflating required 'Assign To' data for checks
@@ -302,14 +290,26 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     }
 
     private void initImageButtons(View rootView) {
-        initPullFromExcelUI(rootView);
-        initPushToExcelUI(rootView);
+
+        // Only allow CCT to push and pull data from Excel
+        mImgLayoutPullFromExcel = rootView.findViewById(R.id.layout_pull_from_excel_text_img_btn);
+        mImgLayoutPushToExcel = rootView.findViewById(R.id.layout_push_to_excel_img_text_img_btn);
+
+        if (!EAccessRight.CCT.toString().equalsIgnoreCase(
+                SharedPreferenceUtil.getCurrentUserAccessRight())) {
+            mImgLayoutPullFromExcel.setVisibility(View.GONE);
+            mImgLayoutPushToExcel.setVisibility(View.GONE);
+        } else {
+            initPullFromExcelUI();
+            initPushToExcelUI();
+        }
+
         initSyncUpUI(rootView);
         initLogoutUI(rootView);
     }
 
-    private void initPullFromExcelUI(View rootView) {
-        mImgLayoutPullFromExcel = rootView.findViewById(R.id.layout_pull_from_excel_text_img_btn);
+    private void initPullFromExcelUI() {
+        mImgLayoutPullFromExcel.setVisibility(View.VISIBLE);
         LinearLayout layoutPullFromExcel = mImgLayoutPullFromExcel.findViewById(R.id.layout_main_img_text_img_btn);
         C2OpenSansSemiBoldTextView tvPullFromExcel = mImgLayoutPullFromExcel.findViewById(R.id.tv_text_img_btn);
         AppCompatImageView imgPullFromExcel = mImgLayoutPullFromExcel.findViewById(R.id.img_pic_img_btn);
@@ -325,8 +325,8 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         mImgLayoutPullFromExcel.setOnClickListener(onPullFromExcelClickListener);
     }
 
-    private void initPushToExcelUI(View rootView) {
-        mImgLayoutPushToExcel = rootView.findViewById(R.id.layout_push_to_excel_img_text_img_btn);
+    private void initPushToExcelUI() {
+        mImgLayoutPushToExcel.setVisibility(View.VISIBLE);
         LinearLayout layoutPushToExcel = mImgLayoutPushToExcel.findViewById(R.id.layout_main_img_text_img_btn);
         C2OpenSansSemiBoldTextView tvPushToExcel = mImgLayoutPushToExcel.findViewById(R.id.tv_text_img_btn);
         AppCompatImageView imgPushToExcel = mImgLayoutPushToExcel.findViewById(R.id.img_pic_img_btn);
@@ -376,28 +376,6 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         mImgLayoutLogout.setOnClickListener(onLogoutClickListener);
     }
 
-    private View.OnClickListener onBackClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Log.i(TAG, "Back button pressed.");
-            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-            fragmentManager.popBackStack();
-        }
-    };
-
-    private View.OnClickListener onSaveClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            // TODO
-            if (getSnackbarView() != null) {
-                snackbarOption = 0;
-                SnackbarUtil.showCustomAlertSnackbar(mLayoutMain, getSnackbarView(),
-                        getString(R.string.snackbar_settings_save_message),
-                        UserSettingsFragment.this);
-            }
-        }
-    };
-
     private View.OnClickListener onEditOrSaveTeamProfileClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -414,8 +392,8 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                 mImgEditSaveIcon.setImageDrawable(ResourcesCompat.getDrawable(
                         getResources(), R.drawable.btn_save, null));
 
-                for (int i = 0; i < mLinearLayoutTeamProfile.getChildCount(); i++) {
-                    View viewBtnTeamProfileName = mLinearLayoutTeamProfile.getChildAt(i);
+                for (int i = 0; i < mLinearLayoutTeamProfileSelection.getChildCount(); i++) {
+                    View viewBtnTeamProfileName = mLinearLayoutTeamProfileSelection.getChildAt(i);
 
                     C2OpenSansSemiBoldTextView tvTeamProfileName = viewBtnTeamProfileName.
                             findViewById(R.id.tv_img_text_fixed_dimension_text_img_btn);
@@ -439,8 +417,8 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
 
                 StringBuilder teamProfileNameGroup = new StringBuilder();
 
-                for (int i = 0; i < mLinearLayoutTeamProfile.getChildCount(); i++) {
-                    View viewBtnTeamProfileName = mLinearLayoutTeamProfile.getChildAt(i);
+                for (int i = 0; i < mLinearLayoutTeamProfileSelection.getChildCount(); i++) {
+                    View viewBtnTeamProfileName = mLinearLayoutTeamProfileSelection.getChildAt(i);
 
                     C2OpenSansSemiBoldTextView tvTeamProfileName = viewBtnTeamProfileName.
                             findViewById(R.id.tv_img_text_fixed_dimension_text_img_btn);
@@ -662,24 +640,24 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     private void onVisible() {
         Log.d(TAG, "onVisible");
 
-        FragmentManager fm = getChildFragmentManager();
-        boolean isFragmentFound = false;
-
-        int count = fm.getBackStackEntryCount();
-
-        // Checks if current fragment exists in Back stack
-        for (int i = 0; i < count; i++) {
-            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
-                isFragmentFound = true;
-            }
-        }
-
-        // If not found, add to current fragment to Back stack
-        if (!isFragmentFound) {
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.addToBackStack(this.getClass().getSimpleName());
-            ft.commit();
-        }
+//        FragmentManager fm = getChildFragmentManager();
+//        boolean isFragmentFound = false;
+//
+//        int count = fm.getBackStackEntryCount();
+//
+//        // Checks if current fragment exists in Back stack
+//        for (int i = 0; i < count; i++) {
+//            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
+//                isFragmentFound = true;
+//            }
+//        }
+//
+//        // If not found, add current fragment to Back stack
+//        if (!isFragmentFound) {
+//            FragmentTransaction ft = fm.beginTransaction();
+//            ft.addToBackStack(this.getClass().getSimpleName());
+//            ft.commit();
+//        }
     }
 
     private void onInvisible() {
@@ -689,9 +667,6 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     @Override
     public void onSnackbarActionClick() {
         switch (snackbarOption) {
-            case SNACKBAR_SAVE_SETTINGS_ID: // Save Settings
-                break;
-
             case SNACKBAR_PULL_FROM_EXCEL_ID: // Pull from Excel
                 pullDataFromExcelToDatabase();
                 break;

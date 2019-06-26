@@ -64,7 +64,7 @@ public class TaskModel {
             @Override
             public int compare(TaskModel taskModelOne, TaskModel taskModelTwo) {
                 if (TextUtils.isDigitsOnly(taskModelOne.phaseNo) && TextUtils.isDigitsOnly(taskModelTwo.phaseNo)) {
-                    return Integer.valueOf(taskModelOne.phaseNo) - Integer.valueOf(taskModelOne.phaseNo);
+                    return Integer.valueOf(taskModelOne.phaseNo) - Integer.valueOf(taskModelTwo.phaseNo);
                 }
 
                 return -1;

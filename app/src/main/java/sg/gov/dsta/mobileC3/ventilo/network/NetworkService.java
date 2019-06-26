@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPubSubBrokerProxy;
@@ -28,6 +29,8 @@ public class NetworkService extends IntentService {
 //    private static MqttHelper mqttHelper;
     public static RabbitMQHelper rabbitMQHelper;
 
+    public static boolean mIsServiceRegistered;
+
     //checks if the service is trying to connect, to prevent race conditions between startService and dataEnabledReceiver
 //    private boolean tryingToConnect;
 
@@ -37,6 +40,9 @@ public class NetworkService extends IntentService {
 
     @Override
     public void onCreate() {
+        super.onCreate();
+
+        Log.i(TAG, "Creating network service...");
         createConnection();
     }
 
@@ -91,20 +97,44 @@ public class NetworkService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(@Nullable Intent intent) {}
+    protected void onHandleIntent(@Nullable Intent intent) {
+        Log.i(TAG, "onHandleIntent");
 
-    @Override
-    public int onStartCommand(final Intent intent, int flags, final int startId) {
         if (rabbitMQHelper != null) {
-            RabbitMQAsyncTask rabbitMQAsyncTask = new RabbitMQAsyncTask();
-            rabbitMQAsyncTask.runRabbitMQ();
+//            RabbitMQAsyncTask rabbitMQAsyncTask = new RabbitMQAsyncTask();
+//            rabbitMQAsyncTask.runRabbitMQ();
+
+
+
+
 //            new Thread(new Runnable() {
 //                @Override
 //                public void run() {
 //
 //                }
 //            }, RabbitMQ.class.getSimpleName()).start();
+
+
+
+
+
+            mIsServiceRegistered = true;
+            Log.i(TAG, "mIsServiceRegistered is " + mIsServiceRegistered);
+
+            System.out.println("rabbitMQHelper not null");
+            boolean isRabbitMQConnected = NetworkService.rabbitMQHelper.startRabbitMQWithDefaultSetting();
+            if (isRabbitMQConnected) {
+                System.out.println("rabbitMQHelper notify");
+                notifyRabbitMQConnectedBroadcastIntent();
+            }
+
         }
+    }
+
+    @Override
+    public int onStartCommand(final Intent intent, int flags, final int startId) {
+        super.onStartCommand(intent, startId, startId);
+
         // START_NOT_STICKY - Service will NOT be left running after it has been killed
         return START_NOT_STICKY;
     }
@@ -112,7 +142,18 @@ public class NetworkService extends IntentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mIsServiceRegistered = false;
+        Log.i(TAG, "RabbitMQ network service destroyed.");
     }
+
+    private static void notifyRabbitMQConnectedBroadcastIntent() {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.setAction(RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION);
+//        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        LocalBroadcastManager.getInstance(MainApplication.getAppContext()).sendBroadcast(broadcastIntent);
+    }
+
+
 
 //    private void notifyMqttConnectedBroadcastIntent() {
 //        Intent broadcastIntent = new Intent();

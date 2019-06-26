@@ -4,12 +4,10 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 
 import java.util.HashMap;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.activity.map.MapFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.radiolinkstatus.RadioLinkStatusFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.sitrep.SitRepFragment;
@@ -38,60 +36,121 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
 
         switch (i) {
             case MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID:
-//                fragment = new MapShipBlueprintFragment();
-                fragment = new VideoStreamFragment();
-                mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID,
-                        fragment);
-                mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID,
-                        mContext.getResources().getString(R.string.map_page_title));
+                if (mPageFragmentReferenceHashMap.get(
+                        MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID) != null) {
+                    fragment = mPageFragmentReferenceHashMap.get(
+                            MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID);
+                } else {
+                    fragment = new MapShipBlueprintFragment();
+
+                    mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID,
+                            fragment);
+                    mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID,
+                            mContext.getResources().getString(R.string.map_page_title));
+                }
+
                 break;
 
             case MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID:
-                fragment = new VideoStreamFragment();
-                mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID,
-                        fragment);
-                mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID,
-                        mContext.getResources().getString(R.string.video_stream_page_title));
+
+                if (mPageFragmentReferenceHashMap.get(
+                        MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID) != null) {
+                    fragment = mPageFragmentReferenceHashMap.get(
+                            MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID);
+                } else {
+                    fragment = new VideoStreamFragment();
+
+                    mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID,
+                            fragment);
+                    mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID,
+                            mContext.getResources().getString(R.string.video_stream_page_title));
+                }
+
                 break;
 
             case MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID:
-                fragment = new SitRepFragment();
-                mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID,
-                        fragment);
-                mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID,
-                        mContext.getResources().getString(R.string.sitrep_page_title));
+
+                if (mPageFragmentReferenceHashMap.get(
+                        MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID) != null) {
+                    fragment = mPageFragmentReferenceHashMap.get(
+                            MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID);
+                } else {
+                    fragment = new SitRepFragment();
+
+                    mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID,
+                            fragment);
+                    mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID,
+                            mContext.getResources().getString(R.string.sitrep_page_title));
+                }
+
                 break;
 
             case MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID:
-                fragment = new TimelineFragment();
-                mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID,
-                        fragment);
-                mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID,
-                        mContext.getResources().getString(R.string.timeline_page_title));
+
+                if (mPageFragmentReferenceHashMap.get(
+                        MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID) != null) {
+                    fragment = mPageFragmentReferenceHashMap.get(
+                            MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID);
+                } else {
+                    fragment = new TimelineFragment();
+
+                    mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID,
+                            fragment);
+                    mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID,
+                            mContext.getResources().getString(R.string.timeline_page_title));
+                }
+
                 break;
 
             case MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID:
-                fragment = new TaskFragment();
-                mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID,
-                        fragment);
-                mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID,
-                        mContext.getResources().getString(R.string.task_page_title));
+
+                if (mPageFragmentReferenceHashMap.get(
+                        MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID) != null) {
+                    fragment = mPageFragmentReferenceHashMap.get(
+                            MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID);
+                } else {
+                    fragment = new TaskFragment();
+
+                    mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID,
+                            fragment);
+                    mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID,
+                            mContext.getResources().getString(R.string.task_page_title));
+                }
+
                 break;
 
             case MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID:
-                fragment = new RadioLinkStatusFragment();
-                mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID,
-                        fragment);
-                mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID,
-                        mContext.getResources().getString(R.string.radio_link_status_page_title));
+
+                if (mPageFragmentReferenceHashMap.get(
+                        MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID) != null) {
+                    fragment = mPageFragmentReferenceHashMap.get(
+                            MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID);
+                } else {
+                    fragment = new RadioLinkStatusFragment();
+
+                    mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID,
+                            fragment);
+                    mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID,
+                            mContext.getResources().getString(R.string.radio_link_status_page_title));
+                }
+
                 break;
 
             case MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID:
-                fragment = new UserSettingsFragment();
-                mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID,
-                        fragment);
-                mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID,
-                        mContext.getResources().getString(R.string.settings_page_title));
+
+                if (mPageFragmentReferenceHashMap.get(
+                        MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID) != null) {
+                    fragment = mPageFragmentReferenceHashMap.get(
+                            MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID);
+                } else {
+                    fragment = new UserSettingsFragment();
+
+                    mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID,
+                            fragment);
+                    mPageNameReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID,
+                            mContext.getResources().getString(R.string.settings_label));
+                }
+
                 break;
 
             default:

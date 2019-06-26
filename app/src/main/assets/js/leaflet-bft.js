@@ -28,7 +28,6 @@ function loadLeaflet(imageoverlay, lowerleftx, lowerlefty, upperrightx, upperrig
     var image0 = L.imageOverlay(imageoverlay, bounds0).addTo(map0);
 
 
-
     // map0.setView( [5, 80], -3);
     map0.fitBounds(bounds0);
     // map0.flyTo([initialy*factor,initialx*factor],initialzoom);
@@ -36,8 +35,24 @@ function loadLeaflet(imageoverlay, lowerleftx, lowerlefty, upperrightx, upperrig
     return map0;
 }
 
-var walkingIcon = L.icon({
-    iconUrl: 'direction.png',
+var hazardIcon = L.icon({
+    iconUrl: 'icon_hazard.png',
+    iconSize:     [20, 20], // size of the icon
+    iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
+    popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
+    tooltipAnchor:[10, 3]
+});
+
+var deceasedIcon = L.icon({
+    iconUrl: 'icon_deceased.png',
+    iconSize:     [20, 20], // size of the icon
+    iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
+    popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
+    tooltipAnchor:[10, 3]
+});
+
+var ownWalkingIcon = L.icon({
+    iconUrl: 'icon_own_online_direction.png',
 
 //    iconSize:     [30, 30], // size of the icon
 //    iconAnchor:   [15, 29], // point of the icon which will correspond to marker's location
@@ -46,63 +61,80 @@ var walkingIcon = L.icon({
 
     iconSize:     [30, 30], // size of the icon
     iconAnchor:   [15, 15], // point of the icon which will correspond to marker's location
-    popupAnchor:  [-10, -76], // point from which the popup should open relative to the iconAnchor
+//    popupAnchor:  [-10, -76], // point from which the popup should open relative to the iconAnchor
     tooltipAnchor:[15, 5]
+
+//    iconSize:     [20, 20], // size of the icon
+//    iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
+////    popupAnchor:  [-10, -76], // point from which the popup should open relative to the iconAnchor
+//    tooltipAnchor:[10, 3]
 });
 
-var navigatingIcon = L.icon({
-    iconUrl: 'direction.png',
+var ownStandingIcon = L.icon({
+    iconUrl: 'icon_own_online.png',
+    iconSize:     [20, 20], // size of the icon
+    iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
+    popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
+    tooltipAnchor:[10, 3]
+});
+
+var ownNavigatingIcon = L.icon({
+    iconUrl: 'icon_own_online_direction.png',
 
     iconSize:     [30, 30], // size of the icon
     iconAnchor:   [15, 15], // point of the icon which will correspond to marker's location
-    popupAnchor:  [-10, -76], // point from which the popup should open relative to the iconAnchor
-    tooltipAnchor:[15, 5]
-});
-
-var standingIcon = L.icon({
-    iconUrl: 'man-standing.png',
-
-//    iconSize:     [30, 30], // size of the icon
-//    iconAnchor:   [15, 29], // point of the icon which will correspond to marker's location
 //    popupAnchor:  [-10, -76], // point from which the popup should open relative to the iconAnchor
-//    tooltipAnchor:[15, -15]
+    tooltipAnchor:[15, 5]
 
-    iconSize:     [20, 20], // size of the icon
-    iconAnchor:   [10, 7], // point of the icon which will correspond to marker's location
-    popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
-    tooltipAnchor:[10, 3]
+//    iconSize:     [20, 20], // size of the icon
+//        iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
+//    //    popupAnchor:  [-10, -76], // point from which the popup should open relative to the iconAnchor
+//        tooltipAnchor:[10, 3]
 });
 
 function getCustomMarker(xMetres, yMetres, markerType, label, isPermanentLabel, angle){
     var icon;
     var solMarker;
-    var sol = L.latLng([ (yMetres)*factor, xMetres*factor ]);
+    var classStyleName;
+    var sol = L.latLng([ (yMetres) * factor, xMetres * factor ]);
 
-    if (markerType=='walking')
+    if (markerType == 'standing')
     {
-        console.debug("Add walking icon");
-        icon=walkingIcon;
+        console.debug("Adding standing icon");
+        icon = ownStandingIcon;
+        classStyleName = "leafletTooltipLabel-green";
+
         solMarker= L.marker(sol,{icon: icon, rotationAngle: angle});
     }
-    else if(markerType=='standing')
+    else if (markerType =='navigating')
     {
-        console.debug("Add standing icon");
-        icon=standingIcon;
-        solMarker= L.marker(sol,{icon: icon, rotationAngle: angle});
+        console.debug("Adding navigating icon");
+        icon = ownNavigatingIcon;
+        classStyleName = "leafletTooltipLabel-green";
+
+        solMarker = L.marker(sol,{icon: icon, rotationAngle: angle});
     }
-    else if(markerType=='navigating')
-    {
-        console.debug("Add navigating icon");
-        icon=navigatingIcon;
-        solMarker= L.marker(sol,{icon: icon, rotationAngle: angle});
+    else if (markerType == Android.getHazardString()) {
+        console.debug("Adding hazard icon");
+        icon = hazardIcon;
+        classStyleName = "leafletTooltipLabel-orange";
+
+        solMarker = L.marker(sol,{icon: icon, rotationAngle: angle});
+    }
+    else if (markerType == Android.getDeceasedString()) {
+        console.debug("Adding deceased icon");
+        icon = deceasedIcon;
+        classStyleName = "leafletTooltipLabel-grey";
+
+        solMarker = L.marker(sol,{icon: icon, rotationAngle: angle});
     }
     else
     {
-        console.debug("Add default icon");
-        solMarker= L.marker(sol,{rotationAngle: angle});
+        console.debug("Adding default icon");
+        solMarker = L.marker(sol,{rotationAngle: angle});
     }
 
-    solMarker.bindTooltip(label,{permanent:isPermanentLabel});
+    solMarker.bindTooltip(label, {permanent:isPermanentLabel, className: classStyleName});
     return solMarker;
 }
 

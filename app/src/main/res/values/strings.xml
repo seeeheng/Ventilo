@@ -44,8 +44,11 @@
     <string name="btn_top">Top</string>
     <string name="btn_update">Update</string>
 
+    <!-- Progress Bar -->
+    <string name="progress_bar_loading_data">Loading Data...</string>
+
     <!-- Snackbar -->
-    <string name="snackbar_login_invalid_user">Invalid username and password</string>
+    <string name="snackbar_login_invalid_user">Invalid User ID</string>
     <string name="snackbar_settings_save_message">Save Settings?</string>
     <string name="snackbar_settings_pull_from_excel_message">Pull data from Excel?</string>
     <string name="snackbar_settings_pull_from_excel_successful_message">Data is successfully pulled.</string>
@@ -70,18 +73,91 @@
     <string name="snackbar_task_update_confirmation_message">Update Task?</string>
 
     <!-- Login -->
-    <string name="login_username">USERNAME</string>
-    <string name="login_password">PASSWORD</string>
+    <string name="login_username">User ID</string>
+    <string name="login_password">Password</string>
+    <string name="login_radio_number">Radio No</string>
     <string name="sign_up">SIGN UP</string>
     <string name="login_footprint">Designed And Developed by RSN-DSTA</string>
     <string name="error_invalid_email">This email is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_incorrect_password">Password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
+    <string-array name="login_radio_ip_addresses">
+        <item>198.18.5.1</item>
+        <item>198.18.5.2</item>
+        <item>198.18.5.3</item>
+        <item>198.18.5.4</item>
+        <item>198.18.5.5</item>
+        <item>198.18.5.6</item>
+        <item>198.18.5.7</item>
+        <item>198.18.5.8</item>
+        <item>198.18.5.9</item>
+        <item>198.18.5.10</item>
+    </string-array>
+    <string-array name="login_user_mobile_ip_addresses">
+        <item>198.18.2.1</item>
+        <item>198.18.2.2</item>
+        <item>198.18.2.3</item>
+        <item>198.18.2.4</item>
+        <item>198.18.2.5</item>
+        <item>198.18.2.6</item>
+        <item>198.18.2.7</item>
+        <item>198.18.2.8</item>
+        <item>198.18.2.9</item>
+        <item>198.18.2.10</item>
+    </string-array>
 
     <!-- Map -->
     <string name="map_page_title">Map</string>
+    <string name="map_blueprint_loading_coord">Loading coordinates</string>
+    <string name="map_blueprint_loading_bearing">Loading bearing</string>
+    <string name="map_blueprint_loading_status">Loading status</string>
+
+    <string-array name="map_ship_blueprint_floor_items">
+        <item>Lateral View</item>
+        <item>Deck Platform</item>
+        <item>Deck 7</item>
+        <item>Deck 6</item>
+        <item>Deck 5</item>
+        <item>Deck 4</item>
+        <item>Deck 3</item>
+        <item>Deck 2</item>
+        <item>Main Deck</item>
+        <item>Tween Deck</item>
+        <item>2nd Deck</item>
+        <item>3rd Deck</item>
+    </string-array>
+    <string-array name="map_ship_blueprint_floor_html_link_items">
+        <item>leaflet-avatar-lateral.html</item>
+        <item>leaflet-avatar-deckplatform.html</item>
+        <item>leaflet-avatar-deck7.html</item>
+        <item>leaflet-avatar-deck6.html</item>
+        <item>leaflet-avatar-deck5.html</item>
+        <item>leaflet-avatar-deck4.html</item>
+        <item>leaflet-avatar-deck3.html</item>
+        <item>leaflet-avatar-deck2.html</item>
+        <item>leaflet-avatar-maindeck.html</item>
+        <item>leaflet-avatar-decktween.html</item>
+        <item>leaflet-avatar-deck2nd.html</item>
+        <item>leaflet-avatar-deck3rd.html</item>
+    </string-array>
+    <string name="snackbar_map_blueprint_init_location_message">
+        Initialise your location via long press on the map</string>
+
+    <string name="map_blueprint_hazard_type">Hazard</string>
+    <string name="map_blueprint_deceased_type">Deceased</string>
+    <string name="map_blueprint_other_type">Others</string>
+    <string name="map_blueprint_own_type">Own</string>
+
+    <!-- Map Dashboard -->
+    <string name="dashboard_video_stream">Video Stream</string>
+    <string name="dashboard_sitrep_personnel_status">Personnel Status</string>
+    <string name="dashboard_task_phase_status">Phase Status</string>
+    <string name="dashboard_task_phase_one">Phase 1</string>
+    <string name="dashboard_task_phase_two">Phase 2</string>
+    <string name="dashboard_task_phase_three">Phase 3</string>
+    <string name="dashboard_task_phase_four">Phase 4</string>
 
     <!-- Video Stream Fragment -->
     <string name="video_stream_page_title">Video Stream</string>
@@ -313,7 +389,7 @@
     <string name="radio_link_status_no_records">No records of past connection</string>
 
     <!-- Settings -->
-    <string name="settings_page_title">Settings</string>
+    <string name="settings_label">Settings</string>
     <string name="call_sign">Call Sign</string>
     <string name="team_profile">Team Profile</string>
 </resources>

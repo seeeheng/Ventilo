@@ -1,8 +1,6 @@
 var map, infoWindow;
 var markers=Array();
 
-
-
 function initRabbit(mqAddress, username, password, topic, port){
     // var ws = new WebSocket('ws://18.221.97.164:15674/ws');
     var mqAddress = "ws://"+mqAddress+":"+port+"/ws";
@@ -25,6 +23,7 @@ function initRabbit(mqAddress, username, password, topic, port){
                 updateTarget(message);
             }
         }, { id: 'decks' });
+
         client.send(mqTopic, {}, '0,0,0,0,0,BEACONREQUEST,0');
     };
     var on_error =  function(error) {
@@ -70,78 +69,94 @@ function initRabbit(mqAddress, username, password, topic, port){
 //     });
 // }
 
+function androidToJScreateLocation(trackerMessage)
+{
+    var message = (trackerMessage).split(",");
+
+    console.log("androidToJScreateLocation, message: " + message);
+
+    var x = parseFloat(message[0]);
+    var y = parseFloat(message[1]);
+
+    var alt = message[2];
+
+    var bearing = message[3];
+    var user = message[4];
+    var type = message[5];
+    var createdTime = message[6];
+
+    var marker = getCustomMarker(x, y, type, createdTime, true, 0);
+
+    markers.push(marker);
+    marker.addTo(map0);
+}
+
 function androidToJSupdateLocation(trackerMessage)
 {
     var message=(trackerMessage).split(",");
     updateTarget(message);
 }
 
-function androidToJScreateNewCustomMarker(trackerMessage)
-{
-    var message=(trackerMessage).split(",");
-    var marker=getCustomMarker(x, y, 'standing', user, true, 0);
-    updateTarget(message);
-}
-
-function updateTarget(message)
-{
+function updateTarget(message) {
 
     var x = parseFloat(message[0]);
     var y = parseFloat(message[1]);
-//    y = y*(1);
-    // console.debug("x:",x);
-    // console.debug("y:",y);
-    var alt=message[2];
+
+    var alt = message[2];
+
 //    alt=parseFloat(alt)-baselineHeightInMetres;
-    var user=message[4];
-    var action=message[5];
     var bearing = message[3];
-    var found=false;
+    var user = message[4];
+    var action = message[5];
+    var type = message[6];
+
+    var found = false;
+
     console.log("JS Received " + message);
-    for (i = 0 ; i< markers.length; i++)
-    {
+    for (i = 0 ; i < markers.length; i++) {
+
         // console.debug("markers[i]",markers[i]._tooltip._content.valueOf());
-        if (markers[i]._tooltip._content.valueOf()==user){
-            console.log("Removing marker: ",markers[i]);
-            found=true;
+        if (markers[i]._tooltip._content.valueOf() == user) {
+            console.log("Removing marker: ", markers[i]);
+            found = true;
             map0.removeLayer(markers[i]);
             markers.splice(i,1);
 
-        if (alt>=lowestHeight && alt<=highestHeight) {
-            var marker=null;
-            if (action=='FORWARD'){
+            if (alt >= lowestHeight && alt <= highestHeight) {
+                var marker = null;
+                if (action =='FORWARD') {
+                    marker = getCustomMarker(x, y, 'navigating', user, true, bearing);
+                } else if (action == 'FIDGETING' | action == 'STATIONARY') {
+                    marker = getCustomMarker(x, y, 'standing', user, true, 0);
+                } else if (action == 'BEACONDROP') {
+                    marker = getCustomMarker(x, y, 'null', user, true, 0);
+                }
+
+                console.log("Adding marker: " + user + "," + y + "," + x);
+                markers.push(marker);
+                marker.addTo(map0);
+
+                // console.debug('Removing marker');
+                break;
+            }
+        }
+    }
+
+    if (!found) {
+        if (alt >= lowestHeight && alt <= highestHeight) {
+            var marker = null;
+            console.log("Adding marker: " + user + "," + y + "," + x);
+
+            if (action == 'FORWARD') {
                 marker = getCustomMarker(x, y, 'navigating', user, true, bearing);
-            }else if (action=='FIDGETING' | action=='STATIONARY'){
+            } else if (action == 'FIDGETING' | action == 'STATIONARY') {
                 marker = getCustomMarker(x, y, 'standing', user, true, 0);
-            }else if (action=='BEACONDROP'){
+            } else if (action == 'BEACONDROP') {
                 marker = getCustomMarker(x, y, 'null', user, true, 0);
             }
 
-            console.log("Adding marker: "+ user + ","+ y + ","+ x);
-            markers.push(marker);
             marker.addTo(map0);
-
-            // console.debug('Removing marker');
-            break;
-            }
-
-        }
-    }
-    if (!found)
-    {
-    if (alt>=lowestHeight && alt<=highestHeight) {
-        var marker=null;
-        console.log("Adding marker: "+ user + ","+ y + ","+ x);
-        if (action=='FORWARD'){
-            marker = getCustomMarker(x, y, 'navigating', user, true, bearing);
-        }else if (action=='FIDGETING' | action=='STATIONARY'){
-            marker = getCustomMarker(x, y, 'standing', user, true, 0);
-        }else if (action=='BEACONDROP'){
-             marker = getCustomMarker(x, y, 'null', user, true, 0);
-        }
-
-        marker.addTo(map0);
-        markers.push(marker);
+            markers.push(marker);
         }
     }
 }

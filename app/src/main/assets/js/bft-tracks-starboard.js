@@ -68,6 +68,30 @@ function initRabbit(mqAddress, username, password, topic, port){
 //     });
 // }
 
+function androidToJScreateLocation(trackerMessage)
+{
+    var message = (trackerMessage).split(",");
+
+    console.log("androidToJScreateLocation, message: " + message);
+
+    var x = parseFloat(message[0]);
+    var y = parseFloat(message[1]);
+
+    var alt = message[2];
+
+    var bearing = message[3];
+    var user = message[4];
+    var type = message[5];
+    var createdTime = message[6];
+
+    var marker;
+
+    var marker = getCustomMarker(x, alt, type, createdTime, true, 0);
+
+    markers.push(marker);
+    marker.addTo(map0);
+}
+
 function androidToJSupdateLocation(trackerMessage)
 {
     var message=(trackerMessage).split(",");
@@ -102,7 +126,7 @@ function updateTarget(message)
                 }else {
                     starboard_bearing = 90;
                 }
-                marker = getCustomMarker(x, alt, 'walking', user, true, starboard_bearing);
+                marker = getCustomMarker(x, alt, 'navigating', user, true, starboard_bearing);
             }else if (action=='FIDGETING' | action=='STATIONARY'){
                 marker = getCustomMarker(x, alt, 'standing', user, true, 0);
             }else if (action=='BEACONDROP'){
@@ -130,7 +154,7 @@ function updateTarget(message)
             }else {
                 starboard_bearing = 90;
             }
-            marker = getCustomMarker(x, alt, 'walking', user, true, starboard_bearing);
+            marker = getCustomMarker(x, alt, 'navigating', user, true, starboard_bearing);
         }else if (action=='FIDGETING' | action=='STATIONARY'){
             marker = getCustomMarker(x, alt, 'standing', user, true, 0);
         }else if (action=='BEACONDROP'){

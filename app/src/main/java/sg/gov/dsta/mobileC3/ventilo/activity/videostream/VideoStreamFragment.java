@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -17,9 +18,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.SurfaceHolder;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,7 +69,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.task.EAccessRight;
 
 public class VideoStreamFragment extends Fragment implements SnackbarUtil.SnackbarActionClickListener {
 
-    private static final String TAG = "VideoStreamFragment";
+    private static final String TAG = VideoStreamFragment.class.getSimpleName();
     private static final int MEDIA_CONTROLLER_SHOW_DURATION = 3000;
     private static final int DEFAULT_VIDEO_VIEW_WIDTH = 300;
     private static final int DEFAULT_VIDEO_VIEW_HEIGHT = 200;
@@ -82,6 +81,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
     private VideoStreamViewModel mVideoStreamViewModel;
 
     // Main layout
+
     private RelativeLayout mRelativeLayoutMain;
 
     /*** VLC first video stream ***/
@@ -97,9 +97,10 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 
     // First video stream view
     private RelativeLayout mRelativeLayoutToolbarOne;
+    private LinearLayout mLinearLayoutVideoStreamOne;
     private ConstraintLayout mConstraintLayoutSurfaceViewOne;
     private TextureView mSurfaceViewOne;
-    private SurfaceHolder mSurfaceHolderOne;
+//    private SurfaceHolder mSurfaceHolderOne;
 
     /*** VLC second video stream ***/
     private LibVLC mLibVlcTwo;
@@ -113,9 +114,10 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 
     // Second video stream view
     private RelativeLayout mRelativeLayoutToolbarTwo;
+    private LinearLayout mLinearLayoutVideoStreamTwo;
     private ConstraintLayout mConstraintLayoutSurfaceViewTwo;
     private TextureView mSurfaceViewTwo;
-    private SurfaceHolder mSurfaceHolderTwo;
+//    private SurfaceHolder mSurfaceHolderTwo;
 
     private boolean mIsFragmentVisibleToUser;
     private boolean mIsFullscreen;
@@ -125,12 +127,21 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootVideoStreamView = inflater.inflate(R.layout.fragment_video_stream, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_video_stream, container, false);
+
+
+        System.out.println("rootView create");
+
+        if (mLinearLayoutVideoStreamTwo == null) {
+            System.out.println("mLinearLayoutVideoStreamTwo NULL");
+        } else {
+            System.out.println("mLinearLayoutVideoStreamTwo NOT");
+        }
 
         observerSetup();
-        initUI(rootVideoStreamView);
+        initUI(rootView);
 
-        return rootVideoStreamView;
+        return rootView;
     }
 
     private void initUI(View rootVideoStreamView) {
@@ -140,7 +151,18 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         initSurfaceViewVideoOneStream(rootVideoStreamView);
 
         // Display second video stream panel if current user access right is 'CCT'
-        if (EAccessRight.CCT.toString().equalsIgnoreCase(SharedPreferenceUtil.getCurrentUserAccessRight())) {
+        mLinearLayoutVideoStreamTwo = rootVideoStreamView.findViewById(R.id.layout_video_stream_two);
+        mLinearLayoutVideoStreamTwo.setVisibility(View.GONE);
+
+        if (!EAccessRight.CCT.toString().equalsIgnoreCase(SharedPreferenceUtil.getCurrentUserAccessRight())) {
+            // Set appropriate dimension for video stream layout
+            setVideoStreamDefaultLayoutForOthers(mLinearLayoutVideoStreamOne, mConstraintLayoutSurfaceViewOne);
+        } else {
+            // Set appropriate dimension for video stream layout
+            setVideoStreamDefaultLayoutForCCT(mLinearLayoutVideoStreamOne,
+                    mConstraintLayoutSurfaceViewOne);
+
+            mLinearLayoutVideoStreamTwo.setVisibility(View.VISIBLE);
             initVideoStreamTwoToolbar(rootVideoStreamView);
             initSurfaceViewVideoTwoStream(rootVideoStreamView);
         }
@@ -162,72 +184,12 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         mImgSetting.setOnClickListener(settingOnClickListener);
     }
 
-//    private void getVideoStreamList(View rootVideoStreamView) {
-//        ArrayList<String> videoStreamArrayList = new ArrayList<>();
-//
-//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        int totalCountOfVideoStreams = pref.getInt(SharedPreferenceConstants.VIDEO_STREAM_TOTAL_NUMBER, 0);
-//
-//        for (int i = 0; i < totalCountOfVideoStreams; i++) {
-//            String videoStreamInitials = SharedPreferenceConstants.HEADER_VIDEO_STREAM.concat(SharedPreferenceConstants.SEPARATOR).
-//                    concat(String.valueOf(i));
-//
-//            String name = pref.getString(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                    concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_NAME), SharedPreferenceConstants.DEFAULT_STRING);
-//            String url = pref.getString(videoStreamInitials.concat(SharedPreferenceConstants.SEPARATOR).
-//                    concat(SharedPreferenceConstants.SUB_HEADER_VIDEO_STREAM_URL), SharedPreferenceConstants.DEFAULT_STRING);
-//
-//            if (!(SharedPreferenceConstants.DEFAULT_STRING.equalsIgnoreCase(name) &&
-//                    SharedPreferenceConstants.DEFAULT_STRING.equalsIgnoreCase(url))) {
-//                videoStreamArrayList.add(name);
-//            }
-//        }
-//
-//        String[] videoStreamStringList = new String[videoStreamArrayList.size()];
-//        videoStreamStringList = videoStreamArrayList.toArray(videoStreamStringList);
-
-//        return videoStreamStringList;
-//    }
-
-//    private String getUserID() {
-//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        String userId = pref.getString(SharedPreferenceConstants.USER_ID,
-//                SharedPreferenceConstants.DEFAULT_STRING);
-//        return userId;
-//    }
-
     private void initVideoListOneSpinner(View rootVideoStreamView) {
         mSpinnerVideoStreamListOne = rootVideoStreamView.findViewById(R.id.spinner_video_stream_selector_one);
         mVideoStreamNameListOne = new ArrayList<>();
         mVideoStreamNameListOne.add(getString(R.string.video_stream_select_spinner_item));
 
-        mSpinnerVideoStreamAdapterOne = new ArrayAdapter(getActivity(),
-                R.layout.spinner_row_video_stream_list, R.id.text_item_video_stream, mVideoStreamNameListOne) {
-
-            @Override
-            public boolean isEnabled(int position) {
-                if (position == 0) {
-                    // Disable the first item from Spinner
-                    // First item will be used as hint
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-
-            @Override
-            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = view.findViewById(R.id.text_item_video_stream);
-                if (position == 0) {
-                    // Set the hint text color gray
-                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_hint_dark_grey, null));
-                } else {
-                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_white, null));
-                }
-                return view;
-            }
-        };
+        mSpinnerVideoStreamAdapterOne = getSpinnerArrayAdapter(mVideoStreamNameListOne);
 
         mSpinnerVideoStreamListOne.setAdapter(mSpinnerVideoStreamAdapterOne);
         mSpinnerVideoStreamListOne.setOnItemSelectedListener(videoStreamOneSpinnerOnItemSelectedListener);
@@ -238,8 +200,15 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         mVideoStreamNameListTwo = new ArrayList<>();
         mVideoStreamNameListTwo.add(getString(R.string.video_stream_select_spinner_item));
 
-        mSpinnerVideoStreamAdapterTwo = new ArrayAdapter(getActivity(),
-                R.layout.spinner_row_video_stream_list, R.id.text_item_video_stream, mVideoStreamNameListTwo) {
+        mSpinnerVideoStreamAdapterTwo = getSpinnerArrayAdapter(mVideoStreamNameListTwo);
+
+        mSpinnerVideoStreamListTwo.setAdapter(mSpinnerVideoStreamAdapterTwo);
+        mSpinnerVideoStreamListTwo.setOnItemSelectedListener(videoStreamTwoSpinnerOnItemSelectedListener);
+    }
+
+    private ArrayAdapter<String> getSpinnerArrayAdapter(ArrayList<String> stringArrayList) {
+        return new ArrayAdapter<String> (getActivity(),
+                R.layout.spinner_row_item, R.id.tv_spinner_row_item_text, stringArrayList) {
 
             @Override
             public boolean isEnabled(int position) {
@@ -255,19 +224,17 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
             @Override
             public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
                 View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = view.findViewById(R.id.text_item_video_stream);
+                TextView tv = view.findViewById(R.id.tv_spinner_row_item_text);
                 if (position == 0) {
                     // Set the hint text color gray
                     tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_hint_dark_grey, null));
                 } else {
                     tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_white, null));
                 }
+
                 return view;
             }
         };
-
-        mSpinnerVideoStreamListTwo.setAdapter(mSpinnerVideoStreamAdapterTwo);
-        mSpinnerVideoStreamListTwo.setOnItemSelectedListener(videoStreamTwoSpinnerOnItemSelectedListener);
     }
 
     private Spinner.OnItemSelectedListener videoStreamOneSpinnerOnItemSelectedListener =
@@ -349,6 +316,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 //        mFilePath = "rtsp://184.72.239.149/vod/mp4:BigBuckBunny_115k.mov";
 
 //        Log.d(TAG, "Playing: " + mFilePath);
+        mLinearLayoutVideoStreamOne = rootVideoStreamView.findViewById(R.id.layout_video_stream_one);
         mConstraintLayoutSurfaceViewOne = rootVideoStreamView.findViewById(R.id.constraint_layout_video_surface_one);
         mSurfaceViewOne = rootVideoStreamView.findViewById(R.id.texture_view_stream_one);
         mVideoStreamControllerViewOne = new VideoStreamControllerView(getContext(), false);
@@ -368,250 +336,357 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 
     private VideoStreamControllerView.MediaPlayerControl videoStreamPlayerOneInterface =
             new VideoStreamControllerView.MediaPlayerControl() {
-        public int getBufferPercentage() {
-            return 0;
-        }
+                public int getBufferPercentage() {
+                    return 0;
+                }
 
-        public int getCurrentPosition() {
-            float pos = mMediaPlayerOne.getPosition();
-            return (int) (pos * getDuration());
-        }
+                public int getCurrentPosition() {
+                    float pos = mMediaPlayerOne.getPosition();
+                    return (int) (pos * getDuration());
+                }
 
-        public int getDuration() {
-            return (int) mMediaPlayerOne.getLength();
-        }
+                public int getDuration() {
+                    return (int) mMediaPlayerOne.getLength();
+                }
 
-        public boolean isPlaying() {
-            return mMediaPlayerOne.isPlaying();
-        }
+                public boolean isPlaying() {
+                    return mMediaPlayerOne.isPlaying();
+                }
 
-        public void pause() {
-            mMediaPlayerOne.pause();
-        }
+                public void pause() {
+                    mMediaPlayerOne.pause();
+                }
 
-        public void takeScreenshot() {
+                public void takeScreenshot() {
 //            Bitmap imageBitmap = screenShot(mSurfaceViewOne);
-            if (mBitmapTakenScreenshot != null) {
-                mBitmapTakenScreenshot.recycle();
-            }
+                    if (mBitmapTakenScreenshot != null) {
+                        mBitmapTakenScreenshot.recycle();
+                    }
 
-            mBitmapTakenScreenshot = mSurfaceViewOne.getBitmap();
-            if (mBitmapTakenScreenshot != null) {
-                String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
-                        mBitmapTakenScreenshot, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
+                    mBitmapTakenScreenshot = mSurfaceViewOne.getBitmap();
+                    if (mBitmapTakenScreenshot != null) {
+                        String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
+                                mBitmapTakenScreenshot, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
 //                System.out.println("imagePath is " + imagePath);
 
-                if (imagePath != null && getSnackbarView() != null) {
-                    StringBuilder screenshotStringBuilder = new StringBuilder();
-                    screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_taken_message));
-                    screenshotStringBuilder.append(System.lineSeparator());
-                    screenshotStringBuilder.append(System.lineSeparator());
-                    screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_create_sitrep_message));
+                        if (imagePath != null && getSnackbarView() != null) {
+                            StringBuilder screenshotStringBuilder = new StringBuilder();
+                            screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_taken_message));
+                            screenshotStringBuilder.append(System.lineSeparator());
+                            screenshotStringBuilder.append(System.lineSeparator());
+                            screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_create_sitrep_message));
 
-                    SnackbarUtil.showCustomAlertSnackbar(mRelativeLayoutMain, getSnackbarView(),
-                            screenshotStringBuilder.toString(), VideoStreamFragment.this);
+                            SnackbarUtil.showCustomAlertSnackbar(mRelativeLayoutMain, getSnackbarView(),
+                                    screenshotStringBuilder.toString(), VideoStreamFragment.this);
+                        }
+                    }
                 }
-            }
-        }
 
-        public void seekTo(int pos) {
-            mMediaPlayerOne.setPosition((float) pos / getDuration());
-        }
+                public void seekTo(int pos) {
+                    mMediaPlayerOne.setPosition((float) pos / getDuration());
+                }
 
-        public void start() {
-            mMediaPlayerOne.play();
-        }
+                public void start() {
+                    mMediaPlayerOne.play();
+                }
 
-        public boolean canPause() {
-            return true;
-        }
+                public boolean canPause() {
+                    return true;
+                }
 
-        public boolean canSeekBackward() {
-            return false;
-        }
+                public boolean canSeekBackward() {
+                    return false;
+                }
 
-        public boolean canSeekForward() {
-            return false;
-        }
+                public boolean canSeekForward() {
+                    return false;
+                }
 
-        @Override
-        public boolean isFullScreen() {
-            return mIsFullscreen;
-        }
+                @Override
+                public boolean isFullScreen() {
+                    return mIsFullscreen;
+                }
 
-        @Override
-        public void toggleFullScreen() {
-            if (!isFullScreen()) {
-                setVideoStreamFullscreen(mConstraintLayoutSurfaceViewOne, mSurfaceViewOne);
-            } else {
-                setVideoStreamDefaultScreen(mConstraintLayoutSurfaceViewOne, mSurfaceViewOne);
-            }
+                @Override
+                public void toggleFullScreen() {
+                    if (!isFullScreen()) {
+                        setVideoStreamFullscreen(mLinearLayoutVideoStreamOne,
+                                mConstraintLayoutSurfaceViewOne);
+                    } else {
+                        if (!EAccessRight.CCT.toString().equalsIgnoreCase(
+                                SharedPreferenceUtil.getCurrentUserAccessRight())) {
+                            setVideoStreamDefaultScreenForOthers(mLinearLayoutVideoStreamOne,
+                                    mConstraintLayoutSurfaceViewOne);
+                        } else {
+                            setVideoStreamDefaultScreenForCCT(mLinearLayoutVideoStreamOne,
+                                    mConstraintLayoutSurfaceViewOne);
+                        }
+                    }
 
-            setOtherUiElementsForFirstVideoStream(!isFullScreen());
-            mIsFullscreen = !mIsFullscreen;
-        }
-    };
+                    if (!EAccessRight.CCT.toString().equalsIgnoreCase(
+                            SharedPreferenceUtil.getCurrentUserAccessRight())) {
+                        setOtherUiElementsForFirstVideoStreamForOthers(!isFullScreen());
+                    } else {
+                        setOtherUiElementsForFirstVideoStreamForCCT(!isFullScreen());
+                    }
+
+                    mIsFullscreen = !mIsFullscreen;
+                }
+            };
 
     private VideoStreamControllerView.MediaPlayerControl videoStreamPlayerTwoInterface =
             new VideoStreamControllerView.MediaPlayerControl() {
-        public int getBufferPercentage() {
-            return 0;
-        }
+                public int getBufferPercentage() {
+                    return 0;
+                }
 
-        public int getCurrentPosition() {
-            float pos = mMediaPlayerTwo.getPosition();
-            return (int) (pos * getDuration());
-        }
+                public int getCurrentPosition() {
+                    float pos = mMediaPlayerTwo.getPosition();
+                    return (int) (pos * getDuration());
+                }
 
-        public int getDuration() {
-            return (int) mMediaPlayerTwo.getLength();
-        }
+                public int getDuration() {
+                    return (int) mMediaPlayerTwo.getLength();
+                }
 
-        public boolean isPlaying() {
-            return mMediaPlayerTwo.isPlaying();
-        }
+                public boolean isPlaying() {
+                    return mMediaPlayerTwo.isPlaying();
+                }
 
-        public void pause() {
-            mMediaPlayerTwo.pause();
-        }
+                public void pause() {
+                    mMediaPlayerTwo.pause();
+                }
 
-        public void takeScreenshot() {
+                public void takeScreenshot() {
 //            Bitmap imageBitmap = screenShot(mSurfaceViewOne);
-            if (mBitmapTakenScreenshot != null) {
-                mBitmapTakenScreenshot.recycle();
-            }
+                    if (mBitmapTakenScreenshot != null) {
+                        mBitmapTakenScreenshot.recycle();
+                    }
 
-            mBitmapTakenScreenshot = mSurfaceViewTwo.getBitmap();
+                    mBitmapTakenScreenshot = mSurfaceViewTwo.getBitmap();
 
-            if (mBitmapTakenScreenshot != null) {
-                String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
-                        mBitmapTakenScreenshot, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
+                    if (mBitmapTakenScreenshot != null) {
+                        String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
+                                mBitmapTakenScreenshot, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
 //                System.out.println("imagePath is " + imagePath);
 
-                if (imagePath != null && getSnackbarView() != null) {
-                    StringBuilder screenshotStringBuilder = new StringBuilder();
-                    screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_taken_message));
-                    screenshotStringBuilder.append(System.lineSeparator());
-                    screenshotStringBuilder.append(System.lineSeparator());
-                    screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_create_sitrep_message));
+                        if (imagePath != null && getSnackbarView() != null) {
+                            StringBuilder screenshotStringBuilder = new StringBuilder();
+                            screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_taken_message));
+                            screenshotStringBuilder.append(System.lineSeparator());
+                            screenshotStringBuilder.append(System.lineSeparator());
+                            screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_create_sitrep_message));
 
-                    SnackbarUtil.showCustomAlertSnackbar(mRelativeLayoutMain, getSnackbarView(),
-                            screenshotStringBuilder.toString(), VideoStreamFragment.this);
+                            SnackbarUtil.showCustomAlertSnackbar(mRelativeLayoutMain, getSnackbarView(),
+                                    screenshotStringBuilder.toString(), VideoStreamFragment.this);
+                        }
+                    }
                 }
-            }
-        }
 
-        public void seekTo(int pos) {
-            mMediaPlayerTwo.setPosition((float) pos / getDuration());
-        }
+                public void seekTo(int pos) {
+                    mMediaPlayerTwo.setPosition((float) pos / getDuration());
+                }
 
-        public void start() {
-            mMediaPlayerTwo.play();
-        }
+                public void start() {
+                    mMediaPlayerTwo.play();
+                }
 
-        public boolean canPause() {
-            return true;
-        }
+                public boolean canPause() {
+                    return true;
+                }
 
-        public boolean canSeekBackward() {
-            return false;
-        }
+                public boolean canSeekBackward() {
+                    return false;
+                }
 
-        public boolean canSeekForward() {
-            return false;
-        }
+                public boolean canSeekForward() {
+                    return false;
+                }
 
-        @Override
-        public boolean isFullScreen() {
-            return mIsFullscreen;
-        }
+                @Override
+                public boolean isFullScreen() {
+                    return mIsFullscreen;
+                }
 
-        @Override
-        public void toggleFullScreen() {
-            if (!isFullScreen()) {
-                setVideoStreamFullscreen(mConstraintLayoutSurfaceViewTwo, mSurfaceViewTwo);
-            } else {
-                setVideoStreamDefaultScreen(mConstraintLayoutSurfaceViewTwo, mSurfaceViewTwo);
-            }
+                @Override
+                public void toggleFullScreen() {
+                    if (!isFullScreen()) {
+                        setVideoStreamFullscreen(mLinearLayoutVideoStreamTwo,
+                                mConstraintLayoutSurfaceViewTwo);
+                    } else {
+                        setVideoStreamDefaultScreenForCCT(mLinearLayoutVideoStreamTwo,
+                                mConstraintLayoutSurfaceViewTwo);
+                    }
 
-            setOtherUiElementsForSecondVideoStream(!isFullScreen());
-            mIsFullscreen = !mIsFullscreen;
-        }
-    };
+                    setOtherUiElementsForSecondVideoStreamForCCT(!isFullScreen());
+                    mIsFullscreen = !mIsFullscreen;
+                }
+            };
 
-    private void setVideoStreamFullscreen(ConstraintLayout constraintLayout, TextureView textureView) {
-        ConstraintLayout.LayoutParams constraintLayoutParams = new ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
-        LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+    // ---------------------------------------- Video Stream Layouts ---------------------------------------- //
 
-        constraintLayoutParams.width = DimensionUtil.getScreenWidth();
-        constraintLayoutParams.height = DimensionUtil.getScreenHeightWithoutNavAndStatusBar();
-        linearLayoutParams.width = DimensionUtil.getScreenWidth();
-        linearLayoutParams.height = DimensionUtil.getScreenHeightWithoutNavAndStatusBar();
+    /**
+     * Set default dimension layout for users other than CCT
+     *
+     * @param linearLayout
+     * @param constraintLayout
+     */
+    private void setVideoStreamDefaultLayoutForOthers(LinearLayout linearLayout,
+                                                      ConstraintLayout constraintLayout) {
+        DimensionUtil.setDimensions(linearLayout,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                new LinearLayout(getContext()));
 
+        DimensionUtil.setDimensions(constraintLayout,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                (int) getResources().getDimension(R.dimen.video_stream_single_texture_view_height),
+                new LinearLayout(getContext()));
+    }
+
+    /**
+     * Set default dimension layout for CCT users
+     *
+     * @param linearLayout
+     * @param constraintLayout
+     */
+    private void setVideoStreamDefaultLayoutForCCT(LinearLayout linearLayout,
+                                                   ConstraintLayout constraintLayout) {
+        DimensionUtil.setDimensions(linearLayout,
+                0, LinearLayout.LayoutParams.WRAP_CONTENT,
+                new LinearLayout(getContext()));
+
+        DimensionUtil.setDimensions(constraintLayout,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                (int) getResources().getDimension(R.dimen.video_stream_double_texture_view_height),
+                new LinearLayout(getContext()));
+    }
+
+    /**
+     * Set visibility of main activity components including Side and Bottom Panels
+     *
+     * @param visibility
+     */
+    private void setMainActivityComponents(int visibility) {
         if (getActivity() instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) getActivity();
             if (mainActivity.getMainSidePanel() != null) {
-                mainActivity.getMainSidePanel().setVisibility(View.GONE);
+                mainActivity.getMainSidePanel().setVisibility(visibility);
             }
             if (mainActivity.getMainBottomPanel() != null) {
-                mainActivity.getMainBottomPanel().setVisibility(View.GONE);
+                mainActivity.getMainBottomPanel().setVisibility(visibility);
             }
         }
-
-        constraintLayout.setLayoutParams(linearLayoutParams);
-        textureView.setLayoutParams(constraintLayoutParams);
-        constraintLayout.requestLayout();
-        textureView.requestLayout();
     }
 
-    private void setVideoStreamDefaultScreen(ConstraintLayout constraintLayout, TextureView textureView) {
-        ConstraintLayout.LayoutParams constraintLayoutParams = new ConstraintLayout.LayoutParams(
-                DimensionUtil.convertDpsToPixel(DEFAULT_VIDEO_VIEW_WIDTH),
-                DimensionUtil.convertDpsToPixel(DEFAULT_VIDEO_VIEW_HEIGHT));
-        LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(
-                DimensionUtil.convertDpsToPixel(DEFAULT_VIDEO_VIEW_WIDTH),
-                DimensionUtil.convertDpsToPixel(DEFAULT_VIDEO_VIEW_HEIGHT));
-        linearLayoutParams.gravity = Gravity.CENTER;
-
-        if (getActivity() instanceof MainActivity) {
-            MainActivity mainActivity = (MainActivity) getActivity();
-            if (mainActivity.getMainSidePanel() != null) {
-                mainActivity.getMainSidePanel().setVisibility(View.VISIBLE);
-            }
-            if (mainActivity.getMainBottomPanel() != null) {
-                mainActivity.getMainBottomPanel().setVisibility(View.VISIBLE);
-            }
-        }
-
-        constraintLayout.setLayoutParams(linearLayoutParams);
-        textureView.setLayoutParams(constraintLayoutParams);
-        constraintLayout.requestLayout();
-        textureView.requestLayout();
+    /**
+     * Sets given view's dimension to fullscreen
+     *
+     * @param view
+     */
+    private void setLayoutFullScreen(View view) {
+        DimensionUtil.setDimensions(view,
+                DimensionUtil.getScreenWidth(),
+                DimensionUtil.getScreenHeightWithoutNavAndStatusBar(),
+                new LinearLayout(getContext()));
     }
 
-    private void setOtherUiElementsForFirstVideoStream(boolean isFullScreen) {
+    /**
+     * Sets video stream layout to full screen
+     *
+     * @param linearLayout
+     * @param constraintLayout
+     */
+    private void setVideoStreamFullscreen(LinearLayout linearLayout, ConstraintLayout constraintLayout) {
+
+        mRelativeLayoutMain.setPadding(0, 0, 0, 0);
+
+        setLayoutFullScreen(linearLayout);
+        setLayoutFullScreen(constraintLayout);
+
+        setMainActivityComponents(View.GONE);
+    }
+
+    /**
+     * Set default screen dimension for users other than CCT
+     *
+     * @param linearLayout
+     * @param constraintLayout
+     */
+    private void setVideoStreamDefaultScreenForOthers(LinearLayout linearLayout, ConstraintLayout constraintLayout) {
+
+        mRelativeLayoutMain.setPadding((int) getResources().getDimension(R.dimen.elements_margin_spacing),
+                (int) getResources().getDimension(R.dimen.elements_margin_spacing),
+                (int) getResources().getDimension(R.dimen.elements_margin_spacing),
+                (int) getResources().getDimension(R.dimen.elements_margin_spacing));
+
+        setVideoStreamDefaultLayoutForOthers(linearLayout, constraintLayout);
+        setMainActivityComponents(View.VISIBLE);
+    }
+
+    /**
+     * Sets default screen dimension for CCT users
+     *
+     * @param linearLayout
+     * @param constraintLayout
+     */
+    private void setVideoStreamDefaultScreenForCCT(LinearLayout linearLayout, ConstraintLayout constraintLayout) {
+
+        mRelativeLayoutMain.setPadding((int) getResources().getDimension(R.dimen.elements_margin_spacing),
+                (int) getResources().getDimension(R.dimen.elements_margin_spacing),
+                        (int) getResources().getDimension(R.dimen.elements_margin_spacing),
+                                (int) getResources().getDimension(R.dimen.elements_margin_spacing));
+
+        setVideoStreamDefaultLayoutForCCT(linearLayout, constraintLayout);
+        setMainActivityComponents(View.VISIBLE);
+    }
+
+    /**
+     * Sets other UI layouts accordingly based on default or fullscreen,
+     * other than those that are included in the first video stream layouts;
+     * This is for users other than CCT
+     *
+     * @param isFullScreen
+     */
+    private void setOtherUiElementsForFirstVideoStreamForOthers(boolean isFullScreen) {
         if (isFullScreen) {
             mRelativeLayoutToolbarOne.setVisibility(View.GONE);
-            mRelativeLayoutToolbarTwo.setVisibility(View.GONE);
-            mConstraintLayoutSurfaceViewTwo.setVisibility(View.GONE);
         } else {
             mRelativeLayoutToolbarOne.setVisibility(View.VISIBLE);
-            mRelativeLayoutToolbarTwo.setVisibility(View.VISIBLE);
-            mConstraintLayoutSurfaceViewTwo.setVisibility(View.VISIBLE);
         }
     }
 
-    private void setOtherUiElementsForSecondVideoStream(boolean isFullScreen) {
+    /**
+     * Sets other UI layouts accordingly based on default or fullscreen,
+     * other than those that are included in the first video stream layouts;
+     * This is for CCT users
+     *
+     * @param isFullScreen
+     */
+    private void setOtherUiElementsForFirstVideoStreamForCCT(boolean isFullScreen) {
         if (isFullScreen) {
             mRelativeLayoutToolbarOne.setVisibility(View.GONE);
-            mRelativeLayoutToolbarTwo.setVisibility(View.GONE);
-            mConstraintLayoutSurfaceViewOne.setVisibility(View.GONE);
+            mLinearLayoutVideoStreamTwo.setVisibility(View.GONE);
         } else {
             mRelativeLayoutToolbarOne.setVisibility(View.VISIBLE);
+            mLinearLayoutVideoStreamTwo.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Sets other UI layouts accordingly based on default or fullscreen,
+     * other than those that are included in the second video stream layouts;
+     * This is for CCT users
+     *
+     * @param isFullScreen
+     */
+    private void setOtherUiElementsForSecondVideoStreamForCCT(boolean isFullScreen) {
+        if (isFullScreen) {
+            mLinearLayoutVideoStreamOne.setVisibility(View.GONE);
+            mRelativeLayoutToolbarTwo.setVisibility(View.GONE);
+        } else {
+            mLinearLayoutVideoStreamOne.setVisibility(View.VISIBLE);
             mRelativeLayoutToolbarTwo.setVisibility(View.VISIBLE);
-            mConstraintLayoutSurfaceViewOne.setVisibility(View.VISIBLE);
         }
     }
 
@@ -620,15 +695,6 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         public void onClick(View view) {
             Fragment videoStreamAddFragment = new VideoStreamAddFragment();
             navigateToFragment(videoStreamAddFragment);
-
-//            navigateToFragmentTransition(R.id.layout_video_stream_fragment, videoStreamAddFragment);
-//            FragmentManager fm = getActivity().getSupportFragmentManager();
-//            FragmentTransaction ft = fm.beginTransaction();
-//            ft.setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right, R.anim.slide_out_to_right);
-//            ft.replace(R.id.layout_video_stream_fragment, videoStreamAddFragment, videoStreamAddFragment.getClass().getSimpleName());
-////            ft.addToBackStack(videoStreamAddFragment.getClass().getSimpleName());
-//            ft.addToBackStack(null);
-//            ft.commit();
         }
     };
 
@@ -742,20 +808,25 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         if (mLibVlcOne == null)
             return;
 
+        Log.i(TAG, "Releasing video player one");
         mMediaPlayerOne.stop();
-        final IVLCVout vOutOne = mMediaPlayerOne.getVLCVout();
-        vOutOne.removeCallback(firstIVLCVoutCallback);
-        vOutOne.detachViews();
-//        mSurfaceHolderOne = null;
-        mLibVlcOne.release();
-        mLibVlcOne = null;
+
+//        mLibVlcOne.release();
+//        mLibVlcOne = null;
+//
+//        final IVLCVout vOutOne = mMediaPlayerOne.getVLCVout();
+//        mMediaPlayerOne.release();
+//        vOutOne.removeCallback(firstIVLCVoutCallback);
+//        vOutOne.detachViews();
     }
 
     private void releasePlayerTwo() {
         if (mLibVlcTwo == null)
             return;
 
+        Log.i(TAG, "Releasing video player two");
         mMediaPlayerTwo.stop();
+        mMediaPlayerTwo.release();
         final IVLCVout vOutTwo = mMediaPlayerTwo.getVLCVout();
         vOutTwo.removeCallback(secondIVLCVoutCallback);
         vOutTwo.detachViews();
@@ -988,31 +1059,17 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 
     private void onVisible() {
         Log.d(TAG, "onVisible");
-
-        FragmentManager fm = getChildFragmentManager();
-        boolean isFragmentFound = false;
-
-        int count = fm.getBackStackEntryCount();
-
-        // Checks if current fragment exists in Back stack
-        for (int i = 0; i < count; i++) {
-            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
-                isFragmentFound = true;
-            }
-        }
-
-        // If not found, add to current fragment to Back stack
-        if (!isFragmentFound) {
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.addToBackStack(this.getClass().getSimpleName());
-            ft.commit();
-        }
     }
 
     private void onInvisible() {
         Log.d(TAG, "onInvisible");
 //        hideKeyboard();
-        releasePlayers();
+
+        CloseVideoStreamsAsyncTask task = new CloseVideoStreamsAsyncTask();
+        task.execute();
+//        releasePlayers();
+
+
 //        if (Util.SDK_INT <= 23) {
 //            releasePlayer();
 //        }
@@ -1074,10 +1131,18 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
             onInvisible();
         }
 
+//        releasePlayers();
 
 //        if (Util.SDK_INT > 23) {
 //            releasePlayer();
 //        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+//        releasePlayers();
     }
 
 //    @Override
@@ -1098,4 +1163,17 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 //        }
 //
 //    }
+
+    private class CloseVideoStreamsAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        CloseVideoStreamsAsyncTask() {
+        }
+
+        @Override
+        protected Void doInBackground(final Void... param) {
+            releasePlayers();
+
+            return null;
+        }
+    }
 }

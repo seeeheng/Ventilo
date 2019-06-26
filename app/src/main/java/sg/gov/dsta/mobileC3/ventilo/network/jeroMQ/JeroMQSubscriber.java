@@ -1,6 +1,8 @@
 package sg.gov.dsta.mobileC3.ventilo.network.jeroMQ;
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.zeromq.SocketType;
@@ -12,7 +14,12 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.util.PowerManagerUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 
 public class JeroMQSubscriber extends JeroMQParentSubscriber {
 
@@ -22,10 +29,9 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber {
 //    protected static final String CLIENT_SUB_IP_ADDRESS = "tcp://192.168.1.2:" +
 //            JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT;
 
-
     private static volatile JeroMQSubscriber instance;
 
-//    private List<String> CLIENT_SUB_IP_ADDRESSES;
+    //    private List<String> CLIENT_SUB_IP_ADDRESSES;
     private List<String> mClientSubEndpointList;
     private List<Socket> mSocketList;
 
@@ -53,8 +59,12 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber {
             synchronized (JeroMQSubscriber.class) {
                 if (instance == null) {
                     instance = new JeroMQSubscriber();
+                } else {
+                    instance.initExecutorService();
                 }
             }
+        } else {
+            instance.initExecutorService();
         }
 
         return instance;
@@ -79,8 +89,11 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber {
 //        mClientSubEndpointList.add("tcp://192.168.1.58:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 //        mClientSubEndpointList.add("tcp://192.168.1.94:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 
+//        mClientSubEndpointList.add("tcp://192.168.43.38:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 //        mClientSubEndpointList.add("tcp://192.168.43.58:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 //        mClientSubEndpointList.add("tcp://192.168.43.94:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
+
+//        mClientSubEndpointList.add("tcp://198.18.2.6:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 
 //        mClientSubEndpointList.add("tcp://*:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 
@@ -89,11 +102,35 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber {
 //                JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 
 
-
 //        mSubSocket = mZContext.createSocket(SocketType.SUB);
 //        mSubSocket.connect(CLIENT_SUB_IP_ADDRESS);
 //        mSubSocket.setLinger(-1);
 ////        mSocket.setSndHWM(   0 );
+
+
+
+
+//        String ownDeviceIpAddress = (String) SharedPreferenceUtil.getSharedPreference(
+//                SharedPreferenceConstants.USER_DEVICE_IP_ADDRESS, StringUtil.EMPTY_STRING);
+//
+//        String[] fixedIpAddresses = MainApplication.getAppContext().getResources().
+//                getStringArray(R.array.login_user_mobile_ip_addresses);
+//
+//        for (int i = 0; i < fixedIpAddresses.length; i++) {
+//            if (!ownDeviceIpAddress.equalsIgnoreCase(fixedIpAddresses[i])) {
+//                String endpoint = "tcp://";
+//                endpoint = endpoint.concat(fixedIpAddresses[i]).concat(StringUtil.COLON);
+//                endpoint = endpoint.concat(String.valueOf(JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT));
+//
+//                Log.d(TAG, "Endpoint " + i + ":" + endpoint);
+//
+//                mClientSubEndpointList.add(endpoint);
+//            }
+//        }
+
+
+
+
 
         Log.i(TAG, "Client sub sockets connected");
 
@@ -105,6 +142,7 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber {
                 for (int i = 0; i < mClientSubEndpointList.size(); i++) {
                     Socket socket = mZContext.createSocket(SocketType.SUB);
 //            socket.setHWM(5000);
+                    socket.setMaxMsgSize(-1);
                     socket.setLinger(0);
                     socket.connect(mClientSubEndpointList.get(i));
 //                    boolean isConnected;

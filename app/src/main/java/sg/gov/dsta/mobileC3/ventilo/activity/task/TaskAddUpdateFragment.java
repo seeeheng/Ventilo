@@ -1,7 +1,9 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.task;
 
 import android.annotation.SuppressLint;
+import android.app.Application;
 import android.arch.lifecycle.ViewModelProviders;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -30,6 +32,8 @@ import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.database.DatabaseOperation;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
@@ -37,8 +41,10 @@ import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.TaskViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserTaskJoinViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
+import sg.gov.dsta.mobileC3.ventilo.repository.TaskRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ProgressBarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView;
@@ -128,6 +134,9 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
      */
     private void initUI(LayoutInflater inflater, View rootView) {
         mMainLayout = rootView.findViewById(R.id.layout_add_update_task_fragment);
+
+        // Show loading progress dialog upon start of page data setup
+        ProgressBarUtil.createProgressDialog(getContext());
 
         initToolbarUI(rootView);
         initTaskTypeUI(rootView);
@@ -236,6 +245,13 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
                 List<String> taskPhaseList = sortUpdatedPhaseList(taskModelList);
                 List<String> taskNameList = sortUpdatedTaskNameList(taskModelList);
+
+                if (taskPhaseList.size() == 0) {
+                    taskPhaseList.add(getString(R.string.dashboard_task_phase_one));
+                    taskPhaseList.add(getString(R.string.dashboard_task_phase_two));
+                    taskPhaseList.add(getString(R.string.dashboard_task_phase_three));
+                    taskPhaseList.add(getString(R.string.dashboard_task_phase_four));
+                }
 
                 mTaskPhaseExpandableListAdapter.setChildList(taskPhaseList);
                 mTaskPhaseExpandableListAdapter.notifyDataSetChanged();
@@ -713,45 +729,45 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                 // Get a list of a list of team profile names (by removing commas and spaces from
                 // each UserModel.getTeam())
                 // For e.g., original list from UserModel.getTeam()
-                // String item 1 -> Alpha
-                // String item 2 -> Alpha, Bravo
+                // String item 1 -> 456
+                // String item 2 -> 456, 853
                 // will be streamed to:
-                // List<String> item 1 -> (Sub-item 1) Alpha
-                // List<String> item 2 -> (Sub-item 1) Alpha | (Sub-item 2) Bravo
+                // List<String> item 1 -> (Sub-item 1) 456
+                // List<String> item 2 -> (Sub-item 1) 456 | (Sub-item 2) 853
                 // and finally streamed into List<List<String>>
-                List<List<String>> listOfListOfTeamsProfileNames = userModelList.stream().map(
-                        UserModel -> Arrays.asList(StringUtil.removeCommasAndExtraSpaces(UserModel.getTeam()))).
+                List<List<String>> listOfListOfProfileUserIds = userModelList.stream().map(
+                        UserModel -> Arrays.asList(StringUtil.removeCommasAndExtraSpaces(UserModel.getUserId()))).
                         collect(Collectors.toList());
 
-                System.out.println("listOfListOfTeamsProfileNames is " + listOfListOfTeamsProfileNames);
+                Log.i(TAG, "listOfListOfProfileUserIds: " + listOfListOfProfileUserIds);
 
                 // Converts the above list of list into a flat/single hierachy list
                 // and extract ONLY distinct values
                 // Above example will stream to flat hierachical list of:
-                // List<String> item 1 -> Alpha
-                // List<String> item 2 -> Alpha
-                // List<String> item 3 -> Bravo
+                // List<String> item 1 -> 456
+                // List<String> item 2 -> 456
+                // List<String> item 3 -> 853
                 // And then to distinct value of:
-                // List<String> item 1 -> Alpha
-                // List<String> item 2 -> Bravo
-                List<Object> flatListOfDistinctTeamsProfileNames =
-                        listOfListOfTeamsProfileNames.stream()
+                // List<String> item 1 -> 456
+                // List<String> item 2 -> 853
+                List<Object> flatListOfDistinctProfileUserIds =
+                        listOfListOfProfileUserIds.stream()
                                 .flatMap(list -> list.stream()).distinct()
                                 .collect(Collectors.toList());
 
-                // Create button layout for each Team user
-                for (int i = 0; i < flatListOfDistinctTeamsProfileNames.size(); i++) {
+                // Create button layout for each userId
+                for (int i = 0; i < flatListOfDistinctProfileUserIds.size(); i++) {
                     View viewBtnAssignToTeam = inflater.inflate(R.layout.layout_img_text_fixed_dimension_img_btn, null);
                     C2OpenSansSemiBoldTextView tvAssignToTeam = viewBtnAssignToTeam.
                             findViewById(R.id.tv_img_text_fixed_dimension_text_img_btn);
                     AppCompatImageView imgAssignToTeam = viewBtnAssignToTeam.
                             findViewById(R.id.img_img_text_fixed_dimension_pic_img_btn);
 
-                    // Set Team Name
+                    // Set UserIds
                     StringBuilder teamName = new StringBuilder();
                     teamName.append(getString(R.string.team_header));
                     teamName.append(StringUtil.SPACE);
-                    teamName.append(flatListOfDistinctTeamsProfileNames.get(i).toString().trim());
+                    teamName.append(flatListOfDistinctProfileUserIds.get(i).toString().trim());
                     tvAssignToTeam.setText(teamName.toString());
 
                     // Set default unselected image
@@ -787,6 +803,9 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
                 // Checks Bundle here ONLY after inflating required 'Assign To' data for checks
                 checkBundle(true);
+
+                // Dismiss progress dialog after page settings have been loaded
+                ProgressBarUtil.dismissProgressDialog();
             }
 
             @Override
@@ -820,6 +839,8 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                 R.color.primary_text_hint_dark_grey));
         imgAssignToTeam.setImageDrawable(ResourcesCompat.getDrawable(
                 getResources(), R.drawable.icon_new_unselected, null));
+        imgAssignToTeam.setColorFilter(ContextCompat.getColor(
+                getContext(), R.color.translucent), PorterDuff.Mode.SRC_ATOP);
     }
 
     /**
@@ -1040,10 +1061,15 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                 taskModel.setRefId(taskId);
                 mTaskViewModel.updateTask(taskModel);
 
-                // Store UserTaskJoin data locally
-                UserTaskJoinModel newUserTaskJoinModel = new UserTaskJoinModel(
-                        userId, taskId);
-                mUserTaskJoinViewModel.addUserTaskJoin(newUserTaskJoinModel);
+                // AssignedTo is used as userId(s) for UserTaskJoin composite table in local database
+                // Create row for UserTaskJoin with userId and taskId
+                String assignedToGroup = taskModel.getAssignedTo();
+                String[] assignedToGroupsArray = StringUtil.removeCommasAndExtraSpaces(assignedToGroup);
+                for (int i = 0; i < assignedToGroupsArray.length; i++) {
+                    UserTaskJoinModel userTaskJoinModel = new
+                            UserTaskJoinModel(assignedToGroupsArray[i].trim(), taskId);
+                    mUserTaskJoinViewModel.addUserTaskJoin(userTaskJoinModel);
+                }
 
                 // Send newly created Task model to all other devices
                 JeroMQBroadcastOperation.broadcastDataInsertionOverSocket(taskModel);
@@ -1283,7 +1309,11 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                     // Create new Task, store in local database and broadcast to other connected devices
                     TaskModel newTaskModel = createNewOrUpdateTaskModelFromForm(
                             false);
+
                     addItemToLocalDatabaseAndBroadcast(newTaskModel, userModel.getUserId());
+//                    TaskRepository taskRepo = new TaskRepository((Application) MainApplication.getAppContext());
+//                    DatabaseOperation databaseOperation = new DatabaseOperation();
+//                    databaseOperation.insertTaskIntoDatabaseAndBroadcast(taskRepo, newTaskModel);
 
                 } else {    // Update button
 
@@ -1320,12 +1350,12 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
             @Override
             public void onError(Throwable e) {
                 Log.d(TAG, "onError singleObserverUser, " +
-                        "addSitRepToCompositeTableInDatabase. " +
+                        "performActionClick. " +
                         "Error Msg: " + e.toString());
             }
         };
 
-        mUserViewModel.queryUserByAccessToken(SharedPreferenceUtil.getCurrentUserAccessToken(),
+        mUserViewModel.queryUserByUserId(SharedPreferenceUtil.getCurrentUserCallsignID(),
                 singleObserverUser);
     }
 

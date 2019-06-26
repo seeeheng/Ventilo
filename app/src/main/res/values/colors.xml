@@ -30,6 +30,7 @@
     <color name="primary_text_grey">#ADADAD</color>
     <color name="primary_text_hint_dark_grey">#6D6D6D</color>
     <color name="secondary_main_grey">#1F1F1F</color>
+    <color name="secondary_main_grey_half_opacity">#AA1F1F1F</color>
     <color name="divider_line_primary_grey">#3E3E3E</color>
     <color name="divider_line_secondary_grey">#707070</color>
     <!--<color name="img_btn_space_blue">#1D2951</color>-->
