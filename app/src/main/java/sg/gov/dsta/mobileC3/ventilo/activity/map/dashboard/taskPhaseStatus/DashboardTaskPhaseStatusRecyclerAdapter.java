@@ -11,7 +11,7 @@ import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EStatus;
 
 public class DashboardTaskPhaseStatusRecyclerAdapter extends RecyclerView.Adapter<DashboardTaskPhaseStatusViewHolder> {
 

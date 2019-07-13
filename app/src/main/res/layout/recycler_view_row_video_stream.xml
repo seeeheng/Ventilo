@@ -52,28 +52,4 @@
 
     </LinearLayout>
 
-    <!--<android.support.constraint.ConstraintLayout-->
-        <!--android:id="@+id/layout_video_stream_save_error_text"-->
-        <!--android:layout_width="120dp"-->
-        <!--android:layout_height="43dp"-->
-        <!--android:layout_alignParentEnd="true"-->
-        <!--android:visibility="visible"-->
-        <!--tools:layout_editor_absoluteX="288dp"-->
-        <!--tools:layout_editor_absoluteY="30dp"-->
-        <!--android:layout_marginTop="30dp"-->
-        <!--android:layout_marginEnd="@dimen/minor_margin">-->
-
-        <!--<sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView-->
-            <!--android:id="@+id/tv_video_stream_save_error_text"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:background="@drawable/popup_inline_error_bg"-->
-            <!--android:paddingStart="@dimen/elements_vertical_margin_spacing"-->
-            <!--android:paddingTop="@dimen/side_margin"-->
-            <!--android:text="@string/video_stream_error_save_required"-->
-            <!--android:textColor="@color/background_main_black"-->
-            <!--android:textSize="@dimen/error_hint_text_size" />-->
-
-    <!--</android.support.constraint.ConstraintLayout>-->
-
 </RelativeLayout>

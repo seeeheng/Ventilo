@@ -1,214 +1,261 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_video_stream_fragment"
-    android:padding="@dimen/elements_margin_spacing"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/elements_margin_spacing"
+    android:paddingEnd="@dimen/elements_margin_spacing"
+    android:paddingBottom="@dimen/elements_margin_spacing">
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:weightSum="100">
+            android:weightSum="99">
 
+            <!-- Video Stream One & Video Stream Four -->
             <LinearLayout
-                android:id="@+id/layout_video_stream_one"
+                android:id="@+id/layout_video_stream_one_and_four"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="50">
+                android:layout_marginStart="@dimen/elements_margin_spacing"
+                android:layout_weight="33"
+                android:orientation="vertical">
 
-                <RelativeLayout
-                    android:id="@+id/layout_video_stream_one_toolbar"
+                <LinearLayout
+                    android:id="@+id/layout_video_stream_one"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/elements_margin_spacing"
+                    android:orientation="vertical">
 
                     <RelativeLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:id="@+id/layout_video_stream_one_toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/elements_margin_spacing">
 
-                        <android.support.v7.widget.AppCompatImageView
-                            android:id="@+id/img_btn_video_stream_setting"
-                            android:layout_width="@dimen/video_stream_btn_width"
-                            android:layout_height="@dimen/video_stream_btn_height"
-                            android:background="?android:selectableItemBackground"
-                            app:srcCompat="@drawable/btn_setting" />
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <android.support.v7.widget.AppCompatImageView
+                                android:id="@+id/img_btn_video_stream_setting"
+                                android:layout_width="@dimen/video_stream_btn_width"
+                                android:layout_height="@dimen/video_stream_btn_height"
+                                android:background="?android:selectableItemBackground"
+                                app:srcCompat="@drawable/btn_setting" />
+
+                        </RelativeLayout>
+
+                        <Spinner
+                            android:id="@+id/spinner_video_stream_selector_one"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="@drawable/spinner_rect"
+                            android:gravity="end"
+                            android:spinnerMode="dropdown" />
 
                     </RelativeLayout>
 
-                    <Spinner
-                        android:id="@+id/spinner_video_stream_selector_one"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:background="@drawable/spinner_rect"
-                        android:gravity="end"
-                        android:spinnerMode="dropdown" />
-
-                </RelativeLayout>
-
-                <android.support.constraint.ConstraintLayout
-                    android:id="@+id/constraint_layout_video_surface_one"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/video_stream_double_texture_view_height"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="@dimen/elements_margin_spacing"
-                    android:background="@drawable/img_view_background_with_border"
-                    android:foregroundGravity="clip_horizontal|clip_vertical"
-                    tools:ignore="true">
-                    <!--android:background="@color/image_white">-->
-
-                    <!--<com.google.android.exoplayer2.ui.PlayerView-->
-                    <!--android:id="@+id/video_view_stream_one_exo"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent"-->
-                    <!--android:layout_gravity="center"-->
-                    <!--android:layout_margin="@dimen/thin_line_margin" />-->
-
-                    <!--<ProgressBar-->
-                    <!--android:id="@+id/loading"-->
-                    <!--android:layout_width="70dp"-->
-                    <!--android:layout_height="70dp"-->
-                    <!--android:layout_gravity="center"/>-->
-
-                    <TextureView
-                        android:id="@+id/texture_view_stream_one"
+                    <include
+                        android:id="@+id/layout_video_stream_container_one"
+                        layout="@layout/layout_video_stream_container"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:layout_margin="@dimen/thin_line_margin" />
+                        android:layout_height="wrap_content" />
 
-                    <!--<VideoView-->
-                    <!--android:id="@+id/video_view_stream_one"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent"-->
-                    <!--android:layout_margin="@dimen/thin_line_margin"/>-->
+                </LinearLayout>
 
-                </android.support.constraint.ConstraintLayout>
-
-            </LinearLayout>
-            <!--<LinearLayout-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginBottom="@dimen/side_margin"-->
-            <!--android:gravity="center"-->
-            <!--android:orientation="horizontal"-->
-            <!--android:weightSum="100">-->
-
-            <!--&lt;!&ndash;<sg.gov.dsta.mobileC3.ventilo.util.component.C2LatoRegularTextView&ndash;&gt;-->
-            <!--&lt;!&ndash;android:id="@+id/tv_first_video_url_title_header"&ndash;&gt;-->
-            <!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;-->
-            <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
-            <!--&lt;!&ndash;android:layout_marginEnd="@dimen/side_margin"&ndash;&gt;-->
-            <!--&lt;!&ndash;android:focusable="true"&ndash;&gt;-->
-            <!--&lt;!&ndash;android:focusableInTouchMode="true"&ndash;&gt;-->
-            <!--&lt;!&ndash;android:text="@string/first_video_stream_URL_Title"&ndash;&gt;-->
-            <!--&lt;!&ndash;android:textColor="@color/dark_cyan"&ndash;&gt;-->
-            <!--&lt;!&ndash;android:textSize="@dimen/hint_text_size" />&ndash;&gt;-->
-
-            <!--<sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicLightEditTextView-->
-            <!--android:id="@+id/etv_first_video_url_title_detail"-->
-            <!--android:layout_width="0dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginEnd="@dimen/side_margin"-->
-            <!--android:layout_weight="80"-->
-            <!--android:background="@drawable/rounded_edit_text"-->
-            <!--android:hint="@string/first_video_stream_URL_hint"-->
-            <!--android:padding="@dimen/side_margin"-->
-            <!--android:textColor="@color/background_main_black"-->
-            <!--android:textColorHint="@color/circle_image_border_grey"-->
-            <!--android:textSize="@dimen/hint_text_size" />-->
-
-            <!--<RelativeLayout-->
-            <!--android:layout_width="0dp"-->
-            <!--android:layout_height="40dp"-->
-            <!--android:layout_weight="20">-->
-
-            <!--<sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton-->
-            <!--android:id="@+id/btn_first_video_stream_link"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_gravity="center"-->
-            <!--android:background="@drawable/img_btn_background"-->
-            <!--android:foreground="?android:selectableItemBackground"-->
-            <!--android:text="@string/btn_stream" />-->
-
-            <!--<sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBlackButton-->
-            <!--android:id="@+id/btn_first_video_edit_link"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_gravity="center"-->
-            <!--android:background="@drawable/img_btn_background"-->
-            <!--android:foreground="?android:selectableItemBackground"-->
-            <!--android:text="Edit"-->
-            <!--android:visibility="gone" />-->
-
-            <!--</RelativeLayout>-->
-
-            <!--</LinearLayout>-->
-
-            <!--<LinearLayout-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="200dp"-->
-            <!--android:gravity="center">-->
-
-            <!--<SurfaceView-->
-            <!--android:id="@+id/surface_view_stream_one"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent" />-->
-
-            <!--</LinearLayout>-->
-
-
-            <LinearLayout
-                android:id="@+id/layout_video_stream_two"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="50"
-                android:layout_marginStart="@dimen/elements_margin_spacing">
-
-                <RelativeLayout
-                    android:id="@+id/layout_video_stream_two_toolbar"
+                <LinearLayout
+                    android:id="@+id/layout_video_stream_four"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="start">
+                    android:orientation="vertical">
 
-                    <Spinner
-                        android:id="@+id/spinner_video_stream_selector_two"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:background="@drawable/spinner_rect"
-                        android:gravity="center_vertical"
-                        android:spinnerMode="dropdown" />
-
-                </RelativeLayout>
-
-                <android.support.constraint.ConstraintLayout
-                    android:id="@+id/constraint_layout_video_surface_two"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/video_stream_double_texture_view_height"
-                    android:layout_gravity="center"
-                    android:background="@drawable/img_view_background_with_border"
-                    android:foregroundGravity="clip_horizontal|clip_vertical"
-                    android:layout_marginTop="@dimen/elements_margin_spacing"
-                    tools:ignore="true">
-
-                    <TextureView
-                        android:id="@+id/surface_view_stream_two"
+                    <RelativeLayout
+                        android:id="@+id/layout_video_stream_four_toolbar"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:layout_margin="@dimen/thin_line_margin" />
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/elements_margin_spacing">
 
-                </android.support.constraint.ConstraintLayout>
+                        <Spinner
+                            android:id="@+id/spinner_video_stream_selector_four"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="@drawable/spinner_rect"
+                            android:gravity="center_vertical"
+                            android:spinnerMode="dropdown" />
+
+                    </RelativeLayout>
+
+                    <include
+                        android:id="@+id/layout_video_stream_container_four"
+                        layout="@layout/layout_video_stream_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+            <!-- Video Stream Two & Video Stream Five -->
+
+            <LinearLayout
+                android:id="@+id/layout_video_stream_two_and_five"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/elements_margin_spacing"
+                android:layout_weight="33"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/layout_video_stream_two"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/elements_margin_spacing"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:id="@+id/layout_video_stream_two_toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/elements_margin_spacing">
+
+                        <Spinner
+                            android:id="@+id/spinner_video_stream_selector_two"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="@drawable/spinner_rect"
+                            android:gravity="center_vertical"
+                            android:spinnerMode="dropdown" />
+
+                    </RelativeLayout>
+
+                    <include
+                        android:id="@+id/layout_video_stream_container_two"
+                        layout="@layout/layout_video_stream_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_video_stream_five"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:id="@+id/layout_video_stream_five_toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/elements_margin_spacing">
+
+                        <Spinner
+                            android:id="@+id/spinner_video_stream_selector_five"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="@drawable/spinner_rect"
+                            android:gravity="center_vertical"
+                            android:spinnerMode="dropdown" />
+
+                    </RelativeLayout>
+
+                    <include
+                        android:id="@+id/layout_video_stream_container_five"
+                        layout="@layout/layout_video_stream_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+            <!-- Video Stream Three & Video Stream Six -->
+
+            <LinearLayout
+                android:id="@+id/layout_video_stream_three_and_six"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/elements_margin_spacing"
+                android:layout_weight="33"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/layout_video_stream_three"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/elements_margin_spacing"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:id="@+id/layout_video_stream_three_toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/elements_margin_spacing">
+
+                        <Spinner
+                            android:id="@+id/spinner_video_stream_selector_three"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="@drawable/spinner_rect"
+                            android:gravity="center_vertical"
+                            android:spinnerMode="dropdown" />
+
+                    </RelativeLayout>
+
+                    <include
+                        android:id="@+id/layout_video_stream_container_three"
+                        layout="@layout/layout_video_stream_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_video_stream_six"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:id="@+id/layout_video_stream_six_toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/elements_margin_spacing">
+
+                        <Spinner
+                            android:id="@+id/spinner_video_stream_selector_six"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="@drawable/spinner_rect"
+                            android:gravity="center_vertical"
+                            android:spinnerMode="dropdown" />
+
+                    </RelativeLayout>
+
+                    <include
+                        android:id="@+id/layout_video_stream_container_six"
+                        layout="@layout/layout_video_stream_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -216,4 +263,4 @@
 
     </ScrollView>
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

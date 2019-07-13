@@ -7,8 +7,9 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.0'
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:3.1.1"
+        classpath 'com.android.tools.build:gradle:3.4.1'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.9.7"
+//        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:3.1.1"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -24,14 +25,14 @@ allprojects {
             url 'https://jitpack.io'
         }
 
-        maven {
-            url 'http://jax79sg.hopto.org:18081/artifactory/libs-release-local'
-        }
+//        maven {
+//            url 'http://jax79sg.hopto.org:18081/artifactory/libs-release-local'
+//        }
 
-        // Add the Esri public Bintray Maven repository
-        maven {
-            url 'https://esri.bintray.com/arcgis'
-        }
+//        // Add the Esri public Bintray Maven repository
+//        maven {
+//            url 'https://esri.bintray.com/arcgis'
+//        }
 
         flatDir {
             dirs 'libs'
@@ -40,7 +41,7 @@ allprojects {
 }
 
 ext {
-    supportlib_version = '[24.2.1, 28.0.0-alpha3)'
+//    supportlib_version = '[24.2.1, 28.0.0-rc02)'
 //    gps_version = '11.2.0'
 }
 

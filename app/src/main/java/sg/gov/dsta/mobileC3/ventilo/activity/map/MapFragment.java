@@ -146,11 +146,11 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
     @Subscribe
     public void onEvent(PageEvent pageEvent)
     {
-        if (MapShipBlueprintFragment.class.getSimpleName().equalsIgnoreCase(pageEvent.getPreviousFragmentName())) {
-            System.out.println("MapFragment found!");
-            onVisible();
-//            initUI(mRootMapView, mSavedInstanceState);
-        }
+//        if (MapShipBlueprintFragment.class.getSimpleName().equalsIgnoreCase(pageEvent.getPreviousFragmentName())) {
+//            System.out.println("MapFragment found!");
+//            onVisible();
+////            initUI(mRootMapView, mSavedInstanceState);
+//        }
     }
 
 //    private boolean isPreviousFragmentBlueprint() {

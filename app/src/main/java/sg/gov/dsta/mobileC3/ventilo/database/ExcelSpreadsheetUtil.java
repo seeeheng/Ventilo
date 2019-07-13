@@ -43,9 +43,9 @@ import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.DatabaseTableConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.DataModelUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EAdHocTaskPriority;
-import sg.gov.dsta.mobileC3.ventilo.util.task.ERadioConnectionStatus;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EAdHocTaskPriority;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EStatus;
 
 public class ExcelSpreadsheetUtil {
 

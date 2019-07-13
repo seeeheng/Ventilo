@@ -3,7 +3,6 @@ package sg.gov.dsta.mobileC3.ventilo.activity.sitrep;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -53,6 +52,7 @@ import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.DrawableUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.PhotoCaptureUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SpinnerItemListDataBank;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
@@ -129,6 +129,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     private SitRepModel mSitRepModelToUpdate;
 
     private boolean mIsFragmentVisibleToUser;
+    private int mChosenRequestCode;
 
     @Nullable
     @Override
@@ -450,7 +451,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
     private ArrayAdapter<String> getSpinnerArrayAdapter(String[] stringArray) {
 
-        return new ArrayAdapter<String> (getActivity(),
+        return new ArrayAdapter<String>(getActivity(),
                 R.layout.spinner_row_item, R.id.tv_spinner_row_item_text, stringArray) {
 
             @Override
@@ -878,10 +879,10 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     /**
      * Displays scaled bitmap image (of size 1024px which is not too large) to ensure smooth page loading
      *
-     * @param compressedFilePathName
+     * @param bitMapThumbnail
      */
-    private void displayScaledBitmap(String compressedFilePathName) {
-        Bitmap bitMapThumbnail = BitmapFactory.decodeFile(compressedFilePathName);
+    private void displayScaledBitmap(Bitmap bitMapThumbnail) {
+//        Bitmap bitMapThumbnail = BitmapFactory.decodeFile(compressedFilePathName);
         int maxScaledHeight = (int) (bitMapThumbnail.getHeight() *
                 (PhotoCaptureUtil.MAX_SCALED_WIDTH_OF_DISPLAY_IN_PIXEL / bitMapThumbnail.getWidth()));
         Bitmap scaledBitMapThumbnail = Bitmap.createScaledBitmap(bitMapThumbnail,
@@ -1188,6 +1189,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                     getString(R.string.btn_update));
             mTvToolbarSendOrUpdate.setOnClickListener(onUpdateClickListener);
 
+            // Display selected team information
             StringBuilder sitRepTitleBuilder = new StringBuilder();
             sitRepTitleBuilder.append(MainApplication.getAppContext().
                     getString(R.string.team_header));
@@ -1197,6 +1199,12 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             sitRepTitleBuilder.append(MainApplication.getAppContext().
                     getString(R.string.sitrep_callsign_header));
             mTvCallsignTitle.setText(sitRepTitleBuilder.toString().trim());
+
+            // Display selected captured picture
+            if (DrawableUtil.IsValidImage(sitRepModel.getSnappedPhoto())) {
+                displaySelectedPictureUI(DrawableUtil.getBitmapFromBytes(
+                        sitRepModel.getSnappedPhoto()));
+            }
 
             // Display selected location information
             String[] locationStringArray = SpinnerItemListDataBank.getInstance().getLocationStrArray();
@@ -1344,7 +1352,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     /**
      * Accesses child base fragment of current selected view pager item and remove this fragment
      * from child base fragment's stack.
-     *
+     * <p>
      * Possible Selected View Pager Item: Sit Rep / Video Stream
      * Child Base Fragment: SitRepFragment / VideoStreamFragment
      */
@@ -1437,9 +1445,13 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
     @Override
     public void onSnackbarActionClick() {
-        if (mCompressedFileBitmap != null) {
-            String compressedFilePathName = PhotoCaptureUtil.storeFileIntoPhoneMemory(mCompressedFileBitmap, 100);
+        // Store compressed bitmap file into phone memory upon sending/update confirmation
+        Log.i(TAG, "mChosenRequestCode: " + mChosenRequestCode);
+        if (mCompressedFileBitmap != null && mChosenRequestCode == PhotoCaptureUtil.OPEN_CAMERA_REQUEST_CODE) {
+            String compressedFilePathName = PhotoCaptureUtil.storeFileIntoPhoneMemory(mCompressedFileBitmap, 1);
             File compressedBitmapFile = new File(compressedFilePathName);
+
+            // This refreshes the photo Gallery app in Android to display the updated list
             getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(compressedBitmapFile)));
         }
 
@@ -1460,13 +1472,16 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         // Gets file from gallery and displays UI
         // Stores reference of bitmap for storage at a later stage, if confirmed
         if (requestCode == PhotoCaptureUtil.PHOTO_GALLERY_REQUEST_CODE) {
-
             if (resultCode == Activity.RESULT_OK) {
+                mChosenRequestCode = requestCode;
+
                 Uri targetUri = data.getData();
                 String filePathName = PhotoCaptureUtil.getRealPathFromURI(getContext(),
                         targetUri, null, null);
-                mCompressedFileBitmap = PhotoCaptureUtil.compressImage(getContext(), filePathName);
-                displayScaledBitmap(filePathName);
+                PhotoCaptureUtil.compressBitmapToFile(filePathName);
+                mCompressedFileBitmap = PhotoCaptureUtil.resizeImage(getContext(), filePathName);
+                displayScaledBitmap(mCompressedFileBitmap);
+
 
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Toast.makeText(getContext(), "Photo gallery picture selection operation cancelled",
@@ -1479,15 +1494,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         // Compressed image is then deleted while bitmap reference is kept for storage at a later stage, if confirmed.
         if (requestCode == PhotoCaptureUtil.OPEN_CAMERA_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                mCompressedFileBitmap = PhotoCaptureUtil.compressImage(getContext(), mImageFileAbsolutePath);
-                String filePathName = PhotoCaptureUtil.storeFileIntoPhoneMemory(mCompressedFileBitmap, 80);
+                mChosenRequestCode = requestCode;
 
-                displayScaledBitmap(filePathName);
-
-                File tempCompressedBitmapFile = new File(filePathName);
-                if (tempCompressedBitmapFile.exists()) {
-                    tempCompressedBitmapFile.delete();
-                }
+                PhotoCaptureUtil.compressBitmapToFile(mImageFileAbsolutePath);
+                mCompressedFileBitmap = PhotoCaptureUtil.resizeImage(getContext(), mImageFileAbsolutePath);
+                displayScaledBitmap(mCompressedFileBitmap);
 
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Toast.makeText(getContext(), "Photo taking operation cancelled", Toast.LENGTH_SHORT).show();

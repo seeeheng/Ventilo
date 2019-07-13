@@ -15,9 +15,9 @@ import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EAdHocTaskPriority;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EPhaseNo;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EAdHocTaskPriority;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EPhaseNo;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EStatus;
 
 public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 

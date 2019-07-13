@@ -13,7 +13,7 @@ import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.task.ERadioConnectionStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
 
 public class RadioLinkStatusOfflineRecyclerAdapter extends RecyclerView.Adapter<RadioLinkStatusOfflineViewHolder> {
 

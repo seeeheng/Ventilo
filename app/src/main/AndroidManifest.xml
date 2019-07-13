@@ -38,8 +38,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-
-        <activity android:name=".activity.login.TestActivity"></activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -87,16 +85,6 @@
             android:name=".activity.main.MainActivity"
             android:screenOrientation="sensorLandscape">
 
-
-            <!--<receiver android:name="mUsbReceiver">-->
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED" />
-            </intent-filter>
-            <!--</receiver>-->
-
         </activity>
         <activity
             android:name=".activity.map.SettingsActivity"
@@ -112,10 +100,29 @@
         <!-- <action android:name="android.intent.action.BOOT_COMPLETED" /> -->
         <!-- </intent-filter> -->
         <!-- </receiver> -->
+
+        <!--<receiver android:name="mUsbReceiver">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />-->
+            <!--</intent-filter>-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
+
+        <!--<receiver android:name=".activity.main.USBDetectionBroadcastReceiver">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.ACTION_POWER_CONNECTED" />-->
+                <!--<action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />-->
+                <!--<action android:name="android.hardware.usb.action.USB_STATE" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
+
         <service
-            android:name=".network.NetworkService"
-            android:enabled="true"
-            android:stopWithTask="true" />
+            android:name=".network.NetworkService" />
+
+        <service android:name=".network.NetworkStopService"
+            android:stopWithTask="false" />
     </application>
 
 </manifest>

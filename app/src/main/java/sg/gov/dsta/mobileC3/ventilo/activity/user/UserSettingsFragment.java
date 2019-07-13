@@ -7,15 +7,12 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +39,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EAccessRight;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 
 public class UserSettingsFragment extends Fragment implements SnackbarUtil.SnackbarActionClickListener {
 
@@ -679,6 +676,9 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                 break;
 
             case SNACKBAR_LOGOUT_ID: // Logout
+                if (getActivity() instanceof MainActivity) {
+                    getActivity().finish();
+                }
                 break;
 
             default:

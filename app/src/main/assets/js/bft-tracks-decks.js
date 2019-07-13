@@ -85,10 +85,12 @@ function androidToJScreateLocation(trackerMessage)
     var type = message[5];
     var createdTime = message[6];
 
-    var marker = getCustomMarker(x, y, type, createdTime, true, 0);
+    if (alt >= lowestHeight && alt <= highestHeight) {
+        var marker = getCustomMarker(x, y, type, createdTime, true, 0);
 
-    markers.push(marker);
-    marker.addTo(map0);
+        markers.push(marker);
+        marker.addTo(map0);
+    }
 }
 
 function androidToJSupdateLocation(trackerMessage)

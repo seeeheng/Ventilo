@@ -17,7 +17,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EStatus;
 
 public class TimelinePlannedRecyclerAdapter extends RecyclerView.Adapter<TimelineViewHolder> {
 

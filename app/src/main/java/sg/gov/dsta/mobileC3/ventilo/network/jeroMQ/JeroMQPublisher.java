@@ -21,14 +21,17 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 
     //    private static final Logger LOGGER = LoggerFactory.getLogger(JeroMQPublisher.class);
     private static final String TAG = JeroMQPublisher.class.getSimpleName();
-//    private static final int DEFAULT_PORT = 5556;
+    private static final int DEFAULT_PORT = 5556;
 
 //    protected static final String SERVER_PUB_IP_ADDRESS = "tcp://" +
 //            NetworkUtil.getOwnIPAddressThroughWiFiOrEthernet(true) + ":" +
 //            JeroMQPubSubBrokerProxy.DEFAULT_XSUB_PORT;
 
-    protected static final String SERVER_PUB_IP_ADDRESS = "tcp://*:" +
-            JeroMQPubSubBrokerProxy.DEFAULT_XSUB_PORT;
+//    protected static final String SERVER_PUB_IP_ADDRESS = "tcp://" +
+//            NetworkUtil.getOwnIPAddressThroughWiFiOrEthernet(true) + ":" +
+//            DEFAULT_PORT;
+
+    protected static final String SERVER_PUB_IP_ADDRESS = "tcp://*:" + DEFAULT_PORT;
 
 //    protected static final String SERVER_PUB_IP_ADDRESS = "tcp://192.168.1.3:" +
 //            JeroMQPubSubBrokerProxy.DEFAULT_XSUB_PORT;
@@ -140,6 +143,8 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
         mZContext = new ZContext();
         mPubSocket = mZContext.createSocket(SocketType.PUB);
         mPubSocket.setMaxMsgSize(-1);
+//        mPubSocket.setMsgAllocationHeapThreshold(1024 * 1024);
+//        mPubSocket.setSendBufferSize(1024 * 1024);
         mPubSocket.setLinger(0);
 //        mPubSocket.connect(SERVER_PUB_IP_ADDRESS);
         mPubSocket.bind(SERVER_PUB_IP_ADDRESS);
@@ -459,8 +464,16 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 //        task.execute();
 
         if (mPubSocket != null) {
-            mZContext.destroySocket(mPubSocket);
+            mPubSocket.unbind(SERVER_PUB_IP_ADDRESS);
+            Log.i(TAG, "Server pub socket unbound.");
+
+            mPubSocket.close();
             Log.i(TAG, "Server pub socket closed.");
+
+            if (mZContext != null) {
+                mZContext.destroySocket(mPubSocket);
+                Log.i(TAG, "Server pub socket destroyed.");
+            }
         }
 
         if (mZContext != null && !mZContext.isClosed()) {
@@ -468,5 +481,7 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
             mZContext.destroy();
             Log.i(TAG, "ZContext destroyed.");
         }
+
+
     }
 }

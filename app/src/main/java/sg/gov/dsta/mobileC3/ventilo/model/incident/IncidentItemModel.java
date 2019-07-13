@@ -5,7 +5,6 @@ import android.graphics.drawable.Drawable;
 import java.util.Date;
 
 import lombok.Data;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
 
 @Data
 public class IncidentItemModel {

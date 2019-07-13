@@ -1,6 +1,8 @@
 package sg.gov.dsta.mobileC3.ventilo.network.waveRelayRadio;
 
 import android.app.Application;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -24,13 +26,19 @@ import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.task.ERadioConnectionStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
 
 public class WaveRelayRadioSocketClient extends WrWebSocketClient {
 
     private static final String TAG = WaveRelayRadioSocketClient.class.getSimpleName();
+    // Intent Filters
+    public static final String WAVE_RELAY_CLIENT_CONNECTED_INTENT_ACTION =
+            "Wave Relay Radio Client Connected";
+    public static final String WAVE_RELAY_CLIENT_DISCONNECTED_INTENT_ACTION =
+            "Wave Relay Radio Client Disconnected";
 
     private int mIncomingMsgCount = 0;
+    private boolean mIsConnected;
 
     /**
      * Basic constructor. See (@link com.persistentsystems.socketclient.WrWebSocketClient#WrWebSocketClient(URI, Draft))
@@ -146,7 +154,13 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
         }
 
         System.out.println("mIncomingMsgCount is " + mIncomingMsgCount);
-        updateAndBroadcastRadioConnectionStatus(isConnected);
+
+        if (mIsConnected != isConnected) {
+            mIsConnected = isConnected;
+            notifyWaveRelayClientConnectionBroadcastIntent(mIsConnected);
+            updateAndBroadcastRadioConnectionStatus(isConnected);
+        }
+
     }
 
     /**
@@ -224,6 +238,18 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
 
         userRepository.queryUserByUserId(SharedPreferenceUtil.getCurrentUserCallsignID(),
                 singleObserverUser);
+    }
+
+    private void notifyWaveRelayClientConnectionBroadcastIntent(boolean isConnected) {
+        Intent broadcastIntent = new Intent();
+
+        if (isConnected) {
+            broadcastIntent.setAction(WAVE_RELAY_CLIENT_CONNECTED_INTENT_ACTION);
+        } else {
+            broadcastIntent.setAction(WAVE_RELAY_CLIENT_DISCONNECTED_INTENT_ACTION);
+        }
+
+        LocalBroadcastManager.getInstance(MainApplication.getAppContext()).sendBroadcast(broadcastIntent);
     }
 
     /**

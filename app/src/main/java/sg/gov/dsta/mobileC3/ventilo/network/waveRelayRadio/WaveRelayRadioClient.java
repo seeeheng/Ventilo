@@ -1,12 +1,9 @@
 package sg.gov.dsta.mobileC3.ventilo.network.waveRelayRadio;
 
-import android.app.Application;
-import android.content.Context;
-import android.hardware.usb.UsbManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.persistentsystems.socketclient.exceptions.WrSocketNotReadyException;
 
@@ -15,21 +12,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-import io.reactivex.SingleObserver;
-import io.reactivex.disposables.Disposable;
-import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.activity.login.TestActivity;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
-import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
-import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
-import sg.gov.dsta.mobileC3.ventilo.repository.UserRepository;
-import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.task.ERadioConnectionStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.USBConnectionConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.network.NetworkUtil;
 
 public class WaveRelayRadioClient {
 
@@ -46,16 +32,16 @@ public class WaveRelayRadioClient {
     private int mSameIncomingMsgCount;
 //    private int mCountBeforeReconnection;
 
-    public WaveRelayRadioClient(String ownRadioIpAddress, UsbManager cm) {
+    public WaveRelayRadioClient(String ownRadioIpAddress) {
         Log.i(TAG, "Own Radio IP Address: " + ownRadioIpAddress);
         String socketUrl = "wss://" + ownRadioIpAddress + ":443/xxx";
-        establishConnection(socketUrl, cm);
+        establishConnection(socketUrl);
     }
 
     /**
      * Establish socket connection between client and server
      */
-    private void establishConnection(String socketUrl, UsbManager cm) {
+    private void establishConnection(String socketUrl) {
 
 //        ConnectivityManager cm = (ConnectivityManager) MainApplication.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -63,30 +49,11 @@ public class WaveRelayRadioClient {
             @Override
             public void run() {
                 try {
+                    boolean isRndisTetheringActive = NetworkUtil.
+                            isRndisTetheringActive(MainApplication.getAppContext());
 
-//                    List<UsbSerialDriver> availableDrivers =  UsbSerialProber.getDefaultProber().findAllDrivers(manager);
-
-                    if (cm.getAccessoryList() != null) {
-                        for (int i = 0; i < cm.getAccessoryList().length; i++) {
-                            Log.d(TAG, "cm.getAccessoryList()[" + i + "]: " + cm.getAccessoryList()[i]);
-
-//                        NetworkInfo activeNetwork = cm.getDeviceList().get();
-                            Log.d(TAG, "cm.getDeviceList()[" + i + "]: " + cm.getDeviceList().get(cm.getAccessoryList()[i]));
-                        }
-                    }
-
-//                    NetworkInfo activeNetwork = cm.getDeviceList().get();
-//                    boolean isConnected = activeNetwork != null &&
-//                            activeNetwork.isConnected();
-//
-//                    Log.d(TAG, "activeNetwork isConnected: " + isConnected);
-//                    Log.d(TAG, "activeNetwork activeNetwork.getExtraInfo(): " + activeNetwork.getExtraInfo());
-
-
-
-                    if (mWrWebSocketClient == null || (mWrWebSocketClient != null &&
-                            !mWrWebSocketClient.isOpen() || (mWrWebSocketClient != null &&
-                            mSameIncomingMsgCount >= PHONE_TO_RADIO_HEARTBEAT_THRESHOLD))) {
+                    if ((mWrWebSocketClient == null || (!mWrWebSocketClient.isOpen())) &&
+                            isRndisTetheringActive) {
 
                         mWrWebSocketClient = new WaveRelayRadioSocketClient(new URI(socketUrl));
 
@@ -103,24 +70,34 @@ public class WaveRelayRadioClient {
                         mSameIncomingMsgCount = 0;
                     }
 
-                    // Increments mSameIncomingMsgCount each time client's last incoming msg count and
-                    // socket client's incoming msg count matches (indicating signs of disconnection)
-                    if (mWrWebSocketClient.getIncomingMsgCount() != 0) {
-                        if (mLastIncomingMsgCount == mWrWebSocketClient.getIncomingMsgCount()) {
-                            mSameIncomingMsgCount++;
-                        } else {
-                            mLastIncomingMsgCount = mWrWebSocketClient.getIncomingMsgCount();
-                        }
-                    }
+//                    // Increments mSameIncomingMsgCount each time client's last incoming msg count and
+//                    // socket client's incoming msg count matches (indicating signs of disconnection)
+//                    //
+//                    // Rationale: Socket is receiving onMessage data every second, while this TimerTask
+//                    // is also running every second. Hence if the msg count in socket client class does
+//                    // not increment (meaning no incoming messages), the last recorded msg count will
+//                    // be a match. Once the seld-declared threshold is reached, it can be assumed that it
+//                    // is disconnected from the network.
+//                    if (mWrWebSocketClient.getIncomingMsgCount() != 0) {
+//                        if (mLastIncomingMsgCount == mWrWebSocketClient.getIncomingMsgCount()) {
+//                            mSameIncomingMsgCount++;
+//                        } else {
+//                            mLastIncomingMsgCount = mWrWebSocketClient.getIncomingMsgCount();
+//                        }
+//                    }
 
-                    if (mSameIncomingMsgCount >= PHONE_TO_RADIO_HEARTBEAT_THRESHOLD) {
+//                    if (mSameIncomingMsgCount >= PHONE_TO_RADIO_HEARTBEAT_THRESHOLD || !isUsbConnected()) {
+//                        mWrWebSocketClient.close();
+//                    }
+
+                    if (mWrWebSocketClient != null && !isUsbConnected()) {
                         mWrWebSocketClient.close();
+                        mWrWebSocketClient.updateAndBroadcastRadioConnectionStatus(false);
                     }
 
                     Log.d(TAG, "mWrWebSocketClient.getIncomingMsgCount() is " + mWrWebSocketClient.getIncomingMsgCount());
                     Log.d(TAG, "mLastIncomingMsgCount is " + mLastIncomingMsgCount);
                     Log.d(TAG, "mSameIncomingMsgCount is " + mSameIncomingMsgCount);
-
 
 //                    mWrWebSocketClient.getConnection().getReadyState()
                     Log.d(TAG, "mWrWebSocketClient.getConnection().getReadyState(): " + mWrWebSocketClient.getConnection().getReadyState());
@@ -129,10 +106,10 @@ public class WaveRelayRadioClient {
                     Log.d(TAG, "mWrWebSocketClient.getConnection().isFlushAndClose(): " + mWrWebSocketClient.getConnection().isFlushAndClose());
                     Log.d(TAG, "mWrWebSocketClient.getConnection().isConnecting(): " + mWrWebSocketClient.getConnection().isConnecting());
 
-//                    if (mWrWebSocketClient != null && mWrWebSocketClient.getConnection().isClosed()) {
-////                        System.out.println("mWrWebSocketClient.isClosed");
-////                        mWrWebSocketClient.updateAndBroadcastRadioConnectionStatus(false);
-////                    }
+//                    if ((mWrWebSocketClient != null && mWrWebSocketClient.getConnection().isClosed())) {
+//                        System.out.println("mWrWebSocketClient.isClosed");
+//                        mWrWebSocketClient.updateAndBroadcastRadioConnectionStatus(false);
+//                    }
 
                     /**
                      * Actual connection and sending of data takes place here.
@@ -183,13 +160,50 @@ public class WaveRelayRadioClient {
 
         if (mWrWebSocketClient != null && !mWrWebSocketClient.isClosed()) {
             mWrWebSocketClient.close();
+            mWrWebSocketClient.updateAndBroadcastRadioConnectionStatus(false);
         }
     }
 
-    public WaveRelayRadioSocketClient getWrWebSocketClient() {
-        if (mWrWebSocketClient != null) {
-            return mWrWebSocketClient;
+//    public WaveRelayRadioSocketClient getWrWebSocketClient() {
+//        if (mWrWebSocketClient != null) {
+//            return mWrWebSocketClient;
+//        }
+//        return null;
+//    }
+
+    private boolean isUsbConnected() {
+        boolean isUsbConnected = false;
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(USBConnectionConstants.ACTION_POWER_CONNECTED);
+        filter.addAction(USBConnectionConstants.ACTION_POWER_DISCONNECTED);
+        filter.addAction(USBConnectionConstants.USB_STATE);
+
+        Intent intent = MainApplication.getAppContext().
+                registerReceiver(null, filter);
+
+        String action = intent.getAction();
+        Log.i(TAG, "action: " + action);
+
+        if (action != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (action.equals(USBConnectionConstants.USB_STATE)) {
+                    if (intent.getExtras() != null &&
+                            intent.getExtras().getBoolean("connected")) {
+                        isUsbConnected = true;
+                    } else {
+                        isUsbConnected = false;
+                    }
+                }
+            } else {
+                if (action.equals(Intent.ACTION_POWER_CONNECTED)) {
+                    isUsbConnected = true;
+                } else if (action.equals(Intent.ACTION_POWER_DISCONNECTED)) {
+                    isUsbConnected = false;
+                }
+            }
         }
-        return null;
+
+        return isUsbConnected;
     }
 }

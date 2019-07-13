@@ -1,5 +1,6 @@
 package sg.gov.dsta.mobileC3.ventilo.util.network;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.net.InetAddress;
@@ -71,6 +72,24 @@ public class NetworkUtil {
         }
 
         return "";
+    }
+
+    public static boolean isRndisTetheringActive(Context context) {
+        try {
+            List<NetworkInterface> networkInterfaceList = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (int i = 0; i < networkInterfaceList.size(); i++) {
+                NetworkInterface networkInterface = networkInterfaceList.get(i);
+                if (!networkInterface.isLoopback()) {
+                    if (networkInterface.getName().contains("rndis")) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
 }

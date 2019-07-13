@@ -8,7 +8,7 @@ import java.util.Set;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EAccessRight;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 
 public class SharedPreferenceUtil {
 
@@ -68,7 +68,7 @@ public class SharedPreferenceUtil {
         Object sharedPrefStoredObj = null;
 
         if (defaultValue instanceof String) {
-            sharedPrefStoredObj = pref.getString(key, (String) defaultValue);
+            sharedPrefStoredObj = pref.getString(key, String.valueOf(defaultValue));
 
         } else if (defaultValue instanceof Integer) {
             sharedPrefStoredObj = pref.getInt(key, (int) defaultValue);
@@ -94,7 +94,7 @@ public class SharedPreferenceUtil {
         SharedPreferences.Editor editor = pref.edit();
 
         if (value instanceof String) {
-            editor.putString(key, (String) value);
+            editor.putString(key, String.valueOf(value));
 
         } else if (value instanceof Integer) {
             editor.putInt(key, (int) value);

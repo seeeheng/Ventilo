@@ -2,6 +2,7 @@ package sg.gov.dsta.mobileC3.ventilo.util;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
@@ -47,19 +48,32 @@ public class DimensionUtil {
         return  (int) (pixel / Resources.getSystem().getDisplayMetrics().density + 0.5f);
     }
 
+    public static void setDimensions(View view, int width, int height, int weight, ViewGroup viewGroup) {
+        if (view.getLayoutParams() == null) {
+            if (viewGroup instanceof LinearLayout) {
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(width, height, weight);
+                view.setLayoutParams(lp);
+            }
+        } else if (view.getLayoutParams() instanceof LinearLayout.LayoutParams) {
+            LinearLayout.LayoutParams p = (LinearLayout.LayoutParams) view.getLayoutParams();
+            p.width = width;
+            p.height = height;
+            p.weight = weight;
+        }
+
+        view.requestLayout();
+    }
+
     public static void setDimensions(View view, int width, int height, ViewGroup viewGroup) {
         if (view.getLayoutParams() == null) {
             if (viewGroup instanceof LinearLayout) {
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(new
-                        LinearLayout.LayoutParams(width, height));
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(width, height);
                 view.setLayoutParams(lp);
             } else if (viewGroup instanceof RelativeLayout) {
-                RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(new
-                        RelativeLayout.LayoutParams(width, height));
+                RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(width, height);
                 view.setLayoutParams(lp);
             } else if (viewGroup instanceof FrameLayout) {
-                FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(new
-                        FrameLayout.LayoutParams(width, height));
+                FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(width, height);
                 view.setLayoutParams(lp);
             }
         } else if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
@@ -75,6 +89,13 @@ public class DimensionUtil {
         if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
             ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
             p.setMargins(left, top, right, bottom);
+            view.requestLayout();
+        }
+    }
+
+    public static void setPaddings(View view, int left, int top, int right, int bottom) {
+        if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            view.setPadding(left, top, right, bottom);
             view.requestLayout();
         }
     }

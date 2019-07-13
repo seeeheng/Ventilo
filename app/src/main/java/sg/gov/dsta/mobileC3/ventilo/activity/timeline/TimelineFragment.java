@@ -24,8 +24,8 @@ import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.TaskViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EAdHocTaskPriority;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EPhaseNo;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EAdHocTaskPriority;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EPhaseNo;
 
 public class TimelineFragment extends Fragment {
 

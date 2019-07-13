@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_dashboard_video_stream_fragment"
     android:layout_width="@dimen/dashboard_video_stream_main_container_width"
@@ -7,76 +8,178 @@
     android:background="@drawable/img_btn_background_without_border"
     android:paddingStart="@dimen/elements_large_margin_spacing"
     android:paddingTop="@dimen/elements_margin_spacing"
-    android:paddingEnd="@dimen/elements_large_margin_spacing"
-    android:paddingBottom="@dimen/elements_margin_spacing">
+    android:paddingEnd="@dimen/elements_large_margin_spacing">
 
-    <ScrollView
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:id="@+id/layout_dashboard_video_stream"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <RelativeLayout
-                android:id="@+id/layout_dashboard_video_stream_toolbar"
+            <LinearLayout
+                android:id="@+id/layout_dashboard_video_stream_one"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/elements_margin_spacing"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:id="@+id/layout_dashboard_video_stream_one_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/elements_margin_spacing">
+
+                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                        android:layout_width="@dimen/dashboard_video_stream_text_width"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dashboard_video_stream"
+                        android:textColor="@color/primary_highlight_cyan"
+                        android:textSize="@dimen/text_view_text_size" />
+
+                    <Spinner
+                        android:id="@+id/spinner_dashboard_video_stream_one_selector"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:background="@drawable/spinner_rect"
+                        android:gravity="end"
+                        android:spinnerMode="dropdown" />
+
+                </RelativeLayout>
+
+                <android.support.constraint.ConstraintLayout
+                    android:id="@+id/constraint_layout_dashboard_video_surface_one"
+                    android:layout_width="@dimen/dashboard_video_stream_texture_view_width"
+                    android:layout_height="@dimen/dashboard_video_stream_texture_view_height"
+                    android:layout_gravity="center"
+                    android:background="@drawable/img_view_background_with_border"
+                    android:foregroundGravity="clip_horizontal|clip_vertical"
+                    tools:ignore="true">
+
+                    <TextureView
+                        android:id="@+id/texture_view_dashboard_stream_one"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/thin_line_margin" />
+
+                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                        android:id="@+id/tv_dashboard_stream_one_no_video_selected"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="@string/video_stream_no_video_selected"
+                        android:textSize="@dimen/text_view_text_size"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ProgressBar
+                        android:id="@+id/spinner_dashboard_stream_one"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:indeterminate="true"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </android.support.constraint.ConstraintLayout>
+
+            </LinearLayout>
+
+            <!--<LinearLayout-->
+                <!--android:id="@+id/layout_dashboard_video_stream_two"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginBottom="@dimen/elements_margin_spacing"-->
+                <!--android:orientation="vertical">-->
 
                 <!--<RelativeLayout-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content">-->
+                    <!--android:id="@+id/layout_dashboard_video_stream_two_toolbar"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_marginBottom="@dimen/elements_margin_spacing">-->
 
-                    <!--<android.support.v7.widget.AppCompatImageView-->
-                        <!--android:id="@+id/img_btn_video_stream_setting"-->
-                        <!--android:layout_width="@dimen/video_stream_btn_width"-->
-                        <!--android:layout_height="@dimen/video_stream_btn_height"-->
-                        <!--android:background="?android:selectableItemBackground"-->
-                        <!--app:srcCompat="@drawable/btn_setting" />-->
+                    <!--<sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="@string/dashboard_video_stream_two"-->
+                        <!--android:textColor="@color/primary_highlight_cyan"-->
+                        <!--android:textSize="@dimen/text_view_text_size" />-->
+
+                    <!--<Spinner-->
+                        <!--android:id="@+id/spinner_dashboard_video_stream_two_selector"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_alignParentEnd="true"-->
+                        <!--android:background="@drawable/spinner_rect"-->
+                        <!--android:gravity="end"-->
+                        <!--android:spinnerMode="dropdown" />-->
 
                 <!--</RelativeLayout>-->
 
-                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/dashboard_video_stream"
-                    android:textColor="@color/primary_highlight_cyan"
-                    android:textSize="@dimen/text_view_text_size" />
+                <!--<android.support.constraint.ConstraintLayout-->
+                    <!--android:id="@+id/constraint_layout_dashboard_video_surface_two"-->
+                    <!--android:layout_width="@dimen/dashboard_video_stream_texture_view_width"-->
+                    <!--android:layout_height="@dimen/dashboard_video_stream_texture_view_height"-->
+                    <!--android:layout_gravity="center"-->
+                    <!--android:background="@drawable/img_view_background_with_border"-->
+                    <!--android:foregroundGravity="clip_horizontal|clip_vertical"-->
+                    <!--tools:ignore="true">-->
 
-                <Spinner
-                    android:id="@+id/spinner_dashboard_video_stream_selector"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:background="@drawable/spinner_rect"
-                    android:gravity="end"
-                    android:spinnerMode="dropdown" />
+                    <!--<TextureView-->
+                        <!--android:id="@+id/texture_view_dashboard_stream_two"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:layout_margin="@dimen/thin_line_margin" />-->
 
-            </RelativeLayout>
+                    <!--<sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView-->
+                        <!--android:id="@+id/tv_dashboard_stream_two_no_video_selected"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_centerInParent="true"-->
+                        <!--android:text="@string/video_no_video_selected"-->
+                        <!--android:textSize="@dimen/text_view_text_size"-->
+                        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+                        <!--app:layout_constraintEnd_toEndOf="parent"-->
+                        <!--app:layout_constraintStart_toStartOf="parent"-->
+                        <!--app:layout_constraintTop_toTopOf="parent" />-->
 
-            <android.support.constraint.ConstraintLayout
-                android:id="@+id/constraint_layout_dashboard_video_surface"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/dashboard_video_stream_texture_view_height"
-                android:layout_gravity="center"
-                android:layout_marginTop="@dimen/elements_margin_spacing"
-                android:background="@drawable/img_view_background_with_border"
-                android:foregroundGravity="clip_horizontal|clip_vertical"
-                tools:ignore="true">
+                    <!--<ProgressBar-->
+                        <!--android:id="@+id/spinner_dashboard_stream_two"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_centerInParent="true"-->
+                        <!--android:layout_marginStart="8dp"-->
+                        <!--android:layout_marginTop="8dp"-->
+                        <!--android:layout_marginEnd="8dp"-->
+                        <!--android:layout_marginBottom="8dp"-->
+                        <!--android:indeterminate="true"-->
+                        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+                        <!--app:layout_constraintEnd_toEndOf="parent"-->
+                        <!--app:layout_constraintStart_toStartOf="parent"-->
+                        <!--app:layout_constraintTop_toTopOf="parent" />-->
 
-                <TextureView
-                    android:id="@+id/texture_view_dashboard_stream"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_margin="@dimen/thin_line_margin" />
+                <!--</android.support.constraint.ConstraintLayout>-->
 
-            </android.support.constraint.ConstraintLayout>
+            <!--</LinearLayout>-->
 
         </LinearLayout>
 
-    </ScrollView>
+    </android.support.v4.widget.NestedScrollView>
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

@@ -1,8 +1,5 @@
 package sg.gov.dsta.mobileC3.ventilo.network;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;

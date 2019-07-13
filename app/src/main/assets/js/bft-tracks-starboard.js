@@ -117,13 +117,12 @@ function updateTarget(message)
             map0.removeLayer(markers[i]);
             markers.splice(i,1);
 
-
             var marker=null;
             if (action=='FORWARD'){
                 var starboard_bearing;
-                if (bearing>=-180 && bearing<=0) {
+                if (starboard_bearing>=-180 && starboard_bearing<=0) {
                     starboard_bearing = -90;
-                }else {
+                } else {
                     starboard_bearing = 90;
                 }
                 marker = getCustomMarker(x, alt, 'navigating', user, true, starboard_bearing);
@@ -149,9 +148,9 @@ function updateTarget(message)
         var marker=null;
         if (action=='FORWARD'){
             var starboard_bearing;
-            if (bearing>=-180 && bearing<=0) {
+            if (starboard_bearing>=-180 && starboard_bearing<=0) {
                 starboard_bearing = -90;
-            }else {
+            } else {
                 starboard_bearing = 90;
             }
             marker = getCustomMarker(x, alt, 'navigating', user, true, starboard_bearing);

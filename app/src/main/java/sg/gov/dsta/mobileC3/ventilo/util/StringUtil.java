@@ -8,6 +8,7 @@ public class StringUtil {
     public static final String INVALID_STRING = "-1";
     public static final String COLON = ":";
     public static final String COMMA = ",";
+    public static final String DOT = ".";
     public static final String SPACE = " ";
     public static final String TAB = "\t";
     public static final String OPEN_BRACKET = "(";

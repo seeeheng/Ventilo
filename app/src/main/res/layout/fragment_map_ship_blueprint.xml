@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_map_ship_blueprint_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:weightSum="760">
 
     <FrameLayout
-        android:id="@+id/layout_map_ship_blueprint_fragment"
+        android:id="@+id/layout_map_ship_blueprint"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="385">
@@ -163,21 +164,21 @@
         android:visibility="gone" />
 
     <HorizontalScrollView
-        android:id="@+id/view_map_ship_blueprint_dashboard_fragments"
+        android:id="@+id/hs_view_map_ship_blueprint_dashboard_fragments"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_gravity="center_horizontal"
         android:layout_weight="335"
         android:animateLayoutChanges="true"
         android:fadeScrollbars="false"
+        android:paddingStart="@dimen/elements_large_margin_spacing"
+        android:paddingEnd="@dimen/elements_large_margin_spacing"
         android:visibility="gone">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:paddingStart="@dimen/elements_large_margin_spacing"
-            android:paddingEnd="@dimen/elements_large_margin_spacing">
+            android:orientation="horizontal">
 
             <fragment
                 android:id="@+id/fragment_dashboard_video_stream"

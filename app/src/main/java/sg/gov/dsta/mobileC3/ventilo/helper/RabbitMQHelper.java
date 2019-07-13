@@ -6,8 +6,9 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
-import sg.gov.dh.mq.MQListener;
+//import sg.gov.dh.mq.MQListener;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
+//import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQ;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQ;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 

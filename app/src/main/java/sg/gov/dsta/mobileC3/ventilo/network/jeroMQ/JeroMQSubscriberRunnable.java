@@ -9,6 +9,9 @@ import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMQException;
 
+import java.nio.channels.ClosedChannelException;
+import java.util.List;
+
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
@@ -33,74 +36,93 @@ public class JeroMQSubscriberRunnable implements Runnable {
 
     private static final String TAG = JeroMQSubscriberRunnable.class.getSimpleName();
 
-    private Socket mSocket;
+    private List<Socket> mSocketList;
+    private ZMQ.Poller mPoller;
+    private boolean mIsPollerToBeClosed;
 
-    protected JeroMQSubscriberRunnable(Socket socket) {
-        mSocket = socket;
+    protected JeroMQSubscriberRunnable(List<Socket> socketList, ZMQ.Poller poller) {
+        mSocketList = socketList;
+        mPoller = poller;
     }
 
     @Override
     public void run() {
-        subscribeTopics(mSocket);
+        subscribeTopics(mSocketList);
 
-//        mScheduledExecutorService.scheduleAtFixedRate(new Runnable() {
-//            @Override
-//            public void run() {
         while (!Thread.currentThread().interrupted()) {
             Log.i(TAG, "Listening for messages...");
 
-            String message = "";
-            try {
-                message = mSocket.recvStr();
-            } catch (ZMQException e)  {
-                Log.d(TAG, "Socket exception - " + e);
-                Log.d(TAG, "Closing sub socket..");
-                mSocket.close();
-                Log.d(TAG, "Sub socket closed..");
+            if (mIsPollerToBeClosed && mPoller != null) {
+                mPoller.close();
                 break;
             }
 
-            String messageTopic = StringUtil.getFirstWord(message);
-            String messageContent = StringUtil.removeFirstWord(message);
-            String[] messageTopicParts = messageTopic.split(StringUtil.HYPHEN);
+            mPoller.poll();
 
-            // For e.g. PREFIX-USER, PREFIX-RADIO, PREFIX-BFT, PREFIX-SITREP, PREFIX-TASK
-            String messageMainTopic = messageTopicParts[0].
-                    concat(StringUtil.HYPHEN).concat(messageTopicParts[1]);
-
-            // For e.g. SYNC, INSERT, UPDATE, DELETE
-            String messageTopicAction = messageTopicParts[2];
-
-            switch (messageMainTopic) {
-                case JeroMQPublisher.TOPIC_PREFIX_USER:
-                    storeUserMessage(messageContent, messageTopicAction);
-                    break;
-                case JeroMQPublisher.TOPIC_PREFIX_RADIO:
-                    storeRadioMessage(messageContent, messageTopicAction);
-                    break;
-                case JeroMQPublisher.TOPIC_PREFIX_BFT:
-                    storeBFTMessage(messageContent);
-                    break;
-                case JeroMQPublisher.TOPIC_PREFIX_SITREP:
-                    storeSitRepMessage(messageContent, messageTopicAction);
-                    break;
-                case JeroMQPublisher.TOPIC_PREFIX_TASK:
-                    storeTaskMessage(messageContent, messageTopicAction);
-                    break;
-                default:
-                    break;
-            }
-
-            Log.i(TAG, "Received message: " + message);
-
-            try {
-                Thread.sleep(1000); //milliseconds
-            } catch (InterruptedException e) {
-                break;
+            for (int i = 0; i < mSocketList.size(); i++) {
+                if (mPoller.pollin(i)) {
+                    storeMessageInDatabase(mSocketList.get(i));
+//                    Timber.i("Received message: %s", message);
+                }
             }
         }
-//            }
-//        }, 0, RUNNABLE_INTERVAL_IN_SEC, TimeUnit.SECONDS);
+
+        Log.i(TAG, "Subscriber poller closed.");
+    }
+
+    protected void closePoller() {
+        mIsPollerToBeClosed = true;
+    }
+
+    private void storeMessageInDatabase(Socket socket) {
+        String message = "";
+        try {
+            message = socket.recvStr();
+        } catch (ZMQException e) {
+            Log.d(TAG, "Socket exception - " + e);
+            Log.d(TAG, "Closing sub socket..");
+            socket.close();
+            Log.d(TAG, "Sub socket closed..");
+        }
+
+        String messageTopic = StringUtil.getFirstWord(message);
+        String messageContent = StringUtil.removeFirstWord(message);
+        String[] messageTopicParts = messageTopic.split(StringUtil.HYPHEN);
+
+        // For e.g. PREFIX-USER, PREFIX-RADIO, PREFIX-BFT, PREFIX-SITREP, PREFIX-TASK
+        String messageMainTopic = messageTopicParts[0].
+                concat(StringUtil.HYPHEN).concat(messageTopicParts[1]);
+
+        // For e.g. SYNC, INSERT, UPDATE, DELETE
+        String messageTopicAction = messageTopicParts[2];
+
+        switch (messageMainTopic) {
+            case JeroMQPublisher.TOPIC_PREFIX_USER:
+                storeUserMessage(messageContent, messageTopicAction);
+                break;
+            case JeroMQPublisher.TOPIC_PREFIX_RADIO:
+                storeRadioMessage(messageContent, messageTopicAction);
+                break;
+            case JeroMQPublisher.TOPIC_PREFIX_BFT:
+                storeBFTMessage(messageContent);
+                break;
+            case JeroMQPublisher.TOPIC_PREFIX_SITREP:
+                storeSitRepMessage(messageContent, messageTopicAction);
+                break;
+            case JeroMQPublisher.TOPIC_PREFIX_TASK:
+                storeTaskMessage(messageContent, messageTopicAction);
+                break;
+            default:
+                break;
+        }
+
+        Log.i(TAG, "Received message: " + message);
+
+        try {
+            Thread.sleep(1000); //milliseconds
+        } catch (InterruptedException e) {
+            Log.i(TAG, "Sub socket thread interrupted.");
+        }
     }
 
     /**
@@ -180,7 +202,8 @@ public class JeroMQSubscriberRunnable implements Runnable {
          */
         SingleObserver<WaveRelayRadioModel> singleObserverSyncRadio = new SingleObserver<WaveRelayRadioModel>() {
             @Override
-            public void onSubscribe(Disposable d) {}
+            public void onSubscribe(Disposable d) {
+            }
 
             @Override
             public void onSuccess(WaveRelayRadioModel matchedWaveRelayRadioModel) {
@@ -247,7 +270,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
      * @param userModel
      */
     private void handleUserDataSync(DatabaseOperation databaseOperation, UserRepository userRepo,
-                                      UserModel userModel) {
+                                    UserModel userModel) {
         /**
          * Query for User model from database with id of received User model.
          *
@@ -259,7 +282,8 @@ public class JeroMQSubscriberRunnable implements Runnable {
          */
         SingleObserver<UserModel> singleObserverSyncUser = new SingleObserver<UserModel>() {
             @Override
-            public void onSubscribe(Disposable d) {}
+            public void onSubscribe(Disposable d) {
+            }
 
             @Override
             public void onSuccess(UserModel matchedUserModel) {
@@ -337,7 +361,8 @@ public class JeroMQSubscriberRunnable implements Runnable {
          */
         SingleObserver<SitRepModel> singleObserverSyncSitRep = new SingleObserver<SitRepModel>() {
             @Override
-            public void onSubscribe(Disposable d) {}
+            public void onSubscribe(Disposable d) {
+            }
 
             @Override
             public void onSuccess(SitRepModel matchedSitRepModel) {
@@ -440,15 +465,19 @@ public class JeroMQSubscriberRunnable implements Runnable {
     }
 
     /**
-     * Subscribe socket to all relevant topics
+     * Subscribe socket list to all relevant topics
      *
-     * @param socket
+     * @param socketList
      */
-    private void subscribeTopics(ZMQ.Socket socket) {
-        socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_BFT.getBytes());
-        socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_USER.getBytes());
-        socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_RADIO.getBytes());
-        socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_SITREP.getBytes());
-        socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_TASK.getBytes());
+    private void subscribeTopics(List<Socket> socketList) {
+        for (int i = 0; i < mSocketList.size(); i++) {
+            Socket socket = socketList.get(i);
+            socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_BFT.getBytes());
+            socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_USER.getBytes());
+            socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_RADIO.getBytes());
+            socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_SITREP.getBytes());
+            socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_TASK.getBytes());
+        }
+
     }
 }

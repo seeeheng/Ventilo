@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,7 +23,7 @@ import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansLightTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.task.ERadioConnectionStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
 
 public class RadioLinkStatusFragment extends Fragment {
 

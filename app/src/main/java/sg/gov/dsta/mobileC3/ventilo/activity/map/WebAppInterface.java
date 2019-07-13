@@ -5,14 +5,6 @@ import android.content.Context;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import sg.gov.dh.trackers.NavisensLocalTracker;
 import sg.gov.dh.utils.Coords;
 import sg.gov.dsta.mobileC3.ventilo.R;

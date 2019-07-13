@@ -1,12 +1,9 @@
 package sg.gov.dsta.mobileC3.ventilo.database;
 
-import android.app.Application;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
-import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
-import android.content.ContentValues;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
@@ -29,11 +26,10 @@ import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
-import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.MainViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EAccessRight;
-import sg.gov.dsta.mobileC3.ventilo.util.task.ERadioConnectionStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
 
 @Database(entities = {UserModel.class, BFTModel.class, SitRepModel.class, TaskModel.class,
         UserSitRepJoinModel.class, UserTaskJoinModel.class, VideoStreamModel.class,
@@ -171,29 +167,29 @@ public abstract class VentiloDatabase extends RoomDatabase {
         // User Radio/Phone IP Addresses
         String[] radioIpAddresses = MainApplication.getAppContext().getResources().
                 getStringArray(R.array.login_radio_ip_addresses);
-        String[] phoneIpAddresses = MainApplication.getAppContext().getResources().
-                getStringArray(R.array.login_user_mobile_ip_addresses);
+//        String[] phoneIpAddresses = MainApplication.getAppContext().getResources().
+//                getStringArray(R.array.login_user_mobile_ip_addresses);
 
-        WaveRelayRadioModel radioOne = createWaveRelayRadioModel((long) 1, USERNAME_ONE,
-                radioIpAddresses[0], phoneIpAddresses[0]);
-        WaveRelayRadioModel radioTwo = createWaveRelayRadioModel((long) 2, USERNAME_TWO,
-                radioIpAddresses[1], phoneIpAddresses[1]);
-        WaveRelayRadioModel radioThree = createWaveRelayRadioModel((long) 3, USERNAME_THREE,
-                radioIpAddresses[2], phoneIpAddresses[2]);
-        WaveRelayRadioModel radioFour = createWaveRelayRadioModel((long) 4, USERNAME_FOUR,
-                radioIpAddresses[3], phoneIpAddresses[3]);
-        WaveRelayRadioModel radioFive = createWaveRelayRadioModel((long) 5, USERNAME_FIVE,
-                radioIpAddresses[4], phoneIpAddresses[4]);
-        WaveRelayRadioModel radioSix = createWaveRelayRadioModel((long) 6, USERNAME_SIX,
-                radioIpAddresses[5], phoneIpAddresses[5]);
-        WaveRelayRadioModel radioSeven = createWaveRelayRadioModel((long) 7, USERNAME_SEVEN,
-                radioIpAddresses[6], phoneIpAddresses[6]);
-        WaveRelayRadioModel radioEight = createWaveRelayRadioModel((long) 8, USERNAME_EIGHT,
-                radioIpAddresses[7], phoneIpAddresses[7]);
-        WaveRelayRadioModel radioNine = createWaveRelayRadioModel((long) 9, CCT_ONE_USERNAME,
-                radioIpAddresses[8], phoneIpAddresses[8]);
-        WaveRelayRadioModel radioTen = createWaveRelayRadioModel((long) 10, CCT_TWO_USERNAME,
-                radioIpAddresses[9], phoneIpAddresses[9]);
+        WaveRelayRadioModel radioOne = createWaveRelayRadioModel(1, null,
+                radioIpAddresses[0], StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioTwo = createWaveRelayRadioModel(2, null,
+                radioIpAddresses[1], StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioThree = createWaveRelayRadioModel(3, null,
+                radioIpAddresses[2], StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioFour = createWaveRelayRadioModel(4, null,
+                radioIpAddresses[3], StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioFive = createWaveRelayRadioModel(5, null,
+                radioIpAddresses[4], StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioSix = createWaveRelayRadioModel(6, null,
+                radioIpAddresses[5], StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioSeven = createWaveRelayRadioModel(7, null,
+                radioIpAddresses[6], StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioEight = createWaveRelayRadioModel(8, null,
+                radioIpAddresses[7], StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioNine = createWaveRelayRadioModel(9, null,
+                radioIpAddresses[8], StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioTen = createWaveRelayRadioModel(10, null,
+                radioIpAddresses[9], StringUtil.INVALID_STRING);
 
         waveRelayRadioDao().insertWaveRelayRadioModel(radioOne);
         waveRelayRadioDao().insertWaveRelayRadioModel(radioTwo);
@@ -223,7 +219,7 @@ public abstract class VentiloDatabase extends RoomDatabase {
         return userModel;
     }
 
-    private static WaveRelayRadioModel createWaveRelayRadioModel(long radioId, String userId,
+    private static WaveRelayRadioModel createWaveRelayRadioModel(int radioId, String userId,
                                                                  String radioIpAddress, String phoneIpAddress) {
 
         WaveRelayRadioModel waveRelayRadioModel = new WaveRelayRadioModel();

@@ -4,6 +4,7 @@ public class SharedPreferenceConstants {
 //    public static final String TITLE = "VentiloPref";
     public static final String ACCESS_TOKEN = "Access Token";
     public static final String USER_ID = "UserID";
+    public static final String USER_RADIO_NO = "User Radio No";
     public static final String USER_DEVICE_IP_ADDRESS = "User Device IP Address";
     public static final String USER_TEAM = "User Team";
     public static final String ACCESS_RIGHT = "Access Right";

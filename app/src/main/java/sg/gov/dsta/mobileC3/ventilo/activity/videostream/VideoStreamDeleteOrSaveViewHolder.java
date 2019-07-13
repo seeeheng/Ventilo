@@ -12,13 +12,15 @@ import android.widget.ImageView;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class VideoStreamDeleteOrSaveViewHolder extends RecyclerView.ViewHolder {
 
     private ImageView imgVideoStreamDelete;
@@ -45,17 +47,20 @@ public class VideoStreamDeleteOrSaveViewHolder extends RecyclerView.ViewHolder {
     private View.OnClickListener onDeleteVideoStreamItemClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-//            removeSingleItemFromLocalDatabase(view.getContext(), getAdapterPosition());
-//            mAdapter.deleteItem(getAdapterPosition());
+            if (view.getContext() instanceof MainActivity) {
+                MainActivity mainActivity = ((MainActivity) view.getContext());
 
-            FragmentManager manager = ((AppCompatActivity) view.getContext()).getSupportFragmentManager();
-            VideoStreamAddFragment videoStreamAddFragment = (VideoStreamAddFragment)
-                    manager.findFragmentByTag(VideoStreamAddFragment.class.getSimpleName());
+                FragmentManager manager = mainActivity.getBaseChildFragmentOfCurrentFragment(
+                        MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID).
+                        getChildFragmentManager();
+                VideoStreamAddFragment videoStreamAddFragment = (VideoStreamAddFragment)
+                        manager.findFragmentByTag(VideoStreamAddFragment.class.getSimpleName());
 
-            VideoStreamViewModel videoStreamViewModel = ViewModelProviders.
-                    of(videoStreamAddFragment).get(VideoStreamViewModel.class);
-            videoStreamViewModel.deleteVideoStream(mAdapter.getVideoStreamListItems().
-                    get(getAdapterPosition()).getId());
+                VideoStreamViewModel videoStreamViewModel = ViewModelProviders.
+                        of(videoStreamAddFragment).get(VideoStreamViewModel.class);
+                videoStreamViewModel.deleteVideoStream(mAdapter.getVideoStreamListItems().
+                        get(getAdapterPosition()).getId());
+            }
         }
     };
 
@@ -81,10 +86,10 @@ public class VideoStreamDeleteOrSaveViewHolder extends RecyclerView.ViewHolder {
             }
 
             if (!isFieldEmpty) {
-//                FragmentManager manager = ((AppCompatActivity) view.getContext()).getSupportFragmentManager();
-//                FragmentManager manager = ((Fragment) view.getContext()).getChildFragmentManager();
-//                VideoStreamAddFragment videoStreamAddFragment = (VideoStreamAddFragment)
-//                        manager.findFragmentByTag(VideoStreamAddFragment.class.getSimpleName());
+                etvVideoStreamName.clearFocus();
+                etvVideoStreamName.setError(null);
+                etvVideoStreamURL.clearFocus();
+                etvVideoStreamURL.setError(null);
 
                 if (mAdapter.getVideoStreamAddFragment() != null &&
                         mAdapter.getVideoStreamAddFragment() instanceof VideoStreamAddFragment) {

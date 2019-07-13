@@ -23,7 +23,7 @@ import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansLightTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.task.ERadioConnectionStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
 
 public class DashboardRadioLinkStatusFragment extends Fragment {
 

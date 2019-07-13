@@ -16,20 +16,20 @@ import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 public class WaveRelayRadioModel {
 
     @PrimaryKey
-    private long radioId;
+    private int radioId;
     @ColumnInfo(index = true)
     private String userId;
     private String radioIpAddress;
     private String phoneIpAddress;
 
     // --- GETTER ---
-    public long getRadioId() { return radioId; }
+    public int getRadioId() { return radioId; }
     public String getUserId() { return userId; }
     public String getRadioIpAddress() { return radioIpAddress; }
     public String getPhoneIpAddress() { return phoneIpAddress; }
 
     // --- SETTER ---
-    public void setRadioId(long radioId) { this.radioId = radioId; }
+    public void setRadioId(int radioId) { this.radioId = radioId; }
     public void setUserId(String userId) { this.userId = userId; }
     public void setRadioIpAddress(String radioIpAddress) { this.radioIpAddress = radioIpAddress; }
     public void setPhoneIpAddress(String phoneIpAddress) { this.phoneIpAddress = phoneIpAddress; }

@@ -3,8 +3,6 @@ package sg.gov.dsta.mobileC3.ventilo.network.jeroMQ;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import sg.gov.dsta.mobileC3.ventilo.network.NetworkService;
-
 public class JeroMQAsyncTask {
 
     private static final String TAG = JeroMQAsyncTask.class.getSimpleName();
@@ -27,10 +25,10 @@ public class JeroMQAsyncTask {
 
         @Override
         protected Void doInBackground(final String... param) {
-//            JeroMQPublisher.getInstance().start();
-//            JeroMQSubscriber.getInstance().start();
+            JeroMQPublisher.getInstance().start();
+            JeroMQSubscriber.getInstance().start();
 
-            JeroMQPubSubBrokerProxy.getInstance().start();
+//            JeroMQPubSubBrokerProxy.getInstance().start();
             return null;
         }
 
@@ -47,9 +45,9 @@ public class JeroMQAsyncTask {
 
         @Override
         protected Void doInBackground(final String... param) {
-//            JeroMQPublisher.getInstance().stop();
-//            JeroMQSubscriber.getInstance().stop();
-            JeroMQPubSubBrokerProxy.getInstance().stop();
+            JeroMQPublisher.getInstance().stop();
+            JeroMQSubscriber.getInstance().stop();
+//            JeroMQPubSubBrokerProxy.getInstance().stop();
             return null;
         }
 

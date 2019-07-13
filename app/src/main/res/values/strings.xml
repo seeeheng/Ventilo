@@ -49,6 +49,12 @@
 
     <!-- Snackbar -->
     <string name="snackbar_login_invalid_user">Invalid User ID</string>
+    <string name="snackbar_login_user_already_logged_in">User account is already
+        logged in from another device</string>
+    <string name="snackbar_login_selected_radio_no_is_used">Selected radio number
+        is already being used by another device</string>
+    <string name="snackbar_wave_relay_client_connected_message">Wave Relay radio connection established.</string>
+    <string name="snackbar_wave_relay_client_disconnected_message">Wave Relay radio connection lost.</string>
     <string name="snackbar_settings_save_message">Save Settings?</string>
     <string name="snackbar_settings_pull_from_excel_message">Pull data from Excel?</string>
     <string name="snackbar_settings_pull_from_excel_successful_message">Data is successfully pulled.</string>
@@ -96,16 +102,20 @@
         <item>198.18.5.10</item>
     </string-array>
     <string-array name="login_user_mobile_ip_addresses">
-        <item>198.18.2.1</item>
-        <item>198.18.2.2</item>
-        <item>198.18.2.3</item>
-        <item>198.18.2.4</item>
-        <item>198.18.2.5</item>
-        <item>198.18.2.6</item>
-        <item>198.18.2.7</item>
-        <item>198.18.2.8</item>
-        <item>198.18.2.9</item>
-        <item>198.18.2.10</item>
+        <item>198.18.3.1</item>
+        <item>198.18.3.2</item>
+        <item>198.18.3.3</item>
+        <item>198.18.3.4</item>
+        <item>198.18.3.5</item>
+        <item>198.18.3.6</item>
+        <item>198.18.3.7</item>
+        <item>198.18.3.8</item>
+        <item>198.18.3.9</item>
+        <item>198.18.3.10</item>
+        <item>192.168.1.2</item>
+        <item>192.168.1.3</item>
+        <item>192.168.1.4</item>
+        <item>192.168.1.5</item>
     </string-array>
 
     <!-- Map -->
@@ -115,32 +125,50 @@
     <string name="map_blueprint_loading_status">Loading status</string>
 
     <string-array name="map_ship_blueprint_floor_items">
-        <item>Lateral View</item>
-        <item>Deck Platform</item>
-        <item>Deck 7</item>
-        <item>Deck 6</item>
-        <item>Deck 5</item>
-        <item>Deck 4</item>
-        <item>Deck 3</item>
-        <item>Deck 2</item>
-        <item>Main Deck</item>
-        <item>Tween Deck</item>
-        <item>2nd Deck</item>
-        <item>3rd Deck</item>
+        <!--<item>Lateral View</item>-->
+        <!--<item>Deck Platform</item>-->
+        <!--<item>Deck 7</item>-->
+        <!--<item>Deck 6</item>-->
+        <!--<item>Deck 5</item>-->
+        <!--<item>Deck 4</item>-->
+        <!--<item>Deck 3</item>-->
+        <!--<item>Deck 2</item>-->
+        <!--<item>Main Deck</item>-->
+        <!--<item>Tween Deck</item>-->
+        <!--<item>2nd Deck</item>-->
+        <!--<item>3rd Deck</item>-->
+        <item>Profile View</item>
+        <item>Midship View</item>
+        <item>Navigation Bridge Deck</item>
+        <item>D Deck</item>
+        <item>C Deck</item>
+        <item>B Deck</item>
+        <item>Upper Deck</item>
+        <item>A Deck</item>
+        <item>Tank Top</item>
     </string-array>
     <string-array name="map_ship_blueprint_floor_html_link_items">
-        <item>leaflet-avatar-lateral.html</item>
-        <item>leaflet-avatar-deckplatform.html</item>
-        <item>leaflet-avatar-deck7.html</item>
-        <item>leaflet-avatar-deck6.html</item>
-        <item>leaflet-avatar-deck5.html</item>
-        <item>leaflet-avatar-deck4.html</item>
-        <item>leaflet-avatar-deck3.html</item>
-        <item>leaflet-avatar-deck2.html</item>
-        <item>leaflet-avatar-maindeck.html</item>
-        <item>leaflet-avatar-decktween.html</item>
-        <item>leaflet-avatar-deck2nd.html</item>
-        <item>leaflet-avatar-deck3rd.html</item>
+        <!--<item>leaflet-avatar-lateral.html</item>-->
+        <!--<item>leaflet-avatar-deckplatform.html</item>-->
+        <!--<item>leaflet-avatar-deck7.html</item>-->
+        <!--<item>leaflet-avatar-deck6.html</item>-->
+        <!--<item>leaflet-avatar-deck5.html</item>-->
+        <!--<item>leaflet-avatar-deck4.html</item>-->
+        <!--<item>leaflet-avatar-deck3.html</item>-->
+        <!--<item>leaflet-avatar-deck2.html</item>-->
+        <!--<item>leaflet-avatar-maindeck.html</item>-->
+        <!--<item>leaflet-avatar-decktween.html</item>-->
+        <!--<item>leaflet-avatar-deck2nd.html</item>-->
+        <!--<item>leaflet-avatar-deck3rd.html</item>-->
+        <item>leaflet-bw-paris-profile.html</item>
+        <item>leaflet-bw-paris-midship.html</item>
+        <item>leaflet-bw-paris-nav-bri-deck.html</item>
+        <item>leaflet-bw-paris-d-deck.html</item>
+        <item>leaflet-bw-paris-c-deck.html</item>
+        <item>leaflet-bw-paris-b-deck.html</item>
+        <item>leaflet-bw-paris-upper-deck.html</item>
+        <item>leaflet-bw-paris-a-deck.html</item>
+        <item>leaflet-bw-paris-tank-top.html</item>
     </string-array>
     <string name="snackbar_map_blueprint_init_location_message">
         Initialise your location via long press on the map</string>
@@ -152,6 +180,7 @@
 
     <!-- Map Dashboard -->
     <string name="dashboard_video_stream">Video Stream</string>
+    <!--<string name="dashboard_video_stream_two">Stream Two</string>-->
     <string name="dashboard_sitrep_personnel_status">Personnel Status</string>
     <string name="dashboard_task_phase_status">Phase Status</string>
     <string name="dashboard_task_phase_one">Phase 1</string>
@@ -161,18 +190,20 @@
 
     <!-- Video Stream Fragment -->
     <string name="video_stream_page_title">Video Stream</string>
+    <string name="video_stream_own_video">My Video Stream</string>
+    <string name="video_stream_other_videos">Other Video Streams</string>
 
     <string name="video_name_hint">Video Name</string>
     <string name="video_URL_hint">Video URL</string>
-    <string name="video_stream_add">Add Video Stream</string>
+    <string name="video_stream_others_add">Add Other Video Stream</string>
     <string name="video_stream_select_spinner_item">-- Select Video Stream --</string>
-
-    <string name="first_video_stream_URL_hint">Enter 1st Video URL </string>
-    <string name="second_video_stream_URL_hint">Enter 2nd Video URL </string>
-    <string name="error_empty_video_url_detail">Please enter URL Link</string>
 
     <string name="video_stream_error_field_required">This field is required</string>
     <string name="video_stream_error_save_required">Stream needs to be saved with Save button on the right</string>
+
+    <string name="video_stream_no_video_selected">No video selected</string>
+    <string name="video_stream_unable_to_load">Unable to load stream</string>
+    <string name="video_stream_stream_ended">Stream Ended</string>
 
     <!-- Timeline Fragment -->
     <string name="timeline_page_title">Timeline</string>

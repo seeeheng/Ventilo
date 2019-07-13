@@ -1,7 +1,5 @@
 package sg.gov.dsta.mobileC3.ventilo.network.waveRelayRadio;
 
-import android.hardware.usb.UsbManager;
-import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -11,9 +9,9 @@ public class WaveRelayRadioAsyncTask {
 
     public WaveRelayRadioAsyncTask() {}
 
-    public void runWrRadioSocketConnection(String ipAddress, UsbManager cm) {
+    public void runWrRadioSocketConnection(String ipAddress) {
         runWrRadioSocketConnectionAsyncTask task =
-                new runWrRadioSocketConnectionAsyncTask(ipAddress, cm);
+                new runWrRadioSocketConnectionAsyncTask(ipAddress);
         task.execute();
     }
 
@@ -24,16 +22,14 @@ public class WaveRelayRadioAsyncTask {
     private class runWrRadioSocketConnectionAsyncTask extends AsyncTask<String, Void, Void> {
 
         private String mIpAddress;
-        private UsbManager mCm;
 
-        runWrRadioSocketConnectionAsyncTask(String ipAddress, UsbManager cm) {
+        runWrRadioSocketConnectionAsyncTask(String ipAddress) {
             mIpAddress = ipAddress;
-            mCm = cm;
         }
 
         @Override
         protected Void doInBackground(final String... param) {
-            mWaveRelayRadioClient = new WaveRelayRadioClient(mIpAddress, mCm);
+            mWaveRelayRadioClient = new WaveRelayRadioClient(mIpAddress);
             return null;
         }
 

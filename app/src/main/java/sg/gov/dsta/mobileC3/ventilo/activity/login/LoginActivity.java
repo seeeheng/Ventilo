@@ -12,10 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -36,7 +34,6 @@ import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.WaveRelayRadioViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
-import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.ProgressBarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
@@ -44,8 +41,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EAccessRight;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 
 public class LoginActivity extends AppCompatActivity {
 //        implements LoaderCallbacks<Cursor> {
@@ -150,12 +146,12 @@ public class LoginActivity extends AppCompatActivity {
 
                             mWaveRelayRadioModelList = waveRelayRadioModelList;
 
-                            List<Long> radioNoList = waveRelayRadioModelList.stream().map(
+                            List<Integer> radioNoList = waveRelayRadioModelList.stream().map(
                                     WaveRelayRadioModel -> WaveRelayRadioModel.getRadioId()).
                                     collect(Collectors.toList());
 
                             ArrayList<String> radioNoStrList = new ArrayList<>();
-                            for (long radioNo : radioNoList) {
+                            for (int radioNo : radioNoList) {
                                 radioNoStrList.add(String.valueOf(radioNo));
                             }
 
@@ -300,7 +296,7 @@ public class LoginActivity extends AppCompatActivity {
 //        public void onResponse(String response) {
 //            Gson gson = GsonCreator.createGson();
 //            AuthRx authRx = gson.fromJson(response, AuthRx.class);
-//            saveLoginDetails(authRx.getAccessToken());
+//            saveLoginDetailsAndBroadcastUpdate(authRx.getAccessToken());
 //            Log.d("SuperC2", "Response: " + response);
 //            Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
 //            startActivity(activityIntent);
@@ -370,11 +366,65 @@ public class LoginActivity extends AppCompatActivity {
 //        int IS_PRIMARY = 1;
 //    }
 
-//    private void setUpDummyUser() {
-//        // Added for testing; Clears all data from database
-//        MainViewModel mainViewModel = new MainViewModel(getApplication());
-//        mainViewModel.clearAllData();
-//    }
+    /**
+     * Checks if radio number has already been used by any other devices
+     *
+     */
+    private void checkIfValidRadioNo(UserModel userModel, int selectedRadioNo) {
+
+        SingleObserver<WaveRelayRadioModel> singleObserverWaveRelayRadioByRadioNo =
+                new SingleObserver<WaveRelayRadioModel>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        // add it to a CompositeDisposable
+                    }
+
+                    @Override
+                    public void onSuccess(WaveRelayRadioModel waveRelayRadioModel) {
+                        if (waveRelayRadioModel != null) {
+                            Log.d(TAG, "onSuccess singleObserverWaveRelayRadioByRadioNo, " +
+                                    "checkIfValidRadioNo. " +
+                                    "waveRelayRadioModel: " + waveRelayRadioModel);
+
+                            // No one is using selected radio number
+                            if (waveRelayRadioModel.getUserId() == null ||
+                                    StringUtil.EMPTY_STRING.equalsIgnoreCase(waveRelayRadioModel.getUserId())) {
+                                saveLoginDetailsAndBroadcastUpdate(userModel);
+
+                                Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
+
+                                // Transfer Radio Number to Main Activity
+                                Bundle bundle = new Bundle();
+                                bundle.putInt(MainNavigationConstants.WAVE_RELAY_RADIO_NO_KEY,
+                                        waveRelayRadioModel.getRadioId());
+                                activityIntent.putExtra(MainNavigationConstants.WAVE_RELAY_RADIO_NO_BUNDLE_KEY, bundle);
+
+                                startActivity(activityIntent);
+                            } else {
+                                // Selected radio number is already being used by another device
+                                Log.d(TAG, "Selected radio number is already being used by another device.");
+                                SnackbarUtil.showCustomInfoSnackbar(mMainLayout, mViewSnackbar,
+                                        getString(R.string.snackbar_login_selected_radio_no_is_used));
+                                mLoginBtn.setEnabled(true);
+                            }
+                        } else {
+                            Log.d(TAG, "onSuccess singleObserverWaveRelayRadioByRadioNo, " +
+                                    "checkIfValidRadioNo. " +
+                                    "waveRelayRadioModel is null");
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError singleObserverWaveRelayRadioByRadioNo, " +
+                                "checkIfValidRadioNo. " +
+                                "Error Msg: " + e.toString());
+                    }
+                };
+
+        mWaveRelayRadioViewModel.queryRadioByRadioId(selectedRadioNo,
+                singleObserverWaveRelayRadioByRadioNo);
+    }
 
     private void checkIfValidUser() {
         // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
@@ -387,41 +437,24 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(UserModel userModel) {
 
-                // Successful login
-                if (mEtvPassword.getText().toString().trim().equalsIgnoreCase(userModel.getPassword())) {
-                    saveLoginDetails(userModel);
+                String accessToken = userModel.getAccessToken();
 
-                    long selectedRadioNo = Long.valueOf(mSpinnerRadioNo.getSelectedItem().toString());
-                    saveAndBroadcastRadioInfo(userModel, selectedRadioNo);
+                if (accessToken == null || StringUtil.EMPTY_STRING.equalsIgnoreCase(accessToken)) {
 
-                    Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
-
-                    // Transfer Radio Number to Main Activity
-                    Bundle bundle = new Bundle();
-                    bundle.putLong(MainNavigationConstants.WAVE_RELAY_RADIO_NO_KEY,
-                            selectedRadioNo);
-                    activityIntent.putExtra(MainNavigationConstants.WAVE_RELAY_RADIO_NO_BUNDLE_KEY, bundle);
-
-                    startActivity(activityIntent);
-
-//                    if (executePingCommand(ownPhoneIPAddress)) {
-//                        Toast.makeText(getApplicationContext(), "Ping Successful", Toast.LENGTH_LONG).show();
-//                    } else {
-//                        Toast.makeText(getApplicationContext(), "Ping Failed", Toast.LENGTH_LONG).show();
-//                    }
-//
-//                    String pingResult = executePingCommand(ownPhoneIPAddress);
-//                    boolean isNetOk = true;
-//                    if (pingResult == null) {
-//                        // not reachable!!!!!
-//                        isNetOk = false;
-//                    }
-//
-//                    Intent activityIntent = new Intent(getApplicationContext(), TestActivity.class);
-                } else {
-                    mEtvPassword.setError(MainApplication.getAppContext().
-                            getString(R.string.error_incorrect_password));
-                    mEtvPassword.requestFocus();
+                    // Valid account to be logged in
+                    if (mEtvPassword.getText().toString().trim().equalsIgnoreCase(userModel.getPassword())) {
+                        int selectedRadioNo = Integer.valueOf(mSpinnerRadioNo.getSelectedItem().toString());
+                        checkIfValidRadioNo(userModel, selectedRadioNo);
+                    } else {
+                        mEtvPassword.setError(MainApplication.getAppContext().
+                                getString(R.string.error_incorrect_password));
+                        mEtvPassword.requestFocus();
+                        mLoginBtn.setEnabled(true);
+                    }
+                } else { // User account is already logged in from another device
+                    Log.d(TAG, "User account is already logged in from another device.");
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, mViewSnackbar,
+                            getString(R.string.snackbar_login_user_already_logged_in));
                     mLoginBtn.setEnabled(true);
                 }
             }
@@ -465,7 +498,7 @@ public class LoginActivity extends AppCompatActivity {
      *
      * @param userModel
      */
-    private void saveLoginDetails(UserModel userModel) {
+    private void saveLoginDetailsAndBroadcastUpdate(UserModel userModel) {
         String accessToken = StringUtil.generateRandomString();
 
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -488,31 +521,6 @@ public class LoginActivity extends AppCompatActivity {
         Log.d(TAG, "accessToken is " + accessToken);
         userModel.setAccessToken(accessToken);
         mUserViewModel.updateUser(userModel);
-    }
-
-    /**
-     * Update radio information with userId account and broadcast updated model to other devices
-     *
-     * @param userModel
-     * @param selectedRadioNo
-     */
-    private void saveAndBroadcastRadioInfo(UserModel userModel, long selectedRadioNo) {
-
-        List<WaveRelayRadioModel> waveRelayRadioModelList = mWaveRelayRadioModelList.stream().
-                filter(waveRelayRadioModel -> waveRelayRadioModel.getRadioId()
-                        == selectedRadioNo).
-                collect(Collectors.toList());
-
-        WaveRelayRadioModel waveRelayRadioModelToUpdate = waveRelayRadioModelList.get(0);
-        waveRelayRadioModelToUpdate.setUserId(userModel.getUserId());
-
-        mWaveRelayRadioViewModel.updateWaveRelayRadio(waveRelayRadioModelToUpdate);
-
-        // Send newly created WaveRelay model to all other devices
-        JeroMQBroadcastOperation.broadcastDataUpdateOverSocket(waveRelayRadioModelToUpdate);
-
-        SharedPreferenceUtil.setSharedPreference(SharedPreferenceConstants.USER_DEVICE_IP_ADDRESS,
-                waveRelayRadioModelToUpdate.getPhoneIpAddress());
     }
 
     /**

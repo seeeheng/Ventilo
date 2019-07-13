@@ -1,7 +1,6 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.task;
 
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -32,8 +31,6 @@ import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
-import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
-import sg.gov.dsta.mobileC3.ventilo.database.DatabaseOperation;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
@@ -41,7 +38,6 @@ import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.TaskViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserTaskJoinViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
-import sg.gov.dsta.mobileC3.ventilo.repository.TaskRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.ProgressBarUtil;
@@ -54,9 +50,9 @@ import sg.gov.dsta.mobileC3.ventilo.util.constant.DatabaseTableConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EAdHocTaskPriority;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EPhaseNo;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EAdHocTaskPriority;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EPhaseNo;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EStatus;
 
 public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.SnackbarActionClickListener {
 
@@ -243,14 +239,19 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 //                initTaskPhaseAdapter(taskModelList);
 //                initTaskNameAdapter(taskModelList);
 
-                List<String> taskPhaseList = sortUpdatedPhaseList(taskModelList);
+                List<String> tempTaskPhaseList = sortUpdatedPhaseList(taskModelList);
                 List<String> taskNameList = sortUpdatedTaskNameList(taskModelList);
 
-                if (taskPhaseList.size() == 0) {
-                    taskPhaseList.add(getString(R.string.dashboard_task_phase_one));
-                    taskPhaseList.add(getString(R.string.dashboard_task_phase_two));
-                    taskPhaseList.add(getString(R.string.dashboard_task_phase_three));
-                    taskPhaseList.add(getString(R.string.dashboard_task_phase_four));
+                List<String> taskPhaseList = new ArrayList<>();
+                taskPhaseList.add(getString(R.string.dashboard_task_phase_one));
+                taskPhaseList.add(getString(R.string.dashboard_task_phase_two));
+                taskPhaseList.add(getString(R.string.dashboard_task_phase_three));
+                taskPhaseList.add(getString(R.string.dashboard_task_phase_four));
+
+                for (int i = 0; i < tempTaskPhaseList.size(); i++) {
+                    if (!taskPhaseList.contains(tempTaskPhaseList.get(i).trim())) {
+                        taskPhaseList.add(tempTaskPhaseList.get(i));
+                    }
                 }
 
                 mTaskPhaseExpandableListAdapter.setChildList(taskPhaseList);

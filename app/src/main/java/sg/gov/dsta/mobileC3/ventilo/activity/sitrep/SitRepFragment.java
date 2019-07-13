@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,7 +32,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EAccessRight;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 
 public class SitRepFragment extends Fragment {
 

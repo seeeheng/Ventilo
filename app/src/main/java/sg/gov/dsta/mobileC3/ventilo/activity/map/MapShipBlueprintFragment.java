@@ -13,8 +13,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -70,17 +68,18 @@ import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQ;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.JSONUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ProgressBarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SpinnerItemListDataBank;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EAccessRight;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 
 public class MapShipBlueprintFragment extends Fragment {
 
-    private static final String TAG = "BFTLOCAL";
+    private static final String TAG = MapShipBlueprintFragment.class.getSimpleName();
     private static final String LOCAL_SHIP_BLUEPRINT_DIRECTORY = "file:///android_asset/ship/";
     private static final String BEACON_DROP_HAZARD = "BEACON DROP HAZARD";
     private static final String BEACON_DROP_DECEASED = "BEACON DROP DECEASED";
@@ -91,9 +90,19 @@ public class MapShipBlueprintFragment extends Fragment {
     // View models
     private BFTViewModel mBFTViewModel;
 
-    // Main
-    private FrameLayout mMainLayout;
+    // Main UI
+    private LinearLayout mMainLayout;
+    private FrameLayout mFrameLayoutBlueprint;
     private WebView myWebView;
+    private View mMiddleDivider;
+    private View mBottomDivider;
+
+    // Dashboard Fragments
+    private HorizontalScrollView mHorizontalSVDashboardFragments;
+    private View mVideoStreamFragment;
+    private View mSitRepPersonnelStatusFragment;
+    private View mTaskPhaseStatusFragment;
+    private View mRadioLinkStatusFragment;
 
     private List<String> mSpinnerFloorNameLinkList;
 //    private ArrayList<String> mSpinnerFloorNameList;
@@ -126,6 +135,10 @@ public class MapShipBlueprintFragment extends Fragment {
     private List<String> mDeceasedMsgList;
     private BFTModel mOwnBFTModel;
 
+    // For tracker to be initialised
+    private boolean mIsTrackerInitialised;
+
+    // For onNewCoord listener to fire at least once
     private boolean mIsTrackerUpdateInitialised;
     private boolean mIsFragmentVisibleToUser;
 
@@ -150,22 +163,31 @@ public class MapShipBlueprintFragment extends Fragment {
 //            }
 //        });
 
-        // Show snackbar message to request user for location initialisation
-        if (getSnackbarView() != null) {
-            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
-                    MainApplication.getAppContext().
-                            getString(R.string.snackbar_map_blueprint_init_location_message));
-        }
+        initTracker();
+        initWebviewSettings();
 
         return rootMapShipBlueprintView;
     }
 
     private void initUI(View rootMapShipBlueprintView) {
         mMainLayout = rootMapShipBlueprintView.findViewById(R.id.layout_map_ship_blueprint_fragment);
-        View viewMiddleDivider = rootMapShipBlueprintView.findViewById(R.id.view_map_ship_blueprint_middle_divider);
-        HorizontalScrollView hsViewDashboardFragments = rootMapShipBlueprintView.findViewById(R.id.view_map_ship_blueprint_dashboard_fragments);
-        View viewBottomDivider = rootMapShipBlueprintView.findViewById(R.id.view_map_ship_blueprint_bottom_divider);
+        mFrameLayoutBlueprint = rootMapShipBlueprintView.findViewById(R.id.layout_map_ship_blueprint);
+        mMiddleDivider = rootMapShipBlueprintView.
+                findViewById(R.id.view_map_ship_blueprint_middle_divider);
+        mHorizontalSVDashboardFragments = rootMapShipBlueprintView.
+                findViewById(R.id.hs_view_map_ship_blueprint_dashboard_fragments);
+        mBottomDivider = rootMapShipBlueprintView.
+                findViewById(R.id.view_map_ship_blueprint_bottom_divider);
         myWebView = rootMapShipBlueprintView.findViewById(R.id.webview_bft);
+
+        mVideoStreamFragment = rootMapShipBlueprintView.
+                findViewById(R.id.fragment_dashboard_video_stream);
+        mSitRepPersonnelStatusFragment = rootMapShipBlueprintView.
+                findViewById(R.id.fragment_dashboard_sitrep_personnel_status);
+        mTaskPhaseStatusFragment = rootMapShipBlueprintView.
+                findViewById(R.id.fragment_dashboard_task_phase_status);
+        mRadioLinkStatusFragment = rootMapShipBlueprintView.
+                findViewById(R.id.fragment_dashboard_radio_link_status);
 
         if (!EAccessRight.CCT.toString().equalsIgnoreCase(
                 SharedPreferenceUtil.getCurrentUserAccessRight())) {
@@ -175,21 +197,21 @@ public class MapShipBlueprintFragment extends Fragment {
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     760.0f
             );
-            mMainLayout.setLayoutParams(param);
+            mFrameLayoutBlueprint.setLayoutParams(param);
 
-            viewMiddleDivider.setVisibility(View.GONE);
-            hsViewDashboardFragments.setVisibility(View.GONE);
-            viewBottomDivider.setVisibility(View.GONE);
+            mMiddleDivider.setVisibility(View.GONE);
+            mHorizontalSVDashboardFragments.setVisibility(View.GONE);
+            mBottomDivider.setVisibility(View.GONE);
         } else {
 
             LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, 0, 385.0f
             );
-            mMainLayout.setLayoutParams(param);
+            mFrameLayoutBlueprint.setLayoutParams(param);
 
-            viewMiddleDivider.setVisibility(View.VISIBLE);
-            hsViewDashboardFragments.setVisibility(View.VISIBLE);
-            viewBottomDivider.setVisibility(View.VISIBLE);
+            mMiddleDivider.setVisibility(View.VISIBLE);
+            mHorizontalSVDashboardFragments.setVisibility(View.VISIBLE);
+            mBottomDivider.setVisibility(View.VISIBLE);
         }
 
         mTextXYZ = rootMapShipBlueprintView.findViewById(R.id.tv_map_blueprint_textXYZ);
@@ -224,6 +246,7 @@ public class MapShipBlueprintFragment extends Fragment {
                 updateMapOfDeceasedBeacon();
             }
         });
+
         myWebView.setWebChromeClient(new WebChromeClient());
         myWebView.loadUrl(LOCAL_SHIP_BLUEPRINT_DIRECTORY + prefs.getOverview());
         myWebView.addJavascriptInterface(new WebAppInterface(this.getActivity(), prefs, tracker), "Android");
@@ -359,11 +382,6 @@ public class MapShipBlueprintFragment extends Fragment {
         }
     };
 
-    private void closeWebSocketClient() {
-        MainActivity mainActivity = (MainActivity) getActivity();
-        mainActivity.closeWebSocketClient();
-    }
-
     private View.OnClickListener onDeceasedIconClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -382,43 +400,6 @@ public class MapShipBlueprintFragment extends Fragment {
         }
     };
 
-    // the purpose of the touch listener is just to store the touch X,Y coordinates
-//    View.OnTouchListener webViewOnTouchListener = new View.OnTouchListener() {
-//        @Override
-//        public boolean onTouch(View view, MotionEvent motionEvent) {
-//            // save the X,Y coordinates
-//            if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
-//                mLastTouchDownXY[0] = motionEvent.getX();
-//                mLastTouchDownXY[1] = motionEvent.getY();
-//            }
-//
-//            // let the touch event pass on to whoever needs it
-//            return false;
-//        }
-//    };
-
-//    View.OnLongClickListener webViewOnLongClickListener = new View.OnLongClickListener() {
-//        @Override
-//        public boolean onLongClick(View v) {
-//
-//            // retrieve the stored coordinates
-//            float x = mLastTouchDownXY[0];
-//            float y = mLastTouchDownXY[1];
-//
-//            Coords coords = new Coords(0, 0, 0,
-//                    0, 0, 0, 0,
-//                    x, y, true, "standing");
-//            updateMap(coords);
-////            myWebView.evaluateJavascript("javascript: " + "androidToJSupdateLocation(\"" + message + "\")", null);
-//
-//            // use the coordinates for whatever
-//            Log.i("TAG", "onLongClick: x = " + x + ", y = " + y);
-//
-//            // we have consumed the touch event
-//            return true;
-//        }
-//    };
-
     /**
      * Refreshes BFT objects on map on fragment load
      */
@@ -432,7 +413,7 @@ public class MapShipBlueprintFragment extends Fragment {
 
                     @Override
                     public void onSuccess(List<BFTModel> bFTModelList) {
-                        if (bFTModelList != null && bFTModelList.size() != 0) {
+                        if (bFTModelList != null) {
                             Log.d(TAG, "onSuccess singleObserverBFTForUser, " +
                                     "refreshBFT. " +
                                     "bFTModelList, size: " + bFTModelList.size());
@@ -449,7 +430,7 @@ public class MapShipBlueprintFragment extends Fragment {
 
                             Log.i(TAG, "ownBFTModelList, size:" + ownBFTModelList.size());
 
-                            // There should only be one 'own' type BFTModel belonging to a user
+                            // There should only be one 'Own' type BFTModel belonging to a user
                             if (ownBFTModelList.size() == 1) {
                                 mOwnBFTModel = ownBFTModelList.get(0);
 
@@ -528,7 +509,6 @@ public class MapShipBlueprintFragment extends Fragment {
     }
 
     private void initTracker() {
-//        this.tracker.startGPSUpdate();
         this.tracker = new NavisensLocalTracker(this.getActivity());
         this.tracker.setTrackerListener(new TrackerListener() {
             @Override
@@ -548,7 +528,7 @@ public class MapShipBlueprintFragment extends Fragment {
                 Log.d(TAG, "RealAlt:" + coords.getLatitude());
 
                 updateMap(coords);
-                sendCoords(coords);
+//                sendCoords(coords);
                 saveCoords(coords);
                 showCoords(coords);
             }
@@ -558,16 +538,19 @@ public class MapShipBlueprintFragment extends Fragment {
 
             }
         });
-        Toast.makeText(this.getActivity().getApplicationContext(), "Tracker setup complete", Toast.LENGTH_LONG).show();
+
+        Toast.makeText(this.getActivity().getApplicationContext(),
+                "Tracker setup complete", Toast.LENGTH_LONG).show();
+        mIsTrackerInitialised = true;
     }
 
-    private void saveCoords(Coords _coords) {
+    private void saveCoords(Coords coords) {
         if (fs != null) {
             String pattern = "yyyyMMddHHmmss";
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
             String date = simpleDateFormat.format(new Date());
             try {
-                fs.write(_coords.getX() + "," + _coords.getY() + "," + _coords.getAltitude() + "," + _coords.getBearing() + "," + prefs.getName() + "," + _coords.getAction() + "," + _coords.getLatitude() + "," + date);
+                fs.write(coords.getX() + "," + coords.getY() + "," + coords.getAltitude() + "," + coords.getBearing() + "," + prefs.getName() + "," + coords.getAction() + "," + coords.getLatitude() + "," + date);
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "FileSaver failed to save coords");
@@ -942,6 +925,45 @@ public class MapShipBlueprintFragment extends Fragment {
     }
 
     /**
+     * -------------------- UI Components Visibility Methods --------------------
+     **/
+    public void setBlueprintVisibility(int isVisible) {
+        mFrameLayoutBlueprint.setVisibility(isVisible);
+    }
+
+    public void setMiddleDividerVisibility(int isVisible) {
+        mMiddleDivider.setVisibility(isVisible);
+    }
+
+    public void setBottomDividerVisibility(int isVisible) {
+        mBottomDivider.setVisibility(isVisible);
+    }
+
+    public View getHorizontalSVDashboardFragments() {
+        return mHorizontalSVDashboardFragments;
+    }
+
+    public View getVideoStreamFragment() {
+        return mVideoStreamFragment;
+    }
+
+    public void setVideoStreamFragmentVisibility(int isVisible) {
+        mVideoStreamFragment.setVisibility(isVisible);
+    }
+
+    public void setSitRepPersonnelStatusFragmentVisibility(int isVisible) {
+        mSitRepPersonnelStatusFragment.setVisibility(isVisible);
+    }
+
+    public void setTaskPhaseStatusFragmentVisibility(int isVisible) {
+        mTaskPhaseStatusFragment.setVisibility(isVisible);
+    }
+
+    public void setRadioLinkStatusFragmentVisibility(int isVisible) {
+        mRadioLinkStatusFragment.setVisibility(isVisible);
+    }
+
+    /**
      * Set up observer for live updates on view models and update UI accordingly
      */
     private void observerSetup() {
@@ -1012,9 +1034,22 @@ public class MapShipBlueprintFragment extends Fragment {
     private void navigateToFragment(Fragment toFragment) {
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).navigateWithAnimatedTransitionToFragment(
-                    R.id.layout_map_ship_blueprint_fragment, this, toFragment);
+                    R.id.layout_map_ship_blueprint, this, toFragment);
         }
     }
+
+//    /**
+//     * Release all resources related to / referenced by fragment upon onDestroy of Main Activity
+//     */
+//    public void onMainActivityDestroy() {
+//        if (fs != null) {
+//            try {
+//                fs.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     /**
      * Pops back stack of ONLY current tab
@@ -1025,7 +1060,7 @@ public class MapShipBlueprintFragment extends Fragment {
         if (!isAdded())
             return false;
 
-        if(getChildFragmentManager().getBackStackEntryCount() > 0) {
+        if (getChildFragmentManager().getBackStackEntryCount() > 0) {
             getChildFragmentManager().popBackStackImmediate();
             return true;
         } else
@@ -1035,10 +1070,22 @@ public class MapShipBlueprintFragment extends Fragment {
     private void onVisible() {
         Log.i(TAG, "onVisible");
 
-//        if (myWebView == null || !myWebView.isActivated()) {
-//            initWebviewSettings();
-//            Log.i(TAG, "onVisible: Initialising webview settings");
-//        }
+        if ((tracker == null || !tracker.isActive()) && !mIsTrackerInitialised) {
+//            initBeacon();
+            Log.i(TAG, "onVisible: Initialising tracker, " +
+                    "webview settings and refreshing BFT");
+            initTracker();
+            initWebviewSettings();
+
+            mIsTrackerInitialised = true;
+        }
+
+        // Show snackbar message to request user for location initialisation
+        if (getSnackbarView() != null) {
+            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                    MainApplication.getAppContext().
+                            getString(R.string.snackbar_map_blueprint_init_location_message));
+        }
 
 //        beaconManager.enableForegroundDispatch();
     }
@@ -1057,15 +1104,23 @@ public class MapShipBlueprintFragment extends Fragment {
             setDeceasedIconUnselectedStateUI();
         }
 
+        if (tracker != null) {
+            tracker.deactivate();
+            mIsTrackerInitialised = false;
+            mIsTrackerUpdateInitialised = false;
+        }
+
 //        beaconManager.disableForegroundDispatch();
     }
 
     @Override
     public void onDestroy() {
-        if (tracker != null) {
-            System.out.println("mapShipBlueprintFragment onStop");
-            tracker.deactivate();
-        }
+//        if (tracker != null) {
+//            System.out.println("mapShipBlueprintFragment onStop");
+//            tracker.deactivate();
+//        }
+
+        Log.i(TAG, "onDestroy");
 
         if (fs != null) {
             try {
@@ -1101,7 +1156,7 @@ public class MapShipBlueprintFragment extends Fragment {
     public void onStop() {
         super.onStop();
 
-        EventBus.getDefault().unregister(this);
+//        EventBus.getDefault().unregister(this);
 
         if (mIsFragmentVisibleToUser) {
             onInvisible();
@@ -1129,7 +1184,7 @@ public class MapShipBlueprintFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
 
         if (mIsFragmentVisibleToUser) {
             onVisible();
@@ -1165,27 +1220,18 @@ public class MapShipBlueprintFragment extends Fragment {
 //        }
 
 
-        if (tracker == null || !tracker.isActive()) {
-//            initBeacon();
-            Log.i(TAG, "onVisible: Initialising tracker, " +
-                    "webview settings and refreshing BFT");
-            initTracker();
-            initWebviewSettings();
-//            refreshBFT();
-        }
-
 //        beaconManager.enableForegroundDispatch();
     }
 
-    @Subscribe
-    public void onEvent(PageEvent pageEvent) {
-
+//    @Subscribe
+//    public void onEvent(PageEvent pageEvent) {
+//
 //        if (SettingsActivity.class.getSimpleName().equalsIgnoreCase(pageEvent.getPreviousActivityName())) {
 //            System.out.println("Settings Activity found!");
 ////            setupMessageQueue();
 ////            initUI(mRootMapView, mSavedInstanceState);
 //        }
-    }
+//    }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {

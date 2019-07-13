@@ -30,7 +30,7 @@ public class ExcelSpreadsheetRepository {
         task.execute();
     }
 
-    private static class PullDataFromExcelToDatabaseAsyncTask extends AsyncTask<String, Void, Void> {
+    private class PullDataFromExcelToDatabaseAsyncTask extends AsyncTask<String, Void, Void> {
 
         PullDataFromExcelToDatabaseAsyncTask() {}
 
@@ -51,7 +51,7 @@ public class ExcelSpreadsheetRepository {
     }
 
     // TODO: Change code for this
-    private static class PushDataToExcelFromDatabaseAsyncTask extends AsyncTask<String, Void, Void> {
+    private class PushDataToExcelFromDatabaseAsyncTask extends AsyncTask<String, Void, Void> {
 
         PushDataToExcelFromDatabaseAsyncTask() {}
 
@@ -71,13 +71,13 @@ public class ExcelSpreadsheetRepository {
         }
     }
 
-    private static void notifyExcelDataPulledBroadcastIntent() {
+    private void notifyExcelDataPulledBroadcastIntent() {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(UserSettingsFragment.EXCEL_DATA_PULLED_INTENT_ACTION);
         LocalBroadcastManager.getInstance(MainApplication.getAppContext()).sendBroadcast(broadcastIntent);
     }
 
-    private static void notifyExcelDataPushedBroadcastIntent() {
+    private void notifyExcelDataPushedBroadcastIntent() {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(UserSettingsFragment.EXCEL_DATA_PUSHED_INTENT_ACTION);
         LocalBroadcastManager.getInstance(MainApplication.getAppContext()).sendBroadcast(broadcastIntent);

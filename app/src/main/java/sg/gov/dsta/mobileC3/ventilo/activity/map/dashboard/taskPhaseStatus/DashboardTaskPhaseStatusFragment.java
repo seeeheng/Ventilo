@@ -25,8 +25,8 @@ import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.TaskViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EPhaseNo;
-import sg.gov.dsta.mobileC3.ventilo.util.task.EStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EPhaseNo;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EStatus;
 
 public class DashboardTaskPhaseStatusFragment extends Fragment {
 

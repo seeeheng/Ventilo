@@ -1,1 +1,6 @@
 include ':app', ':trackers-debug'
+
+gradle.ext.exoplayerRoot = 'app/libs/ExoPlayer-dev-v2-rtsp'
+//gradle.ext.exoplayerRoot = 'app/libs/ExoPlayer-r2.10.2'
+gradle.ext.exoplayerModulePrefix = 'exoplayer-'
+apply from: new File(gradle.ext.exoplayerRoot, 'core_settings.gradle')
