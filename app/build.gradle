@@ -98,7 +98,7 @@ dependencies {
     implementation 'com.estimote:proximity-sdk:1.0.3'
 
     // Video Streaming (VLC)
-    implementation 'de.mrmaffen:vlc-android-sdk:2.0.6'
+//    implementation 'de.mrmaffen:vlc-android-sdk:2.0.6'
 //    implementation 'com.github.masterwok:simple-vlc-player:1.1.15'
 
     // For Video Streaming (ExoPlayer by Google)
@@ -141,6 +141,11 @@ dependencies {
 
     // Threetenbp (Time)
     implementation 'org.threeten:threetenbp:1.3.8'
+
+    // Logs
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+    implementation 'com.github.tony19:logback-android:2.0.0'
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 
 //    implementation 'com.esri.arcgisruntime:arcgis-android:100.4.0'
     implementation 'de.hdodenhof:circleimageview:3.0.0'
