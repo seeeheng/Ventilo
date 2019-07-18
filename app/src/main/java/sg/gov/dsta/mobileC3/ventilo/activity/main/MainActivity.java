@@ -840,9 +840,7 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
     }
 
     public void closeWebSocketClient() {
-        Toast.makeText(this, "closeWebSocketClient out", Toast.LENGTH_LONG).show();
         if (mWaveRelayRadioClient != null) {
-            Toast.makeText(this, "closeWebSocketClient in", Toast.LENGTH_LONG).show();
             mWaveRelayRadioClient.closeWebSocketClient();
         }
     }
@@ -1150,7 +1148,6 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
      *
      */
     private void queryConfirmLogout() {
-        closeWebSocketClient();
         SnackbarUtil.showCustomAlertSnackbar(mLayoutMain, getSnackbarView(),
                 getString(R.string.snackbar_settings_logout_message),
                 MainActivity.this);

@@ -163,8 +163,11 @@ public class MapShipBlueprintFragment extends Fragment {
 //            }
 //        });
 
-        initTracker();
-        initWebviewSettings();
+        if (!mIsTrackerInitialised) {
+            mIsTrackerInitialised = true;
+            initTracker();
+            initWebviewSettings();
+        }
 
         return rootMapShipBlueprintView;
     }
@@ -178,6 +181,10 @@ public class MapShipBlueprintFragment extends Fragment {
                 findViewById(R.id.hs_view_map_ship_blueprint_dashboard_fragments);
         mBottomDivider = rootMapShipBlueprintView.
                 findViewById(R.id.view_map_ship_blueprint_bottom_divider);
+
+        if (myWebView != null) {
+            myWebView.evaluateJavascript("javascript: disconnectRabbitMQ()", null);
+        }
         myWebView = rootMapShipBlueprintView.findViewById(R.id.webview_bft);
 
         mVideoStreamFragment = rootMapShipBlueprintView.
@@ -248,10 +255,10 @@ public class MapShipBlueprintFragment extends Fragment {
         });
 
         myWebView.setWebChromeClient(new WebChromeClient());
-        myWebView.loadUrl(LOCAL_SHIP_BLUEPRINT_DIRECTORY + prefs.getOverview());
+//        myWebView.loadUrl(LOCAL_SHIP_BLUEPRINT_DIRECTORY + prefs.getOverview());
         myWebView.addJavascriptInterface(new WebAppInterface(this.getActivity(), prefs, tracker), "Android");
 
-        setupMessageQueue();
+//        setupMessageQueue();
         setupFileSaver();
     }
 
@@ -528,7 +535,7 @@ public class MapShipBlueprintFragment extends Fragment {
                 Log.d(TAG, "RealAlt:" + coords.getLatitude());
 
                 updateMap(coords);
-//                sendCoords(coords);
+                sendCoords(coords);
                 saveCoords(coords);
                 showCoords(coords);
             }
@@ -541,7 +548,6 @@ public class MapShipBlueprintFragment extends Fragment {
 
         Toast.makeText(this.getActivity().getApplicationContext(),
                 "Tracker setup complete", Toast.LENGTH_LONG).show();
-        mIsTrackerInitialised = true;
     }
 
     private void saveCoords(Coords coords) {
@@ -1074,10 +1080,10 @@ public class MapShipBlueprintFragment extends Fragment {
 //            initBeacon();
             Log.i(TAG, "onVisible: Initialising tracker, " +
                     "webview settings and refreshing BFT");
-            initTracker();
-            initWebviewSettings();
 
             mIsTrackerInitialised = true;
+            initTracker();
+            initWebviewSettings();
         }
 
         // Show snackbar message to request user for location initialisation

@@ -27,7 +27,6 @@ function loadLeaflet(imageoverlay, lowerleftx, lowerlefty, upperrightx, upperrig
     console.debug(bounds0)
     var image0 = L.imageOverlay(imageoverlay, bounds0).addTo(map0);
 
-
     // map0.setView( [5, 80], -3);
     map0.fitBounds(bounds0);
     // map0.flyTo([initialy*factor,initialx*factor],initialzoom);

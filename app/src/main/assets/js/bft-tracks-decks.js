@@ -1,11 +1,12 @@
 var map, infoWindow;
 var markers=Array();
+var client;
 
 function initRabbit(mqAddress, username, password, topic, port){
     // var ws = new WebSocket('ws://18.221.97.164:15674/ws');
     var mqAddress = "ws://"+mqAddress+":"+port+"/ws";
     var ws = new WebSocket(mqAddress);
-    var client = Stomp.over(ws);
+    client = Stomp.over(ws);
     var on_connect = function() {
         console.log('connected');
         // topic="/topic/"+topic;
@@ -39,6 +40,11 @@ function initRabbit(mqAddress, username, password, topic, port){
     client.connect(headers, on_connect, on_error);
 }
 
+function disconnectRabbitMQ() {
+    client.disconnect(function () {
+        console.log('RabbitMQ disconnected');
+    });
+}
 
 // function initRabbit(mqAddress,username, password){
 //

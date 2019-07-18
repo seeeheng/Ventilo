@@ -39,10 +39,13 @@ public class JeroMQSubscriberRunnable implements Runnable {
     private List<Socket> mSocketList;
     private ZMQ.Poller mPoller;
     private boolean mIsPollerToBeClosed;
+    private CloseSocketsListener mCloseSocketsListener;
 
-    protected JeroMQSubscriberRunnable(List<Socket> socketList, ZMQ.Poller poller) {
+    protected JeroMQSubscriberRunnable(List<Socket> socketList, ZMQ.Poller poller,
+                                       CloseSocketsListener closeSocketsListener) {
         mSocketList = socketList;
         mPoller = poller;
+        mCloseSocketsListener = closeSocketsListener;
     }
 
     @Override
@@ -54,6 +57,10 @@ public class JeroMQSubscriberRunnable implements Runnable {
 
             if (mIsPollerToBeClosed && mPoller != null) {
                 mPoller.close();
+
+                if (mCloseSocketsListener != null) {
+                    mCloseSocketsListener.closeSockets();
+                }
                 break;
             }
 
@@ -478,6 +485,9 @@ public class JeroMQSubscriberRunnable implements Runnable {
             socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_SITREP.getBytes());
             socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_TASK.getBytes());
         }
+    }
 
+    public interface CloseSocketsListener {
+        void closeSockets();
     }
 }

@@ -1335,14 +1335,14 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                     }
 
                     // Remove sticky TaskModel as update is complete and it is no longer needed
-                    if (getActivity() instanceof MainActivity) {
-                        Object objectToUpdate = ((MainActivity) getActivity()).
-                                getStickyModel(TaskModel.class.getSimpleName());
-                        if (objectToUpdate instanceof TaskModel) {
-                            ((MainActivity) getActivity()).
-                                    removeStickyModel(objectToUpdate);
-                        }
-                    }
+//                    if (getActivity() instanceof MainActivity) {
+//                        Object objectToUpdate = ((MainActivity) getActivity()).
+//                                getStickyModel(TaskModel.class.getSimpleName());
+//                        if (objectToUpdate instanceof TaskModel) {
+//                            ((MainActivity) getActivity()).
+//                                    removeStickyModel(objectToUpdate);
+//                        }
+//                    }
 
                     popChildBackStack();
                 }

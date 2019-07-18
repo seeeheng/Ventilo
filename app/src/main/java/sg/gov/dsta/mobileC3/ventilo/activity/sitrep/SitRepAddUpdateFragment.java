@@ -1201,7 +1201,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             mTvCallsignTitle.setText(sitRepTitleBuilder.toString().trim());
 
             // Display selected captured picture
-            if (DrawableUtil.IsValidImage(sitRepModel.getSnappedPhoto())) {
+            if (sitRepModel.getSnappedPhoto() != null &&
+                    DrawableUtil.IsValidImage(sitRepModel.getSnappedPhoto())) {
                 displaySelectedPictureUI(DrawableUtil.getBitmapFromBytes(
                         sitRepModel.getSnappedPhoto()));
             }

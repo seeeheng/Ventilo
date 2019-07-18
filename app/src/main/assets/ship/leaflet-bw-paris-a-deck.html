@@ -29,19 +29,23 @@
 <script>
     var lowestHeight = -3.135;
     var highestHeight = 0;
-    var gaScale = 119.91;                                       // GA scale 1cm to 300 cm (has to be 119.91 apparently)
-    var pxWidth = 2283;                                         // Width of GA cut out
-    var metreWidth = (40.27 * gaScale) / 100;                   // Width measure from GA cut out; 72.676 (previously calculated)
+    var gaScale = 300;                                          // GA scale 1cm to 300 cm (has to be 119.91 previously)
+    var pxWidth = 2350;                                         // Width of GA cut out
+    var metreWidth = (41.45 * gaScale) / 100;                   // Width measure from GA cut out; 49.7 (previously calculated)
     var factor = pxWidth/metreWidth;                            // 47.28 (needs to be this value for accuracy)
     var imageoverlay = '../ship/BW_Paris_A_Deck.png';
-    var lowerleftx = -5.17 * gaScale / 100 * factor;            // -289 (previously calculated)
-    var lowerlefty = -17.37 * gaScale / 100 * factor;           // -985 (previously calculated)
-    var upperrightx = (40.27 - 5.17) * gaScale / 100 * factor;  // 1994 (previously calculated)
-    var upperrighty = 18.77 * gaScale / 100 * factor;           // 1063 (previously calculated)
-    var initialx = 20;
+    var lowerleftx = -3.79 * gaScale / 100 * factor;            // -215 (previously calculated)
+    var lowerlefty = -16.97 * gaScale / 100 * factor;           // -962 (previously calculated)
+    var upperrightx = (41.45 - 3.79) * gaScale / 100 * factor;  // 2135 (previously calculated)
+    var upperrighty = 19.16 * gaScale / 100 * factor;           // 1086 (previously calculated)
+    var initialx = 60;
     var initialy = 0;
     var initialzoom = -2.5;
     var map0 = loadLeaflet(imageoverlay,lowerleftx,lowerlefty,upperrightx,upperrighty, initialx,initialy,initialzoom);
+    <!--var initialx = 20;-->
+    <!--var initialy = 0;-->
+    <!--var initialzoom = -2.5;-->
+    <!--var map0 = loadLeaflet(imageoverlay,lowerleftx,lowerlefty,upperrightx,upperrighty, initialx,initialy,initialzoom);-->
 
     // getCustomMarker(0,0,null,'P0',true,0).addTo(map0);
     // getCustomMarker(5.44*250/100,0,null,'P20',true,0).addTo(map0);

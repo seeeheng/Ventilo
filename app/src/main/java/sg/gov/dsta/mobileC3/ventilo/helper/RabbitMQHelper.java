@@ -18,7 +18,7 @@ public class RabbitMQHelper {
 
     private static final String TAG = "RabbitMQHelper";
 //    private static final String SERVER_HOST = "jax79sg.hopto.org";
-//    private static final String SERVER_HOST = "192.168.1.6";
+//    private static final String SERVER_HOST = "192.168.1.9";
     private static final String SERVER_HOST = "198.18.2.15";
 //    private static final String SERVER_HOST = SharedPreferenceUtil.getCurrentUserWithPredefinedContext();
 //    private static final String SERVER_HOST = "111";
@@ -71,6 +71,7 @@ public class RabbitMQHelper {
 //                setupMQListener();
             } else {
                 System.out.println("mqRabbit failed");
+                connectionStatus = RabbitMQConnectionStatus.DISCONNECTED;
 //                Toast.makeText(mContext, "RabbitMQ failed. C2 capabilities disabled", Toast.LENGTH_SHORT).show();
             }
             Log.d(TAG, "Connection to MQ: " + isSuccess);

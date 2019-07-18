@@ -23,7 +23,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.network.NetworkUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 
-public class JeroMQSubscriber extends JeroMQParentSubscriber {
+public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSubscriberRunnable.CloseSocketsListener {
 
     //    private static final Logger LOGGER = LoggerFactory.getLogger(JeroMQSubscriber.class);
     private static final String TAG = JeroMQSubscriber.class.getSimpleName();
@@ -164,7 +164,8 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber {
                     items.register(mSocketList.get(i), ZMQ.Poller.POLLIN);
                 }
 
-                mJeroMQSubscriberRunnable = new JeroMQSubscriberRunnable(mSocketList, items);
+                mJeroMQSubscriberRunnable = new JeroMQSubscriberRunnable(mSocketList, items,
+                        JeroMQSubscriber.this);
                 Thread JeroMQSubscriberThread = new Thread(mJeroMQSubscriberRunnable);
                 JeroMQSubscriberThread.start();
 
@@ -197,7 +198,10 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber {
 //        CloseSocketAsyncTask task = new CloseSocketAsyncTask(mZContext,
 //                mSocketList, mClientSubEndpointList);
 //        task.execute();
+    }
 
+    @Override
+    public void closeSockets() {
         if (mZContext != null) {
             for (int i = 0; i < mSocketList.size(); i++) {
                 Socket socket = mSocketList.get(i);

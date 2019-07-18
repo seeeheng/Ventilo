@@ -55,6 +55,10 @@ public class WaveRelayRadioClient {
                     if ((mWrWebSocketClient == null || (!mWrWebSocketClient.isOpen())) &&
                             isRndisTetheringActive) {
 
+                        if (mWrWebSocketClient != null) {
+                            mWrWebSocketClient.close();
+                        }
+
                         mWrWebSocketClient = new WaveRelayRadioSocketClient(new URI(socketUrl));
 
                         mWrWebSocketClient.setSocketUsername("factory");
@@ -95,35 +99,33 @@ public class WaveRelayRadioClient {
                         mWrWebSocketClient.updateAndBroadcastRadioConnectionStatus(false);
                     }
 
-                    Log.d(TAG, "mWrWebSocketClient.getIncomingMsgCount() is " + mWrWebSocketClient.getIncomingMsgCount());
-                    Log.d(TAG, "mLastIncomingMsgCount is " + mLastIncomingMsgCount);
-                    Log.d(TAG, "mSameIncomingMsgCount is " + mSameIncomingMsgCount);
+                    if (mWrWebSocketClient != null) {
+                        Log.d(TAG, "mWrWebSocketClient.getIncomingMsgCount() is " + mWrWebSocketClient.getIncomingMsgCount());
+                        Log.d(TAG, "mLastIncomingMsgCount is " + mLastIncomingMsgCount);
+                        Log.d(TAG, "mSameIncomingMsgCount is " + mSameIncomingMsgCount);
 
-//                    mWrWebSocketClient.getConnection().getReadyState()
-                    Log.d(TAG, "mWrWebSocketClient.getConnection().getReadyState(): " + mWrWebSocketClient.getConnection().getReadyState());
+                        Log.d(TAG, "mWrWebSocketClient.getConnection().getReadyState(): " + mWrWebSocketClient.getConnection().getReadyState());
 
-                    Log.d(TAG, "mWrWebSocketClient.getConnection().isOpen(): " + mWrWebSocketClient.getConnection().isOpen());
-                    Log.d(TAG, "mWrWebSocketClient.getConnection().isFlushAndClose(): " + mWrWebSocketClient.getConnection().isFlushAndClose());
-                    Log.d(TAG, "mWrWebSocketClient.getConnection().isConnecting(): " + mWrWebSocketClient.getConnection().isConnecting());
+                        Log.d(TAG, "mWrWebSocketClient.getConnection().isOpen(): " + mWrWebSocketClient.getConnection().isOpen());
+                        Log.d(TAG, "mWrWebSocketClient.getConnection().isFlushAndClose(): " + mWrWebSocketClient.getConnection().isFlushAndClose());
+                        Log.d(TAG, "mWrWebSocketClient.getConnection().isConnecting(): " + mWrWebSocketClient.getConnection().isConnecting());
 
-//                    if ((mWrWebSocketClient != null && mWrWebSocketClient.getConnection().isClosed())) {
-//                        System.out.println("mWrWebSocketClient.isClosed");
-//                        mWrWebSocketClient.updateAndBroadcastRadioConnectionStatus(false);
-//                    }
-
-                    /**
-                     * Actual connection and sending of data takes place here.
-                     * mWrWebSocketClient.get(String var) returns a string of what was sent
-                     * to the socket server (NOT THE RESPONSE FROM THE SERVER)
-                     */
-                    Log.i(TAG, "********************");
+                        if (isUsbConnected()) {
+                            /**
+                             * Actual connection and sending of data takes place here.
+                             * mWrWebSocketClient.get(String var) returns a string of what was sent
+                             * to the socket server (NOT THE RESPONSE FROM THE SERVER)
+                             */
+                            Log.i(TAG, "********************");
 
 //                    String[] vars = {"waverelay_name", "waverelay_ip", "ip_flow_list"};
-                    String[] vars = {"waverelay_neighbors_json"};
+                            String[] vars = {"waverelay_neighbors_json"};
 
 
-                    Log.i(TAG, "mWrWebSocketClient packets received: " + mWrWebSocketClient.get(vars));
-                    Log.i(TAG, "********************");
+                            Log.i(TAG, "mWrWebSocketClient packets received: " + mWrWebSocketClient.get(vars));
+                            Log.i(TAG, "********************");
+                        }
+                    }
 
                 } catch (InterruptedException e) {
                     Log.i(TAG, "wrWebSocketClient InterruptedException: " + e);
@@ -161,6 +163,7 @@ public class WaveRelayRadioClient {
         if (mWrWebSocketClient != null && !mWrWebSocketClient.isClosed()) {
             mWrWebSocketClient.close();
             mWrWebSocketClient.updateAndBroadcastRadioConnectionStatus(false);
+            mWrWebSocketClient.notifyWaveRelayClientConnectionBroadcastIntent(false);
         }
     }
 

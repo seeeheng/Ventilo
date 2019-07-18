@@ -1,5 +1,6 @@
 var map, infoWindow;
 var markers=Array();
+var client;
 
 function initRabbit(mqAddress, username, password, topic, port){
     // var ws = new WebSocket('ws://18.221.97.164:15674/ws');
@@ -38,6 +39,11 @@ function initRabbit(mqAddress, username, password, topic, port){
     client.connect(headers, on_connect, on_error);
 }
 
+function disconnectRabbitMQ() {
+    client.disconnect(function () {
+        console.log('RabbitMQ disconnected');
+    });
+}
 
 // function initRabbit(mqAddress,username, password){
 //
@@ -68,29 +74,29 @@ function initRabbit(mqAddress, username, password, topic, port){
 //     });
 // }
 
-function androidToJScreateLocation(trackerMessage)
-{
-    var message = (trackerMessage).split(",");
-
-    console.log("androidToJScreateLocation, message: " + message);
-
-    var x = parseFloat(message[0]);
-    var y = parseFloat(message[1]);
-
-    var alt = message[2];
-
-    var bearing = message[3];
-    var user = message[4];
-    var type = message[5];
-    var createdTime = message[6];
-
-    var marker;
-
-    var marker = getCustomMarker(x, alt, type, createdTime, true, 0);
-
-    markers.push(marker);
-    marker.addTo(map0);
-}
+//function androidToJScreateLocation(trackerMessage)
+//{
+//    var message = (trackerMessage).split(",");
+//
+//    console.log("androidToJScreateLocation, message: " + message);
+//
+//    var x = parseFloat(message[0]);
+//    var y = parseFloat(message[1]);
+//
+//    var alt = message[2];
+//
+//    var bearing = message[3];
+//    var user = message[4];
+//    var type = message[5];
+//    var createdTime = message[6];
+//
+//    var marker;
+//
+//    var marker = getCustomMarker(x, alt, type, createdTime, true, 0);
+//
+//    markers.push(marker);
+//    marker.addTo(map0);
+//}
 
 function androidToJSupdateLocation(trackerMessage)
 {

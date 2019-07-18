@@ -92,6 +92,7 @@ public class SitRepDetailFragment extends Fragment {
 //        SitRepModel sitRepModel = EventBus.getDefault().removeStickyEvent(SitRepModel.class);
 
         SitRepModel sitRepModel = null;
+
         if (getActivity() instanceof MainActivity) {
             Object objectToUpdate = ((MainActivity) getActivity()).
                     getStickyModel(SitRepModel.class.getSimpleName());

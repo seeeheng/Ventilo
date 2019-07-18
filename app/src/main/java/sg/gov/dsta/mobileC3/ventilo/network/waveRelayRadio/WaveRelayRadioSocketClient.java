@@ -240,7 +240,7 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
                 singleObserverUser);
     }
 
-    private void notifyWaveRelayClientConnectionBroadcastIntent(boolean isConnected) {
+    protected void notifyWaveRelayClientConnectionBroadcastIntent(boolean isConnected) {
         Intent broadcastIntent = new Intent();
 
         if (isConnected) {

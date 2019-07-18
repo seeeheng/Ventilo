@@ -28,17 +28,17 @@
 
 
 <script>
-    var gaScale = 119.91;                                        // GA scale 1cm to 300 cm (has to be 120 apparently)
+    var gaScale = 300;                                          // GA scale 1cm to 300 cm (has to be 119.91 previously)
     var pxWidth = 8192;                                         // Width of GA cut out
     var metreWidth = (144.5 * gaScale) / 100;                   // Width measure from GA cut out; 323.69 (previously calculated)
     var factor = pxWidth / metreWidth;                          // -47 (needs to be this value for accuracy)
     var imageoverlay = '../ship/BW_Paris_Profile.png';
-    var lowerleftx = -6.95 * gaScale / 100 * factor;            // -602 (previously calculated)
-    var lowerlefty = -21.61 * gaScale / 100 * factor;           // -1205 (previously calculated)
-    var upperrightx = (144.5 - 6.95) * gaScale / 100 * factor;  // 7590 (previously calculated)
-    var upperrighty = 13.55 * gaScale / 100 * factor;           // 783 (previously calculated)
-    var initialx = 80;
-    var initialy = -10;
+    var lowerleftx = -7.37 * gaScale / 100 * factor;            // -418 (previously calculated)
+    var lowerlefty = -20.37 * gaScale / 100 * factor;           // -1155 (previously calculated)
+    var upperrightx = (144.5 - 7.37) * gaScale / 100 * factor;  // 7774 (previously calculated)
+    var upperrighty = 11.04 * gaScale / 100 * factor;           // 626 (previously calculated)
+    var initialx = 195;
+    var initialy = -5;
     var initialzoom = -3.6;
     var map0 = loadLeaflet(imageoverlay,lowerleftx,lowerlefty,upperrightx,upperrighty, initialx,initialy,initialzoom);
 

@@ -15,8 +15,9 @@ public class BFTLocalPreferences {
 
     private ArrayList<String> floors = new ArrayList();
     private int currentFloor = 0;
-    private double mapScale = 119.91; // 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris, however, works on 119.91)
-    private double onePixelToMetres = (11.82 / 1400 * mapScale / 100);
+    private double mapScale = 300; // 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris, however, works on 119.91)
+//    private double onePixelToMetres = (11.82 / 1400 * mapScale / 100); // For Avatar; 0.021 (Avatar); 0.05291 (BW Paris)
+    private double onePixelToMetres = (41.45 / 2350 * mapScale / 100); // For BW Paris; 0.021 (Avatar); 0.05291 (BW Paris)
 
     public double getBeaconActivateDistance() {
         return Double.valueOf(this.prefs.getString(context.getResources().getString(R.string.estimoteDist), "null"));

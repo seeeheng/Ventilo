@@ -93,6 +93,18 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
      * @return
      */
     private List<TaskModel> refreshUI(List<TaskModel> taskModelList) {
+        if (mTeamListItems == null) {
+            mTeamListItems = new ArrayList<>();
+        } else {
+            mTeamListItems.clear();
+        }
+
+        if (mPhaseStatusListItems == null) {
+            mPhaseStatusListItems = new ArrayList<>();
+        } else {
+            mPhaseStatusListItems.clear();
+        }
+
         List<TaskModel> teamPhaseTaskModelListItems = new ArrayList<>();
 
         // Remove 'Ad Hoc' Tasks from list
@@ -145,9 +157,8 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
                                         teamPhaseTaskModelListItems.get(k).getPhaseNo())) {
 
                                     TaskModel currentTaskModel = teamPhaseTaskModelListItems.get(k);
-                                    System.out.println("here currentTaskModel is " + currentTaskModel);
 
-                                    // Assigned to may contain multiple users (teams) in a single entry
+                                    // 'Assigned to' may contain multiple users (teams) in a single entry
                                     // separated by commas.
                                     // Hence, extract each phase status of each team from the entry.
                                     String[] assignedToStrArray = StringUtil.

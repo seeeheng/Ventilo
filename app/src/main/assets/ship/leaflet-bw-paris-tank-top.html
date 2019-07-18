@@ -29,17 +29,17 @@
 <script>
     var lowestHeight = -20.45;
     var highestHeight = -3.135;
-    var gaScale = 119.91;                                       // GA scale 1cm to 300 cm (has to be 120 apparently)
-    var pxWidth = 8193;                                         // Width of GA cut out
-    var metreWidth = (144.52 * gaScale) / 100;                  // Width measure from GA cut out; 323.69 (previously calculated)
+    var gaScale = 300;                                       // GA scale 1cm to 300 cm (has to be 119.91 previously)
+    var pxWidth = 8192;                                         // Width of GA cut out
+    var metreWidth = (144.5 * gaScale) / 100;                   // Width measure from GA cut out; 323.69 (previously calculated)
     var factor = pxWidth / metreWidth;                          // 47.28 (needs to be this value for accuracy)
     var imageoverlay = '../ship/BW_Paris_Tank_Top.png';
-    var lowerleftx = -6.42 * gaScale / 100 * factor;            // -363 (previously calculated)
-    var lowerlefty = -13.97 * gaScale / 100 * factor;           // -794 (previously calculated)
-    var upperrightx = (144.52 - 6.42) * gaScale / 100 * factor; // 7830 (previously calculated)
-    var upperrighty = 15.12 * gaScale / 100 * factor;           // 856 (previously calculated)
-    var initialx = 75;
-    var initialy = 5;
+    var lowerleftx = -5.47 * gaScale / 100 * factor;            // -310 (previously calculated)
+    var lowerlefty = -13.85 * gaScale / 100 * factor;           // -785 (previously calculated)
+    var upperrightx = (144.5 - 5.47) * gaScale / 100 * factor;  // 7882 (previously calculated)
+    var upperrighty = 14.82 * gaScale / 100 * factor;           // 840 (previously calculated)
+    var initialx = 200;
+    var initialy = 10;
     var initialzoom = -3.6;
     var map0 = loadLeaflet(imageoverlay,lowerleftx,lowerlefty,upperrightx,upperrighty, initialx,initialy,initialzoom);
 
