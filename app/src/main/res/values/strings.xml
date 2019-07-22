@@ -73,6 +73,9 @@
     <string name="snackbar_sitrep_send_confirmation_message">Send Sitrep?</string>
     <string name="snackbar_sitrep_update_confirmation_message">Update Sitrep?</string>
     <string name="snackbar_confirmation_action">OK</string>
+
+    <string name="snackbar_task_select_task_phase_no_option">All Task Phases have been assigned</string>
+    <string name="snackbar_task_task_name_no_option">There is no existing Task Names</string>
     <string name="snackbar_task_sent_message">Task has been sent</string>
     <string name="snackbar_task_updated_message">Task has been updated</string>
     <string name="snackbar_task_create_confirmation_message">Create Task?</string>
@@ -227,9 +230,11 @@
 
     <!-- Add New Item Layout -->
     <string name="add_new_item_sitrep">To create new Sit Rep, click on</string>
-    <string name="add_new_item_timeline">There are currently no tasks at hand to display a timeline</string>
     <string name="add_new_item_task">To create new Task, click on</string>
     <string name="add_new_item_below">below</string>
+    <string name="no_sitrep">There are currently no Sit Reps available from all teams for viewing</string>
+    <string name="no_task">There are currently no Tasks to accomplish</string>
+    <string name="no_task_timeline">There are currently no Tasks at hand to display a timeline</string>
 
     <!-- Sitrep Fragment -->
     <string name="sitrep_page_title">Situation Report</string>
@@ -323,7 +328,9 @@
     <string name="task_select_task_ad_hoc_priority">Select Task Priority</string>
     <string name="task_task_phase">Task Phase</string>
     <string name="task_select_task_phase">Select Task Phase</string>
+    <string name="task_select_task_phase_no_option">All Task Phases Have Been Assigned</string>
     <string name="task_task_name">Task Name</string>
+    <string name="task_task_name_no_option">No Existing Task Names</string>
     <string name="task_select_task_name">Select Task Name</string>
     <string name="task_task_name_hint">Enter Task Name</string>
     <string name="task_task_description">Task Description</string>

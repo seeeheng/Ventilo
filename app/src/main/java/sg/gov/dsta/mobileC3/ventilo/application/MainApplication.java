@@ -7,6 +7,8 @@ import android.util.Log;
 
 import sg.gov.dsta.mobileC3.ventilo.network.NetworkService;
 import sg.gov.dsta.mobileC3.ventilo.network.NetworkStopService;
+import sg.gov.dsta.mobileC3.ventilo.util.log.LoggerUtil;
+import timber.log.Timber;
 
 public class MainApplication extends Application {
 
@@ -37,9 +39,13 @@ public class MainApplication extends Application {
                         isNetworkServiceRunning = true;
                     }
 
+                    Timber.plant(new LoggerUtil.DebugLogTree());
+                    Timber.plant(new LoggerUtil.FileLoggingTree());
+
 ////                    startWorker();
 ////                    initJeroMQ();
 
+//                    Log.i(TAG, "onCreate fired");
                     Log.i(TAG, "onCreate fired");
                 }
             }

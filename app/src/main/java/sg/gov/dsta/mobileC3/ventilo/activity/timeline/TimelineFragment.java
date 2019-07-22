@@ -31,12 +31,15 @@ public class TimelineFragment extends Fragment {
 
     private static final String TAG = TimelineFragment.class.getSimpleName();
 
-    private static final int BG_SIZE_IN_DP = 60;
-    private static final int IMG_SIZE_IN_DP = 40;
-    private static final int BELLOW_SIZE_IN_DP = 6;
+//    private static final int BG_SIZE_IN_DP = 60;
+//    private static final int IMG_SIZE_IN_DP = 40;
+//    private static final int BELLOW_SIZE_IN_DP = 6;
 
     // View Models
     private TaskViewModel mTaskViewModel;
+
+    // Main layout
+    private View mRootView;
 
     // Recycler
     private RecyclerView mRecyclerViewPlanned;
@@ -56,11 +59,15 @@ public class TimelineFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_timeline, container, false);
-        observerSetup();
-        initUI(rootView);
+        setRetainInstance(true);
 
-        return rootView;
+        if (mRootView == null) {
+            mRootView = inflater.inflate(R.layout.fragment_timeline, container, false);
+            observerSetup();
+            initUI(mRootView);
+        }
+
+        return mRootView;
     }
 
     private void initUI(View rootView) {
@@ -69,6 +76,10 @@ public class TimelineFragment extends Fragment {
         initRecyclerViewUI(rootView);
     }
 
+    /**
+     * Creates message when no Task is available
+     * @param rootView
+     */
     private void initAddNewItemUI(View rootView) {
         mLayoutAddNewItem = rootView.findViewById(R.id.layout_timeline_add_new_item);
         C2OpenSansRegularTextView tvAddNewItemCategory = mLayoutAddNewItem.findViewById(R.id.tv_add_new_item_category);
@@ -77,7 +88,7 @@ public class TimelineFragment extends Fragment {
         imgAddNewItemCategory.setVisibility(View.GONE);
         tvAddNewItemCategoryBelow.setVisibility(View.GONE);
 
-        tvAddNewItemCategory.setText(getString(R.string.add_new_item_timeline));
+        tvAddNewItemCategory.setText(getString(R.string.no_task_timeline));
     }
 
     private void initHeaderUI(View rootView) {

@@ -74,57 +74,53 @@ function disconnectRabbitMQ() {
 //     });
 // }
 
-//function androidToJScreateLocation(trackerMessage)
-//{
-//    var message = (trackerMessage).split(",");
-//
-//    console.log("androidToJScreateLocation, message: " + message);
-//
-//    var x = parseFloat(message[0]);
-//    var y = parseFloat(message[1]);
-//
-//    var alt = message[2];
-//
-//    var bearing = message[3];
-//    var user = message[4];
-//    var type = message[5];
-//    var createdTime = message[6];
-//
-//    var marker;
-//
-//    var marker = getCustomMarker(x, alt, type, createdTime, true, 0);
-//
-//    markers.push(marker);
-//    marker.addTo(map0);
-//}
+function androidToJScreateLocation(trackerMessage) {
+    var message = (trackerMessage).split(",");
 
-function androidToJSupdateLocation(trackerMessage)
-{
+    console.log("androidToJScreateLocation, message: " + message);
+
+    var x = parseFloat(message[0]);
+    var y = parseFloat(message[1]);
+
+    var alt = message[2];
+
+    var bearing = message[3];
+    var user = message[4];
+    var type = message[5];
+    var createdTime = message[6];
+
+    var marker;
+
+    var marker = getCustomMarker(x, alt, type, createdTime, true, 0);
+
+    markers.push(marker);
+    marker.addTo(map0);
+}
+
+function androidToJSupdateLocation(trackerMessage) {
     var message=(trackerMessage).split(",");
     updateTarget(message);
 }
 
-function updateTarget(message)
-{
-    var x = Number(message[0]);
-    var y = Number(message[1]);
+function updateTarget(message) {
+    var x = parseFloat(message[0]);
+    var y = parseFloat(message[1]);
     var alt=parseFloat(message[2]);
     //alt=alt-baselineHeightInMetres;
     var user=message[4];
     var action=message[5];
     var bearing = message[3];
     var found=false;
-    for (i = 0 ; i< markers.length; i++)
-    {
+    for (i = 0 ; i< markers.length; i++) {
         console.log("markers[i]",markers[i]._tooltip._content.valueOf());
-        if (markers[i]._tooltip._content.valueOf()==user){
+        if (markers[i]._tooltip._content.valueOf()==user) {
             found=true;
             console.log("Removing marker: ",markers[i]);
             map0.removeLayer(markers[i]);
             markers.splice(i,1);
 
             var marker=null;
-            if (action=='FORWARD'){
+            if (action=='FORWARD') {
                 var starboard_bearing;
                 if (starboard_bearing>=-180 && starboard_bearing<=0) {
                     starboard_bearing = -90;
@@ -132,9 +128,9 @@ function updateTarget(message)
                     starboard_bearing = 90;
                 }
                 marker = getCustomMarker(x, alt, 'navigating', user, true, starboard_bearing);
-            }else if (action=='FIDGETING' | action=='STATIONARY'){
+            } else if (action=='FIDGETING' | action=='STATIONARY') {
                 marker = getCustomMarker(x, alt, 'standing', user, true, 0);
-            }else if (action=='BEACONDROP'){
+            } else if (action=='BEACONDROP') {
                 marker = getCustomMarker(x, alt, 'null', user, true, 0);
             }
 

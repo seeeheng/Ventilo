@@ -32,6 +32,9 @@ public class RadioLinkStatusFragment extends Fragment {
     // View Models
     private UserViewModel mUserViewModel;
 
+    // Main layout
+    private View mRootView;
+
     // UI components
     private C2OpenSansLightTextView mTvOfflineTotal;
     private C2OpenSansLightTextView mTvOnlineTotal;
@@ -46,12 +49,15 @@ public class RadioLinkStatusFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_radio_link_status, container, false);
+        setRetainInstance(true);
 
-        observerSetup();
-        initUI(rootView);
+        if (mRootView == null) {
+            mRootView = inflater.inflate(R.layout.fragment_radio_link_status, container, false);
+            observerSetup();
+            initUI(mRootView);
+        }
 
-        return rootView;
+        return mRootView;
     }
 
     /**
@@ -154,25 +160,6 @@ public class RadioLinkStatusFragment extends Fragment {
 
     private void onVisible() {
         Log.d(TAG, "onVisible");
-
-//        FragmentManager fm = getChildFragmentManager();
-//        boolean isFragmentFound = false;
-//
-//        int count = fm.getBackStackEntryCount();
-//
-//        // Checks if current fragment exists in Back stack
-//        for (int i = 0; i < count; i++) {
-//            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
-//                isFragmentFound = true;
-//            }
-//        }
-//
-//        // If not found, add current fragment to Back stack
-//        if (!isFragmentFound) {
-//            FragmentTransaction ft = fm.beginTransaction();
-//            ft.addToBackStack(this.getClass().getSimpleName());
-//            ft.commit();
-//        }
     }
 
     private void onInvisible() {

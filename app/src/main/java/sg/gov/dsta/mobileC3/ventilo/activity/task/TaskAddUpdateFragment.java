@@ -249,13 +249,41 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                 taskPhaseList.add(getString(R.string.dashboard_task_phase_four));
 
                 for (int i = 0; i < tempTaskPhaseList.size(); i++) {
-                    if (!taskPhaseList.contains(tempTaskPhaseList.get(i).trim())) {
-                        taskPhaseList.add(tempTaskPhaseList.get(i));
+                    if (taskPhaseList.contains(tempTaskPhaseList.get(i).trim())) {
+                        taskPhaseList.remove(tempTaskPhaseList.get(i));
                     }
                 }
 
+//                if (taskPhaseList.size() == 0) {
+////                    mTaskPhaseExpandableListAdapter.setGroupTitle(
+////                            getString(R.string.task_select_task_phase_no_option));
+//
+////                    if (getSnackbarView() != null) {
+////                        SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+////                                getString(R.string.snackbar_task_select_task_phase_no_option));
+////                    }
+//
+//                    mTaskPhaseExpandableListView.setEnabled(false);
+//                } else {
+//                    mTaskPhaseExpandableListView.setEnabled(true);
+//                }
+
                 mTaskPhaseExpandableListAdapter.setChildList(taskPhaseList);
                 mTaskPhaseExpandableListAdapter.notifyDataSetChanged();
+
+//                if (taskNameList.size() == 0) {
+////                    mTaskNameExpandableListAdapter.setGroupTitle(
+////                            getString(R.string.task_task_name_no_option));
+//
+////                    if (getSnackbarView() != null) {
+////                        SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+////                                getString(R.string.snackbar_task_task_name_no_option));
+////                    }
+//
+//                    mTaskNameExpandableListView.setEnabled(false);
+//                } else {
+//                    mTaskNameExpandableListView.setEnabled(true);
+//                }
 
                 mTaskNameExpandableListAdapter.setChildList(taskNameList);
                 mTaskNameExpandableListAdapter.notifyDataSetChanged();
@@ -611,6 +639,13 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                     int noOfChildren = mTaskPhaseExpandableListAdapter.getChildrenCount(groupPosition);
                     mTaskPhaseExpandableListView.getLayoutParams().height +=
                             getResources().getDimension(R.dimen.input_others_layout_icon_height) * noOfChildren;
+
+                    if ((mTaskPhaseExpandableListAdapter.getChildList().size() == 0)) {
+                        if (getSnackbarView() != null) {
+                            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                    getString(R.string.snackbar_task_select_task_phase_no_option));
+                        }
+                    }
                 }
             };
 
@@ -692,6 +727,13 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                     int noOfChildren = mTaskNameExpandableListAdapter.getChildrenCount(groupPosition);
                     mTaskNameExpandableListView.getLayoutParams().height +=
                             getResources().getDimension(R.dimen.input_others_layout_icon_height) * noOfChildren;
+
+                    if ((mTaskNameExpandableListAdapter.getChildList().size() == 0)) {
+                        if (getSnackbarView() != null) {
+                            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                    getString(R.string.snackbar_task_task_name_no_option));
+                        }
+                    }
                 }
             };
 

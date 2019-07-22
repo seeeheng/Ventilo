@@ -98,7 +98,7 @@ dependencies {
     implementation 'com.estimote:proximity-sdk:1.0.3'
 
     // Video Streaming (VLC)
-//    implementation 'de.mrmaffen:vlc-android-sdk:2.0.6'
+    implementation 'de.mrmaffen:vlc-android-sdk:2.0.6'
 //    implementation 'com.github.masterwok:simple-vlc-player:1.1.15'
 
     // For Video Streaming (ExoPlayer by Google)

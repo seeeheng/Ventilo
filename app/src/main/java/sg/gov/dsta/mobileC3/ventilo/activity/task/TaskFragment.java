@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.helper.SwipeHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.TaskViewModel;
@@ -48,6 +50,9 @@ public class TaskFragment extends Fragment {
 //    private UserViewModel mUserViewModel;
     private TaskViewModel mTaskViewModel;
 //    private UserTaskJoinViewModel mUserTaskJoinViewModel;
+
+    // Main layout
+    private View mRootView;
 
     // Total count dashboard
     private View mLayoutTotalCountDashboard;
@@ -77,23 +82,23 @@ public class TaskFragment extends Fragment {
     private boolean mIsFragmentVisibleToUser;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        setRetainInstance(true);
 
-        View rootView = inflater.inflate(R.layout.fragment_task, container, false);
-        observerSetup();
-        initUI(rootView);
+        if (mRootView == null) {
+            mRootView = inflater.inflate(R.layout.fragment_task, container, false);
+            observerSetup();
+            initUI(mRootView);
+        }
 
-        return rootView;
+        return mRootView;
     }
 
     private void initUI(View rootView) {
+        initAddNewItemUI(rootView);
+
         mLayoutTotalCountDashboard = rootView.findViewById(R.id.layout_total_count_dashboard);
         initTotalCountDashboardUI(mLayoutTotalCountDashboard);
-
-        mLayoutAddNewItem = rootView.findViewById(R.id.layout_task_add_new_item);
-        mTvAddNewItemCategory = mLayoutAddNewItem.findViewById(R.id.tv_add_new_item_category);
-        mTvAddNewItemCategory.setText(getString(R.string.add_new_item_task));
 
         //        mToolbarTitleTextView = rootTasksView.findViewById(R.id.tv_fragment_toolbar_cancel_done_title);
 //        mToolbarLeftActivityLinkTextView = rootTasksView.findViewById(R.id.tv_others_left_activity_link);
@@ -198,6 +203,28 @@ public class TaskFragment extends Fragment {
             }
         }
 //        initOtherLayouts(inflater, container);
+    }
+
+    /**
+     * Creates message when no Task is available
+     * @param rootView
+     */
+    private void initAddNewItemUI(View rootView) {
+        mLayoutAddNewItem = rootView.findViewById(R.id.layout_task_add_new_item);
+        C2OpenSansRegularTextView tvAddNewItemCategory = mLayoutAddNewItem.findViewById(R.id.tv_add_new_item_category);
+
+        // Team Leads can only view Task from CCT
+        if (!EAccessRight.CCT.toString().equalsIgnoreCase(
+                SharedPreferenceUtil.getCurrentUserAccessRight())) {
+            AppCompatImageView imgAddNewItemCategory = mLayoutAddNewItem.findViewById(R.id.img_add_new_item_category);
+            C2OpenSansRegularTextView tvAddNewItemCategoryBelow = mLayoutAddNewItem.findViewById(R.id.tv_add_new_item_category_below);
+            imgAddNewItemCategory.setVisibility(View.GONE);
+            tvAddNewItemCategoryBelow.setVisibility(View.GONE);
+            tvAddNewItemCategory.setText(getString(R.string.no_task));
+
+        } else { // CCT can create/view Task
+            tvAddNewItemCategory.setText(MainApplication.getAppContext().getString(R.string.add_new_item_task));
+        }
     }
 
     /**

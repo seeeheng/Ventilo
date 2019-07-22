@@ -1153,6 +1153,28 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                 MainActivity.this);
     }
 
+    /**
+     * Cleans up all resources of child fragments before returning to login activity
+     *
+     */
+    private void destroyAllBaseChildFragments() {
+        if (getViewPagerAdapter() != null) {
+            MapShipBlueprintFragment mapShipBlueprintFragment = ((MapShipBlueprintFragment)
+                    getViewPagerAdapter().getFragment(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID));
+
+            if (mapShipBlueprintFragment != null) {
+                mapShipBlueprintFragment.destroySelf();
+            }
+
+            VideoStreamFragment videoStreamFragment = ((VideoStreamFragment)
+                    getViewPagerAdapter().getFragment(MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID));
+
+            if (videoStreamFragment != null) {
+                videoStreamFragment.destroySelf();
+            }
+        }
+    }
+
     @Override
     public void onSnackbarActionClick() {
         finish();
@@ -1254,7 +1276,7 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
         super.onDestroy();
         Log.i(TAG, "onDestroy...");
 
-//        destroyAllBaseChildFragments();
+        destroyAllBaseChildFragments();
 
         if (mRabbitMqBroadcastReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mRabbitMqBroadcastReceiver);

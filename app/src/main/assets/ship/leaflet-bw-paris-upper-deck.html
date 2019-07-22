@@ -26,12 +26,11 @@
 <body>
 <div id="mapdeck"></div>
 
-
 <script>
-    var lowestHeight = 0;
-    var highestHeight = 2.988;
-    var gaScale = 300;                                       // GA scale 1cm to 300 cm (has to be 119.91 previously)
+    var gaScale = 300 * 142 / 104;                              // GA scale 1cm to 300 cm (has to be 119.91 previously)
     var pxWidth = 8192;                                         // Width of GA cut out
+    var lowestHeight = 0;                                       // 0 (previously calculated)
+    var highestHeight = (1.38 * gaScale * 104 / 105) / 100;     // 2.988 (previously calculated)
     var metreWidth = (144.5 * gaScale) / 100;                   // Width measure from GA cut out; 323.69 (previously calculated)
     var factor = pxWidth / metreWidth;                          // 47.28 (needs to be this value for accuracy)
     var imageoverlay = '../ship/BW_Paris_Upper_Deck.png';

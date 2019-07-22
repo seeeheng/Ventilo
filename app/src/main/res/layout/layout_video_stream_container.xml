@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/constraint_parent_layout_video_surface"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -29,7 +30,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_margin="@dimen/thin_line_margin" />
+            android:layout_margin="@dimen/thin_line_margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
             android:id="@+id/tv_stream_no_video_selected"

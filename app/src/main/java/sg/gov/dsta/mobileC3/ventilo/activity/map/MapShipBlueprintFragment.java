@@ -38,9 +38,6 @@ import android.widget.Toast;
 
 import com.nutiteq.components.Color;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -62,13 +59,11 @@ import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
-import sg.gov.dsta.mobileC3.ventilo.model.eventbus.PageEvent;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.BFTViewModel;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQ;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.JSONUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.ProgressBarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SpinnerItemListDataBank;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
@@ -91,6 +86,7 @@ public class MapShipBlueprintFragment extends Fragment {
     private BFTViewModel mBFTViewModel;
 
     // Main UI
+    private View mRootView;
     private LinearLayout mMainLayout;
     private FrameLayout mFrameLayoutBlueprint;
     private WebView myWebView;
@@ -125,7 +121,7 @@ public class MapShipBlueprintFragment extends Fragment {
     private NavisensLocalTracker tracker;
 
     private BFTLocalPreferences prefs;
-    //    BeaconManagerInterface beaconManager;
+//    private BeaconManagerInterface beaconManager;
 //    private BeaconZeroing beaconZeroing;
 
     private IMQListener mIMQListener;
@@ -135,41 +131,30 @@ public class MapShipBlueprintFragment extends Fragment {
     private List<String> mDeceasedMsgList;
     private BFTModel mOwnBFTModel;
 
-    // For tracker to be initialised
-    private boolean mIsTrackerInitialised;
+//    private boolean mIsTrackerInitialised; // For tracker to be initialised
+//    private boolean mIsTrackerUpdateInitialised; // For onNewCoord listener to fire at least once
 
-    // For onNewCoord listener to fire at least once
-    private boolean mIsTrackerUpdateInitialised;
     private boolean mIsFragmentVisibleToUser;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
+        setRetainInstance(true);
 
-        observerSetup();
+        if (mRootView == null) {
+            observerSetup();
 
-        View rootMapShipBlueprintView = inflater.inflate(R.layout.fragment_map_ship_blueprint, container, false);
-        initUI(rootMapShipBlueprintView);
+            mRootView = inflater.inflate(R.layout.fragment_map_ship_blueprint, container, false);
+            initUI(mRootView);
 
-        mOwnBFTModel = new BFTModel();
-        prefs = new BFTLocalPreferences(this.getContext());
+            mOwnBFTModel = new BFTModel();
+            prefs = new BFTLocalPreferences(this.getContext());
 
-//        final ImageView imgWorldMap = rootMapShipBlueprintView.findViewById(R.id.img_btn_ship_blueprint_world_map);
-//        imgWorldMap.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                MapFragment mapFragment = new MapFragment();
-//                navigateToFragment(mapFragment);
-//            }
-//        });
-
-        if (!mIsTrackerInitialised) {
-            mIsTrackerInitialised = true;
             initTracker();
             initWebviewSettings();
         }
 
-        return rootMapShipBlueprintView;
+        return mRootView;
     }
 
     private void initUI(View rootMapShipBlueprintView) {
@@ -407,113 +392,113 @@ public class MapShipBlueprintFragment extends Fragment {
         }
     };
 
-    /**
-     * Refreshes BFT objects on map on fragment load
-     */
-    private synchronized void refreshBFT() {
-        SingleObserver<List<BFTModel>> singleObserverBFTForUser =
-                new SingleObserver<List<BFTModel>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        // add it to a CompositeDisposable
-                    }
-
-                    @Override
-                    public void onSuccess(List<BFTModel> bFTModelList) {
-                        if (bFTModelList != null) {
-                            Log.d(TAG, "onSuccess singleObserverBFTForUser, " +
-                                    "refreshBFT. " +
-                                    "bFTModelList, size: " + bFTModelList.size());
-
-                            List<BFTModel> currentUserBFTModelList = bFTModelList.stream().
-                                    filter(bftModel -> SharedPreferenceUtil.getCurrentUserCallsignID().
-                                            equalsIgnoreCase(bftModel.getUserId())).collect(Collectors.toList());
-
-                            // Get own BFT model
-                            List<BFTModel> ownBFTModelList = currentUserBFTModelList.stream().
-                                    filter(bftModel -> MainApplication.getAppContext().
-                                            getString(R.string.map_blueprint_own_type).
-                                            equalsIgnoreCase(bftModel.getType())).collect(Collectors.toList());
-
-                            Log.i(TAG, "ownBFTModelList, size:" + ownBFTModelList.size());
-
-                            // There should only be one 'Own' type BFTModel belonging to a user
-                            if (ownBFTModelList.size() == 1) {
-                                mOwnBFTModel = ownBFTModelList.get(0);
-
-                                if (mOwnBFTModel.getXCoord() != null && mOwnBFTModel.getYCoord() != null &&
-                                        mOwnBFTModel.getAltitude() != null) {
-                                    Coords ownBFTModelCoord = new Coords(0, 0,
-                                            Double.parseDouble(mOwnBFTModel.getAltitude().trim()),
-                                            0, 0, 0, 0,
-                                            Double.parseDouble(mOwnBFTModel.getXCoord().trim()),
-                                            Double.parseDouble(mOwnBFTModel.getYCoord().trim()), null);
-
-                                    Log.i(TAG, "ownBFTModelCoord.getX(): " + ownBFTModelCoord.getX());
-                                    Log.i(TAG, "ownBFTModelCoord.getY(): " + ownBFTModelCoord.getY());
-                                    Log.i(TAG, "ownBFTModelCoord.getAltitude(): " + ownBFTModelCoord.getAltitude());
-
-                                    // Set own BFT model location manually on map refresh
-                                    tracker.setManualLocation(ownBFTModelCoord);
-                                }
-
-                            } else if (ownBFTModelList.size() == 0) {
-
-                                // Created default own BFT model
-                                mOwnBFTModel.setXCoord(StringUtil.DEFAULT_INT);
-                                mOwnBFTModel.setYCoord(StringUtil.DEFAULT_INT);
-                                mOwnBFTModel.setAltitude(StringUtil.DEFAULT_INT);
-                                mOwnBFTModel.setBearing(StringUtil.DEFAULT_INT);
-                                mOwnBFTModel.setUserId(SharedPreferenceUtil.getCurrentUserCallsignID());
-                                mOwnBFTModel.setType(MainApplication.getAppContext().
-                                        getString(R.string.map_blueprint_own_type));
-                                mOwnBFTModel.setCreatedTime(DateTimeUtil.dateToCustomTimeStringFormat(
-                                        DateTimeUtil.stringToDate(DateTimeUtil.getCurrentTime())));
-
-                                Log.i(TAG, "Own BFT model inserted");
-                                mBFTViewModel.insertBFT(mOwnBFTModel);
-                            }
-
-                            // Refresh 'Hazard' and 'Deceased' type objects on map
-                            if (mHazardMsgList == null || mDeceasedMsgList == null ||
-                                    mHazardMsgList.size() == 0 && mDeceasedMsgList.size() == 0) {
-                                List<BFTModel> hazardBFTModelList = currentUserBFTModelList.stream().
-                                        filter(bftModel -> MainApplication.getAppContext().
-                                                getString(R.string.map_blueprint_hazard_type).
-                                                equalsIgnoreCase(bftModel.getType())).collect(Collectors.toList());
-
-                                List<String> hazardBFTMsgList = formBFTMsgList(hazardBFTModelList);
-                                mHazardMsgList.addAll(hazardBFTMsgList);
-
-                                List<BFTModel> deceasedBFTModelList = currentUserBFTModelList.stream().
-                                        filter(bftModel -> MainApplication.getAppContext().
-                                                getString(R.string.map_blueprint_deceased_type).
-                                                equalsIgnoreCase(bftModel.getType())).collect(Collectors.toList());
-
-                                List<String> deceasedBFTMsgList = formBFTMsgList(deceasedBFTModelList);
-                                mDeceasedMsgList.addAll(deceasedBFTMsgList);
-
-                                updateMapOfHazardBeacon();
-                                updateMapOfDeceasedBeacon();
-                            }
-
-                        } else {
-                            Log.d(TAG, "onSuccess singleObserverBFTForUser, " +
-                                    "refreshBFT. " +
-                                    "bFTModelList is null/empty");
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.d(TAG, "onError singleObserverBFTForUser, " +
-                                "refreshBFT. " +
-                                "Error Msg: " + e.toString());
-                    }
-                };
-
-        mBFTViewModel.getAllBFTs(singleObserverBFTForUser);
-    }
+//    /**
+//     * Refreshes BFT objects on map on fragment load
+//     */
+//    private synchronized void refreshBFT() {
+//        SingleObserver<List<BFTModel>> singleObserverBFTForUser =
+//                new SingleObserver<List<BFTModel>>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//                        // add it to a CompositeDisposable
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(List<BFTModel> bFTModelList) {
+//                        if (bFTModelList != null) {
+//                            Log.d(TAG, "onSuccess singleObserverBFTForUser, " +
+//                                    "refreshBFT. " +
+//                                    "bFTModelList, size: " + bFTModelList.size());
+//
+//                            List<BFTModel> currentUserBFTModelList = bFTModelList.stream().
+//                                    filter(bftModel -> SharedPreferenceUtil.getCurrentUserCallsignID().
+//                                            equalsIgnoreCase(bftModel.getUserId())).collect(Collectors.toList());
+//
+//                            // Get own BFT model
+//                            List<BFTModel> ownBFTModelList = currentUserBFTModelList.stream().
+//                                    filter(bftModel -> MainApplication.getAppContext().
+//                                            getString(R.string.map_blueprint_own_type).
+//                                            equalsIgnoreCase(bftModel.getType())).collect(Collectors.toList());
+//
+//                            Log.i(TAG, "ownBFTModelList, size:" + ownBFTModelList.size());
+//
+//                            // There should only be one 'Own' type BFTModel belonging to a user
+//                            if (ownBFTModelList.size() == 1) {
+//                                mOwnBFTModel = ownBFTModelList.get(0);
+//
+//                                if (mOwnBFTModel.getXCoord() != null && mOwnBFTModel.getYCoord() != null &&
+//                                        mOwnBFTModel.getAltitude() != null) {
+//                                    Coords ownBFTModelCoord = new Coords(0, 0,
+//                                            Double.parseDouble(mOwnBFTModel.getAltitude().trim()),
+//                                            0, 0, 0, 0,
+//                                            Double.parseDouble(mOwnBFTModel.getXCoord().trim()),
+//                                            Double.parseDouble(mOwnBFTModel.getYCoord().trim()), null);
+//
+//                                    Log.i(TAG, "ownBFTModelCoord.getX(): " + ownBFTModelCoord.getX());
+//                                    Log.i(TAG, "ownBFTModelCoord.getY(): " + ownBFTModelCoord.getY());
+//                                    Log.i(TAG, "ownBFTModelCoord.getAltitude(): " + ownBFTModelCoord.getAltitude());
+//
+//                                    // Set own BFT model location manually on map refresh
+//                                    tracker.setManualLocation(ownBFTModelCoord);
+//                                }
+//
+//                            } else if (ownBFTModelList.size() == 0) {
+//
+//                                // Created default own BFT model
+//                                mOwnBFTModel.setXCoord(StringUtil.DEFAULT_INT);
+//                                mOwnBFTModel.setYCoord(StringUtil.DEFAULT_INT);
+//                                mOwnBFTModel.setAltitude(StringUtil.DEFAULT_INT);
+//                                mOwnBFTModel.setBearing(StringUtil.DEFAULT_INT);
+//                                mOwnBFTModel.setUserId(SharedPreferenceUtil.getCurrentUserCallsignID());
+//                                mOwnBFTModel.setType(MainApplication.getAppContext().
+//                                        getString(R.string.map_blueprint_own_type));
+//                                mOwnBFTModel.setCreatedTime(DateTimeUtil.dateToCustomTimeStringFormat(
+//                                        DateTimeUtil.stringToDate(DateTimeUtil.getCurrentTime())));
+//
+//                                Log.i(TAG, "Own BFT model inserted");
+//                                mBFTViewModel.insertBFT(mOwnBFTModel);
+//                            }
+//
+//                            // Refresh 'Hazard' and 'Deceased' type objects on map
+//                            if (mHazardMsgList == null || mDeceasedMsgList == null ||
+//                                    mHazardMsgList.size() == 0 && mDeceasedMsgList.size() == 0) {
+//                                List<BFTModel> hazardBFTModelList = currentUserBFTModelList.stream().
+//                                        filter(bftModel -> MainApplication.getAppContext().
+//                                                getString(R.string.map_blueprint_hazard_type).
+//                                                equalsIgnoreCase(bftModel.getType())).collect(Collectors.toList());
+//
+//                                List<String> hazardBFTMsgList = formBFTMsgList(hazardBFTModelList);
+//                                mHazardMsgList.addAll(hazardBFTMsgList);
+//
+//                                List<BFTModel> deceasedBFTModelList = currentUserBFTModelList.stream().
+//                                        filter(bftModel -> MainApplication.getAppContext().
+//                                                getString(R.string.map_blueprint_deceased_type).
+//                                                equalsIgnoreCase(bftModel.getType())).collect(Collectors.toList());
+//
+//                                List<String> deceasedBFTMsgList = formBFTMsgList(deceasedBFTModelList);
+//                                mDeceasedMsgList.addAll(deceasedBFTMsgList);
+//
+//                                updateMapOfHazardBeacon();
+//                                updateMapOfDeceasedBeacon();
+//                            }
+//
+//                        } else {
+//                            Log.d(TAG, "onSuccess singleObserverBFTForUser, " +
+//                                    "refreshBFT. " +
+//                                    "bFTModelList is null/empty");
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        Log.d(TAG, "onError singleObserverBFTForUser, " +
+//                                "refreshBFT. " +
+//                                "Error Msg: " + e.toString());
+//                    }
+//                };
+//
+//        mBFTViewModel.getAllBFTs(singleObserverBFTForUser);
+//    }
 
     private void initTracker() {
         this.tracker = new NavisensLocalTracker(this.getActivity());
@@ -521,11 +506,11 @@ public class MapShipBlueprintFragment extends Fragment {
             @Override
             public void onNewCoords(Coords coords) {
 
-                if (!mIsTrackerUpdateInitialised) {
-                    refreshBFT();
-                }
-
-                mIsTrackerUpdateInitialised = true;
+//                if (!mIsTrackerUpdateInitialised) {
+//                    refreshBFT();
+//                }
+//
+//                mIsTrackerUpdateInitialised = true;
 
                 Log.d(TAG, "X:" + coords.getX());
                 Log.d(TAG, "Y:" + coords.getY());
@@ -1073,18 +1058,37 @@ public class MapShipBlueprintFragment extends Fragment {
             return false;
     }
 
+    /**
+     * Properly releases all resources related to / referenced by fragment (itself)
+     * when main (parent) activity is destroyed
+     *
+     */
+    public void destroySelf() {
+        if (tracker != null) {
+            tracker.deactivate();
+        }
+
+        if (fs != null) {
+            try {
+                fs.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void onVisible() {
         Log.i(TAG, "onVisible");
 
-        if ((tracker == null || !tracker.isActive()) && !mIsTrackerInitialised) {
-//            initBeacon();
-            Log.i(TAG, "onVisible: Initialising tracker, " +
-                    "webview settings and refreshing BFT");
-
-            mIsTrackerInitialised = true;
-            initTracker();
-            initWebviewSettings();
-        }
+//        if ((tracker == null || !tracker.isActive()) && !mIsTrackerInitialised) {
+////            initBeacon();
+//            Log.i(TAG, "onVisible: Initialising tracker, " +
+//                    "webview settings and refreshing BFT");
+//
+//            mIsTrackerInitialised = true;
+//            initTracker();
+//            initWebviewSettings();
+//        }
 
         // Show snackbar message to request user for location initialisation
         if (getSnackbarView() != null) {
@@ -1100,43 +1104,23 @@ public class MapShipBlueprintFragment extends Fragment {
         Log.i(TAG, "onInvisible");
         updateOwnBFTModel();
 
-        if (mRelativeLayoutHazardImgBtn.isSelected()) {
-            mRelativeLayoutHazardImgBtn.setSelected(false);
-            setHazardIconUnselectedStateUI();
-        }
-
-        if (mRelativeLayoutDeceasedImgBtn.isSelected()) {
-            mRelativeLayoutDeceasedImgBtn.setSelected(false);
-            setDeceasedIconUnselectedStateUI();
-        }
-
-        if (tracker != null) {
-            tracker.deactivate();
-            mIsTrackerInitialised = false;
-            mIsTrackerUpdateInitialised = false;
-        }
-
-//        beaconManager.disableForegroundDispatch();
-    }
-
-    @Override
-    public void onDestroy() {
+//        if (mRelativeLayoutHazardImgBtn.isSelected()) {
+//            mRelativeLayoutHazardImgBtn.setSelected(false);
+//            setHazardIconUnselectedStateUI();
+//        }
+//
+//        if (mRelativeLayoutDeceasedImgBtn.isSelected()) {
+//            mRelativeLayoutDeceasedImgBtn.setSelected(false);
+//            setDeceasedIconUnselectedStateUI();
+//        }
+//
 //        if (tracker != null) {
-//            System.out.println("mapShipBlueprintFragment onStop");
 //            tracker.deactivate();
+//            mIsTrackerInitialised = false;
+//            mIsTrackerUpdateInitialised = false;
 //        }
 
-        Log.i(TAG, "onDestroy");
-
-        if (fs != null) {
-            try {
-                fs.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        super.onDestroy();
+//        beaconManager.disableForegroundDispatch();
     }
 
 //    @Override
@@ -1159,32 +1143,10 @@ public class MapShipBlueprintFragment extends Fragment {
 //    }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onResume() {
+        super.onResume();
 
-//        EventBus.getDefault().unregister(this);
-
-        if (mIsFragmentVisibleToUser) {
-            onInvisible();
-        }
-
-//        if (tracker != null) {
-//            System.out.println("mapShipBlueprintFragment onStop");
-//            tracker.deactivate();
-//        }
-//        beaconManager.disableForegroundDispatch();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-//        if (tracker != null) {
-//            System.out.println("mapShipBlueprintFragment onPause");
-//            tracker.deactivate();
-//        }
-
-//        beaconManager.disableForegroundDispatch();
+//        beaconManager.enableForegroundDispatch();
     }
 
     @Override
@@ -1200,33 +1162,41 @@ public class MapShipBlueprintFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-//        mBottomNavigationView = getActivity().findViewById(R.id.btm_nav_view_main_nav);
-//        mBottomNavigationView.setVisibility(View.GONE);
+    public void onPause() {
+        super.onPause();
 
-//        if (tracker == null) {
-//            System.out.println("mapShipBlueprintFragment onResume");
-//            initTracker();
+//        beaconManager.disableForegroundDispatch();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+//        EventBus.getDefault().unregister(this);
+
+        if (mIsFragmentVisibleToUser) {
+            onInvisible();
+        }
+
+//        beaconManager.disableForegroundDispatch();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "onDestroy");
+
+//        if (tracker != null) {
+//            tracker.deactivate();
 //        }
-
-//        setupMessageQueue();
-//        if (mqRabbit != null) {
 //
+//        if (fs != null) {
+//            try {
+//                fs.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
 //        }
-
-//        MapShipBlueprintFragment mapShipBlueprintFragment = (MapShipBlueprintFragment) getActivity().getSupportFragmentManager()
-//                .findFragmentByTag(MapShipBlueprintFragment.this.getClass().getSimpleName());
-//        if (this != null && this.isVisible()) {
-//            System.out.println("mapShipBlueprintFragment visible");
-//            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-//        }
-//        else {
-//            //Whatever
-//        }
-
-
-//        beaconManager.enableForegroundDispatch();
     }
 
 //    @Subscribe
@@ -1270,5 +1240,4 @@ public class MapShipBlueprintFragment extends Fragment {
 //        }
 //        return;
 //    }
-
 }

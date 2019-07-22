@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,6 +42,9 @@ public class SitRepFragment extends Fragment {
     // View Models
     private SitRepViewModel mSitRepViewModel;
 
+    // Main layout
+    private View mRootView;
+
     // Total count dashboard
     private View mLayoutTotalCountDashboard;
     private C2OpenSansRegularTextView mTvTotalCountNumber;
@@ -59,24 +63,23 @@ public class SitRepFragment extends Fragment {
     private boolean mIsFragmentVisibleToUser;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        setRetainInstance(true);
 
-        View rootView = inflater.inflate(R.layout.fragment_sitrep, container, false);
-        observerSetup();
-        initUI(rootView);
+        if (mRootView == null) {
+            mRootView = inflater.inflate(R.layout.fragment_sitrep, container, false);
+            observerSetup();
+            initUI(mRootView);
+        }
 
-        return rootView;
+        return mRootView;
     }
 
     private void initUI(View rootView) {
+        initAddNewItemUI(rootView);
+
         mLayoutTotalCountDashboard = rootView.findViewById(R.id.layout_total_count_dashboard);
         initTotalCountDashboardUI(mLayoutTotalCountDashboard);
-
-        mLayoutAddNewItem = rootView.findViewById(R.id.layout_sitrep_add_new_item);
-//        mLayoutAddNewItem.setVisibility(View.GONE);
-        C2OpenSansRegularTextView tvAddNewItemCategory = mLayoutAddNewItem.findViewById(R.id.tv_add_new_item_category);
-        tvAddNewItemCategory.setText(MainApplication.getAppContext().getString(R.string.add_new_item_sitrep));
 
         RecyclerView recyclerView = rootView.findViewById(R.id.recycler_sitrep);
         recyclerView.setHasFixedSize(true);
@@ -138,6 +141,29 @@ public class SitRepFragment extends Fragment {
             }
         }
 
+    }
+
+    /**
+     * Creates message when no Sit Rep is available
+     * @param rootView
+     */
+    private void initAddNewItemUI(View rootView) {
+        mLayoutAddNewItem = rootView.findViewById(R.id.layout_sitrep_add_new_item);
+        C2OpenSansRegularTextView tvAddNewItemCategory = mLayoutAddNewItem.findViewById(R.id.tv_add_new_item_category);
+
+        // Team Leads can create/view Sit Rep
+        if (!EAccessRight.CCT.toString().equalsIgnoreCase(
+                SharedPreferenceUtil.getCurrentUserAccessRight())) {
+            tvAddNewItemCategory.setText(MainApplication.getAppContext().getString(R.string.add_new_item_sitrep));
+
+        } else { // CCT can only view Sit Rep from Team Leads
+            AppCompatImageView imgAddNewItemCategory = mLayoutAddNewItem.findViewById(R.id.img_add_new_item_category);
+            C2OpenSansRegularTextView tvAddNewItemCategoryBelow = mLayoutAddNewItem.findViewById(R.id.tv_add_new_item_category_below);
+            imgAddNewItemCategory.setVisibility(View.GONE);
+            tvAddNewItemCategoryBelow.setVisibility(View.GONE);
+
+            tvAddNewItemCategory.setText(getString(R.string.no_sitrep));
+        }
     }
 
     /**

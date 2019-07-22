@@ -193,4 +193,8 @@ public class TaskExpandableListAdapter extends BaseExpandableListAdapter {
     public void setSelectedChildItemValue(String selectedChildTaskName) {
         mSelectedChildTaskName = selectedChildTaskName;
     }
+
+    public void setGroupTitle(String headerTitle) {
+        mHeaderTitle = headerTitle;
+    }
 }

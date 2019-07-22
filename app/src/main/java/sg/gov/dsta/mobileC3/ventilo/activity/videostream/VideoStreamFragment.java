@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatImageView;
@@ -96,8 +97,6 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 
     private static final String TAG = VideoStreamFragment.class.getSimpleName();
     private static final int MEDIA_CONTROLLER_SHOW_DURATION = 3000;
-    private static final int DEFAULT_VIDEO_VIEW_WIDTH = 300;
-    private static final int DEFAULT_VIDEO_VIEW_HEIGHT = 200;
     private static final int FIRST_VIDEO_STREAM_ID = 1;
     private static final int SECOND_VIDEO_STREAM_ID = 2;
     private static final int THIRD_VIDEO_STREAM_ID = 3;
@@ -110,10 +109,15 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
     private VideoStreamViewModel mVideoStreamViewModel;
 
     // Main layout
+    private View mRootView;
     private ConstraintLayout mConstraintLayoutMain;
     private LinearLayout mLinearLayoutVideoStreamOneAndFour;
     private LinearLayout mLinearLayoutVideoStreamTwoAndFive;
     private LinearLayout mLinearLayoutVideoStreamThreeAndSix;
+    private View mViewMarginOneAndFour;
+    private View mViewMarginTwoAndFive;
+    private View mViewMarginThreeAndSix;
+
     /**
      * -------------------- Exo player first video stream --------------------
      **/
@@ -251,40 +255,35 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_video_stream, container, false);
+        setRetainInstance(true);
 
-        observerSetup();
-        initUI(rootView);
+        if (mRootView == null) {
+            mRootView = inflater.inflate(R.layout.fragment_video_stream, container, false);
+            observerSetup();
+            initUI(mRootView);
+        }
 
-        return rootView;
+        return mRootView;
     }
 
     private void initUI(View rootVideoStreamView) {
         mConstraintLayoutMain = rootVideoStreamView.findViewById(R.id.layout_video_stream_fragment);
 
+        initMainLayout(rootVideoStreamView);
         initVideoStreamOneUI(rootVideoStreamView);
-
-        mLinearLayoutVideoStreamOneAndFour = rootVideoStreamView.findViewById(R.id.layout_video_stream_one_and_four);
-        mLinearLayoutVideoStreamTwoAndFive = rootVideoStreamView.findViewById(R.id.layout_video_stream_two_and_five);
-        mLinearLayoutVideoStreamTwoAndFive.setVisibility(View.GONE);
-        mLinearLayoutVideoStreamThreeAndSix = rootVideoStreamView.findViewById(R.id.layout_video_stream_three_and_six);
-        mLinearLayoutVideoStreamThreeAndSix.setVisibility(View.GONE);
 
         // Display more video stream panels if current user access right is 'CCT'
         mLinearLayoutVideoStreamTwo = rootVideoStreamView.findViewById(R.id.layout_video_stream_two);
-        mLinearLayoutVideoStreamTwo.setVisibility(View.GONE);
         mLinearLayoutVideoStreamThree = rootVideoStreamView.findViewById(R.id.layout_video_stream_three);
-        mLinearLayoutVideoStreamThree.setVisibility(View.GONE);
         mLinearLayoutVideoStreamFour = rootVideoStreamView.findViewById(R.id.layout_video_stream_four);
         mLinearLayoutVideoStreamFour.setVisibility(View.GONE);
         mLinearLayoutVideoStreamFive = rootVideoStreamView.findViewById(R.id.layout_video_stream_five);
-        mLinearLayoutVideoStreamFive.setVisibility(View.GONE);
         mLinearLayoutVideoStreamSix = rootVideoStreamView.findViewById(R.id.layout_video_stream_six);
-        mLinearLayoutVideoStreamSix.setVisibility(View.GONE);
 
         if (!EAccessRight.CCT.toString().equalsIgnoreCase(SharedPreferenceUtil.getCurrentUserAccessRight())) {
             // Set appropriate dimension for video stream layout
-            setVideoStreamDefaultLayoutForOthers(mLinearLayoutVideoStreamOneAndFour, mConstraintLayoutSurfaceViewOne);
+            setVideoStreamDefaultLayoutForOthers(mLinearLayoutVideoStreamOneAndFour,
+                    mLayoutVideoStreamContainerOne, mConstraintLayoutSurfaceViewOne);
         } else {
             // Set appropriate dimension for video stream layout
             setVideoStreamDefaultLayoutForCCT(mLinearLayoutVideoStreamOneAndFour,
@@ -300,6 +299,18 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         }
 
         initMediaPlayers();
+    }
+
+    private void initMainLayout(View rootVideoStreamView) {
+        mLinearLayoutVideoStreamOneAndFour = rootVideoStreamView.findViewById(R.id.layout_video_stream_one_and_four);
+        mLinearLayoutVideoStreamTwoAndFive = rootVideoStreamView.findViewById(R.id.layout_video_stream_two_and_five);
+        mLinearLayoutVideoStreamTwoAndFive.setVisibility(View.GONE);
+        mLinearLayoutVideoStreamThreeAndSix = rootVideoStreamView.findViewById(R.id.layout_video_stream_three_and_six);
+        mLinearLayoutVideoStreamThreeAndSix.setVisibility(View.GONE);
+
+        mViewMarginOneAndFour = rootVideoStreamView.findViewById(R.id.view_margin_one_four);
+        mViewMarginTwoAndFive = rootVideoStreamView.findViewById(R.id.view_margin_two_five);
+        mViewMarginThreeAndSix = rootVideoStreamView.findViewById(R.id.view_margin_three_six);
     }
 
     private void initVideoStreamOneUI(View rootVideoStreamView) {
@@ -1017,7 +1028,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                         if (!EAccessRight.CCT.toString().equalsIgnoreCase(
                                 SharedPreferenceUtil.getCurrentUserAccessRight())) {
                             setVideoStreamDefaultScreenForOthers(mLinearLayoutVideoStreamOneAndFour,
-                                    mConstraintLayoutSurfaceViewOne);
+                                    mLayoutVideoStreamContainerOne, mConstraintLayoutSurfaceViewOne);
                         } else {
                             setVideoStreamDefaultScreenForCCT(mLinearLayoutVideoStreamOneAndFour,
                                     mLayoutVideoStreamContainerOne, mConstraintLayoutSurfaceViewOne);
@@ -1330,20 +1341,43 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
      * Set default dimension layout for users other than CCT
      *
      * @param linearLayout
-     * @param constraintLayout
+     * @param parentConstraintLayout
+     * @param childConstraintLayout
      */
     private void setVideoStreamDefaultLayoutForOthers(LinearLayout linearLayout,
-                                                      ConstraintLayout constraintLayout) {
+                                                      View parentConstraintLayout,
+                                                      View childConstraintLayout) {
         DimensionUtil.setDimensions(linearLayout,
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 99,
                 new LinearLayout(getContext()));
 
-        DimensionUtil.setDimensions(constraintLayout,
+        DimensionUtil.setMargins(linearLayout,
+                (int) getResources().getDimension(R.dimen.elements_margin_spacing),
+                0, 0, 0);
+
+        DimensionUtil.setDimensions(parentConstraintLayout,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                new LinearLayout(getContext()));
+
+        DimensionUtil.setDimensions(childConstraintLayout,
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 (int) getResources().getDimension(R.dimen.video_stream_single_texture_view_height),
                 new LinearLayout(getContext()));
+
+//        ConstraintSet constraintSet = new ConstraintSet();
+//        constraintSet.clone(constraintLayout);
+//        constraintSet.connect(mConstraintLayoutSurfaceViewOne.getId(),
+//                ConstraintSet.LEFT, mLinearLayoutVideoStreamOne.getId(), ConstraintSet.LEFT, 0);
+//        constraintSet.connect(mConstraintLayoutSurfaceViewOne.getId(),
+//                ConstraintSet.TOP, mLinearLayoutVideoStreamOne.getId(), ConstraintSet.TOP, 0);
+//        constraintSet.connect(mConstraintLayoutSurfaceViewOne.getId(),
+//                ConstraintSet.RIGHT, mLinearLayoutVideoStreamOne.getId(), ConstraintSet.RIGHT, 0);
+//        constraintSet.connect(mConstraintLayoutSurfaceViewOne.getId(),
+//                ConstraintSet.BOTTOM, mLinearLayoutVideoStreamOne.getId(), ConstraintSet.BOTTOM, 0);
+//        constraintSet.applyTo(constraintLayout);
     }
 
     /**
@@ -1433,37 +1467,42 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
      * Set default screen dimension for users other than CCT
      *
      * @param linearLayout
-     * @param constraintLayout
+     * @param parentConstraintLayout
+     * @param childConstraintLayout
      */
-    private void setVideoStreamDefaultScreenForOthers(LinearLayout linearLayout, ConstraintLayout constraintLayout) {
+    private void setVideoStreamDefaultScreenForOthers(LinearLayout linearLayout,
+                                                      View parentConstraintLayout,
+                                                      View childConstraintLayout) {
 
-        mConstraintLayoutMain.setPadding((int) getResources().getDimension(R.dimen.elements_margin_spacing),
+        mConstraintLayoutMain.setPadding(0,
                 (int) getResources().getDimension(R.dimen.elements_margin_spacing),
                 (int) getResources().getDimension(R.dimen.elements_margin_spacing),
                 (int) getResources().getDimension(R.dimen.elements_margin_spacing));
 
-        setVideoStreamDefaultLayoutForOthers(linearLayout, constraintLayout);
         setMainActivityComponents(View.VISIBLE);
+        setVideoStreamDefaultLayoutForOthers(linearLayout, parentConstraintLayout,
+                childConstraintLayout);
     }
 
     /**
      * Sets default screen dimension for CCT users
      *
      * @param linearLayout
+     * @param parentConstraintLayout
      * @param childConstraintLayout
      */
     private void setVideoStreamDefaultScreenForCCT(LinearLayout linearLayout,
                                                    View parentConstraintLayout,
                                                    View childConstraintLayout) {
 
-        mConstraintLayoutMain.setPadding((int) getResources().getDimension(R.dimen.elements_margin_spacing),
+        mConstraintLayoutMain.setPadding(0,
                 (int) getResources().getDimension(R.dimen.elements_margin_spacing),
                 (int) getResources().getDimension(R.dimen.elements_margin_spacing),
                 (int) getResources().getDimension(R.dimen.elements_margin_spacing));
 
+        setMainActivityComponents(View.VISIBLE);
         setVideoStreamDefaultLayoutForCCT(linearLayout, parentConstraintLayout,
                 childConstraintLayout);
-        setMainActivityComponents(View.VISIBLE);
     }
 
     /**
@@ -1512,6 +1551,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 case FIRST_VIDEO_STREAM_ID:
                     mRelativeLayoutToolbarOne.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamFour.setVisibility(View.GONE);
+                    mViewMarginOneAndFour.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamTwoAndFive.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamThreeAndSix.setVisibility(View.GONE);
                     break;
@@ -1519,6 +1559,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 case SECOND_VIDEO_STREAM_ID:
                     mRelativeLayoutToolbarTwo.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamFive.setVisibility(View.GONE);
+                    mViewMarginTwoAndFive.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamOneAndFour.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamThreeAndSix.setVisibility(View.GONE);
                     break;
@@ -1526,6 +1567,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 case THIRD_VIDEO_STREAM_ID:
                     mRelativeLayoutToolbarThree.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamSix.setVisibility(View.GONE);
+                    mViewMarginThreeAndSix.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamOneAndFour.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamTwoAndFive.setVisibility(View.GONE);
                     break;
@@ -1533,6 +1575,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 case FOURTH_VIDEO_STREAM_ID:
                     mRelativeLayoutToolbarFour.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamOne.setVisibility(View.GONE);
+                    mViewMarginOneAndFour.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamTwoAndFive.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamThreeAndSix.setVisibility(View.GONE);
                     break;
@@ -1540,6 +1583,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 case FIFTH_VIDEO_STREAM_ID:
                     mRelativeLayoutToolbarFive.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamTwo.setVisibility(View.GONE);
+                    mViewMarginTwoAndFive.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamOneAndFour.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamThreeAndSix.setVisibility(View.GONE);
                     break;
@@ -1547,6 +1591,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 case SIXTH_VIDEO_STREAM_ID:
                     mRelativeLayoutToolbarSix.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamThree.setVisibility(View.GONE);
+                    mViewMarginThreeAndSix.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamOneAndFour.setVisibility(View.GONE);
                     mLinearLayoutVideoStreamTwoAndFive.setVisibility(View.GONE);
                     break;
@@ -1556,6 +1601,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 case FIRST_VIDEO_STREAM_ID:
                     mRelativeLayoutToolbarOne.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamFour.setVisibility(View.VISIBLE);
+                    mViewMarginOneAndFour.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamTwoAndFive.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamThreeAndSix.setVisibility(View.VISIBLE);
                     break;
@@ -1563,6 +1609,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 case SECOND_VIDEO_STREAM_ID:
                     mRelativeLayoutToolbarTwo.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamFive.setVisibility(View.VISIBLE);
+                    mViewMarginTwoAndFive.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamOneAndFour.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamThreeAndSix.setVisibility(View.VISIBLE);
                     break;
@@ -1570,6 +1617,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 case THIRD_VIDEO_STREAM_ID:
                     mRelativeLayoutToolbarThree.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamSix.setVisibility(View.VISIBLE);
+                    mViewMarginThreeAndSix.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamOneAndFour.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamTwoAndFive.setVisibility(View.VISIBLE);
                     break;
@@ -1577,6 +1625,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 case FOURTH_VIDEO_STREAM_ID:
                     mRelativeLayoutToolbarFour.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamOne.setVisibility(View.VISIBLE);
+                    mViewMarginOneAndFour.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamTwoAndFive.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamThreeAndSix.setVisibility(View.VISIBLE);
                     break;
@@ -1584,6 +1633,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 case FIFTH_VIDEO_STREAM_ID:
                     mRelativeLayoutToolbarFive.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamTwo.setVisibility(View.VISIBLE);
+                    mViewMarginTwoAndFive.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamOneAndFour.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamThreeAndSix.setVisibility(View.VISIBLE);
                     break;
@@ -1591,6 +1641,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 case SIXTH_VIDEO_STREAM_ID:
                     mRelativeLayoutToolbarSix.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamThree.setVisibility(View.VISIBLE);
+                    mViewMarginThreeAndSix.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamOneAndFour.setVisibility(View.VISIBLE);
                     mLinearLayoutVideoStreamTwoAndFive.setVisibility(View.VISIBLE);
                     break;
@@ -2007,12 +2058,14 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         }
     }
 
-//    /**
-//     * Release all resources related to / referenced by fragment upon onDestroy of Main Activity
-//     */
-//    public void onMainActivityDestroy() {
-//        releasePlayers();
-//    }
+    /**
+     * Properly releases all resources related to / referenced by fragment (itself)
+     * when main (parent) activity is destroyed
+     *
+     */
+    public void destroySelf() {
+        releasePlayers();
+    }
 
     /**
      * Pops back stack of ONLY current tab
@@ -2032,15 +2085,15 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 
     private void onVisible() {
         Log.d(TAG, "onVisible");
-        initMediaPlayers();
-        resumePlayers();
+//        initMediaPlayers();
+//        resumePlayers();
     }
 
     private void onInvisible() {
         Log.d(TAG, "onInvisible");
 //        hideKeyboard();
 
-        pausePlayers();
+//        pausePlayers();
 
 //        if (Util.SDK_INT <= 23) {
 //            releasePlayer();
@@ -2108,6 +2161,5 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         super.onDestroy();
 
         Log.i(TAG, "onDestroy");
-        releasePlayers();
     }
 }

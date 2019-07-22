@@ -48,7 +48,7 @@ public class LoggerUtil {
         private static Logger mLogger = LoggerFactory.getLogger(FileLoggingTree.class);
         private static final String LOG_PREFIX = "ventilo-log";
 
-        FileLoggingTree() {
+        public FileLoggingTree() {
             final String logDirectory = generatePath("logs").toString();
             configureLogger(logDirectory);
         }

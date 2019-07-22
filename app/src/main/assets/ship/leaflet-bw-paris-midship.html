@@ -26,17 +26,16 @@
 <body>
 <div id="mapdeck"></div>
 
-
 <script>
-    var gaScale = 300;                                          // GA scale 1cm to 300 cm (has to be 119.91 previously)
+    var gaScale = 300 * 110 / 105;                              // GA scale 1cm to 300 cm (has to be 119.91 previously)
     var pxWidth = 2048;                                         // Width of GA cut out
     var metreWidth = (36.12 * gaScale) / 100;                   // Width measure from GA cut out; 323.69 (previously calculated)
     var factor = pxWidth / metreWidth;                          // 47.28 (needs to be this value for accuracy)
     var imageoverlay = '../ship/BW_Paris_Midship.png';
     var lowerleftx = -18.06 * gaScale / 100 * factor;           // -1024 (previously calculated)
-    var lowerlefty = -26.6 * gaScale / 100 * factor;            // -1508 (previously calculated)
+    var lowerlefty = -26.58 * gaScale / 100 * factor;           // -1508 (previously calculated)
     var upperrightx = (36.12 - 18.06) * gaScale / 100 * factor; // 1024 (previously calculated)
-    var upperrighty = 14.32 * gaScale / 100 * factor;           // 812 (previously calculated)
+    var upperrighty = 14.34 * gaScale / 100 * factor;           // 812 (previously calculated)
     var initialx = 5;
     var initialy = -10;
     var initialzoom = -2.75;
