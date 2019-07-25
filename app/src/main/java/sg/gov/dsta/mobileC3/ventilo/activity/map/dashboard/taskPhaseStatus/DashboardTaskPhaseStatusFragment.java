@@ -27,6 +27,7 @@ import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EPhaseNo;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EStatus;
+import timber.log.Timber;
 
 public class DashboardTaskPhaseStatusFragment extends Fragment {
 
@@ -113,15 +114,15 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
                 teamPhaseTaskModelListItems.add(taskModelList.get(i));
             }
         }
+        Timber.i("onSuccess singleObserverForAllUsers, refreshUI. teamPhaseTaskModelListItems before sorting: %s " , teamPhaseTaskModelListItems);
 
-        Log.d(TAG, "onSuccess singleObserverForAllUsers, refreshUI. " +
-                "teamPhaseTaskModelListItems before sorting: " + teamPhaseTaskModelListItems);
 
         // Sort according to ascending order of phases (e.g. 1, 2, 3, 4...)
         teamPhaseTaskModelListItems.sort(TaskModel.getPhaseNoComparator());
 
-        Log.d(TAG, "onSuccess singleObserverForAllUsers, refreshUI. " +
-                "teamPhaseTaskModelListItems after sorting: " + teamPhaseTaskModelListItems);
+
+        Timber.i("onSuccess singleObserverForAllUsers, refreshUI. teamPhaseTaskModelListItems after sorting: %s" ,teamPhaseTaskModelListItems);
+
 
         // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
         // asynchronously in the background thread and apply changes on the main UI thread
@@ -133,8 +134,9 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
 
             @Override
             public void onSuccess(List<UserModel> userModelList) {
-                Log.d(TAG, "onSuccess singleObserverForAllUsers, refreshUI. " +
-                        "size of userModelList: " + userModelList.size());
+
+                Timber.i("onSuccess singleObserverForAllUsers, refreshUI. size of userModelList: %s" , userModelList.size());
+
 
                 StringBuilder taskStatusPhaseCompletionStrBuilder = new StringBuilder();
                 String taskStatusPhaseCompletion = StringUtil.EMPTY_STRING;
@@ -199,10 +201,11 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
 
                 // Updates recycler adapter data for UI refresh
                 if (mRecyclerAdapter != null) {
-                    Log.d(TAG, "onSuccess singleObserverForAllUsers, refreshUI. " +
-                            "mTeamListItems: " + mTeamListItems);
-                    Log.d(TAG, "onSuccess singleObserverForAllUsers, refreshUI. " +
-                            "mPhaseStatusListItems: " + mPhaseStatusListItems);
+
+                    Timber.i("onSuccess singleObserverForAllUsers, refreshUI. mTeamListItems:  %s" , mTeamListItems);
+
+                    Timber.i("onSuccess singleObserverForAllUsers, refreshUI. mPhaseStatusListItems: %s" , mPhaseStatusListItems);
+
                     mRecyclerAdapter.setTeamPhaseStatusListItems(mTeamListItems, mPhaseStatusListItems);
                 }
             }
@@ -210,8 +213,8 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
             @Override
             public void onError(Throwable e) {
                 // show an error message
-                Log.d(TAG, "onError singleObserverForAllUsers, refreshUI. " +
-                        "Error Msg: " + e.toString());
+                Timber.i("onError singleObserverForAllUsers, refreshUI. Error Msg: %s" , e.toString());
+
             }
         };
 

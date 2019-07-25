@@ -31,6 +31,7 @@ import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.GsonCreator;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.ValidationUtil;
+import timber.log.Timber;
 
 public class JeroMQSubscriberRunnable implements Runnable {
 
@@ -53,7 +54,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
         subscribeTopics(mSocketList);
 
         while (!Thread.currentThread().interrupted()) {
-            Log.i(TAG, "Listening for messages...");
+            Timber.i("Listening for messages...");
 
             if (mIsPollerToBeClosed && mPoller != null) {
                 mPoller.close();
@@ -73,8 +74,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
                 }
             }
         }
-
-        Log.i(TAG, "Subscriber poller closed.");
+        Timber.i("Subscriber poller closed.");
     }
 
     protected void closePoller() {
@@ -86,10 +86,13 @@ public class JeroMQSubscriberRunnable implements Runnable {
         try {
             message = socket.recvStr();
         } catch (ZMQException e) {
-            Log.d(TAG, "Socket exception - " + e);
-            Log.d(TAG, "Closing sub socket..");
+            Timber.i("Socket exception - %s" , e);
+            Timber.i("Closing sub socket..");
+
             socket.close();
-            Log.d(TAG, "Sub socket closed..");
+
+            Timber.i("Sub socket closed..");
+
         }
 
         String messageTopic = StringUtil.getFirstWord(message);
@@ -123,12 +126,13 @@ public class JeroMQSubscriberRunnable implements Runnable {
                 break;
         }
 
-        Log.i(TAG, "Received message: " + message);
 
+        Timber.i("Received message: %s" , message);
         try {
             Thread.sleep(1000); //milliseconds
         } catch (InterruptedException e) {
-            Log.i(TAG, "Sub socket thread interrupted.");
+
+            Timber.i("Sub socket thread interrupted.");
         }
     }
 
@@ -138,7 +142,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
      * @param jsonMsg
      */
     private void storeBFTMessage(String jsonMsg) {
-        Log.i(TAG, "storeBFTMessage jsonMsg: " + jsonMsg);
+        Timber.i("storeBFTMessage jsonMsg: %s" ,jsonMsg);
 
 //        case JeroMQPublisher.TOPIC_PREFIX_BFT_SYNC:
 //        databaseOperation.insertBFTIntoDatabase(sitRepRepo, sitRepModel);
@@ -152,7 +156,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
      * @param jsonMsg
      */
     private void storeRadioMessage(String jsonMsg, String messageTopicAction) {
-        Log.i(TAG, "storeRadioMessage jsonMsg: " + jsonMsg);
+        Timber.i("storeRadioMessage jsonMsg: %s" ,jsonMsg);
 
         if (MainApplication.getAppContext() instanceof Application) {
             DatabaseOperation databaseOperation = new DatabaseOperation();
@@ -164,22 +168,23 @@ public class JeroMQSubscriberRunnable implements Runnable {
 
             switch (messageTopicAction) {
                 case JeroMQPublisher.TOPIC_SYNC:
-                    Log.i(TAG, "storeRadioMessage sync");
+                    Timber.i("storeRadioMessage sync");
+
                     handleRadioDataSync(databaseOperation, waveRelayRadioRepository,
                             waveRelayRadioModel);
                     break;
                 case JeroMQPublisher.TOPIC_INSERT:
-                    Log.i(TAG, "storeRadioMessage insert");
+                    Timber.i("storeRadioMessage insert");
                     databaseOperation.insertRadioIntoDatabase(waveRelayRadioRepository,
                             waveRelayRadioModel);
                     break;
                 case JeroMQPublisher.TOPIC_UPDATE:
-                    Log.i(TAG, "storeRadioMessage update");
+                    Timber.i("storeRadioMessage update");
                     databaseOperation.updateRadioInDatabase(waveRelayRadioRepository,
                             waveRelayRadioModel);
                     break;
                 case JeroMQPublisher.TOPIC_DELETE:
-                    Log.i(TAG, "storeRadioMessage delete");
+                    Timber.i("storeRadioMessage delete");
                     databaseOperation.deleteRadioInDatabase(waveRelayRadioRepository,
                             waveRelayRadioModel.getRadioId());
                     break;
@@ -215,18 +220,19 @@ public class JeroMQSubscriberRunnable implements Runnable {
             @Override
             public void onSuccess(WaveRelayRadioModel matchedWaveRelayRadioModel) {
                 if (matchedWaveRelayRadioModel == null) {
-                    Log.d(TAG, "Inserting new WaveRelay Radio model from synchronisation...");
+                    Timber.i("Inserting new WaveRelay Radio model from synchronisation...");
+
                     databaseOperation.insertRadioIntoDatabase(waveRelayRadioRepository, waveRelayRadioModel);
                 } else {
-                    Log.d(TAG, "Updating WaveRelay Radio model from synchronisation...");
+                    Timber.i("Updating WaveRelay Radio model from synchronisation...");
                     databaseOperation.updateRadioInDatabase(waveRelayRadioRepository, waveRelayRadioModel);
                 }
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverSyncRadio, handleRadioDataSync. " +
-                        "Error Msg: " + e.toString());
+                Timber.e("onError singleObserverSyncRadio, handleRadioDataSync.Error Msg: %s" , e.toString());
+
             }
         };
 
@@ -240,7 +246,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
      * @param jsonMsg
      */
     private void storeUserMessage(String jsonMsg, String messageTopicAction) {
-        Log.i(TAG, "storeUserMessage jsonMsg: " + jsonMsg);
+        Timber.i("storeUserMessage jsonMsg: %s" , jsonMsg);
 
         if (MainApplication.getAppContext() instanceof Application) {
             DatabaseOperation databaseOperation = new DatabaseOperation();
@@ -250,19 +256,21 @@ public class JeroMQSubscriberRunnable implements Runnable {
 
             switch (messageTopicAction) {
                 case JeroMQPublisher.TOPIC_SYNC:
-                    Log.i(TAG, "storeUserMessage sync");
+                    Timber.i("storeUserMessage sync");
+
                     handleUserDataSync(databaseOperation, userRepo, userModel);
                     break;
                 case JeroMQPublisher.TOPIC_INSERT:
-                    Log.i(TAG, "storeUserMessage insert");
+                    Timber.i("storeUserMessage insert");
                     databaseOperation.insertUserIntoDatabase(userRepo, userModel);
                     break;
                 case JeroMQPublisher.TOPIC_UPDATE:
-                    Log.i(TAG, "storeUserMessage update");
+                    Timber.i("storeUserMessage update");
                     databaseOperation.updateUserInDatabase(userRepo, userModel);
                     break;
                 case JeroMQPublisher.TOPIC_DELETE:
-                    Log.i(TAG, "storeUserMessage delete");
+                    Timber.i("storeUserMessage delete");
+
                     databaseOperation.deleteUserInDatabase(userRepo, userModel.getUserId());
                     break;
             }
@@ -295,18 +303,19 @@ public class JeroMQSubscriberRunnable implements Runnable {
             @Override
             public void onSuccess(UserModel matchedUserModel) {
                 if (matchedUserModel == null) {
-                    Log.d(TAG, "Inserting new User model from synchronisation...");
+                    Timber.i("Inserting new User model from synchronisation...");
                     databaseOperation.insertUserIntoDatabase(userRepo, userModel);
                 } else {
-                    Log.d(TAG, "Updating User model from synchronisation...");
+                    Timber.i("Updating User model from synchronisation...");
                     databaseOperation.updateUserInDatabase(userRepo, userModel);
                 }
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverSyncUser, handleUserDataSync. " +
-                        "Error Msg: " + e.toString());
+                Timber.e("onError singleObserverSyncUser, handleUserDataSync. Error Msg: %s" , e.toString());
+
+
             }
         };
 
@@ -319,7 +328,8 @@ public class JeroMQSubscriberRunnable implements Runnable {
      * @param jsonMsg
      */
     private void storeSitRepMessage(String jsonMsg, String messageTopicAction) {
-        Log.i(TAG, "storeSitRepMessage jsonMsg: " + jsonMsg);
+        Timber.i("storeSitRepMessage jsonMsg:%s " , jsonMsg);
+
 
         if (MainApplication.getAppContext() instanceof Application) {
             DatabaseOperation databaseOperation = new DatabaseOperation();
@@ -329,19 +339,23 @@ public class JeroMQSubscriberRunnable implements Runnable {
 
             switch (messageTopicAction) {
                 case JeroMQPublisher.TOPIC_SYNC:
-                    Log.i(TAG, "storeSitRepMessage sync");
+
+
                     handleSitRepDataSync(databaseOperation, sitRepRepo, sitRepModel);
                     break;
                 case JeroMQPublisher.TOPIC_INSERT:
-                    Log.i(TAG, "storeSitRepMessage insert");
+                    Timber.i("storeSitRepMessage insert");
+
                     databaseOperation.insertSitRepIntoDatabase(sitRepRepo, sitRepModel);
                     break;
                 case JeroMQPublisher.TOPIC_UPDATE:
-                    Log.i(TAG, "storeSitRepMessage update");
+                    Timber.i("storeSitRepMessage update");
+
                     databaseOperation.updateSitRepInDatabase(sitRepRepo, sitRepModel);
                     break;
                 case JeroMQPublisher.TOPIC_DELETE:
-                    Log.i(TAG, "storeSitRepMessage delete");
+                    Timber.i("storeSitRepMessage delete");
+
                     databaseOperation.deleteSitRepInDatabase(sitRepRepo, sitRepModel.getRefId());
                     break;
             }
@@ -374,18 +388,20 @@ public class JeroMQSubscriberRunnable implements Runnable {
             @Override
             public void onSuccess(SitRepModel matchedSitRepModel) {
                 if (matchedSitRepModel == null) {
-                    Log.d(TAG, "Inserting new Sit Rep model from synchronisation...");
+                    Timber.i("Inserting new Sit Rep model from synchronisation...");
+
                     databaseOperation.insertSitRepIntoDatabase(sitRepRepo, sitRepModel);
                 } else {
-                    Log.d(TAG, "Updating Sit Rep model from synchronisation...");
+                    Timber.i("Updating Sit Rep model from synchronisation...");
+
                     databaseOperation.updateSitRepInDatabase(sitRepRepo, sitRepModel);
                 }
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverSyncSitRep, syncSitRepInDatabase. " +
-                        "Error Msg: " + e.toString());
+                Timber.i("onError singleObserverSyncSitRep, syncSitRepInDatabase. Error Msg: %s" , e.toString());
+
             }
         };
 
@@ -398,7 +414,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
      * @param jsonMsg
      */
     private void storeTaskMessage(String jsonMsg, String messageTopicAction) {
-        Log.i(TAG, "storeTaskMessage jsonMsg: " + jsonMsg);
+        Timber.i("storeTaskMessage jsonMsg: %s" , jsonMsg);
 
         if (MainApplication.getAppContext() instanceof Application) {
             DatabaseOperation databaseOperation = new DatabaseOperation();
@@ -408,19 +424,23 @@ public class JeroMQSubscriberRunnable implements Runnable {
 
             switch (messageTopicAction) {
                 case JeroMQPublisher.TOPIC_SYNC:
-                    Log.i(TAG, "storeTaskMessage sync");
+                    Timber.i("storeTaskMessage sync");
+
                     handleTaskRepDataSync(databaseOperation, taskRepo, taskModel);
                     break;
                 case JeroMQPublisher.TOPIC_INSERT:
-                    Log.i(TAG, "storeTaskMessage insert");
+                    Timber.i("storeTaskMessage insert");
+
                     databaseOperation.insertTaskIntoDatabase(taskRepo, taskModel);
                     break;
                 case JeroMQPublisher.TOPIC_UPDATE:
-                    Log.i(TAG, "storeTaskMessage update");
+                    Timber.i("storeTaskMessage update");
+
                     databaseOperation.updateTaskInDatabase(taskRepo, taskModel);
                     break;
                 case JeroMQPublisher.TOPIC_DELETE:
-                    Log.i(TAG, "storeTaskMessage delete");
+                    Timber.i("storeTaskMessage delete");
+
                     databaseOperation.deleteTaskInDatabase(taskRepo, taskModel.getRefId());
                     break;
             }
@@ -453,18 +473,20 @@ public class JeroMQSubscriberRunnable implements Runnable {
             @Override
             public void onSuccess(TaskModel matchedTaskModel) {
                 if (matchedTaskModel == null) {
-                    Log.d(TAG, "Inserting new Task model from synchronisation...");
+                    Timber.i("Inserting new Task model from synchronisation...");
+
                     databaseOperation.insertTaskIntoDatabase(taskRepo, taskModel);
                 } else {
-                    Log.d(TAG, "Updating Task model from synchronisation...");
+                    Timber.i("Updating Task model from synchronisation...");
                     databaseOperation.updateTaskInDatabase(taskRepo, taskModel);
                 }
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverSyncTask, syncTaskInDatabase. " +
-                        "Error Msg: " + e.toString());
+
+                Timber.i("onError singleObserverSyncTask, syncTaskInDatabase. Error Msg: %s" , e.toString());
+
             }
         };
 

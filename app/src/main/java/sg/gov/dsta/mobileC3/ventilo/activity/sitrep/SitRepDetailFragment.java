@@ -32,6 +32,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
+import timber.log.Timber;
 
 public class SitRepDetailFragment extends Fragment {
 
@@ -224,7 +225,8 @@ public class SitRepDetailFragment extends Fragment {
     private View.OnClickListener onBackClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Log.i(TAG, "Back button pressed.");
+            Timber.i("Back button pressed.");
+
 
             // Remove sticky Sit Rep model as it is no longer valid
             if (getActivity() instanceof MainActivity) {
@@ -238,7 +240,8 @@ public class SitRepDetailFragment extends Fragment {
     private View.OnClickListener onEditClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Log.i(TAG, "Edit button pressed.");
+            Timber.i("Edit button pressed.");
+
 
             if (mSitRepModelOnDisplay != null) {
                 Fragment sitRepAddUpdateFragment = new SitRepAddUpdateFragment();
@@ -325,11 +328,14 @@ public class SitRepDetailFragment extends Fragment {
 //    }
 
     private void onVisible() {
-        Log.d(TAG, "onVisible");
+
+        Timber.i("onVisible");
+
     }
 
     private void onInvisible() {
-        Log.d(TAG, "onInvisible");
+
+        Timber.i("onInvisible");
     }
 
     @Override

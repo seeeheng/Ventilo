@@ -21,6 +21,7 @@ import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.SitRepViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
+import timber.log.Timber;
 
 public class DashboardSitRepPersonnelStatusFragment extends Fragment {
 
@@ -112,7 +113,9 @@ public class DashboardSitRepPersonnelStatusFragment extends Fragment {
         mSitRepViewModel.getAllSitRepsLiveData().observe(this, new Observer<List<SitRepModel>>() {
             @Override
             public void onChanged(@Nullable List<SitRepModel> sitRepModelList) {
-                Log.i(TAG, "New Live Data, sitRepModelList: " + sitRepModelList);
+
+
+                Timber.i("New Live Data, sitRepModelList: %s" , sitRepModelList);
 
                 if (mSitRepListItems == null) {
                     mSitRepListItems = new ArrayList<>();

@@ -42,6 +42,8 @@ import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldEditTextVie
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
+import sg.gov.dsta.mobileC3.ventilo.util.log.LoggerUtil;
+import timber.log.Timber;
 
 public class LoginActivity extends AppCompatActivity {
 //        implements LoaderCallbacks<Cursor> {
@@ -139,10 +141,17 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(List<WaveRelayRadioModel> waveRelayRadioModelList) {
 
+
+
                         if (waveRelayRadioModelList != null) {
-                            Log.d(TAG, "onSuccess singleObserverAllWaveRelayRadiosForUser, " +
+
+                            Timber.i("onSuccess singleObserverAllWaveRelayRadiosForUser, " +
                                     "populateRadioNoList. " +
-                                    "waveRelayRadioModelList.size(): " + waveRelayRadioModelList.size());
+                                    "waveRelayRadioModelList.size(): %d" , waveRelayRadioModelList.size());
+
+
+
+
 
                             mWaveRelayRadioModelList = waveRelayRadioModelList;
 
@@ -161,17 +170,22 @@ public class LoginActivity extends AppCompatActivity {
                             ProgressBarUtil.dismissProgressDialog();
 
                         } else {
-                            Log.d(TAG, "onSuccess singleObserverAllWaveRelayRadiosForUser, " +
+
+                            Timber.i("onSuccess singleObserverAllWaveRelayRadiosForUser, " +
                                     "populateRadioNoList. " +
                                     "waveRelayRadioModelList is null");
+
+
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError singleObserverAllWaveRelayRadiosForUser, " +
+
+                        Timber.e("onError singleObserverAllWaveRelayRadiosForUser, " +
                                 "populateRadioNoList. " +
-                                "Error Msg: " + e.toString());
+                                "Error Msg: %s " , e.toString());
+
                     }
                 };
 
@@ -382,9 +396,10 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(WaveRelayRadioModel waveRelayRadioModel) {
                         if (waveRelayRadioModel != null) {
-                            Log.d(TAG, "onSuccess singleObserverWaveRelayRadioByRadioNo, " +
-                                    "checkIfValidRadioNo. " +
-                                    "waveRelayRadioModel: " + waveRelayRadioModel);
+
+
+                            Timber.i("onSuccess singleObserverWaveRelayRadioByRadioNo, checkIfValidRadioNo ,waveRelayRadioModel: %s" ,waveRelayRadioModel);
+
 
                             // No one is using selected radio number
                             if (waveRelayRadioModel.getUserId() == null ||
@@ -402,23 +417,28 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(activityIntent);
                             } else {
                                 // Selected radio number is already being used by another device
-                                Log.d(TAG, "Selected radio number is already being used by another device.");
+                                Timber.i("Selected radio number is already being used by another device.");
+
                                 SnackbarUtil.showCustomInfoSnackbar(mMainLayout, mViewSnackbar,
                                         getString(R.string.snackbar_login_selected_radio_no_is_used));
                                 mLoginBtn.setEnabled(true);
                             }
                         } else {
-                            Log.d(TAG, "onSuccess singleObserverWaveRelayRadioByRadioNo, " +
+                            Timber.i("onSuccess singleObserverWaveRelayRadioByRadioNo, " +
                                     "checkIfValidRadioNo. " +
                                     "waveRelayRadioModel is null");
+
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError singleObserverWaveRelayRadioByRadioNo, " +
+
+                        Timber.e("onError singleObserverWaveRelayRadioByRadioNo, " +
                                 "checkIfValidRadioNo. " +
-                                "Error Msg: " + e.toString());
+                                "Error Msg:  %s " , e.toString());
+
+
                     }
                 };
 
@@ -452,7 +472,9 @@ public class LoginActivity extends AppCompatActivity {
                         mLoginBtn.setEnabled(true);
                     }
                 } else { // User account is already logged in from another device
-                    Log.d(TAG, "User account is already logged in from another device.");
+
+                    Timber.i("User account is already logged in from another device.");
+
                     SnackbarUtil.showCustomInfoSnackbar(mMainLayout, mViewSnackbar,
                             getString(R.string.snackbar_login_user_already_logged_in));
                     mLoginBtn.setEnabled(true);
@@ -461,7 +483,9 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "Error adding Access Token. Error Msg: " + e.toString());
+
+
+                Timber.e("Error adding Access Token. Error Msg: %s" ,e.toString());
                 SnackbarUtil.showCustomInfoSnackbar(mMainLayout, mViewSnackbar,
                         getString(R.string.snackbar_login_invalid_user));
                 mLoginBtn.setEnabled(true);
@@ -517,8 +541,14 @@ public class LoginActivity extends AppCompatActivity {
         prefsEditor.putString(SharedPreferenceConstants.ACCESS_RIGHT, accessRight);
         prefsEditor.apply();
 
-        Log.d(TAG, "Added Access Token to User (" + userModel.getUserId() + ")");
-        Log.d(TAG, "accessToken is " + accessToken);
+
+        Timber.i("Added Access Token to User: %s", userModel.getUserId());
+
+        Timber.i("accessToken is  %s",  accessToken);
+
+
+
+
         userModel.setAccessToken(accessToken);
         mUserViewModel.updateUser(userModel);
     }
@@ -535,7 +565,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
 
-        Log.i(TAG, "onStart.");
+        Timber.i("onStart.");
 
         populateAndSetRadioNoAdapterList();
 
@@ -547,8 +577,9 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "Destroying Login Activity...");
 
+
+        Timber.i("Destroying Login Activity...");
         resetSharedPref();
 
 //        /* Close service properly. Currently, the service is not destroyed, only the mqtt connection and

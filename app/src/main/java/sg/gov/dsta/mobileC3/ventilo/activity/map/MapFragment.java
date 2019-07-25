@@ -73,6 +73,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.constant.VoiceCommands;
 //import sg.gov.dh.trackers.NavisensLocalTracker;
 //import sg.gov.dh.trackers.TrackerListener;
 import sg.gov.dsta.mobileC3.ventilo.util.map.MapUtil;
+import timber.log.Timber;
 
 public class MapFragment extends Fragment implements RecognitionListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     public static final int RESULT_SPEECH = 100;
@@ -236,7 +237,11 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
             public void onMapClick(LatLng arg0) {
                 // TODO Auto-generated method stub
                 System.out.println("MAP CLICK");
-                Log.d("latit is ", arg0.latitude + "- longitude is" + arg0.longitude);
+                Timber.i("latit is %d", arg0.latitude );
+                Timber.i("- longitude is %d" , arg0.longitude);
+
+
+
             }
         });
         // Map background, visible if no map tiles loaded - optional, default - white
@@ -879,8 +884,10 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
                 .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
 
         mTvSpeakText.setText("text is " + VoiceCommands.getPredictedWords(matches));
-        Log.d("SPEAK", matches.toString());
-    }
+
+        Timber.i("SPEAK %s", matches.toString());
+
+}
 
     @Override
     public void onRmsChanged(float rmsdB) {
@@ -1220,8 +1227,8 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
             initUI(mRootMapView, mSavedInstanceState);
             System.out.println("MapFragment null mGoogleMapView!");
         }
+        Timber.i("onVisible");
 
-        Log.d(TAG, "onVisible");
 
 //        FragmentManager fm = getActivity().getSupportFragmentManager();
 //        boolean isFragmentFound = false;

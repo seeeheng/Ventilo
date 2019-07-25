@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
 import sg.gov.dsta.mobileC3.ventilo.util.network.NetworkUtil;
+import timber.log.Timber;
 
 public class MqttHelper implements Serializable {
     public MqttClient mMqttAndroidClient;
@@ -201,12 +202,15 @@ public class MqttHelper implements Serializable {
                 return true;
             } else {
                 mMqttAndroidClient = null;
-                Log.e(TAG, "MQTT Connection: Client id is invalid at " + CLIENT_ID);
+                Timber.i("MQTT Connection: Client id is invalid at  %s" , CLIENT_ID);
+
             }
         } catch (MqttException e) {
             // something went wrong!
             mMqttAndroidClient = null;
-            Log.e(TAG, "MQTT Connection: Could not register client.", e);
+
+            Timber.e("MQTT Connection: Could not register client. %s", e);
+
         }
         return false;
     }
@@ -214,7 +218,9 @@ public class MqttHelper implements Serializable {
     public synchronized boolean handleStart() {
 //        Log.d("SharedSense", "MQTT Connection: Handling start.");
         if (mMqttAndroidClient == null && !defineConnectionToBroker()) {
-            Log.e(TAG, "MQTT Connection: Create connection failed");
+
+            Timber.i("MQTT Connection: Create connection failed");
+
             return false;
         }
         if (!isAlreadyConnected()) {
@@ -247,7 +253,9 @@ public class MqttHelper implements Serializable {
 //                    Log.d("SharedSense", "MQTT Connection: disconnect succeeded");
                 }
             } catch (MqttException e) {
-                Log.e(TAG, "MQTT Connection: disconnect failed", e);
+
+                Timber.e("MQTT Connection: disconnect failed %s", e);
+
             } finally {
                 mMqttAndroidClient = null;
             }
@@ -279,7 +287,8 @@ public class MqttHelper implements Serializable {
             connectionStatus = MQTTConnectionStatus.CONNECTED_TO_BROKER;
         } catch (MqttException e) {
             // something went wrong!
-            Log.e(TAG, "MQTT Connection: Could not connect to broker", e);
+            Timber.e("MQTT Connection: Could not connect to broker %s", e);
+
             Log.e(TAG, e.getMessage());
         }
     }
@@ -291,7 +300,9 @@ public class MqttHelper implements Serializable {
 
         if (!isAlreadyConnected()) {
             // quick sanity check - don't try and subscribe if we don't have a connection
-            Log.e(TAG, "MQTT Connection: Unable to subscribe as we are not connected");
+            Timber.i("MQTT Connection: Unable to subscribe as we are not connected");
+
+
         } else {
             try {
                 System.out.println("topic is " + mTopic);
@@ -299,7 +310,8 @@ public class MqttHelper implements Serializable {
                 connectionStatus = MQTTConnectionStatus.CONNECTED;
 //                Log.d("SharedSense", "MQTT Connection: properly subscribed to " + topic+", connection is complete.");
             } catch (MqttException e) {
-                Log.e(TAG, "MQTT Connection: subscribe failed - MQTT exception", e);
+                Timber.e("MQTT Connection: subscribe failed - MQTT exception %s", e);
+
             }
         }
     }

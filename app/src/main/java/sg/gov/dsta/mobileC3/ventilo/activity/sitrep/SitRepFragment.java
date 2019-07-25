@@ -34,6 +34,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
+import timber.log.Timber;
 
 public class SitRepFragment extends Fragment {
 
@@ -349,13 +350,13 @@ public class SitRepFragment extends Fragment {
     }
 
     private void onVisible() {
-        Log.d(TAG, "onVisible");
+        Timber.i("onVisible");
 
         enableFabAddSitRep();
     }
 
     private void onInvisible() {
-        Log.d(TAG, "onInvisible");
+        Timber.i("onInvisible");
     }
 
     @Override

@@ -38,6 +38,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.videoStream.EOwner;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
+import timber.log.Timber;
 
 public class VideoStreamAddFragment extends Fragment {
 
@@ -166,9 +167,9 @@ public class VideoStreamAddFragment extends Fragment {
 
                         @Override
                         public void onSuccess(List<VideoStreamModel> videoStreamModelList) {
-                            Log.d(TAG, "onSuccess singleObserverDeleteOwnVideoStream, " +
-                                    "onDeleteOwnVideoStreamItemClickListener. " +
-                                    "videoStreamModelList.size(): " + videoStreamModelList.size());
+
+                            Timber.i("onSuccess singleObserverDeleteOwnVideoStream, onDeleteOwnVideoStreamItemClickListener. videoStreamModelList.size(): %d" , videoStreamModelList.size());
+
 
                             List<VideoStreamModel> ownVideoStreamModelList = videoStreamModelList.stream().
                                     filter(videoStreamModel -> EOwner.SELF.toString().
@@ -190,9 +191,9 @@ public class VideoStreamAddFragment extends Fragment {
 
                         @Override
                         public void onError(Throwable e) {
-                            Log.d(TAG, "onError singleObserverDeleteOwnVideoStream, " +
-                                    "onDeleteOwnVideoStreamItemClickListener. " +
-                                    "Error Msg: " + e.toString());
+                            Timber.i("onError singleObserverDeleteOwnVideoStream, onDeleteOwnVideoStreamItemClickListener. Error Msg: %s" , e.toString());
+
+
                         }
                     };
 
@@ -236,9 +237,10 @@ public class VideoStreamAddFragment extends Fragment {
 
                             @Override
                             public void onSuccess(List<VideoStreamModel> videoStreamModelList) {
-                                Log.d(TAG, "onSuccess singleObserverEditOrSaveOwnVideoStream, " +
-                                        "onEditOrSaveOwnVideoStreamItemClickListener. " +
-                                        "videoStreamModelList.size(): " + videoStreamModelList.size());
+
+                                Timber.i("onSuccess singleObserverEditOrSaveOwnVideoStream, onEditOrSaveOwnVideoStreamItemClickListener. videoStreamModelList.size(): %d" , videoStreamModelList.size());
+
+
 
                                 List<VideoStreamModel> ownVideoStreamModelList = videoStreamModelList.stream().
                                         filter(videoStreamModel -> EOwner.SELF.toString().
@@ -280,9 +282,9 @@ public class VideoStreamAddFragment extends Fragment {
 
                             @Override
                             public void onError(Throwable e) {
-                                Log.d(TAG, "onError singleObserverEditOrSaveOwnVideoStream, " +
-                                        "onEditOrSaveOwnVideoStreamItemClickListener. " +
-                                        "Error Msg: " + e.toString());
+
+                                Timber.i("onError singleObserverEditOrSaveOwnVideoStream, onEditOrSaveOwnVideoStreamItemClickListener. Error Msg: %S" , e.toString());
+
                             }
                         };
 
@@ -328,9 +330,9 @@ public class VideoStreamAddFragment extends Fragment {
                          * entry and save it first before allowing for another new entry.
                          */
                         if (otherVideoStreamModelList != null) {
-                            Log.d(TAG, "onSuccess singleObserverAllVideoStreamForUser, " +
-                                    "addOtherVideoStreamOnClickListener. " +
-                                    "videoStreamModelList.size(): " + videoStreamModelList.size());
+
+                            Timber.i("onSuccess singleObserverAllVideoStreamForUser, addOtherVideoStreamOnClickListener. videoStreamModelList.size(): %d" , videoStreamModelList.size());
+
 
                             boolean isEmptyVideoStreamFound = false;
                             for (int i = 0; i < otherVideoStreamModelList.size(); i++) {
@@ -378,18 +380,17 @@ public class VideoStreamAddFragment extends Fragment {
                                 addVideoStreamItem(EOwner.OTHERS.toString());
                             }
                         } else {
-                            Log.d(TAG, "onSuccess singleObserverAllVideoStreamForUser, " +
-                                    "addOtherVideoStreamOnClickListener. " +
-                                    "videoStreamModelList is null");
+                            Timber.i("onSuccess singleObserverAllVideoStreamForUser, addOtherVideoStreamOnClickListener. videoStreamModelList is null");
+
                             addVideoStreamItem(EOwner.OTHERS.toString());
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError singleObserverAllVideoStreamForUser, " +
-                                "addOtherVideoStreamOnClickListener. " +
-                                "Error Msg: " + e.toString());
+
+                        Timber.e("onError singleObserverAllVideoStreamForUser, addOtherVideoStreamOnClickListener. Error Msg: %s" , e.toString());
+
                     }
                 };
 
@@ -417,7 +418,8 @@ public class VideoStreamAddFragment extends Fragment {
         mVideoStreamListItems.add(videoStreamModel);
         addItemToSqlDatabase(videoStreamModel);
 
-        Log.d(TAG, "Video stream item added to database.");
+        Timber.i("Video stream item added to database.");
+
     }
 
     private void addVideoStreamItem(String owner) {
@@ -447,9 +449,10 @@ public class VideoStreamAddFragment extends Fragment {
                     @Override
                     public void onSuccess(List<VideoStreamModel> videoStreamModelList) {
                         if (videoStreamModelList != null) {
-                            Log.d(TAG, "onSuccess singleObserverAllVideoStreamForUser, " +
-                                    "removeInvalidVideoStreamItems. " +
-                                    "VideoStreamId.size(): " + videoStreamModelList.size());
+
+                            Timber.i("onSuccess singleObserverAllVideoStreamForUser, removeInvalidVideoStreamItems. VideoStreamId.size(): %d" , videoStreamModelList.size());
+
+
 
                             for (int i = 0; i < videoStreamModelList.size(); i++) {
                                 VideoStreamModel currentVideoStreamModel = videoStreamModelList.get(i);
@@ -466,9 +469,8 @@ public class VideoStreamAddFragment extends Fragment {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError singleObserverAllVideoStreamForUser, " +
-                                "removeInvalidVideoStreamItems. " +
-                                "Error Msg: " + e.toString());
+                        Timber.e("onError singleObserverAllVideoStreamForUser, removeInvalidVideoStreamItems. Error Msg:  %s" , e.toString());
+
                     }
                 };
 
@@ -485,17 +487,17 @@ public class VideoStreamAddFragment extends Fragment {
 
             @Override
             public void onSuccess(Long videoStreamId) {
-                Log.d(TAG, "onSuccess singleObserverAddVideoStream, " +
-                        "addItemToSqlDatabase. " +
-                        "VideoStreamId: " + videoStreamId);
+
+                Timber.i("onSuccess singleObserverAddVideoStream, addItemToSqlDatabase. VideoStreamId: %d" , videoStreamId);
+
                 mVideoStreamListItems.get(mVideoStreamListItems.size() - 1).setId(videoStreamId);
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverAddVideoStream, " +
-                        "addItemToSqlDatabase. " +
-                        "Error Msg: " + e.toString());
+
+                Timber.e("onError singleObserverAddVideoStream, addItemToSqlDatabase. Error Msg: %s" , e.toString());
+
             }
         };
 
@@ -518,7 +520,9 @@ public class VideoStreamAddFragment extends Fragment {
     }
 
     private void onVisible() {
-        Log.d(TAG, "onVisible");
+
+        Timber.i("onVisible");
+
 
 //        FragmentManager fm = getActivity().getSupportFragmentManager();
 //        boolean isFragmentFound = false;
@@ -541,7 +545,9 @@ public class VideoStreamAddFragment extends Fragment {
     }
 
     private void onInvisible() {
-        Log.d(TAG, "onInvisible");
+
+        Timber.i("onInvisible");
+
     }
 
     /**
@@ -609,7 +615,8 @@ public class VideoStreamAddFragment extends Fragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        Log.d(TAG, "setUserVisibleHint is " + isVisibleToUser);
+
+        Timber.i("setUserVisibleHint is %b ", isVisibleToUser);
         mIsFragmentVisibleToUser = isVisibleToUser;
         if (isResumed()) { // fragment has been created at this point
             if (mIsFragmentVisibleToUser) {
@@ -624,7 +631,7 @@ public class VideoStreamAddFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        Log.d(TAG, "onStart");
+        Timber.i("onStart");
 
         if (mIsFragmentVisibleToUser) {
             onVisible();
@@ -635,7 +642,7 @@ public class VideoStreamAddFragment extends Fragment {
     public void onStop() {
         super.onStop();
 
-        Log.d(TAG, "onStop");
+        Timber.i("onStop");
 
         if (mIsFragmentVisibleToUser) {
             onInvisible();

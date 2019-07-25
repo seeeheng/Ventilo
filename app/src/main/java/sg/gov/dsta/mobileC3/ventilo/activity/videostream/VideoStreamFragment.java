@@ -92,6 +92,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.videoStream.EOwner;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
+import timber.log.Timber;
 
 public class VideoStreamFragment extends Fragment implements SnackbarUtil.SnackbarActionClickListener {
 
@@ -821,9 +822,10 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                     @Override
                     public void onSuccess(String videoUrl) {
                         if (videoUrl != null) {
-                            Log.d(TAG, "onSuccess singleObserverVideoStreamForUserByName, " +
-                                    "getUrlStreamFromName. " +
-                                    "videoUrl: " + videoUrl);
+
+
+                            Timber.i("onSuccess singleObserverVideoStreamForUserByName, getUrlStreamFromName. videoUrl: %s" , videoUrl);
+
 
 //                            Runnable videoStreamRunnable = new Runnable() {
 //                                @Override
@@ -878,17 +880,16 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 //                            videoStreamThread.run();
 
                         } else {
-                            Log.d(TAG, "onSuccess singleObserverVideoStreamForUserByName, " +
-                                    "getUrlStreamFromName. " +
-                                    "videoUrl is null");
+                            Timber.i("onSuccess singleObserverVideoStreamForUserByName, getUrlStreamFromName. videoUrl is null");
+
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError singleObserverVideoStreamForUserByName, " +
-                                "getUrlStreamFromName. " +
-                                "Error Msg: " + e.toString());
+                        Timber.e("onError singleObserverVideoStreamForUserByName, getUrlStreamFromName. Error Msg: %s" , e.toString());
+
+
                     }
                 };
 
@@ -1687,7 +1688,8 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 
         String extension = media.substring(media.lastIndexOf(StringUtil.DOT) + 1);
 
-        Log.i(TAG, "stream media url extension: " + extension);
+        Timber.i("stream media url extension: %s" , extension);
+
 
         // This is the MediaSource representing the media to be played.
         MediaSource videoSource = buildMediaSource(Uri.parse(media), extension, dataSourceFactory);
@@ -1721,7 +1723,10 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                             .createMediaSource(uri);
                 }
             default: {
+                Timber.e("Unsupported type: %s" , type);
                 throw new IllegalStateException("Unsupported type: " + type);
+
+
             }
         }
     }
@@ -2084,13 +2089,15 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
     }
 
     private void onVisible() {
-        Log.d(TAG, "onVisible");
+        Timber.i("onVisible");
+
 //        initMediaPlayers();
 //        resumePlayers();
     }
 
     private void onInvisible() {
-        Log.d(TAG, "onInvisible");
+        Timber.i("onInvisible");
+
 //        hideKeyboard();
 
 //        pausePlayers();
@@ -2131,7 +2138,9 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume");
+
+        Timber.i("onResume");
+
     }
 
     @Override
@@ -2145,7 +2154,8 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(TAG, "onPause");
+        Timber.i("onPause");
+
     }
 
     @Override
@@ -2159,7 +2169,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Timber.i("onDestroy");
 
-        Log.i(TAG, "onDestroy");
     }
 }

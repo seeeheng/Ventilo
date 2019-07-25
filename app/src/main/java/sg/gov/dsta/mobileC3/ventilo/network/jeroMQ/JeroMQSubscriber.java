@@ -22,6 +22,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.network.NetworkUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
+import timber.log.Timber;
 
 public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSubscriberRunnable.CloseSocketsListener {
 
@@ -81,7 +82,7 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSu
      */
     @Override
     protected void startClientProcess() {
-        Log.i(TAG, "Start client sub sockets connection");
+        Timber.i("Start client sub sockets connection");
 
         // Add client IP Addresses to be connected to in this address list
 //        mClientSubEndpointList.add("tcp://192.168.1.3:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
@@ -115,8 +116,8 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSu
 
         String[] fixedIpAddresses = MainApplication.getAppContext().getResources().
                 getStringArray(R.array.login_user_mobile_ip_addresses);
+        Timber.i("Own Device IP Address to be excluded for broadcast: %s" ,ownDeviceIpAddress);
 
-        Log.i(TAG, "Own Device IP Address to be excluded for broadcast: " + ownDeviceIpAddress);
 
         for (int i = 0; i < fixedIpAddresses.length; i++) {
             if (!ownDeviceIpAddress.equalsIgnoreCase(fixedIpAddresses[i])) {
@@ -124,13 +125,15 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSu
                 endpoint = endpoint.concat(fixedIpAddresses[i]).concat(StringUtil.COLON);
                 endpoint = endpoint.concat(String.valueOf(DEFAULT_PORT));
 
-                Log.d(TAG, "Endpoint " + i + ":" + endpoint);
+
+                Timber.i("Endpoint %d %s " , i , endpoint);
+
 
                 mClientSubEndpointList.add(endpoint);
             }
         }
 
-        Log.i(TAG, "Client sub sockets connected");
+        Timber.i("Client sub sockets connected");
 
         mExecutorService.submit(new Runnable() {
             @Override
@@ -155,8 +158,8 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSu
 //                    }
                     mSocketList.add(socket);
                 }
+                Timber.i("Creating and connecting SUB socket...");
 
-                Log.i(TAG, "Creating and connecting SUB socket...");
 
                 //  Initialize poll set
                 ZMQ.Poller items = mZContext.createPoller(mSocketList.size());
@@ -209,21 +212,24 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSu
                 if (mClientSubEndpointList != null &&
                         mClientSubEndpointList.get(i) != null) {
                     socket.disconnect(mClientSubEndpointList.get(i));
-                    Log.i(TAG, "Client sub socket [" + i + "] disconnected.");
+                    Timber.i("Client sub socket disconnected %d" , i);
 
                     socket.close();
-                    Log.i(TAG, "Client sub socket [" + i + "] closed.");
+                    Timber.i("Client sub socket closed %d" , i);
                 }
 
                 mZContext.destroySocket(socket);
-                Log.i(TAG, "Client sub socket [" + i + "] destroyed.");
+                Timber.i("Client sub socket destroyed %d" , i);
             }
         }
 
         if (mZContext != null && !mZContext.isClosed()) {
-            Log.i(TAG, "Destroying ZContext.");
+            Timber.i("Destroying ZContext.");
+
             mZContext.destroy();
-            Log.i(TAG, "ZContext destroyed.");
+
+            Timber.i("ZContext destroyed.");
+
         }
     }
 

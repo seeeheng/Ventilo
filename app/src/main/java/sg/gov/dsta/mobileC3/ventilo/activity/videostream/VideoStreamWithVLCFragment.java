@@ -52,6 +52,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
+import timber.log.Timber;
 
 //import com.rvirin.onvif.onvifcamera.OnvifDevice;
 //import com.rvirin.onvif.onvifcamera.OnvifListener;
@@ -273,9 +274,10 @@ public class VideoStreamWithVLCFragment extends Fragment implements SnackbarUtil
                     @Override
                     public void onSuccess(String videoUrl) {
                         if (videoUrl != null) {
-                            Log.d(TAG, "onSuccess singleObserverVideoStreamForUserByName, " +
-                                    "getUrlStreamFromName. " +
-                                    "videoUrl: " + videoUrl);
+
+                            Timber.i("onSuccess singleObserverVideoStreamForUserByName, getUrlStreamFromName. videoUrl: %s" , videoUrl);
+
+
 
 //                            VideoStreamRunnable videoStreamRunnable;
 
@@ -309,17 +311,17 @@ public class VideoStreamWithVLCFragment extends Fragment implements SnackbarUtil
 
 //                            videoStreamRunnable.run();
                         } else {
-                            Log.d(TAG, "onSuccess singleObserverVideoStreamForUserByName, " +
-                                    "getUrlStreamFromName. " +
-                                    "videoUrl is null");
+
+                            Timber.i("onSuccess singleObserverVideoStreamForUserByName, getUrlStreamFromName. videoUrl is null");
+
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError singleObserverVideoStreamForUserByName, " +
-                                "getUrlStreamFromName. " +
-                                "Error Msg: " + e.toString());
+
+                        Timber.e("onError singleObserverVideoStreamForUserByName, getUrlStreamFromName. Error Msg: %s" , e.toString());
+
                     }
                 };
 
@@ -889,7 +891,9 @@ public class VideoStreamWithVLCFragment extends Fragment implements SnackbarUtil
         if (mLibVlcOne == null)
             return;
 
-        Log.i(TAG, "Releasing video player one");
+        Timber.i("Releasing video player one");
+
+
         mMediaPlayerOne.stop();
 
         Runnable releasePlayerOneRunnable = new Runnable() {
@@ -922,8 +926,8 @@ public class VideoStreamWithVLCFragment extends Fragment implements SnackbarUtil
     private synchronized void releasePlayerTwo() {
         if (mLibVlcTwo == null)
             return;
+        Timber.i("Releasing video player two");
 
-        Log.i(TAG, "Releasing video player two");
         mMediaPlayerTwo.stop();
 
         Runnable releasePlayerTwoRunnable = new Runnable() {
@@ -971,7 +975,8 @@ public class VideoStreamWithVLCFragment extends Fragment implements SnackbarUtil
 
             switch (event.type) {
                 case MediaPlayer.Event.EndReached:
-                    Log.d(TAG, "MediaPlayerOne EndReached");
+                    Timber.i("MediaPlayerOne EndReached");
+
                     player.releasePlayerOne();
                     break;
                 case MediaPlayer.Event.Playing:
@@ -1001,7 +1006,9 @@ public class VideoStreamWithVLCFragment extends Fragment implements SnackbarUtil
 
             switch (event.type) {
                 case MediaPlayer.Event.EndReached:
-                    Log.d(TAG, "MediaPlayerTwo EndReached");
+
+                    Timber.i("MediaPlayerTwo EndReached");
+
                     player.releasePlayerTwo();
                     break;
                 case MediaPlayer.Event.Playing:
@@ -1114,13 +1121,17 @@ public class VideoStreamWithVLCFragment extends Fragment implements SnackbarUtil
 
         @Override
         public void onSurfacesDestroyed(IVLCVout vlcVout) {
-            Log.e(TAG, "Surface destroyed for first video stream");
+
+            Timber.i("Surface destroyed for first video stream");
+
             releasePlayerOne();
         }
 
         @Override
         public void onHardwareAccelerationError(IVLCVout vlcVout) {
-            Log.e(TAG, "Error with hardware acceleration for first video stream");
+
+            Timber.e("Error with hardware acceleration for first video stream");
+
             Toast.makeText(getActivity(), "Error with hardware acceleration for first video stream",
                     Toast.LENGTH_LONG).show();
             releasePlayerOne();
@@ -1141,7 +1152,8 @@ public class VideoStreamWithVLCFragment extends Fragment implements SnackbarUtil
 
         @Override
         public void onSurfacesDestroyed(IVLCVout vlcVout) {
-            Log.e(TAG, "Surface destroyed for second video stream");
+            Timber.i("Surface destroyed for second video stream");
+
             Toast.makeText(getActivity(), "Surface destroyed for second video stream",
                     Toast.LENGTH_LONG).show();
             releasePlayerTwo();
@@ -1149,7 +1161,9 @@ public class VideoStreamWithVLCFragment extends Fragment implements SnackbarUtil
 
         @Override
         public void onHardwareAccelerationError(IVLCVout vlcVout) {
-            Log.e(TAG, "Error with hardware acceleration for second video stream");
+
+            Timber.e("Error with hardware acceleration for second video stream");
+
             Toast.makeText(getActivity(), "Error with hardware acceleration for second video stream",
                     Toast.LENGTH_LONG).show();
             releasePlayerTwo();
@@ -1180,11 +1194,14 @@ public class VideoStreamWithVLCFragment extends Fragment implements SnackbarUtil
     }
 
     private void onVisible() {
-        Log.d(TAG, "onVisible");
+
+        Timber.i("onVisible");
+
     }
 
     private void onInvisible() {
-        Log.d(TAG, "onInvisible");
+        Timber.i("onInvisible");
+
 //        hideKeyboard();
 
 //        CloseVideoStreamsAsyncTask task = new CloseVideoStreamsAsyncTask();
@@ -1242,7 +1259,8 @@ public class VideoStreamWithVLCFragment extends Fragment implements SnackbarUtil
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(TAG, "onPause");
+        Timber.i("onPause");
+
 //        releasePlayers();
     }
 

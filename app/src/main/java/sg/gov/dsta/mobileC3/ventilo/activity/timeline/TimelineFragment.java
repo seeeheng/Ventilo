@@ -26,6 +26,7 @@ import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.TaskViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EAdHocTaskPriority;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EPhaseNo;
+import timber.log.Timber;
 
 public class TimelineFragment extends Fragment {
 
@@ -207,7 +208,7 @@ public class TimelineFragment extends Fragment {
 
         // Retrieve 'Ad Hoc' Tasks from list
         for (int i = 0; i < taskModelList.size(); i++) {
-            Log.d(TAG, "taskModelList.get(i).getPhaseNo() is " + taskModelList.get(i).getPhaseNo());
+            Timber.i("taskModelList.get(i).getPhaseNo() is %s" , taskModelList.get(i).getPhaseNo());
             if (EPhaseNo.AD_HOC.toString().equalsIgnoreCase(taskModelList.get(i).getPhaseNo())) {
                 timelineAdHocListItems.add(taskModelList.get(i));
             }

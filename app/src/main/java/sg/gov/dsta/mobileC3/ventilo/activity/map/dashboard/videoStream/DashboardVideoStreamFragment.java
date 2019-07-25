@@ -75,6 +75,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.videoStream.EOwner;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
+import timber.log.Timber;
 
 public class DashboardVideoStreamFragment extends Fragment implements SnackbarUtil.SnackbarActionClickListener {
 
@@ -700,9 +701,9 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
                     @Override
                     public void onSuccess(String videoUrl) {
                         if (videoUrl != null) {
-                            Log.d(TAG, "onSuccess singleObserverVideoStreamForUserByName, " +
-                                    "getUrlStreamFromName. " +
-                                    "videoUrl: " + videoUrl);
+
+                            Timber.i("onSuccess singleObserverVideoStreamForUserByName, getUrlStreamFromName. videoUrl: %s " , videoUrl);
+
 
 //                            Runnable videoStreamRunnable = new Runnable() {
 //                                @Override
@@ -757,17 +758,16 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
 //                            videoStreamThread.run();
 
                         } else {
-                            Log.d(TAG, "onSuccess singleObserverVideoStreamForUserByName, " +
-                                    "getUrlStreamFromName. " +
-                                    "videoUrl is null");
+                            Timber.i("onSuccess singleObserverVideoStreamForUserByName, getUrlStreamFromName. videoUrl is null");
+
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError singleObserverVideoStreamForUserByName, " +
-                                "getUrlStreamFromName. " +
-                                "Error Msg: " + e.toString());
+
+                        Timber.e("onError singleObserverVideoStreamForUserByName,getUrlStreamFromName. Error Msg: %s " , e.toString());
+
                     }
                 };
 
@@ -794,8 +794,8 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
                         getString(R.string.app_name)), bandwidthMeter);
 
         String extension = media.substring(media.lastIndexOf(StringUtil.DOT) + 1);
+        Timber.i("stream media url extension: %s" ,extension);
 
-        Log.i(TAG, "stream media url extension: " + extension);
 
         // This is the MediaSource representing the media to be played.
         MediaSource videoSource = buildMediaSource(Uri.parse(media), extension, dataSourceFactory);
@@ -829,7 +829,10 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
                             .createMediaSource(uri);
                 }
             default: {
+                Timber.e("Unsupported type: %s" , type);
                 throw new IllegalStateException("Unsupported type: " + type);
+
+
             }
         }
     }
@@ -1139,13 +1142,17 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
     }
 
     private void onVisible() {
-        Log.d(TAG, "onVisible");
+
+        Timber.i("onVisible");
+
+
         initMediaPlayers();
         resumePlayers();
     }
 
     private void onInvisible() {
-        Log.d(TAG, "onInvisible");
+        Timber.i("onInvisible");
+
 //        hideKeyboard();
 
 //        CloseVideoStreamsAsyncTask task = new CloseVideoStreamsAsyncTask();
@@ -1183,7 +1190,8 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(TAG, "onPause");
+        Timber.i("onPause");
+
 //        releasePlayers();
 
     }

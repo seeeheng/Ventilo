@@ -14,6 +14,8 @@ import org.videolan.libvlc.MediaPlayer;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import timber.log.Timber;
+
 public class VideoStreamRunnable implements Runnable {
 
     private static final String TAG = VideoStreamRunnable.class.getSimpleName();
@@ -126,7 +128,8 @@ public class VideoStreamRunnable implements Runnable {
 
             switch (event.type) {
                 case MediaPlayer.Event.EndReached:
-                    Log.d(TAG, "MediaPlayerOne EndReached");
+                    Timber.i("MediaPlayerOne EndReached");
+
                     player.releasePlayer();
                     break;
                 case MediaPlayer.Event.Playing:
@@ -157,7 +160,9 @@ public class VideoStreamRunnable implements Runnable {
 
         @Override
         public void onHardwareAccelerationError(IVLCVout vlcVout) {
-            Log.e(TAG, "Error with hardware acceleration for first video stream");
+
+            Timber.e("Error with hardware acceleration for first video stream");
+
 //            Toast.makeText(getActivity(), "Error with hardware acceleration for first video stream",
 //                    Toast.LENGTH_LONG).show();
             releasePlayer();
@@ -168,7 +173,8 @@ public class VideoStreamRunnable implements Runnable {
         if (mLibVlc == null)
             return;
 
-        Log.i(TAG, "Releasing video player one");
+        Timber.i("Releasing video player one");
+
         mMediaPlayer.stop();
 
         mLibVlc.release();

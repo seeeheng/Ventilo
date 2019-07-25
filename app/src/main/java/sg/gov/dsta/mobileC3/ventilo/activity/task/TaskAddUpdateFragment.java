@@ -55,6 +55,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EAdHocTaskPriority;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EPhaseNo;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EStatus;
+import timber.log.Timber;
 
 public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.SnackbarActionClickListener {
 
@@ -110,8 +111,7 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
         View rootView = inflater.inflate(R.layout.fragment_add_update_task, container, false);
         observerSetup();
         initUI(inflater, rootView);
-
-        Log.i(TAG, "Fragment view created.");
+        Timber.i("Fragment view created.");
 
         return rootView;
     }
@@ -235,8 +235,8 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
             @Override
             public void onSuccess(List<TaskModel> taskModelList) {
-                Log.d(TAG, "onSuccess singleObserverForAllTasks, initTaskFieldsUI. " +
-                        "size of taskModelList: " + taskModelList.size());
+                Timber.i("onSuccess singleObserverForAllTasks, initTaskFieldsUI. " +
+                        "size of taskModelList: %d", taskModelList.size());
 
 //                initTaskPhaseAdapter(taskModelList);
 //                initTaskNameAdapter(taskModelList);
@@ -290,7 +290,6 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                 mTaskNameExpandableListAdapter.setChildList(taskNameList);
                 mTaskNameExpandableListAdapter.notifyDataSetChanged();
 
-
                 // Checks Bundle here ONLY after getting required
                 // taskModelist (without 'Assign To') data for checks
                 checkBundle(false);
@@ -298,9 +297,8 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
             @Override
             public void onError(Throwable e) {
-                // show an error message
-                Log.d(TAG, "onError singleObserverForAllTasks, initTaskFieldsUI. " +
-                        "Error Msg: " + e.toString());
+                Timber.e("onError singleObserverForAllTasks, initTaskFieldsUI. " +
+                        "Error Msg: %s", e.toString());
             }
         };
 
@@ -766,8 +764,8 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
             @Override
             public void onSuccess(List<UserModel> userModelList) {
-                Log.d(TAG, "onSuccess singleObserverForAllUsers, initAssignToUI. " +
-                        "size of userModelList: " + userModelList.size());
+                Timber.i("onSuccess singleObserverForAllUsers, initAssignToUI. " +
+                        "size of userModelList: %d", userModelList.size());
 
                 // Get a list of a list of team profile names (by removing commas and spaces from
                 // each UserModel.getTeam())
@@ -782,7 +780,7 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                         UserModel -> Arrays.asList(StringUtil.removeCommasAndExtraSpaces(UserModel.getUserId()))).
                         collect(Collectors.toList());
 
-                Log.i(TAG, "listOfListOfProfileUserIds: " + listOfListOfProfileUserIds);
+                Timber.i("listOfListOfProfileUserIds: %s", listOfListOfProfileUserIds);
 
                 // Converts the above list of list into a flat/single hierachy list
                 // and extract ONLY distinct values
@@ -853,9 +851,8 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
             @Override
             public void onError(Throwable e) {
-                // show an error message
-                Log.d(TAG, "onError singleObserverForAllUsers, initAssignToUI. " +
-                        "Error Msg: " + e.toString());
+                Timber.e("onError singleObserverForAllUsers, initAssignToUI. " +
+                        "Error Msg: %s", e.toString());
             }
         };
 
@@ -925,7 +922,7 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
     private View.OnClickListener onBackClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Log.i(TAG, "Back button pressed.");
+            Timber.i("Back button pressed.");
             popChildBackStack();
         }
     };
@@ -933,7 +930,7 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
     private View.OnClickListener onCreateClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Log.i(TAG, "Create button pressed.");
+            Timber.i("Create button pressed.");
 
             if (isFormCompleteForFurtherAction()) {
                 if (getSnackbarView() != null) {
@@ -1098,9 +1095,9 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
             @Override
             public void onSuccess(Long taskId) {
-                Log.d(TAG, "onSuccess singleObserverAddTask, " +
-                        "addItemToLocalDatabaseAndBroadcast. " +
-                        "TaskId: " + taskId);
+                Timber.i("onSuccess singleObserverAddTask," +
+                        "addItemToLocalDatabaseAndBroadcast." +
+                        "TaskId: %d", taskId);
 
                 taskModel.setRefId(taskId);
                 mTaskViewModel.updateTask(taskModel);
@@ -1129,8 +1126,8 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverAddTask, addItemToLocalDatabaseAndBroadcast. " +
-                        "Error Msg: " + e.toString());
+                Timber.e("onError singleObserverAddTask, addItemToLocalDatabaseAndBroadcast. " +
+                        "Error Msg: %s ", e.toString());
             }
         };
 
@@ -1259,7 +1256,7 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
      */
     private void updateFormWithoutAssignToData(TaskModel taskModel) {
         if (taskModel != null) {
-            Log.i(TAG, "Updating form without AssignTo info...");
+            Timber.i("Updating form without AssignTo info...");
 
             // Type and Priority / Phase
             if (taskModel.getPhaseNo().equalsIgnoreCase(EPhaseNo.AD_HOC.toString())) {
@@ -1305,7 +1302,8 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
     private void updateAssignToData(TaskModel taskModel) {
         if (taskModel != null) {
             String assignedToGroup = taskModel.getAssignedTo();
-            Log.i(TAG, "Updating AssignTo info: Team(s) " + assignedToGroup);
+
+            Timber.i("Updating AssignTo info: Team(s) %s", assignedToGroup);
 
             String[] assignedToGroupsArray = StringUtil.removeCommasAndExtraSpaces(assignedToGroup);
             for (int i = 0; i < assignedToGroupsArray.length; i++) {
@@ -1346,9 +1344,9 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
             @Override
             public void onSuccess(List<UserModel> userModelList) {
-                Log.d(TAG, "onSuccess singleObserverAllUsers, " +
+                Timber.i(TAG, "onSuccess singleObserverAllUsers, " +
                         "checkNetworkLinkStatusOfRelevantParties. " +
-                        "userModelList size: " + userModelList.size());
+                        "userModelList size: %d", userModelList.size());
 
                 // Obtain current User model who is ONLINE from database
                 List<UserModel> currentUserOnlineModelList = userModelList.stream().
@@ -1382,11 +1380,6 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                         }
                     }
 
-                    for (int i = 0; i < tempSelectedUserIdList.size(); i++) {
-                        Log.d(TAG, "tempSelectedUserIdList[" + i + "] userid:" +
-                                tempSelectedUserIdList.get(i));
-                    }
-
                     // Obtain ALL 'Assign To' User models who are ONLINE from database
                     List<UserModel> assignToUserOnlineModelList = userModelList.stream().
                             filter(userModel -> tempSelectedUserIdList.contains(userModel.getUserId()) &&
@@ -1399,8 +1392,8 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                             UserModel::getUserId).collect(Collectors.toList());
 
                     for (int i = 0; i < assignToUserOnlineIdList.size(); i++) {
-                        Log.d(TAG, "assignToUserOnlineIdList[" + i + "] userid:" +
-                                assignToUserOnlineIdList.get(i));
+                        Timber.i("assignToUserOnlineIdList[%d] userid: %s",
+                                i, assignToUserOnlineIdList.get(i));
                     }
 
                     boolean isAllSelectedUsersConnected = true;
@@ -1445,9 +1438,9 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverAllUsers, " +
+                Timber.e("onError singleObserverAllUsers, " +
                         "checkNetworkLinkStatusOfRelevantParties. " +
-                        "Error Msg: " + e.toString());
+                        "Error Msg: %s", e.toString());
             }
         };
 
@@ -1503,7 +1496,7 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
     /**
      * Accesses child base fragment of current selected view pager item and remove this fragment
      * from child base fragment's stack.
-     * <p>
+     *
      * Selected View Pager Item: Task
      * Child Base Fragment: TaskFragment
      */

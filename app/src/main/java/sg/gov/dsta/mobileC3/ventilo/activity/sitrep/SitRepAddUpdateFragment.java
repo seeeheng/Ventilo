@@ -69,6 +69,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
+import timber.log.Timber;
 
 public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.SnackbarActionClickListener {
 
@@ -289,7 +290,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     private View.OnClickListener onBackClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Log.i(TAG, "Back button pressed.");
+            Timber.i("Back button pressed.");
             popChildBackStack();
         }
     };
@@ -370,8 +371,9 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 photoFile = PhotoCaptureUtil.createImageFile(getContext());
             } catch (IOException ex) {
                 // Error occurred while creating the File
-                Log.d(TAG, "onOpenCameraClickListener: Error creating file for captured camera shot");
+                Timber.e("onOpenCameraClickListener: Error creating file for captured camera shot");
             }
+
             if (photoFile != null) {
                 try {
                     mImageFileAbsolutePath = photoFile.getAbsolutePath();
@@ -382,9 +384,9 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                     startActivityForResult(openCameraIntent,
                             PhotoCaptureUtil.OPEN_CAMERA_REQUEST_CODE);
                 } catch (NullPointerException ex) {
-                    Log.d(TAG, "onOpenCameraClickListener: " + ex.toString());
+                    Timber.e("onOpenCameraClickListener: %s ", ex.toString());
                 } catch (IllegalArgumentException ex) {
-                    Log.d(TAG, "onOpenCameraClickListener: " + ex.toString());
+                    Timber.e("onOpenCameraClickListener: %s ", ex.toString());
                 }
             }
         }
@@ -1027,9 +1029,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
             @Override
             public void onSuccess(Long sitRepId) {
-                Log.d(TAG, "onSuccess singleObserverAddSitRep, " +
-                        "addItemToLocalDatabaseAndBroadcast. " +
-                        "SitRepId: " + sitRepId);
+                Timber.i("onSuccess singleObserverAddSitRep,addItemToLocalDatabaseAndBroadcast. SitRepId: %d", sitRepId);
 
                 sitRepModel.setRefId(sitRepId);
                 mSitRepViewModel.updateSitRep(sitRepModel);
@@ -1054,8 +1054,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverAddSitRep, addItemToLocalDatabaseAndBroadcast. " +
-                        "Error Msg: " + e.toString());
+                Timber.e("onError singleObserverAddSitRep, addItemToLocalDatabaseAndBroadcast.Error Msg: %s ", e.toString());
             }
         };
 
@@ -1307,9 +1306,9 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
             @Override
             public void onSuccess(List<UserModel> userModelList) {
-                Log.d(TAG, "onSuccess singleObserverAllUsers, " +
+                Timber.i(TAG, "onSuccess singleObserverAllUsers, " +
                         "checkNetworkLinkStatusOfRelevantParties. " +
-                        "userModelList size: " + userModelList.size());
+                        "userModelList size: %d ", userModelList.size());
 
                 // Obtain User model of CCTs who are ONLINE from database
                 List<UserModel> cctUserOnlineModelList = userModelList.stream().
@@ -1333,7 +1332,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                                 MainApplication.getAppContext().
                                         getString(R.string.snackbar_send_error_cct_not_connected_message));
                     }
-                } else if(currentUserOnlineModelList.size() != 1) {
+                } else if (currentUserOnlineModelList.size() != 1) {
                     if (getSnackbarView() != null) {
                         SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
                                 MainApplication.getAppContext().
@@ -1349,9 +1348,9 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverAllUsers, " +
+                Timber.e(TAG, "onError singleObserverAllUsers, " +
                         "checkNetworkLinkStatusOfRelevantParties. " +
-                        "Error Msg: " + e.toString());
+                        "Error Msg: %s ", e.toString());
             }
         };
 
@@ -1366,7 +1365,6 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         // Send button
         if (MainApplication.getAppContext().getString(R.string.btn_send).equalsIgnoreCase(
                 mTvToolbarSendOrUpdate.getText().toString().trim())) {
-
 
             // Create new Sit Rep, store in local database and broadcast to other connected devices
             SitRepModel newSitRepModel = createNewOrUpdateSitRepModelFromForm(userModel.getUserId(),
@@ -1420,7 +1418,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     }
 
     private void onVisible() {
-        Log.d(TAG, "onVisible");
+        Timber.i("onVisible");
 
 //        FragmentManager fm = getActivity().getSupportFragmentManager();
 //        boolean isFragmentFound = false;
@@ -1443,7 +1441,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     }
 
     private void onInvisible() {
-        Log.d(TAG, "onInvisible");
+        Timber.i("onInvisible");
     }
 
     /**
@@ -1493,7 +1491,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     @Override
     public void onSnackbarActionClick() {
         // Store compressed bitmap file into phone memory upon sending/update confirmation
-        Log.i(TAG, "mChosenRequestCode: " + mChosenRequestCode);
+        Timber.i("mChosenRequestCode: %s" , mChosenRequestCode);
+
         if (mCompressedFileBitmap != null && mChosenRequestCode == PhotoCaptureUtil.OPEN_CAMERA_REQUEST_CODE) {
             String compressedFilePathName = PhotoCaptureUtil.storeFileIntoPhoneMemory(mCompressedFileBitmap, 1);
             File compressedBitmapFile = new File(compressedFilePathName);
