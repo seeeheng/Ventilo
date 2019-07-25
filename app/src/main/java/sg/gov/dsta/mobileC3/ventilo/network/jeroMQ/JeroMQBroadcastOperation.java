@@ -9,6 +9,7 @@ import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.util.GsonCreator;
+import timber.log.Timber;
 
 public class JeroMQBroadcastOperation {
 
@@ -20,7 +21,8 @@ public class JeroMQBroadcastOperation {
      * @param model
      */
     public static void broadcastDataInsertionOverSocket(Object model) {
-        Log.d(TAG, "broadcastDataInsertionOverSocket");
+        Timber.i("broadcastDataInsertionOverSocket");
+
         Gson gson = GsonCreator.createGson();
         String modelJson = gson.toJson(model);
 
@@ -41,7 +43,8 @@ public class JeroMQBroadcastOperation {
      * @param model
      */
     public static void broadcastDataUpdateOverSocket(Object model) {
-        Log.d(TAG, "broadcastDataUpdateOverSocket");
+        Timber.i("broadcastDataUpdateOverSocket");
+
         Gson gson = GsonCreator.createGson();
         String modelJson = gson.toJson(model);
 
@@ -62,7 +65,8 @@ public class JeroMQBroadcastOperation {
      * @param model
      */
     public static void broadcastDataDeletionOverSocket(Object model) {
-        Log.d(TAG, "broadcastDataDeletionOverSocket");
+        Timber.i("broadcastDataDeletionOverSocket");
+
         Gson gson = GsonCreator.createGson();
         String modelJson = gson.toJson(model);
 

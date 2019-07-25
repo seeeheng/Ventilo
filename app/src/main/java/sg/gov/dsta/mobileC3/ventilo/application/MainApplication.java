@@ -46,7 +46,8 @@ public class MainApplication extends Application {
 ////                    initJeroMQ();
 
 //                    Log.i(TAG, "onCreate fired");
-                    Log.i(TAG, "onCreate fired");
+
+                    Timber.i("onCreate fired");
                 }
             }
         }

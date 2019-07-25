@@ -40,6 +40,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
+import timber.log.Timber;
 
 public class UserSettingsFragment extends Fragment implements SnackbarUtil.SnackbarActionClickListener {
 
@@ -152,8 +153,9 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
 
             @Override
             public void onSuccess(List<UserModel> userModelList) {
-                Log.d(TAG, "onSuccess singleObserverForAllUsers, initCurrentUserCallsignTeamProfileUI. " +
-                        "size of userModelList: " + userModelList.size());
+
+                Timber.i("onSuccess singleObserverForAllUsers, initCurrentUserCallsignTeamProfileUI. size of userModelList:  %d" ,userModelList.size());
+
 
                 // Get a list of a list of team profile names (by removing commas and spaces from
                 // each UserModel.getTeam())
@@ -168,7 +170,8 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                         UserModel -> Arrays.asList(StringUtil.removeCommasAndExtraSpaces(UserModel.getTeam()))).
                         collect(Collectors.toList());
 
-                Log.i(TAG, "List of list of team profile names:" + listOfListOfTeamsProfileNames);
+                Timber.i("List of list of team profile names: %s" , listOfListOfTeamsProfileNames);
+
 
                 // Converts the above list of list into a flat/single hierachy list
                 // and extract ONLY distinct values
@@ -184,8 +187,9 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                                 .flatMap(list -> list.stream()).distinct()
                                 .collect(Collectors.toList());
 
-                Log.i(TAG, "List of distinct team profile names: " +
+                Timber.i("List of distinct team profile names: %s" ,
                         flatListOfDistinctTeamsProfileNames);
+
 
                 // Get user's list of teams which he belongs to
                 List<UserModel> currentUserModelList = userModelList.stream().filter(
@@ -201,8 +205,10 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                             removeCommasAndExtraSpaces(mCurrentUserModel.getTeam())));
                 }
 
-                Log.i(TAG, "List of team profile names which current user belong to: " +
+                Timber.i("List of team profile names which current user belong to: %s" ,
                         currentUserTeamProfileNameList);
+
+
 
                 // Create button layout for each available Team user
                 for (int i = 0; i < flatListOfDistinctTeamsProfileNames.size(); i++) {
@@ -278,8 +284,11 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
             @Override
             public void onError(Throwable e) {
                 // show an error message
-                Log.d(TAG, "onError singleObserverForAllUsers, initCurrentUserCallsignTeamProfileUI. " +
-                        "Error Msg: " + e.toString());
+
+
+                Timber.e("onError singleObserverForAllUsers, initCurrentUserCallsignTeamProfileUI. Error Msg: %s" ,e.toString());
+
+
             }
         };
 
@@ -505,14 +514,18 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     }
 
     private void pullDataFromExcelToDatabase() {
-        Log.i(TAG, "Pulling data from Excel to Database...");
+
+        Timber.i("Pulling data from Excel to Database...");
+
         ExcelSpreadsheetRepository excelSpreadsheetRepository =
                 new ExcelSpreadsheetRepository();
         excelSpreadsheetRepository.pullDataFromExcelToDatabase();
     }
 
     private void pushToExcelFromDatabase() {
-        Log.i(TAG, "Pushing data to Excel from Database...");
+        Timber.i("Pushing data to Excel from Database...");
+
+
         ExcelSpreadsheetRepository excelSpreadsheetRepository =
                 new ExcelSpreadsheetRepository();
         excelSpreadsheetRepository.pushDataToExcelFromDatabase();
@@ -635,7 +648,8 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     }
 
     private void onVisible() {
-        Log.d(TAG, "onVisible");
+        Timber.i("onVisible");
+
 
 //        FragmentManager fm = getChildFragmentManager();
 //        boolean isFragmentFound = false;
@@ -658,7 +672,9 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     }
 
     private void onInvisible() {
-        Log.d(TAG, "onInvisible");
+
+        Timber.i("onInvisible");
+
     }
 
     @Override
@@ -689,10 +705,13 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         mIsFragmentVisibleToUser = isVisibleToUser;
-        Log.d(TAG, "setUserVisibleHint");
+
+        Timber.i("setUserVisibleHint");
+
         if (isResumed()) { // fragment has been created at this point
             if (mIsFragmentVisibleToUser) {
-                Log.d(TAG, "setUserVisibleHint onVisible");
+                Timber.i("setUserVisibleHint onVisible");
+
                 onVisible();
             } else {
                 onInvisible();

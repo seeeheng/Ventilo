@@ -3,6 +3,8 @@ package sg.gov.dsta.mobileC3.ventilo.network.jeroMQ;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import timber.log.Timber;
+
 public class JeroMQAsyncTask {
 
     private static final String TAG = JeroMQAsyncTask.class.getSimpleName();
@@ -35,7 +37,9 @@ public class JeroMQAsyncTask {
         @Override
         protected void onPostExecute(Void v) {
             super.onPostExecute(v);
-            Log.i(TAG, "JeroMQ started.");
+
+            Timber.i("JeroMQ started.");
+
         }
     }
 
@@ -54,7 +58,9 @@ public class JeroMQAsyncTask {
         @Override
         protected void onPostExecute(Void v) {
             super.onPostExecute(v);
-            Log.i(TAG, "JeroMQ fully stopped successfully.");
+
+            Timber.i("JeroMQ fully stopped successfully.");
+
         }
     }
 }

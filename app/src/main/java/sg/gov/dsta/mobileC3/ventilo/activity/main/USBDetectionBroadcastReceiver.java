@@ -7,6 +7,8 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import timber.log.Timber;
+
 public class USBDetectionBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = USBDetectionBroadcastReceiver.class.getSimpleName();
@@ -17,7 +19,8 @@ public class USBDetectionBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(final Context context, Intent intent) {
 
         String action = intent.getAction();
-        Log.v(TAG,"action: " + action);
+        Timber.i("action: %s" , action);
+
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             if(action.equals("android.hardware.usb.action.USB_STATE")) {

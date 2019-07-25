@@ -11,6 +11,7 @@ import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
 //import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQ;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQ;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
+import timber.log.Timber;
 
 public class RabbitMQHelper {
 
@@ -57,12 +58,15 @@ public class RabbitMQHelper {
         boolean isSuccess = false;
 
         if (mqRabbit != null) {
-            Log.w(TAG, "You already have a Rabbit running, killing previous queue and restarting another");
+            Timber.i("You already have a Rabbit running, killing previous queue and restarting another");
+
 //            mqRabbit.close();
         } else {
             mqRabbit = new RabbitMQ();
 
-            Log.d(TAG, "Connecting to MQ on " + SERVER_HOST);
+            Timber.i("Connecting to MQ on %s " , SERVER_HOST);
+
+
             isSuccess = mqRabbit.connect(SERVER_HOST, USERNAME, PASSWORD);
             if (isSuccess) {
                 System.out.println("mqRabbit connected successfully");
@@ -82,12 +86,14 @@ public class RabbitMQHelper {
 
     public void startRabbitMQWithSetting(Context context, String host, String username, String password){
         if (mqRabbit != null) {
-            Log.w(TAG, "You already have a Rabbit running, killing previous queue and restarting another");
-//            mqRabbit.close();
+
+            Timber.i("You already have a Rabbit running, killing previous queue and restarting another");
+            //            mqRabbit.close();
         } else {
             mqRabbit = new RabbitMQ();
 
-            Log.d(TAG, "Connecting to MQ on " + SERVER_HOST);
+            Timber.i("Connecting to MQ on %s" , SERVER_HOST);
+
             boolean isSuccess = mqRabbit.connect(host, username, password);
             if (isSuccess) {
                 Toast.makeText(context, "RabbitMQ setup complete", Toast.LENGTH_SHORT).show();
@@ -97,7 +103,8 @@ public class RabbitMQHelper {
                 Toast.makeText(context, "RabbitMQ failed. C2 capabilities disabled", Toast.LENGTH_SHORT).show();
                 connectionStatus = RabbitMQConnectionStatus.DISCONNECTED;
             }
-            Log.d(TAG, "Connection to MQ is successful: " + isSuccess);
+            Timber.i("Connection to MQ is successful: %b" ,isSuccess);
+
         }
     }
 

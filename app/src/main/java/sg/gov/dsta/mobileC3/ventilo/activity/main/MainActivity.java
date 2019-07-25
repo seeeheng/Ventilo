@@ -69,6 +69,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.constant.USBConnectionConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.network.NetworkUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements SnackbarUtil.SnackbarActionClickListener {
 
@@ -503,9 +504,13 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                     @Override
                     public void onSuccess(WaveRelayRadioModel waveRelayRadioModel) {
                         if (waveRelayRadioModel != null) {
-                            Log.d(TAG, "onSuccess singleObserverWaveRelayRadioByRadioNo, " +
+
+
+                            Timber.i("onSuccess singleObserverWaveRelayRadioByRadioNo, " +
                                     "getDeviceIpAddrAndRunWrRadioSocket. " +
-                                    "waveRelayRadioModel: " + waveRelayRadioModel);
+                                    "waveRelayRadioModel: %s" ,waveRelayRadioModel);
+
+
 
 //                            // Subscribe to RabbitMQ and JeroMQ
 //                            subscribeToNetwork();
@@ -521,7 +526,7 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                                     waveRelayRadioModel.getRadioIpAddress());
 
                         } else {
-                            Log.d(TAG, "onSuccess singleObserverWaveRelayRadioByRadioNo, " +
+                            Timber.i("onSuccess singleObserverWaveRelayRadioByRadioNo, " +
                                     "getDeviceIpAddrAndRunWrRadioSocket. " +
                                     "waveRelayRadioModel is null");
                         }
@@ -529,9 +534,10 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError singleObserverWaveRelayRadioByRadioNo, " +
+
+                        Timber.e("onError singleObserverWaveRelayRadioByRadioNo, " +
                                 "getDeviceIpAddrAndRunWrRadioSocket. " +
-                                "Error Msg: " + e.toString());
+                                "Error Msg: %s" , e.toString());
                     }
                 };
 
@@ -555,25 +561,25 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                     @Override
                     public void onSuccess(WaveRelayRadioModel waveRelayRadioModel) {
                         if (waveRelayRadioModel != null) {
-                            Log.d(TAG, "onSuccess singleObserverWaveRelayRadioByRadioNo, " +
-                                    "resetWrRadioUserIDAndBroadcastUpdate. " +
-                                    "waveRelayRadioModel: " + waveRelayRadioModel);
+
+                            Timber.i("onSuccess singleObserverWaveRelayRadioByRadioNo, resetWrRadioUserIDAndBroadcastUpdate. waveRelayRadioModel: %s" , waveRelayRadioModel);
 
                             saveAndBroadcastRadioInfo(waveRelayRadioModel,
                                     null, StringUtil.INVALID_STRING);
 
                         } else {
-                            Log.d(TAG, "onSuccess singleObserverWaveRelayRadioByRadioNo, " +
-                                    "resetWrRadioUserIDAndBroadcastUpdate. " +
-                                    "waveRelayRadioModel is null");
+
+
+                            Timber.i("onSuccess singleObserverWaveRelayRadioByRadioNo, resetWrRadioUserIDAndBroadcastUpdate. waveRelayRadioModel is null");
+
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError singleObserverWaveRelayRadioByRadioNo, " +
-                                "resetWrRadioUserIDAndBroadcastUpdate. " +
-                                "Error Msg: " + e.toString());
+
+                        Timber.e("onError singleObserverWaveRelayRadioByRadioNo,resetWrRadioUserIDAndBroadcastUpdate. Error Msg: %s " , e.toString());
+
                     }
                 };
 
@@ -611,25 +617,23 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                     @Override
                     public void onSuccess(UserModel userModel) {
                         if (userModel != null) {
-                            Log.d(TAG, "onSuccess singleObserverUserByUserId, " +
-                                    "broadcastUserInfoUpdate. " +
-                                    "userModel: " + userModel);
+
+                            Timber.i("onSuccess singleObserverUserByUserId,broadcastUserInfoUpdate. userModel: %s", userModel);
+
 
                             // Send updated user model to all other devices
                             JeroMQBroadcastOperation.broadcastDataUpdateOverSocket(userModel);
 
                         } else {
-                            Log.d(TAG, "onSuccess singleObserverUserByUserId, " +
-                                    "broadcastUserInfoUpdate. " +
-                                    "userModel is null");
+                            Timber.i("onSuccess singleObserverUserByUserId ,broadcastUserInfoUpdate. userModel is null");
+
+
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError singleObserverUserByUserId, " +
-                                "broadcastUserInfoUpdate. " +
-                                "Error Msg: " + e.toString());
+                        Timber.e("onError singleObserverUserByUserId, broadcastUserInfoUpdate. Error Msg: %s " , e.toString());
                     }
                 };
 
@@ -652,24 +656,25 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                     @Override
                     public void onSuccess(UserModel userModel) {
                         if (userModel != null) {
-                            Log.d(TAG, "onSuccess singleObserverUserByUserId, " +
-                                    "resetUserAccessTokenAndBroadcastUpdate. " +
-                                    "userModel: " + userModel);
+
+                            Timber.i("onSuccess singleObserverUserByUserId, resetUserAccessTokenAndBroadcastUpdate. userModel: %s " ,userModel);
+
+
 
                             saveAndBroadcastUserInfo(userModel, StringUtil.EMPTY_STRING);
 
                         } else {
-                            Log.d(TAG, "onSuccess singleObserverUserByUserId, " +
-                                    "resetUserAccessTokenAndBroadcastUpdate. " +
-                                    "userModel is null");
+                            Timber.i("onSuccess singleObserverUserByUserId, resetUserAccessTokenAndBroadcastUpdate. userModel is null");
+
+
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError singleObserverUserByUserId, " +
-                                "resetUserAccessTokenAndBroadcastUpdate. " +
-                                "Error Msg: " + e.toString());
+
+                        Timber.e("onError singleObserverUserByUserId, resetUserAccessTokenAndBroadcastUpdate. Error Msg: %s" , e.toString());
+
                     }
                 };
 
@@ -736,7 +741,9 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                                             get(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID);
 
                                     if (taskFragment != null) {
-                                        Log.d(TAG, "Task: Refresh Data");
+
+                                        Timber.i("Task: Refresh Data");
+
 //                                        taskFragment.refreshData();
                                         taskFragment.addItemInRecycler();
                                     }
@@ -783,7 +790,8 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                                             get(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID);
 
                                     if (sitRepFragment != null) {
-                                        Log.d(TAG, "Sit Rep: Refresh Data");
+                                        Timber.i("Sit Rep: Refresh Data");
+
 //                                        sitRepFragment.refreshData();
                                         sitRepFragment.addItemInRecycler();
                                     }
@@ -792,7 +800,8 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                             isJSON = true;
 
                         } catch (JSONException ex) {
-                            Log.d(TAG, "JSONException: " + ex);
+                            Timber.e("JSONException: %s" ,ex);
+
                         }
 
                     }
@@ -935,14 +944,18 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
         if (mRabbitMqBroadcastReceiver == null) {
             IntentFilter filter = new IntentFilter();
             filter.addAction(RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION);
-            Log.i(TAG, "registerRabbitMQBroadcastReceiver");
+
+            Timber.i("registerRabbitMQBroadcastReceiver");
+
 
             mRabbitMqBroadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     if (RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
                         if (RabbitMQHelper.connectionStatus == RabbitMQHelper.RabbitMQConnectionStatus.CONNECTED) {
-                            Log.i(TAG, "RabbitMQConnectionStatus.CONNECTED");
+
+                            Timber.i("RabbitMQConnectionStatus.CONNECTED");
+
                             setupMQListener();
                         }
                     }
@@ -1182,7 +1195,9 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
 
     @Override
     public void onBackPressed() {
-        Log.i(TAG, "onBackPressed");
+
+        Timber.i("onBackPressed");
+
 
         if (getViewPagerAdapter() != null) {
             switch (mNoSwipeViewPager.getCurrentItem()) {
@@ -1259,14 +1274,16 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "onResume...");
+
+        Timber.i("onResume...");
+
         setSelectedTabUIComponents();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        Log.i(TAG, "onStop...");
+        Timber.i("onStop...");
     }
 
     // Executes resets on data models, network services etc upon user logout
@@ -1274,7 +1291,7 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "onDestroy...");
+        Timber.i("onDestroy...");
 
         destroyAllBaseChildFragments();
 
@@ -1299,7 +1316,8 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
 
         if (userRadioId != null) {
             if (userRadioId instanceof Integer) {
-                Log.i(TAG, "Resetting User Id of radio info...");
+                Timber.i("Resetting User Id of radio info...");
+
                 resetWrRadioUserIDAndBroadcastUpdate((int) userRadioId);
             }
         }

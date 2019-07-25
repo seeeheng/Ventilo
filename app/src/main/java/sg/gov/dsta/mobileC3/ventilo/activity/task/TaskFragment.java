@@ -41,6 +41,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EAdHocTaskPriority;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EPhaseNo;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EStatus;
+import timber.log.Timber;
 
 public class TaskFragment extends Fragment {
 
@@ -845,23 +846,30 @@ public class TaskFragment extends Fragment {
     }
 
     private void onVisible() {
-        Log.d(TAG, "onVisible");
+
+        Timber.i("onVisible");
+
 
         enableFabAddTask();
     }
 
     private void onInvisible() {
-        Log.d(TAG, "onInvisible");
+
+        Timber.i("onInvisible");
+
     }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         mIsFragmentVisibleToUser = isVisibleToUser;
-        Log.d(TAG, "setUserVisibleHint");
+
+        Timber.i("setUserVisibleHint");
+
         if (isResumed()) { // fragment has been created at this point
             if (mIsFragmentVisibleToUser) {
-                Log.d(TAG, "setUserVisibleHint onVisible");
+                Timber.i("setUserVisibleHint onVisible");
+
                 onVisible();
             } else {
                 onInvisible();

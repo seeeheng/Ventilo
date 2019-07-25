@@ -6,6 +6,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import timber.log.Timber;
+
 public abstract class JeroMQParentPublisher {
 
 //    private static final Logger LOGGER = LoggerFactory.getLogger(JeroMQParentPublisher.class);
@@ -23,23 +25,28 @@ public abstract class JeroMQParentPublisher {
     }
 
     public void start() {
-        Log.i(TAG,"Starting JeroMQ server...");
-        startServerProcess();
-        Log.i(TAG,"JeroMQ server started!");
+        Timber.i("Starting JeroMQ server...");
+              startServerProcess();
+        Timber.i("JeroMQ server started!");
+
     }
 
     public void stop() {
-        Log.i(TAG,"Stopping JeroMQ server...");
+        Timber.i("Stopping JeroMQ server...");
+
 
         mExecutorService.shutdownNow();
         boolean terminated = false;
         try {
             terminated = mExecutorService.awaitTermination(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            Log.e(TAG,"Waiting for server termination interrupted: " + e);
-        }
 
-        Log.i(TAG,"JeroMQ server stopped: " + terminated);
+            Timber.e("Waiting for server termination interrupted: %s" , e);
+
+        }
+        Timber.i("JeroMQ server stopped: %b", terminated);
+
+
     }
 
     protected abstract void startServerProcess();

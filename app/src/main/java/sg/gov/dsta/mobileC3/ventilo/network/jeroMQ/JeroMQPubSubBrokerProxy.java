@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 
 import sg.gov.dsta.mobileC3.ventilo.util.PowerManagerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.network.NetworkUtil;
+import timber.log.Timber;
 
 public class JeroMQPubSubBrokerProxy extends JeroMQBrokerProxy {
 
@@ -249,9 +250,12 @@ public class JeroMQPubSubBrokerProxy extends JeroMQBrokerProxy {
 //        task.execute();
 
         if (mZContext != null && !mZContext.isClosed()) {
-            Log.i(TAG, "Destroying ZContext..");
+
+            Timber.i("Destroying ZContext..");
+
             mZContext.destroy();
-            Log.i(TAG, "ZContext destroyed.");
+            Timber.i( "ZContext destroyed.");
+
         }
 
         super.stop();
@@ -277,29 +281,30 @@ public class JeroMQPubSubBrokerProxy extends JeroMQBrokerProxy {
             mXPubSocket.setLinger(0);
 
 
-            Log.i(TAG, "Proxy sockets created.");
+            Timber.i( "Proxy sockets created.");
 
 //            mXSubSocket.bind(SERVER_XSUB_IP_ADDRESS);
             mXSubSocket.connect(SERVER_XSUB_IP_ADDRESS);
             mXPubSocket.bind(SERVER_XPUB_IP_ADDRESS);
-
-            Log.i(TAG, "Proxy sockets connected/binded.");
+            Timber.i( "Proxy sockets connected/binded.");
 
             ZMQ.proxy(mXSubSocket, mXPubSocket, null);
-            Log.i(TAG, "Proxy disconnected.");
+            Timber.i("Proxy disconnected.");
 
             if (mXSubSocket != null) {
                 mProxyZContext.destroySocket(mXSubSocket);
-                Log.i(TAG, "Server xSub socket closed.");
+
+                Timber.i("Server xSub socket closed.");
             }
 
             if (mXPubSocket != null) {
                 mProxyZContext.destroySocket(mXPubSocket);
-                Log.i(TAG, "Server xPub socket closed.");
+                Timber.i("Server xPub socket closed.");
+
             }
 
             mProxyZContext.destroy();
-            Log.i(TAG, "Proxy context destroyed.");
+            Timber.i("Proxy context destroyed.");
         }
     }
 }

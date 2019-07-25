@@ -33,6 +33,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EPhaseNo;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EStatus;
+import timber.log.Timber;
 
 public class TaskDetailFragment extends Fragment {
 
@@ -233,7 +234,9 @@ public class TaskDetailFragment extends Fragment {
     private View.OnClickListener onBackClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Log.i(TAG, "Back button pressed.");
+
+            Timber.i("Back button pressed.");
+
 
             // Remove sticky Sit Rep model as it is no longer valid
             if (getActivity() instanceof MainActivity) {
@@ -247,7 +250,9 @@ public class TaskDetailFragment extends Fragment {
     private View.OnClickListener onEditClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Log.i(TAG, "Edit button pressed.");
+
+            Timber.i("Edit button pressed.");
+
 
             if (mTaskModelOnDisplay != null) {
                 Fragment taskAddUpdateFragment = new TaskAddUpdateFragment();

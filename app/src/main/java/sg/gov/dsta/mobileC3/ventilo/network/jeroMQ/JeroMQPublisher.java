@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import sg.gov.dsta.mobileC3.ventilo.util.PowerManagerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.network.NetworkUtil;
+import timber.log.Timber;
 
 /**
  * Reads from multiple sockets in Java
@@ -137,8 +138,8 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
      */
     @Override
     protected void startServerProcess() {
-        Log.i(TAG, "Start server pub sockets connection");
-        Log.i(TAG, "Own IP address is: " + NetworkUtil.getOwnIPAddressThroughWiFiOrEthernet(true));
+        Timber.i("Start server pub sockets connection");
+        Timber.i("Own IP address is: %s" , NetworkUtil.getOwnIPAddressThroughWiFiOrEthernet(true));
 
         mZContext = new ZContext();
         mPubSocket = mZContext.createSocket(SocketType.PUB);
@@ -148,9 +149,9 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
         mPubSocket.setLinger(0);
 //        mPubSocket.connect(SERVER_PUB_IP_ADDRESS);
         mPubSocket.bind(SERVER_PUB_IP_ADDRESS);
+        Timber.i("Server pub sockets connected");
 
-        Log.i(TAG, "Server pub sockets connected");
-    }
+   }
 
 
     /**
@@ -181,16 +182,18 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
                 bftMessageToSend.append(topicPrefix);
                 bftMessageToSend.append(" ");
                 bftMessageToSend.append(message);
+                Timber.i("Publishing BFT message: %s" , message );
 
-                Log.i(TAG, "Publishing BFT message: " + message + "...");
+
 
                 mPubSocket.send(bftMessageToSend.toString());
+                Timber.i("BFT message sent");
 
-                Log.i(TAG, "BFT message sent");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    Log.e(TAG, "Interrupted while sleeping: " + e);
+                    Timber.e("Interrupted while sleeping:  %s" , e);
+
                     return;
                 }
             }
@@ -211,8 +214,8 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
         if (StringUtil.EMPTY_STRING.equalsIgnoreCase(topicPrefix)) {
             return;
         }
+        Timber.i("Publishing User");
 
-        Log.d(TAG, "Publishing User");
 
         PowerManagerUtil.acquirePartialWakeLock();
 
@@ -224,15 +227,23 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
                 userMessageToSend.append(StringUtil.SPACE);
                 userMessageToSend.append(message);
 
-                Log.i(TAG, "Publishing User " + actionPrefix + " message: " + userMessageToSend + "...");
+
+                Timber.i("Publishing User %s" , actionPrefix ) ;
+
+               Timber.i( " message: %s" , userMessageToSend );
+
 
                 mPubSocket.send(userMessageToSend.toString());
 
-                Log.i(TAG, "User " + actionPrefix + " message sent");
+
+                Timber.i( "User %s" , actionPrefix   );
+
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    Log.e(TAG, "Interrupted while sleeping: " + e);
+
+                    Timber.e( "Interrupted while sleeping: " + e);
+
                     return;
                 }
             }
@@ -249,8 +260,7 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
     public void sendWaveRelayRadioMessage(String message, String actionPrefix) {
 
         String topicPrefix = getActionPrefix(TOPIC_PREFIX_RADIO, actionPrefix);
-
-        Log.d(TAG, "Publishing WaveRelay Radio");
+        Timber.i( "Publishing WaveRelay Radio");
 
         PowerManagerUtil.acquirePartialWakeLock();
 
@@ -261,17 +271,22 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
                 radioMessageToSend.append(topicPrefix);
                 radioMessageToSend.append(StringUtil.SPACE);
                 radioMessageToSend.append(message);
+                Timber.i( "Publishing WaveRelay Radio %s" , actionPrefix );
+                Timber.i( "Publishing WaveRelay Radio message %s" , message );
 
-                Log.i(TAG, "Publishing WaveRelay Radio " + actionPrefix + " message: " + message + "...");
+
+
 
                 mPubSocket.send(radioMessageToSend.toString());
+                Timber.i( "WaveRelay Radio message sent %s" , actionPrefix );
 
-                Log.i(TAG, "WaveRelay Radio " + actionPrefix + " message sent");
 
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    Log.e(TAG, "Interrupted while sleeping: " + e);
+
+                    Timber.e( "Interrupted while sleeping: %s" , e);
+
                     return;
                 }
             }
@@ -291,7 +306,7 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 
         String topicPrefix = getActionPrefix(TOPIC_PREFIX_SITREP, actionPrefix);
 
-        Log.d(TAG, "Publishing SitRep");
+        Timber.i( "Publishing SitRep");
 
         PowerManagerUtil.acquirePartialWakeLock();
 
@@ -304,15 +319,20 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
                 sitRepMessageToSend.append(StringUtil.SPACE);
                 sitRepMessageToSend.append(message);
 
-                Log.i(TAG, "Publishing SitRep " + actionPrefix + " message: " + message + "...");
+                Timber.i( "Publishing SitRep %s %s" , actionPrefix , message );
+
+
 
                 mPubSocket.send(sitRepMessageToSend.toString());
 
-                Log.i(TAG, "SitRep " + actionPrefix + " message sent");
+                Timber.i( "SitRep message sent %s" , actionPrefix );
+
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    Log.e(TAG, "Interrupted while sleeping: " + e);
+
+                    Timber.e( "Interrupted while sleeping: %s" , e);
+
                     return;
                 }
             }
@@ -347,15 +367,18 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
                 taskMessageToSend.append(StringUtil.SPACE);
                 taskMessageToSend.append(message);
 
-                Log.i(TAG, "Publishing Task " + actionPrefix + " message: " + taskMessageToSend + "...");
+
+                Timber.i( "Publishing Task %s  , messge: %s" , actionPrefix ,taskMessageToSend );
+
 
                 mPubSocket.send(taskMessageToSend.toString());
+                Timber.i( "Task message sent %s" , actionPrefix );
 
-                Log.i(TAG, "Task " + actionPrefix + " message sent");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    Log.e(TAG, "Interrupted while sleeping: " + e);
+
+                    Timber.i("Interrupted while sleeping: %s" , e);
                     return;
                 }
             }
@@ -465,21 +488,28 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 
         if (mPubSocket != null) {
             mPubSocket.unbind(SERVER_PUB_IP_ADDRESS);
-            Log.i(TAG, "Server pub socket unbound.");
+            Timber.i("Server pub socket unbound.");
+
 
             mPubSocket.close();
-            Log.i(TAG, "Server pub socket closed.");
+            Timber.i("Server pub socket closed.");
+
 
             if (mZContext != null) {
                 mZContext.destroySocket(mPubSocket);
-                Log.i(TAG, "Server pub socket destroyed.");
+
+                Timber.i("Server pub socket destroyed.");
+
             }
         }
 
         if (mZContext != null && !mZContext.isClosed()) {
-            Log.i(TAG, "Destroying ZContext.");
+            Timber.i("Destroying ZContext.");
+
             mZContext.destroy();
-            Log.i(TAG, "ZContext destroyed.");
+
+            Timber.i("ZContext destroyed.");
+
         }
 
 

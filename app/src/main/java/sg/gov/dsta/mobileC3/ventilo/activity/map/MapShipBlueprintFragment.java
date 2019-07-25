@@ -71,6 +71,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
+import timber.log.Timber;
 
 public class MapShipBlueprintFragment extends Fragment {
 
@@ -512,12 +513,13 @@ public class MapShipBlueprintFragment extends Fragment {
 //
 //                mIsTrackerUpdateInitialised = true;
 
-                Log.d(TAG, "X:" + coords.getX());
-                Log.d(TAG, "Y:" + coords.getY());
-                Log.d(TAG, "Z:" + coords.getAltitude());
-                Log.d(TAG, "bearing:" + coords.getBearing());
-                Log.d(TAG, "Action:" + coords.getAction());
-                Log.d(TAG, "RealAlt:" + coords.getLatitude());
+                Timber.i("X: %s" , coords.getX());
+                Timber.i("Y: %s" , coords.getY());
+                Timber.i("Z: %s" , coords.getAltitude());
+                Timber.i("bearing: %s" , coords.getBearing());
+                Timber.i("Action: %s" , coords.getAction());
+                Timber.i("RealAlt: %s" , coords.getLatitude());
+
 
                 updateMap(coords);
                 sendCoords(coords);
@@ -544,7 +546,7 @@ public class MapShipBlueprintFragment extends Fragment {
                 fs.write(coords.getX() + "," + coords.getY() + "," + coords.getAltitude() + "," + coords.getBearing() + "," + prefs.getName() + "," + coords.getAction() + "," + coords.getLatitude() + "," + date);
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.e(TAG, "FileSaver failed to save coords");
+                Timber.e("FileSaver failed to save coords");
             }
         }
     }
@@ -575,8 +577,8 @@ public class MapShipBlueprintFragment extends Fragment {
             mOwnBFTModel.setCreatedTime(DateTimeUtil.dateToCustomTimeStringFormat(
                     DateTimeUtil.stringToDate(DateTimeUtil.getCurrentTime())));
         }
+        Timber.i("Calling JAVASCRIPT with %s" , message);
 
-        Log.d(TAG, "Calling JAVASCRIPT with " + message);
 
         myWebView.evaluateJavascript("javascript: " + "androidToJSupdateLocation(\"" + message + "\")", null);
     }
@@ -599,7 +601,9 @@ public class MapShipBlueprintFragment extends Fragment {
         for (int i = 0; i < mHazardMsgList.size(); i++) {
             myWebView.evaluateJavascript("javascript: " + "androidToJScreateLocation(\""
                     + mHazardMsgList.get(i) + "\")", null);
-            Log.d(TAG, "Calling JAVASCRIPT with Hazard Msg List: " + mHazardMsgList.get(i));
+
+            Timber.i("Calling JAVASCRIPT with Hazard Msg List: %s" , mHazardMsgList.get(i));
+
         }
     }
 
@@ -611,7 +615,9 @@ public class MapShipBlueprintFragment extends Fragment {
         for (int i = 0; i < mDeceasedMsgList.size(); i++) {
             myWebView.evaluateJavascript("javascript: " + "androidToJScreateLocation(\""
                     + mDeceasedMsgList.get(i) + "\")", null);
-            Log.d(TAG, "Calling JAVASCRIPT with Deceased Msg List: " + mDeceasedMsgList.get(i));
+
+            Timber.i("Calling JAVASCRIPT with Deceased Msg List: %s " , mDeceasedMsgList.get(i));
+
         }
     }
 
@@ -627,7 +633,8 @@ public class MapShipBlueprintFragment extends Fragment {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            Log.e(TAG, "FileSaver cannot initialise");
+            Timber.e("FileSaver cannot initialise");
+
             Toast.makeText(this.getActivity().getApplicationContext(), "FileSaver cannot initialise", Toast.LENGTH_LONG).show();
         }
     }
@@ -824,7 +831,8 @@ public class MapShipBlueprintFragment extends Fragment {
      * Get own BFT model from database and updates with latest location for future viewing
      */
     private void updateOwnBFTModel() {
-        Log.i(TAG, "Update own BFT model: " + mOwnBFTModel);
+
+        Timber.i("Update own BFT model: %s " , mOwnBFTModel);
 
         SingleObserver<List<BFTModel>> singleObserverBFTForUser =
                 new SingleObserver<List<BFTModel>>() {
@@ -836,9 +844,10 @@ public class MapShipBlueprintFragment extends Fragment {
                     @Override
                     public void onSuccess(List<BFTModel> bFTModelList) {
                         if (bFTModelList != null) {
-                            Log.d(TAG, "onSuccess singleObserverBFTForUser, " +
-                                    "updateOwnBFTModel. " +
-                                    "bFTModelList, size: " + bFTModelList.size());
+
+                            Timber.i("onSuccess singleObserverBFTForUser, updateOwnBFTModel. bFTModelList, size: %s" , bFTModelList.size());
+
+
 
                             // Get BFT models belonging to a current user (including hazard and deceased entities)
                             List<BFTModel> currentUserBFTModelList = bFTModelList.stream().
@@ -851,7 +860,8 @@ public class MapShipBlueprintFragment extends Fragment {
                                             getString(R.string.map_blueprint_own_type).
                                             equalsIgnoreCase(bftModel.getType())).collect(Collectors.toList());
 
-                            Log.i(TAG, "ownBFTModelList, size:" + ownBFTModelList.size());
+                            Timber.i("ownBFTModelList, size: %s" , ownBFTModelList.size());
+
 
                             // There should only be one 'own' type BFTModel belonging to a user
                             if (ownBFTModelList.size() == 1) {
@@ -866,17 +876,16 @@ public class MapShipBlueprintFragment extends Fragment {
                             }
 
                         } else {
-                            Log.d(TAG, "onSuccess singleObserverBFTForUser, " +
-                                    "updateOwnBFTModel. " +
-                                    "bFTModelList is null");
+                            Timber.i("onSuccess singleObserverBFTForUser, updateOwnBFTModel. bFTModelList is null");
+
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError singleObserverBFTForUser, " +
-                                "updateOwnBFTModel. " +
-                                "Error Msg: " + e.toString());
+                        Timber.e("onError singleObserverBFTForUser, updateOwnBFTModel.bError Msg: %s" , e.toString());
+
+
                     }
                 };
 
@@ -970,7 +979,8 @@ public class MapShipBlueprintFragment extends Fragment {
         mBFTViewModel.getAllBFTsLiveDataForUser(userId).observe(this, new Observer<List<BFTModel>>() {
             @Override
             public void onChanged(@Nullable List<BFTModel> bFTModelList) {
-                Log.i(TAG, "bFTModelList onChanged: " + bFTModelList);
+                Timber.i("bFTModelList onChanged: %s" , bFTModelList);
+
                 if (mHazardMsgList == null) {
                     mHazardMsgList = new ArrayList<>();
                 } else {
@@ -1078,7 +1088,9 @@ public class MapShipBlueprintFragment extends Fragment {
     }
 
     private void onVisible() {
-        Log.i(TAG, "onVisible");
+
+        Timber.i("onVisible");
+
 
 //        if ((tracker == null || !tracker.isActive()) && !mIsTrackerInitialised) {
 ////            initBeacon();
@@ -1101,7 +1113,9 @@ public class MapShipBlueprintFragment extends Fragment {
     }
 
     private void onInvisible() {
-        Log.i(TAG, "onInvisible");
+
+        Timber.i("onInvisible");
+
         updateOwnBFTModel();
 
 //        if (mRelativeLayoutHazardImgBtn.isSelected()) {
@@ -1184,7 +1198,9 @@ public class MapShipBlueprintFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "onDestroy");
+
+        Timber.i("onDestroy");
+
 
 //        if (tracker != null) {
 //            tracker.deactivate();
@@ -1213,10 +1229,10 @@ public class MapShipBlueprintFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         mIsFragmentVisibleToUser = isVisibleToUser;
-        Log.d(TAG, "setUserVisibleHint");
+        Timber.i("setUserVisibleHint");
         if (isResumed()) { // fragment has been created at this point
             if (mIsFragmentVisibleToUser) {
-                Log.d(TAG, "setUserVisibleHint onVisible");
+                Timber.i("setUserVisibleHint onVisible");
                 onVisible();
             } else {
                 onInvisible();

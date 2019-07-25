@@ -46,6 +46,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.DataModelUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EAdHocTaskPriority;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EStatus;
+import timber.log.Timber;
 
 public class ExcelSpreadsheetUtil {
 
@@ -103,16 +104,21 @@ public class ExcelSpreadsheetUtil {
         }
 
         if (!databaseFile.exists()) {
-            Log.i(TAG, "Database file does not exist.");
+
+            Timber.i("Database file does not exist.");
+
 
             if (isForWritingData) {
-                Log.i(TAG, "Creating new Database file...");
+                Timber.i("Creating new Database file...");
+
                 try {
                     if (databaseFile.createNewFile()) {
-                        Log.i(TAG, "New Database file created.");
+                        Timber.i("New Database file created.");
+
                     }
                 } catch (IOException e) {
-                    Log.i(TAG, "Error creating new Database file - " + e);
+                    Timber.e("Error creating new Database file - %s" , e);
+
                 }
 
             } else {
@@ -120,7 +126,8 @@ public class ExcelSpreadsheetUtil {
             }
 
         } else {
-            Log.i(TAG, "Database file absolute file path: " + databaseFile.getAbsolutePath());
+            Timber.i("Database file absolute file path: %s" , databaseFile.getAbsolutePath());
+
         }
 
         return databaseFile;
@@ -143,7 +150,10 @@ public class ExcelSpreadsheetUtil {
                 FileInputStream databaseFileInputStream = new FileInputStream(excelFile);
                 return readXlsWorkBookDataAndStoreIntoDatabase(databaseFileInputStream);
             } catch (FileNotFoundException e) {
-                Log.d(TAG, "Error locating xls file: " + e);
+
+                Timber.i("Error locating xls file: %s" , e);
+
+
             }
         }
 
@@ -154,7 +164,9 @@ public class ExcelSpreadsheetUtil {
         try {
             DatabaseOperation databaseOperation = new DatabaseOperation();
             HSSFWorkbook workbook = new HSSFWorkbook(databaseFileInputStream);
-            Log.i(TAG, "workbook.getNumberOfSheets(): " + workbook.getNumberOfSheets());
+
+            Timber.i("workbook.getNumberOfSheets(): %d" , workbook.getNumberOfSheets());
+
 
             for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
                 HSSFSheet sheet = workbook.getSheetAt(i);
@@ -162,7 +174,8 @@ public class ExcelSpreadsheetUtil {
             }
 
         } catch (IOException e) {
-            Log.d(TAG, "Error in xls file stream: " + e);
+            Timber.e("Error in xls file stream: %s" , e);
+
             return false;
         }
 
@@ -184,7 +197,8 @@ public class ExcelSpreadsheetUtil {
                 FileInputStream databaseFileInputStream = new FileInputStream(excelFile);
                 return readXlsxWorkBookDataAndStoreIntoDatabase(databaseFileInputStream);
             } catch (FileNotFoundException e) {
-                Log.d(TAG, "Error locating xlsx file: " + e);
+                Timber.e("Error locating xlsx file: %s" , e);
+
             }
         }
 
@@ -204,7 +218,8 @@ public class ExcelSpreadsheetUtil {
             }
 
         } catch (IOException e) {
-            Log.d(TAG, "Error in xlsx file stream: " + e);
+            Timber.e("Error in xlsx file stream: %s" , e);
+
             return false;
         }
 
@@ -263,7 +278,9 @@ public class ExcelSpreadsheetUtil {
                                 UserRepository((Application) MainApplication.getAppContext());
                         databaseOperation.insertUserIntoDatabase(userRepo, userModel);
                         JeroMQBroadcastOperation.broadcastDataInsertionOverSocket(userModel);
-                        Log.i(TAG, "storeDataModelsIntoDatabase new User inserted and broadcasted.");
+
+                        Timber.i("storeDataModelsIntoDatabase new User inserted and broadcasted.");
+
                     }
                 }
                 break;
@@ -280,7 +297,9 @@ public class ExcelSpreadsheetUtil {
                                 VideoStreamRepository((Application) MainApplication.getAppContext());
                         databaseOperation.insertVideoStreamIntoDatabase(videoStreamRepo, videoStreamModel);
                         JeroMQBroadcastOperation.broadcastDataInsertionOverSocket(videoStreamModel);
-                        Log.i(TAG, "storeDataModelsIntoDatabase new Video Stream inserted and broadcasted.");
+
+                        Timber.i("storeDataModelsIntoDatabase new Video Stream inserted and broadcasted.");
+
                     }
                 }
                 break;
@@ -297,7 +316,8 @@ public class ExcelSpreadsheetUtil {
                                 SitRepRepository((Application) MainApplication.getAppContext());
                         databaseOperation.insertSitRepIntoDatabase(sitRepRepo, sitRepModel);
                         JeroMQBroadcastOperation.broadcastDataInsertionOverSocket(sitRepModel);
-                        Log.i(TAG, "storeDataModelsIntoDatabase new Sit Rep inserted and broadcasted.");
+                        Timber.i("storeDataModelsIntoDatabase new Sit Rep inserted and broadcasted.");
+
                     }
                 }
                 break;
@@ -312,14 +332,16 @@ public class ExcelSpreadsheetUtil {
                     if (taskModel != null) {
                         TaskRepository taskRepo = new TaskRepository((Application) MainApplication.getAppContext());
                         databaseOperation.insertTaskIntoDatabaseAndBroadcast(taskRepo, taskModel);
+                        Timber.i("storeDataModelsIntoDatabase new Task inserted and broadcasted.");
 
-                        Log.i(TAG, "storeDataModelsIntoDatabase new Task inserted and broadcasted.");
                     }
                 }
                 break;
 
             default:
-                Log.i(TAG, "Invalid sheet. Sheet name: " + sheet.getSheetName());
+
+                Timber.i("Invalid sheet. Sheet name:%s " , sheet.getSheetName());
+
         }
     }
 
@@ -378,9 +400,11 @@ public class ExcelSpreadsheetUtil {
             }
         }
 
-        Log.i(TAG, "createUserModelFromDataRow, totalNoOfHeaderDataColumn: " + totalNoOfHeaderDataColumn);
-        Log.i(TAG, "createUserModelFromDataRow, NO_OF_FIELDS_IN_USER_MODEL_FROM_EXCEL: " +
+        Timber.i("createUserModelFromDataRow, totalNoOfHeaderDataColumn: %d " , totalNoOfHeaderDataColumn);
+
+        Timber.i("createUserModelFromDataRow, NO_OF_FIELDS_IN_USER_MODEL_FROM_EXCEL: %d" ,
                 DataModelUtil.NO_OF_FIELDS_IN_USER_MODEL_FROM_EXCEL);
+
 
         if (dataFields.size() == DataModelUtil.NO_OF_FIELDS_IN_USER_MODEL_FROM_EXCEL) {
             // Checks if all relevant User model fields match those of Excel header fields
@@ -399,10 +423,15 @@ public class ExcelSpreadsheetUtil {
             }
 
             if (isAllFieldsMatched) {
-                Log.i(TAG, "User model, userId: " + dataFields.get(0).toString());
-                Log.i(TAG, "User model, password: " + dataFields.get(1).toString());
-                Log.i(TAG, "User model, team: " + dataFields.get(2).toString());
-                Log.i(TAG, "User model, role: " + dataFields.get(3).toString());
+                Timber.i("User model, userId: %s" , dataFields.get(0).toString());
+
+                Timber.i("User model, password: %s" , dataFields.get(1).toString());
+
+                Timber.i("User model, team: %s" , dataFields.get(2).toString());
+
+                Timber.i("User model, role: %s" , dataFields.get(3).toString());
+
+
                 userModel = new UserModel(dataFields.get(0).toString());
                 userModel.setPassword(dataFields.get(1).toString());
                 userModel.setAccessToken(StringUtil.INVALID_STRING);
@@ -414,19 +443,26 @@ public class ExcelSpreadsheetUtil {
                 userModel.setLastKnownOnlineDateTime(StringUtil.INVALID_STRING);
 
             } else {
-                Log.i(TAG, "Table data from Excel does not match User data model");
+                Timber.i("Table data from Excel does not match User data model");
+
                 for (int i = 0; i < totalNoOfHeaderDataColumn; i++) {
-                    Log.i(TAG, "User data table, Excel header field [" + i + "]: " +
+
+                    Timber.i("User data table, Excel header field [" + i + "]: %s" ,
                             headerRow.getCell(i).getStringCellValue());
+
+
                 }
             }
 
         } else {
-            Log.i(TAG, "Number of table data fields from Excel does not " +
+            Timber.i("Number of table data fields from Excel does not " +
                     "match that of User data model");
+
             for (int i = 0; i < totalNoOfHeaderDataColumn; i++) {
-                Log.i(TAG, "User data table, Excel header field [" + i + "]: " +
+
+                Timber.i("User data table, Excel header field [" + i + "]: %s" ,
                         headerRow.getCell(i).getStringCellValue());
+
             }
         }
 
@@ -467,9 +503,12 @@ public class ExcelSpreadsheetUtil {
             }
         }
 
-        Log.i(TAG, "createVideoStreamModelFromDataRow, totalNoOfHeaderDataColumn: " + totalNoOfHeaderDataColumn);
-        Log.i(TAG, "createVideoStreamModelFromDataRow, NO_OF_FIELDS_IN_VIDEO_STREAM_MODEL_FROM_EXCEL: " +
+        Timber.i("createVideoStreamModelFromDataRow, totalNoOfHeaderDataColumn: %d" , totalNoOfHeaderDataColumn);
+
+        Timber.i("createVideoStreamModelFromDataRow, NO_OF_FIELDS_IN_VIDEO_STREAM_MODEL_FROM_EXCEL: %d" ,
                 DataModelUtil.NO_OF_FIELDS_IN_VIDEO_STREAM_MODEL_FROM_EXCEL);
+
+
 
         if (dataFields.size() == DataModelUtil.NO_OF_FIELDS_IN_VIDEO_STREAM_MODEL_FROM_EXCEL) {
             // Checks if all relevant Video Stream model fields match those of Excel header fields
@@ -485,19 +524,27 @@ public class ExcelSpreadsheetUtil {
             for (int i = 0; i < totalNoOfHeaderDataColumn; i++) {
                 isAllFieldsMatched = Arrays.stream(videoStreamModelFieldNames).anyMatch(
                         headerRow.getCell(i).getStringCellValue()::equalsIgnoreCase);
-                Log.i(TAG, "createVideoStreamModelFromDataRow, " +
-                        "isAllFieldsMatched[" + i + "]: " + isAllFieldsMatched);
+
+                Timber.i("createVideoStreamModelFromDataRow, " +
+                        "isAllFieldsMatched[" + i + "]: %b" , isAllFieldsMatched);
+
             }
 
             for (int i = 0; i < videoStreamModelFieldNames.length; i++) {
-                Log.i(TAG, "createVideoStreamModelFromDataRow, " +
-                        "videoStreamModelFieldNames[" + i + "]: " + videoStreamModelFieldNames[i]);
+
+                Timber.i("createVideoStreamModelFromDataRow, " +
+                        "videoStreamModelFieldNames[" + i + "]: %s" , videoStreamModelFieldNames[i]);
+
             }
 
             if (isAllFieldsMatched) {
-                Log.i(TAG, "Video Stream model, userId: " + dataFields.get(0).toString());
-                Log.i(TAG, "Video Stream model, name: " + dataFields.get(1).toString());
-                Log.i(TAG, "Video Stream model, url: " + dataFields.get(2).toString());
+                Timber.i("Video Stream model, userId: %s" , dataFields.get(0).toString());
+
+                Timber.i("Video Stream model, name: %s" , dataFields.get(1).toString());
+
+                Timber.i("Video Stream model, url: %s" , dataFields.get(2).toString());
+
+
 
                 videoStreamModel = new VideoStreamModel();
                 videoStreamModel.setUserId(dataFields.get(0).toString());
@@ -506,19 +553,28 @@ public class ExcelSpreadsheetUtil {
                 videoStreamModel.setIconType(FragmentConstants.KEY_VIDEO_STREAM_EDIT);
 
             } else {
-                Log.i(TAG, "Table data from Excel does not match Video Stream data model");
+                Timber.i("Table data from Excel does not match Video Stream data model");
+
                 for (int i = 0; i < totalNoOfHeaderDataColumn; i++) {
-                    Log.i(TAG, "Video Stream data table, Excel header field [" + i + "]: " +
+
+                    Timber.i("Video Stream data table, Excel header field [" + i + "]: %s" ,
                             headerRow.getCell(i).getStringCellValue());
+
                 }
             }
 
         } else {
-            Log.i(TAG, "Number of table data fields from Excel does not " +
+
+            Timber.i("Number of table data fields from Excel does not " +
                     "match that of Video Stream data model");
+
+
             for (int i = 0; i < totalNoOfHeaderDataColumn; i++) {
-                Log.i(TAG, "Video Stream data table, Excel header field [" + i + "]: " +
+
+                Timber.i("Video Stream data table, Excel header field [" + i + "]: %s" ,
                         headerRow.getCell(i).getStringCellValue());
+
+
             }
         }
 
@@ -563,9 +619,12 @@ public class ExcelSpreadsheetUtil {
             }
         }
 
-        Log.i(TAG, "createSitRepModelFromDataRow, totalNoOfHeaderDataColumn: " + totalNoOfHeaderDataColumn);
-        Log.i(TAG, "createSitRepModelFromDataRow, NO_OF_FIELDS_IN_SIT_REP_MODEL_FROM_EXCEL: " +
+        Timber.i("createSitRepModelFromDataRow, totalNoOfHeaderDataColumn: %d" , totalNoOfHeaderDataColumn);
+
+        Timber.i("createSitRepModelFromDataRow, NO_OF_FIELDS_IN_SIT_REP_MODEL_FROM_EXCEL: %d" ,
                 DataModelUtil.NO_OF_FIELDS_IN_SIT_REP_MODEL_FROM_EXCEL);
+
+
 
         if (dataFields.size() == DataModelUtil.NO_OF_FIELDS_IN_SIT_REP_MODEL_FROM_EXCEL) {
             // Checks if all relevant Sit Rep model fields match those of Excel header fields
@@ -584,14 +643,19 @@ public class ExcelSpreadsheetUtil {
             }
 
             if (isAllFieldsMatched) {
-                Log.i(TAG, "Sit Rep model, Reporter: " + dataFields.get(0).toString());
-                Log.i(TAG, "Sit Rep model, Location: " + dataFields.get(2).toString());
-                Log.i(TAG, "Sit Rep model, Activity: " + dataFields.get(3).toString());
-                Log.i(TAG, "Sit Rep model, Personnel T: " + dataFields.get(4).toString());
-                Log.i(TAG, "Sit Rep model, Personnel S: " + dataFields.get(5).toString());
-                Log.i(TAG, "Sit Rep model, Personnel D: " + dataFields.get(6).toString());
-                Log.i(TAG, "Sit Rep model, Next Course of Action: " + dataFields.get(7).toString());
-                Log.i(TAG, "Sit Rep model, Request: " + dataFields.get(8).toString());
+
+                Timber.i("Sit Rep model, Reporter: %s" , dataFields.get(0).toString());
+                Timber.i("Sit Rep model, Location: %s" , dataFields.get(2).toString());
+                Timber.i("Sit Rep model, Activity: %s" , dataFields.get(3).toString());
+                Timber.i("Sit Rep model, Personnel T: %s" , dataFields.get(4).toString());
+                Timber.i("Sit Rep model, Personnel S: %s" , dataFields.get(5).toString());
+                Timber.i("Sit Rep model, Personnel D: %s" , dataFields.get(6).toString());
+                Timber.i("Sit Rep model, Next Course of Action: %s" , dataFields.get(7).toString());
+                Timber.i("Sit Rep model, Request: %s" , dataFields.get(8).toString());
+
+
+
+
 
                 sitRepModel = new SitRepModel();
                 sitRepModel.setRefId(DatabaseTableConstants.LOCAL_REF_ID);
@@ -616,24 +680,32 @@ public class ExcelSpreadsheetUtil {
                 try {
                     sitRepModel.setPersonnelT(Integer.parseInt(dataFields.get(4).toString()));
                 } catch (NumberFormatException e) {
-                    Log.i(TAG, "Sit Rep model, Personnel T: \"" +
-                            dataFields.get(4).toString() + "\" (" + e + ")");
+
+                    Timber.e("Sit Rep model, Personnel T: %s %s ", dataFields.get(4).toString() , e );
+
+
                     return null;
                 }
 
                 try {
                     sitRepModel.setPersonnelS(Integer.parseInt(dataFields.get(5).toString()));
                 } catch (NumberFormatException e) {
-                    Log.i(TAG, "Sit Rep model, Personnel S: \"" +
-                            dataFields.get(5).toString() + "\" (" + e + ")");
+
+                    Timber.e("Sit Rep model, Personnel S: %s %s ", dataFields.get(5).toString() , e );
+
+
                     return null;
                 }
 
                 try {
                     sitRepModel.setPersonnelD(Integer.parseInt(dataFields.get(6).toString()));
                 } catch (NumberFormatException e) {
+
+                    Timber.e("Sit Rep model, Personnel D: %s %s ", dataFields.get(6).toString() , e );
+
+                    /*
                     Log.i(TAG, "Sit Rep model, Personnel D: \"" +
-                            dataFields.get(6).toString() + "\" (" + e + ")");
+                            dataFields.get(6).toString() + "\" (" + e + ")");*/
                     return null;
                 }
 
@@ -658,19 +730,26 @@ public class ExcelSpreadsheetUtil {
                 sitRepModel.setCreatedDateTime(DateTimeUtil.getCurrentTime());
 
             } else {
-                Log.i(TAG, "Table data from Excel does not match Sit Rep data model");
+                Timber.i("Table data from Excel does not match Sit Rep data model");
+
                 for (int i = 0; i < totalNoOfHeaderDataColumn; i++) {
-                    Log.i(TAG, "Sit Rep data table, Excel header field [" + i + "]: " +
+
+                    Timber.i("Sit Rep data table, Excel header field [" + i + "]: %s" ,
                             headerRow.getCell(i).getStringCellValue());
+
+
                 }
             }
 
         } else {
-            Log.i(TAG, "Number of table data fields from Excel does not " +
-                    "match that of Sit Rep data model");
+            Timber.i("Number of table data fields from Excel does not match that of Sit Rep data model");
+
+
             for (int i = 0; i < totalNoOfHeaderDataColumn; i++) {
-                Log.i(TAG, "Sit Rep data table, Excel header field [" + i + "]: " +
+
+                Timber.i("Sit Rep data table, Excel header field [" + i + "]: %s" ,
                         headerRow.getCell(i).getStringCellValue());
+
             }
         }
 
@@ -715,9 +794,12 @@ public class ExcelSpreadsheetUtil {
             }
         }
 
-        Log.i(TAG, "createTaskModelFromDataRow, totalNoOfHeaderDataColumn: " + totalNoOfHeaderDataColumn);
-        Log.i(TAG, "createTaskModelFromDataRow, NO_OF_FIELDS_IN_TASK_MODEL_FROM_EXCEL: " +
+        Timber.i("createTaskModelFromDataRow, totalNoOfHeaderDataColumn: %d" , totalNoOfHeaderDataColumn);
+
+        Timber.i("createTaskModelFromDataRow, NO_OF_FIELDS_IN_TASK_MODEL_FROM_EXCEL: %d" ,
                 DataModelUtil.NO_OF_FIELDS_IN_TASK_MODEL_FROM_EXCEL);
+
+
 
         if (dataFields.size() == DataModelUtil.NO_OF_FIELDS_IN_TASK_MODEL_FROM_EXCEL) {
             // Checks if all relevant Task model fields match those of Excel header fields
@@ -736,12 +818,15 @@ public class ExcelSpreadsheetUtil {
             }
 
             if (isAllFieldsMatched) {
-                Log.i(TAG, "Task model, phaseNo: " + dataFields.get(0).toString());
-                Log.i(TAG, "Task model, adHocTaskPriority: " + dataFields.get(1).toString());
-                Log.i(TAG, "Task model, assignedTo: " + dataFields.get(2).toString());
-                Log.i(TAG, "Task model, assignedBy: " + dataFields.get(3).toString());
-                Log.i(TAG, "Task model, title: " + dataFields.get(4).toString());
-                Log.i(TAG, "Task model, description: " + dataFields.get(5).toString());
+
+                Timber.i("Task model, phaseNo: %s" , dataFields.get(0).toString());
+                Timber.i("Task model,  adHocTaskPriority: %s" , dataFields.get(1).toString());
+                Timber.i("Task model, assignedTo: %s" , dataFields.get(2).toString());
+                Timber.i("Task model, assignedBy: %s" , dataFields.get(3).toString());
+                Timber.i("Task model, title: %s" , dataFields.get(4).toString());
+                Timber.i("Task model, description: %s" , dataFields.get(5).toString());
+
+
 
                 taskModel = new TaskModel();
                 taskModel.setRefId(DatabaseTableConstants.LOCAL_REF_ID);
@@ -810,19 +895,29 @@ public class ExcelSpreadsheetUtil {
                 taskModel.setCreatedDateTime(DateTimeUtil.getCurrentTime());
 
             } else {
-                Log.i(TAG, "Table data from Excel does not match Task data model");
+
+                Timber.i("Table data from Excel does not match Task data model");
+
+
+
+
                 for (int i = 0; i < totalNoOfHeaderDataColumn; i++) {
-                    Log.i(TAG, "Task data table, Excel header field [" + i + "]: " +
+
+                    Timber.i("Task data table, Excel header field [" + i + "]: %s" ,
                             headerRow.getCell(i).getStringCellValue());
+
                 }
             }
 
         } else {
-            Log.i(TAG, "Number of table data fields from Excel does not " +
+            Timber.i("Number of table data fields from Excel does not " +
                     "match that of Task data model");
+
             for (int i = 0; i < totalNoOfHeaderDataColumn; i++) {
-                Log.i(TAG, "Task data table, Excel header field [" + i + "]: " +
+                Timber.i("Task data table, Excel header field [" + i + "]: %s" ,
                         headerRow.getCell(i).getStringCellValue());
+
+
             }
         }
 
@@ -967,18 +1062,26 @@ public class ExcelSpreadsheetUtil {
                     try {
                         databaseFileOutputStream = new FileOutputStream(excelFile);
                         wb.write(databaseFileOutputStream);
-                        Log.i(TAG, "Writing file into " + excelFile.getAbsolutePath());
+
+                        Timber.i("Writing file into %s" ,excelFile.getAbsolutePath());
+
 //                            isSuccess = true;
                     } catch (IOException e) {
-                        Log.w(TAG, "Error writing " + excelFile.getAbsolutePath(), e);
+                        Timber.e("Error writing %s %s" , excelFile.getAbsolutePath(), e);
+
+
                     } catch (Exception e) {
-                        Log.w(TAG, "Failed to save file", e);
+                        Timber.e("Failed to save file %s " ,  e);
+
+
                     } finally {
                         try {
                             if (databaseFileOutputStream != null)
                                 databaseFileOutputStream.close();
                         } catch (Exception ex) {
-                            Log.w(TAG, "Error closing databaseFileOutputStream - " + ex);
+
+                            Timber.e("Error closing databaseFileOutputStream - %s" , ex);
+
                         }
                     }
                 }
@@ -986,8 +1089,9 @@ public class ExcelSpreadsheetUtil {
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverGetAllUsers, createUserSheet. " +
-                        "Error Msg: " + e.toString());
+
+                Timber.e("onError singleObserverGetAllUsers, createUserSheet. Error Msg: %s" , e.toString());
+
             }
         };
 
@@ -1074,18 +1178,29 @@ public class ExcelSpreadsheetUtil {
                     try {
                         databaseFileOutputStream = new FileOutputStream(excelFile);
                         wb.write(databaseFileOutputStream);
-                        Log.i(TAG, "Writing file into " + excelFile.getAbsolutePath());
+
+                        Timber.i("Writing file into %s" , excelFile.getAbsolutePath());
+
+
 //                        isSuccess = true;
                     } catch (IOException e) {
-                        Log.w(TAG, "Error writing " + excelFile.getAbsolutePath(), e);
+
+                        Timber.e("Error writing %s %s" , excelFile.getAbsolutePath(), e);
+
+
                     } catch (Exception e) {
-                        Log.w(TAG, "Failed to save file", e);
+
+                        Timber.e("Failed to save file %s", e);
+
                     } finally {
                         try {
                             if (databaseFileOutputStream != null)
                                 databaseFileOutputStream.close();
                         } catch (Exception ex) {
-                            Log.w(TAG, "Error closing databaseFileOutputStream - " + ex);
+
+                            Timber.e("Error closing databaseFileOutputStream - %s" , ex);
+
+
                         }
                     }
                 }
@@ -1093,8 +1208,10 @@ public class ExcelSpreadsheetUtil {
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverGetAllVideoStreams, createVideoStreamSheet. " +
-                        "Error Msg: " + e.toString());
+
+                Timber.e("onError singleObserverGetAllVideoStreams, createVideoStreamSheet. Error Msg: %s" , e.toString());
+
+
             }
         };
 
@@ -1233,18 +1350,26 @@ public class ExcelSpreadsheetUtil {
                     try {
                         databaseFileOutputStream = new FileOutputStream(excelFile);
                         wb.write(databaseFileOutputStream);
-                        Log.i(TAG, "Writing file into " + excelFile.getAbsolutePath());
+
+                        Timber.i("Writing file into %s" , excelFile.getAbsolutePath());
+
+
 //                        isSuccess = true;
                     } catch (IOException e) {
-                        Log.w(TAG, "Error writing " + excelFile.getAbsolutePath(), e);
+
+                        Timber.e("Error writing %s %s" , excelFile.getAbsolutePath(), e);
+
                     } catch (Exception e) {
-                        Log.w(TAG, "Failed to save file", e);
+
+                        Timber.e("Failed to save file %s", e);
+
                     } finally {
                         try {
                             if (databaseFileOutputStream != null)
                                 databaseFileOutputStream.close();
                         } catch (Exception ex) {
-                            Log.w(TAG, "Error closing databaseFileOutputStream - " + ex);
+
+                            Timber.e("Error closing databaseFileOutputStream - %s" , ex);
                         }
                     }
                 }
@@ -1252,8 +1377,9 @@ public class ExcelSpreadsheetUtil {
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverGetAllSitReps, createSitRepSheet. " +
-                        "Error Msg: " + e.toString());
+
+                Timber.e("onError singleObserverGetAllSitReps, createSitRepSheet. Error Msg: %s" , e.toString());
+
             }
         };
 
@@ -1354,18 +1480,26 @@ public class ExcelSpreadsheetUtil {
                     try {
                         databaseFileOutputStream = new FileOutputStream(excelFile);
                         wb.write(databaseFileOutputStream);
-                        Log.i(TAG, "Writing file into " + excelFile.getAbsolutePath());
+
+                        Timber.i("Writing file into %s" , excelFile.getAbsolutePath());
+
+
 //                        isSuccess = true;
                     } catch (IOException e) {
-                        Log.w(TAG, "Error writing " + excelFile.getAbsolutePath(), e);
+                        Timber.e("Error writing %s %s" , excelFile.getAbsolutePath(), e);
+
+
                     } catch (Exception e) {
-                        Log.w(TAG, "Failed to save file", e);
+                        Timber.e("Failed to save file %s", e);
+
                     } finally {
                         try {
                             if (databaseFileOutputStream != null)
                                 databaseFileOutputStream.close();
                         } catch (Exception ex) {
-                            Log.w(TAG, "Error closing databaseFileOutputStream - " + ex);
+
+                            Timber.e("Error closing databaseFileOutputStream - %s" , ex);
+
                         }
                     }
                 }
@@ -1373,8 +1507,10 @@ public class ExcelSpreadsheetUtil {
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverGetAllTasks, createTaskSheet. " +
-                        "Error Msg: " + e.toString());
+
+                Timber.e("onError singleObserverGetAllTasks, createTaskSheet. Error Msg: %s" , e.toString());
+
+
             }
         };
 

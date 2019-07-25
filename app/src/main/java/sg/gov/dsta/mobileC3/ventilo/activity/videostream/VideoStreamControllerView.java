@@ -33,6 +33,7 @@ import android.widget.FrameLayout;
 import java.lang.ref.WeakReference;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
+import timber.log.Timber;
 
 /**
  * A view containing controls for a MediaPlayer. Typically contains the
@@ -315,7 +316,8 @@ public class VideoStreamControllerView extends FrameLayout {
             mAnchor.removeView(this);
             mHandler.removeMessages(SHOW_PROGRESS);
         } catch (IllegalArgumentException ex) {
-            Log.w("MediaController", "already removed");
+
+            Timber.i("MediaController already removed");
         }
         mShowing = false;
     }

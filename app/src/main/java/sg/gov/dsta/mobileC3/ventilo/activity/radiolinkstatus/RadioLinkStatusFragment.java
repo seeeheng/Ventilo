@@ -24,6 +24,7 @@ import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansLightTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
+import timber.log.Timber;
 
 public class RadioLinkStatusFragment extends Fragment {
 
@@ -159,11 +160,14 @@ public class RadioLinkStatusFragment extends Fragment {
     }
 
     private void onVisible() {
-        Log.d(TAG, "onVisible");
+
+        Timber.i("onVisible");
+
     }
 
     private void onInvisible() {
-        Log.d(TAG, "onInvisible");
+        Timber.i("onInvisible");
+
     }
 
     @Override
@@ -173,10 +177,11 @@ public class RadioLinkStatusFragment extends Fragment {
 
         if (isResumed()) { // fragment has been created at this point
             if (mIsFragmentVisibleToUser) {
-                Log.d(TAG, "setUserVisibleHint onVisible");
+                Timber.i("setUserVisibleHint onVisible");
                 onVisible();
             } else {
-                Log.d(TAG, "setUserVisibleHint onInvisible");
+                Timber.i("setUserVisibleHint onInvisible");
+
                 onInvisible();
             }
         }

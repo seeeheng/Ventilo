@@ -30,6 +30,7 @@ import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.DatabaseTableConstants;
+import timber.log.Timber;
 
 public class DatabaseOperation {
 
@@ -249,9 +250,9 @@ public class DatabaseOperation {
 
             @Override
             public void onSuccess(Long sitRepId) {
-                Log.d(TAG, "onSuccess singleObserverAddSitRep, " +
-                        "insertSitRepIntoDatabase. " +
-                        "SitRepId: " + sitRepId);
+                Timber.i("onSuccess singleObserverAddSitRep, insertSitRepIntoDatabase. SitRepId: %ld", sitRepId);
+
+
 
                 UserSitRepJoinRepository userSitRepJoinRepository = new
                         UserSitRepJoinRepository((Application) MainApplication.getAppContext());
@@ -270,8 +271,9 @@ public class DatabaseOperation {
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverAddSitRep, insertSitRepIntoDatabase. " +
-                        "Error Msg: " + e.toString());
+
+                Timber.e("onError singleObserverAddSitRep, insertSitRepIntoDatabase. Error Msg: %s" , e.toString());
+
             }
         };
 
@@ -308,9 +310,9 @@ public class DatabaseOperation {
 
                 @Override
                 public void onSuccess(List<SitRepModel> sitRepModelList) {
-                    Log.d(TAG, "onSuccess singleObserverGetAllSitReps, " +
-                            "updateSitRepInDatabase. " +
-                            "sitRepModelList.size(): " + sitRepModelList.size());
+
+                    Timber.i("onSuccess singleObserverGetAllSitReps, updateSitRepInDatabase. sitRepModelList.size(): %d" , sitRepModelList.size());
+
 
                     // Extracts a list of all Ref Id from the list of all SitRepModel objects
                     // Finds a match between receiving model's RefId and own model's id from local database
@@ -338,8 +340,9 @@ public class DatabaseOperation {
 
                 @Override
                 public void onError(Throwable e) {
-                    Log.d(TAG, "onError singleObserverGetAllSitReps, updateSitRepInDatabase. " +
-                            "Error Msg: " + e.toString());
+
+                    Timber.e("onError singleObserverGetAllSitReps, updateSitRepInDatabase. Error Msg: %s" , e.toString());
+
                 }
             };
 
@@ -399,9 +402,9 @@ public class DatabaseOperation {
 
             @Override
             public void onSuccess(Long taskId) {
-                Log.d(TAG, "onSuccess singleObserverAddTask, " +
-                        "insertTaskIntoDatabase. " +
-                        "TaskId: " + taskId);
+
+                Timber.i("onSuccess singleObserverAddTask, insertTaskIntoDatabase. TaskId: %ld" , taskId);
+
 
                 UserTaskJoinRepository userTaskJoinRepository = new
                         UserTaskJoinRepository((Application) MainApplication.getAppContext());
@@ -419,8 +422,8 @@ public class DatabaseOperation {
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverAddTask, insertTaskIntoDatabase. " +
-                        "Error Msg: " + e.toString());
+                Timber.e("onError singleObserverAddTask, insertTaskIntoDatabase. Error Msg: %s" , e.toString());
+
             }
         };
 
@@ -442,9 +445,8 @@ public class DatabaseOperation {
 
             @Override
             public void onSuccess(Long taskId) {
-                Log.d(TAG, "onSuccess singleObserverAddTask, " +
-                        "insertTaskIntoDatabaseAndBroadcast. " +
-                        "TaskId: " + taskId);
+                Timber.i("onSuccess singleObserverAddTask, insertTaskIntoDatabaseAndBroadcast. TaskId: %ld" , taskId);
+
 
                 taskModel.setRefId(taskId);
                 taskRepo.updateTask(taskModel);
@@ -468,8 +470,9 @@ public class DatabaseOperation {
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverAddTask, insertTaskIntoDatabaseAndBroadcast. " +
-                        "Error Msg: " + e.toString());
+
+                Timber.e("onError singleObserverAddTask, insertTaskIntoDatabaseAndBroadcast. Error Msg: %s" , e.toString());
+
             }
         };
 
@@ -504,9 +507,9 @@ public class DatabaseOperation {
 
                 @Override
                 public void onSuccess(List<TaskModel> taskModelList) {
-                    Log.d(TAG, "onSuccess singleObserverGetAllTasks, " +
-                            "updateTaskInDatabase. " +
-                            "taskModelList.size(): " + taskModelList.size());
+
+                    Timber.i("onSuccess singleObserverGetAllTasks, updateTaskInDatabase. taskModelList.size(): %d" , taskModelList.size());
+
 
                     // Extracts a list of all Ref Id from the list of all TaskModel objects
                     // Finds a match between receiving model's RefId and own model's id from local database
@@ -543,8 +546,10 @@ public class DatabaseOperation {
 
                 @Override
                 public void onError(Throwable e) {
-                    Log.d(TAG, "onError singleObserverGetAllTasks, updateTaskInDatabase. " +
-                            "Error Msg: " + e.toString());
+
+                    Timber.e("onError singleObserverGetAllTasks, updateTaskInDatabase. Error Msg: %s" , e.toString());
+
+
                 }
             };
 
