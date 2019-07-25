@@ -72,10 +72,14 @@
     <string name="snackbar_sitrep_updated_message">Sit Rep has been updated</string>
     <string name="snackbar_sitrep_send_confirmation_message">Send Sitrep?</string>
     <string name="snackbar_sitrep_update_confirmation_message">Update Sitrep?</string>
+    <string name="snackbar_send_error_current_user_not_connected_message"><![CDATA[You are not connected to the network.\n\nPlease try again when you are online.]]></string>
+    <string name="snackbar_send_error_cct_not_connected_message"><![CDATA[CCT is not connected to the network.\n\nPlease try again later.]]></string>
+    <string name="snackbar_send_error_is_not_connected_message"><![CDATA[is not connected to the network.\n\nPlease try again later.]]></string>
+    <string name="snackbar_send_error_are_not_connected_message"><![CDATA[are not connected to the network.\n\nPlease try again later.]]></string>
     <string name="snackbar_confirmation_action">OK</string>
 
     <string name="snackbar_task_select_task_phase_no_option">All Task Phases have been assigned</string>
-    <string name="snackbar_task_task_name_no_option">There is no existing Task Names</string>
+    <string name="snackbar_task_task_name_no_option"><![CDATA[There are no existing Task Names.\n\nPlease type one out instead.]]></string>
     <string name="snackbar_task_sent_message">Task has been sent</string>
     <string name="snackbar_task_updated_message">Task has been updated</string>
     <string name="snackbar_task_create_confirmation_message">Create Task?</string>

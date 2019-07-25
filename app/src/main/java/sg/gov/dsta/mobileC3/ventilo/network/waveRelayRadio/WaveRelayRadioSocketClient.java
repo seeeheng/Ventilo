@@ -22,8 +22,11 @@ import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
+import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserRepository;
+import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
+import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
@@ -36,6 +39,7 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
             "Wave Relay Radio Client Connected";
     public static final String WAVE_RELAY_CLIENT_DISCONNECTED_INTENT_ACTION =
             "Wave Relay Radio Client Disconnected";
+    private static final int INCOMING_MSG_INTERVAL = 3;
 
     private int mIncomingMsgCount = 0;
     private boolean mIsConnected;
@@ -74,93 +78,90 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
     public void onMessage(String message) {
         mIncomingMsgCount++;
         Log.i(TAG, "Received: " + message + System.lineSeparator());
+
+        if (mIncomingMsgCount >= INCOMING_MSG_INTERVAL) {
+            mIncomingMsgCount = 0;
 //        Toast.makeText(MainApplication.getAppContext(), "Received: " + message + System.lineSeparator(),
 //                Toast.LENGTH_LONG).show();
 //        Gson gson = GsonCreator.createGson();
 //        String newSitRepModelJson = gson.toJson(sitRepModel);
 
-        boolean isConnected = false;
-        JSONTokener tokener = new JSONTokener(message);
+            boolean isConnected = false;
+            JSONTokener tokener = new JSONTokener(message);
 
-        try {
-            JSONObject jso = (JSONObject) tokener.nextValue();
+            try {
+                JSONObject jso = (JSONObject) tokener.nextValue();
 //            Log.i(TAG, "command: " + jso.get("command"));
 
-            Log.i(TAG, "==================== Msg Type ====================");
-            Log.i(TAG, "msgtype: " + jso.get("msgtype"));
+                Log.i(TAG, "==================== Msg Type ====================");
+                Log.i(TAG, "msgtype: " + jso.get("msgtype"));
 //            stringBuilder.append("token: " + jso.get("token"));
 //            stringBuilder.append("protocol_version: " + jso.get("protocol_version"));
 //            Toast.makeText(MainApplication.getAppContext(), "token: " + jso.get("token"),
 //                    Toast.LENGTH_LONG).show();
 
-            Log.i(TAG, "==================== UNIT ID ====================");
-            JSONObject unitId = (JSONObject) jso.get("unit_id");
-            if (unitId != null) {
-                Iterator<String> itr = unitId.keys();
-                while (itr.hasNext()) {
-                    String key = itr.next();
-                    String value = (String) unitId.get(key);
+                Log.i(TAG, "==================== UNIT ID ====================");
+                JSONObject unitId = (JSONObject) jso.get("unit_id");
+                if (unitId != null) {
+                    Iterator<String> itr = unitId.keys();
+                    while (itr.hasNext()) {
+                        String key = itr.next();
+                        String value = (String) unitId.get(key);
 
-                    if (key.equalsIgnoreCase("management_ip") &&
-                            !value.equalsIgnoreCase(StringUtil.EMPTY_STRING)) {
-                        isConnected = true;
+                        if (key.equalsIgnoreCase("management_ip") &&
+                                !value.equalsIgnoreCase(StringUtil.EMPTY_STRING)) {
+                            isConnected = true;
+                        }
+
+                        Log.i(TAG, key + " = " + value);
                     }
-
-                    Log.i(TAG, key + " = " + value);
                 }
-            }
 
-            JSONObject variables = (JSONObject) jso.get("variables");
-            Log.i(TAG, "==================== Variables ====================");
+                JSONObject variables = (JSONObject) jso.get("variables");
+                Log.i(TAG, "==================== Variables ====================");
 
-            if (variables != null) {
-                Iterator<String> itr = variables.keys();
-                while (itr.hasNext()) {
-                    String key = itr.next();
-                    JSONObject obj = (JSONObject) variables.get(key);
+                if (variables != null) {
+                    Iterator<String> itr = variables.keys();
+                    while (itr.hasNext()) {
+                        String key = itr.next();
+                        JSONObject obj = (JSONObject) variables.get(key);
 
 //                    Log.i(TAG, "key: " + key);
 //                    if () {
 //                        Toast.makeText(MainApplication.getAppContext(), "token: " + jso.get("token"), Toast.LENGTH_LONG).show();
 //                    }
 
-                    if (obj.has("value")) {
+                        if (obj.has("value")) {
 //                        String value = obj.get("value").toString();
 //                        Log.i(TAG, key + " = " + value.replace(System.lineSeparator(), StringUtil.SPACE));
-                        JSONArray valueJSONArray = obj.getJSONArray("value");
+                            JSONArray valueJSONArray = obj.getJSONArray("value");
 
-                        for (int i = 0; i < valueJSONArray.length(); i++) {
-                            JSONObject jsonObject = valueJSONArray.getJSONObject(i);
+                            for (int i = 0; i < valueJSONArray.length(); i++) {
+                                JSONObject jsonObject = valueJSONArray.getJSONObject(i);
 
-                            if (jsonObject.has("ip")) {
-                                Log.i(TAG, "Neighbour's IP [" + i + "]: " + jsonObject.get("ip").toString());
-
-//                                updateAllNodesOfNeighbourNodeConnectionStatus();
+                                if (jsonObject.has("ip")) {
+                                    String radioIPAddress = jsonObject.get("ip").toString();
+                                    Log.i(TAG, "Neighbour's IP [" + i + "]: " + radioIPAddress);
+                                    queryAndUpdateUserOfRadioIPAddress(radioIPAddress);
+                                }
                             }
-                        }
 
-                    } else if (obj.has("error")) {
-                        JSONObject errObj = (JSONObject) obj.get("error");
-                        String display = errObj.get("display").toString();
-                        Log.i(TAG, key + " = ERROR: " + display);
+                        } else if (obj.has("error")) {
+                            JSONObject errObj = (JSONObject) obj.get("error");
+                            String display = errObj.get("display").toString();
+                            Log.i(TAG, key + " = ERROR: " + display);
+                        }
                     }
                 }
-            }
 
-        } catch (JSONException e) {
-            Log.d(TAG, "Error:" + e);
+            } catch (JSONException e) {
+                Log.d(TAG, "Error:" + e);
 //            Toast.makeText(MainApplication.getAppContext(), "Error is " + e,
 //                    Toast.LENGTH_LONG).show();
+            }
+
+            updateConnectionIfNeeded(isConnected);
         }
-
-        System.out.println("mIncomingMsgCount is " + mIncomingMsgCount);
-
-        if (mIsConnected != isConnected) {
-            mIsConnected = isConnected;
-            notifyWaveRelayClientConnectionBroadcastIntent(mIsConnected);
-            updateAndBroadcastRadioConnectionStatus(isConnected);
-        }
-
     }
 
     /**
@@ -190,6 +191,18 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
 
     protected int getIncomingMsgCount() {
         return mIncomingMsgCount;
+    }
+
+    /**
+     * Notifies and broadcast change in user connection status
+     * @param isConnected
+     */
+    protected void updateConnectionIfNeeded(boolean isConnected) {
+        if (mIsConnected != isConnected) {
+            mIsConnected = isConnected;
+            updateAndBroadcastRadioConnectionStatus(isConnected);
+            notifyWaveRelayClientConnectionBroadcastIntent(isConnected);
+        }
     }
 
     /**
@@ -223,6 +236,7 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
                     userModel.setRadioFullConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
                 }
 
+                userModel.setLastKnownConnectionDateTime(DateTimeUtil.getCurrentTime());
                 userRepository.updateUser(userModel);
                 // Send updated Sit Rep data to other connected devices
                 JeroMQBroadcastOperation.broadcastDataUpdateOverSocket(userModel);
@@ -240,6 +254,95 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
                 singleObserverUser);
     }
 
+    /**
+     * Query specific user by Radio IP Address in local database;
+     * These IP addresses are those that are connected to the network
+     */
+    protected void queryAndUpdateUserOfRadioIPAddress(String radioIpAddress) {
+        WaveRelayRadioRepository waveRelayRadioRepository = new
+                WaveRelayRadioRepository((Application) MainApplication.getAppContext());
+
+        // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
+        // asynchronously in the background thread
+        SingleObserver<WaveRelayRadioModel> singleObserverWaveRelayRadio = new
+                SingleObserver<WaveRelayRadioModel>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                // add it to a CompositeDisposable
+            }
+
+            @Override
+            public void onSuccess(WaveRelayRadioModel waveRelayRadioModel) {
+                Log.d(TAG, "onSuccess singleObserverWaveRelayRadio, " +
+                        "queryAndUpdateUserOfRadioIPAddress. " +
+                        "RadioId: " + waveRelayRadioModel.getRadioId());
+
+                String userId = waveRelayRadioModel.getUserId();
+                if (userId != null) {
+                    updateRadioConnectionStatusOfUser(userId);
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "onError singleObserverWaveRelayRadio, " +
+                        "queryAndUpdateUserOfRadioIPAddress. " +
+                        "Error Msg: " + e.toString());
+            }
+        };
+
+        waveRelayRadioRepository.queryRadioByRadioIPAddress(radioIpAddress,
+                singleObserverWaveRelayRadio);
+    }
+
+    /**
+     * Updates radio connection status of specific user in local database
+     */
+    protected void updateRadioConnectionStatusOfUser(String userId) {
+        UserRepository userRepository = new
+                UserRepository((Application) MainApplication.getAppContext());
+
+        // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
+        // asynchronously in the background thread
+        SingleObserver<UserModel> singleObserverUser = new
+                SingleObserver<UserModel>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        // add it to a CompositeDisposable
+                    }
+
+                    @Override
+                    public void onSuccess(UserModel userModel) {
+                        if (userModel != null) {
+                            Log.d(TAG, "onSuccess singleObserverUser, " +
+                                    "updateRadioConnectionStatusOfUser. " +
+                                    "UserId: " + userModel.getUserId());
+
+                            userModel.setPhoneToRadioConnectionStatus(ERadioConnectionStatus.CONNECTED.toString());
+                            userModel.setRadioToNetworkConnectionStatus(ERadioConnectionStatus.CONNECTED.toString());
+                            userModel.setRadioFullConnectionStatus(ERadioConnectionStatus.ONLINE.toString());
+                            userModel.setLastKnownConnectionDateTime(DateTimeUtil.getCurrentTime());
+
+                            userRepository.updateUser(userModel);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError singleObserverUser, " +
+                                "updateRadioConnectionStatusOfUser. " +
+                                "Error Msg: " + e.toString());
+                    }
+                };
+
+        userRepository.queryUserByUserId(userId,
+                singleObserverUser);
+    }
+
+    /**
+     * Notify Wave Relay broadcast listeners of connection status
+     * @param isConnected
+     */
     protected void notifyWaveRelayClientConnectionBroadcastIntent(boolean isConnected) {
         Intent broadcastIntent = new Intent();
 

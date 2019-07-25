@@ -38,6 +38,8 @@ public class NetworkStopService extends Service {
 
         // Close network service upon application removal by user from recently used task list
         synchronized (NetworkStopService.class) {
+            NetworkService.deactivate();
+
             if (NetworkService.mIsServiceRegistered) {
                 if (getApplication() instanceof MainApplication) {
 //                    NetworkService.deactivate();

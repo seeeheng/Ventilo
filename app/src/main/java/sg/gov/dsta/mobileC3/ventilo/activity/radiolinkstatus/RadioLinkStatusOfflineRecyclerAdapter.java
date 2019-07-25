@@ -39,35 +39,47 @@ public class RadioLinkStatusOfflineRecyclerAdapter extends RecyclerView.Adapter<
         UserModel userModel = mUserListItems.get(i);
 
         // Radio connection status
+        StringBuilder connectionStatusMessageStrBuilder = new StringBuilder();
         if (ERadioConnectionStatus.OFFLINE.toString().equalsIgnoreCase(userModel.getRadioFullConnectionStatus())) {
             itemViewHolder.getImgRadioLinkStatusIcon().setImageDrawable(ResourcesCompat.getDrawable(
                     mContext.getResources(), R.drawable.icon_offline, null));
+
+            // Last known online status datetime
+            String lastKnownOnlineDateTime = userModel.getLastKnownConnectionDateTime();
+
+            if (lastKnownOnlineDateTime != null) {
+                if (!lastKnownOnlineDateTime.equalsIgnoreCase(StringUtil.INVALID_STRING)) {
+                    connectionStatusMessageStrBuilder.append(mContext.getString(
+                            R.string.radio_link_status_offline_since));
+                    connectionStatusMessageStrBuilder.append(StringUtil.SPACE);
+                    connectionStatusMessageStrBuilder.append(DateTimeUtil.getTimeDifference(
+                            DateTimeUtil.stringToDate(lastKnownOnlineDateTime)));
+                } else {
+                    connectionStatusMessageStrBuilder.append(mContext.getString(
+                            R.string.radio_link_status_no_records));
+                }
+            }
+
         } else {
             itemViewHolder.getImgRadioLinkStatusIcon().setImageDrawable(ResourcesCompat.getDrawable(
                     mContext.getResources(), R.drawable.icon_online, null));
+
+            // Reported date/time
+            String lastKnownOnlineDateTime = userModel.getLastKnownConnectionDateTime();
+            String lastKnownOnlineDateTimeInCustomStrFormat = DateTimeUtil.dateToCustomStringFormat(
+                    DateTimeUtil.stringToDate(lastKnownOnlineDateTime));
+
+            if (lastKnownOnlineDateTime != null) {
+                connectionStatusMessageStrBuilder.append(mContext.getString(R.string.radio_link_status_online_since));
+                connectionStatusMessageStrBuilder.append(StringUtil.SPACE);
+                connectionStatusMessageStrBuilder.append(DateTimeUtil.getTimeDifference(
+                        DateTimeUtil.stringToDate(lastKnownOnlineDateTime)));
+            }
         }
 
         // Team
         itemViewHolder.getTvTeam().setText(userModel.getUserId());
-
-        // Last known online status datetime
-        StringBuilder lastKnownOnlineDateTimeStrBuilder = new StringBuilder();
-        String lastKnownOnlineDateTime = userModel.getLastKnownOnlineDateTime();
-
-        if (lastKnownOnlineDateTime != null) {
-            if (!lastKnownOnlineDateTime.equalsIgnoreCase(StringUtil.INVALID_STRING)) {
-                lastKnownOnlineDateTimeStrBuilder.append(mContext.getString(
-                        R.string.radio_link_status_offline_since));
-                lastKnownOnlineDateTimeStrBuilder.append(StringUtil.SPACE);
-                lastKnownOnlineDateTimeStrBuilder.append(DateTimeUtil.getTimeDifference(
-                        DateTimeUtil.stringToDate(lastKnownOnlineDateTime)));
-            } else {
-                lastKnownOnlineDateTimeStrBuilder.append(mContext.getString(
-                        R.string.radio_link_status_no_records));
-            }
-        }
-
-        itemViewHolder.getTvLastConnectedTime().setText(lastKnownOnlineDateTimeStrBuilder.toString().trim());
+        itemViewHolder.getTvLastConnectedTime().setText(connectionStatusMessageStrBuilder.toString().trim());
     }
 
     public void setUserListItems(List<UserModel> userListItems) {

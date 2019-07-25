@@ -993,20 +993,20 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
      */
     private void registerWaveRelayClientBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(WaveRelayRadioSocketClient.WAVE_RELAY_CLIENT_CONNECTED_INTENT_ACTION);
-        filter.addAction(WaveRelayRadioSocketClient.WAVE_RELAY_CLIENT_DISCONNECTED_INTENT_ACTION);
+        filter.addAction(WaveRelayRadioClient.WAVE_RELAY_CLIENT_CONNECTED_INTENT_ACTION);
+        filter.addAction(WaveRelayRadioClient.WAVE_RELAY_CLIENT_DISCONNECTED_INTENT_ACTION);
 
         mWaveRelayClientBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (WaveRelayRadioSocketClient.WAVE_RELAY_CLIENT_CONNECTED_INTENT_ACTION.
+                if (WaveRelayRadioClient.WAVE_RELAY_CLIENT_CONNECTED_INTENT_ACTION.
                         equalsIgnoreCase(intent.getAction())) {
                     SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
                             MainApplication.getAppContext().
                                     getString(R.string.snackbar_wave_relay_client_connected_message));
                     mWaveRelayRadioClient = mWaveRelayRadioAsyncTask.getWaveRelayRadioClient();
 
-                } else if (WaveRelayRadioSocketClient.WAVE_RELAY_CLIENT_DISCONNECTED_INTENT_ACTION.
+                } else if (WaveRelayRadioClient.WAVE_RELAY_CLIENT_DISCONNECTED_INTENT_ACTION.
                         equalsIgnoreCase(intent.getAction())) {
                     SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
                             MainApplication.getAppContext().

@@ -23,7 +23,7 @@ public class UserModel {
     private String phoneToRadioConnectionStatus;    // For e.g., Connected / Disconnected
     private String radioToNetworkConnectionStatus;  // For e.g., Connected / Disconnected
     private String radioFullConnectionStatus;       // For e.g., Online / Offline
-    private String lastKnownOnlineDateTime;
+    private String lastKnownConnectionDateTime;
 
     public UserModel(@NonNull String userId) {
         this.userId = userId;
@@ -39,7 +39,7 @@ public class UserModel {
     public String getPhoneToRadioConnectionStatus() { return phoneToRadioConnectionStatus; }
     public String getRadioToNetworkConnectionStatus() { return radioToNetworkConnectionStatus; }
     public String getRadioFullConnectionStatus() { return radioFullConnectionStatus; }
-    public String getLastKnownOnlineDateTime() { return lastKnownOnlineDateTime; }
+    public String getLastKnownConnectionDateTime() { return lastKnownConnectionDateTime; }
 
     // --- SETTER ---
     public void setUserId(@NonNull String userId) { this.userId = userId; }
@@ -53,6 +53,6 @@ public class UserModel {
         this.radioToNetworkConnectionStatus = radioToNetworkConnectionStatus; }
     public void setRadioFullConnectionStatus(String radioFullConnectionStatus) {
         this.radioFullConnectionStatus = radioFullConnectionStatus; }
-    public void setLastKnownOnlineDateTime(String lastKnownOnlineDateTime) {
-        this.lastKnownOnlineDateTime = lastKnownOnlineDateTime; }
+    public void setLastKnownConnectionDateTime(String lastKnownConnectionDateTime) {
+        this.lastKnownConnectionDateTime = lastKnownConnectionDateTime; }
 }

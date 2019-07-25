@@ -296,7 +296,7 @@ public class LoginActivity extends AppCompatActivity {
 //        public void onResponse(String response) {
 //            Gson gson = GsonCreator.createGson();
 //            AuthRx authRx = gson.fromJson(response, AuthRx.class);
-//            saveLoginDetailsAndBroadcastUpdate(authRx.getAccessToken());
+//            saveLoginDetails(authRx.getAccessToken());
 //            Log.d("SuperC2", "Response: " + response);
 //            Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
 //            startActivity(activityIntent);
@@ -389,7 +389,7 @@ public class LoginActivity extends AppCompatActivity {
                             // No one is using selected radio number
                             if (waveRelayRadioModel.getUserId() == null ||
                                     StringUtil.EMPTY_STRING.equalsIgnoreCase(waveRelayRadioModel.getUserId())) {
-                                saveLoginDetailsAndBroadcastUpdate(userModel);
+                                saveLoginDetails(userModel);
 
                                 Intent activityIntent = new Intent(getApplicationContext(), MainActivity.class);
 
@@ -498,7 +498,7 @@ public class LoginActivity extends AppCompatActivity {
      *
      * @param userModel
      */
-    private void saveLoginDetailsAndBroadcastUpdate(UserModel userModel) {
+    private void saveLoginDetails(UserModel userModel) {
         String accessToken = StringUtil.generateRandomString();
 
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);

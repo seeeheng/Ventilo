@@ -29,4 +29,7 @@ public interface WaveRelayRadioDao {
 
     @Query("SELECT * FROM WaveRelayRadio WHERE radioId = :radioId")
     Single<WaveRelayRadioModel> getRadioByRadioId(long radioId);
+
+    @Query("SELECT * FROM WaveRelayRadio WHERE radioIpAddress = :radioIpAddress")
+    Single<WaveRelayRadioModel> getRadioByRadioIPAddress(String radioIpAddress);
 }

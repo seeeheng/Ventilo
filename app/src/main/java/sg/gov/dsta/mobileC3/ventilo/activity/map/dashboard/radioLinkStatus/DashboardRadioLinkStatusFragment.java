@@ -92,16 +92,11 @@ public class DashboardRadioLinkStatusFragment extends Fragment {
             // Get count of number of users offline before displaying count
             long noOfUsersOffline = radioConnectionStatusList.stream().filter(status ->
                     status.equalsIgnoreCase(ERadioConnectionStatus.OFFLINE.toString())).count();
-//            long noOfUsersOnline = radioConnectionStatusList.stream().filter(status ->
-//                    status.equalsIgnoreCase(ERadioConnectionStatus.ONLINE.toString())).count();
 
             String offlineTotal = String.valueOf(noOfUsersOffline).concat(StringUtil.FORWARD_SLASH).
                     concat(String.valueOf(mRadioLinkStatusUserListItems.size()));
-//            String onlineTotal = String.valueOf(noOfUsersOnline).concat(StringUtil.FORWARD_SLASH).
-//                    concat(String.valueOf(mRadioLinkStatusUserListItems.size()));
 
             mTvOfflineTotal.setText(offlineTotal);
-//            mTvOnlineTotal.setText(onlineTotal);
         }
     }
 

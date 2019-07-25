@@ -411,7 +411,7 @@ public class ExcelSpreadsheetUtil {
                 userModel.setPhoneToRadioConnectionStatus(ERadioConnectionStatus.DISCONNECTED.toString());
                 userModel.setRadioToNetworkConnectionStatus(ERadioConnectionStatus.DISCONNECTED.toString());
                 userModel.setRadioFullConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
-                userModel.setLastKnownOnlineDateTime(StringUtil.INVALID_STRING);
+                userModel.setLastKnownConnectionDateTime(StringUtil.INVALID_STRING);
 
             } else {
                 Log.i(TAG, "Table data from Excel does not match User data model");

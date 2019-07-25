@@ -31,6 +31,7 @@ import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
@@ -49,6 +50,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.DatabaseTableConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EAdHocTaskPriority;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EPhaseNo;
@@ -478,7 +480,6 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
     /**
      * Initialise Task Phase adapter
-     *
      */
     private void initTaskPhaseAdapter() {
 
@@ -513,7 +514,6 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
     /**
      * Initialise Task Name adapter
-     *
      */
     private void initTaskNameAdapter() {
         String listHeader = getString(R.string.task_select_task_name);
@@ -965,7 +965,7 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
      * @param toUpdate
      * @return
      */
-    private TaskModel createNewOrUpdateTaskModelFromForm(boolean toUpdate) {
+    private TaskModel createNewOrUpdateTaskModelFromForm(boolean toUpdate, String assignedBy) {
         TaskModel newTaskModel;
 
         if (toUpdate) {
@@ -1059,7 +1059,8 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
         newTaskModel.setCompletedDateTime(completedDateTimeGroup);
 
         // Assign By (Default CCT - 999)
-        newTaskModel.setAssignedBy(DatabaseTableConstants.DEFAULT_CCT_ID);
+//        newTaskModel.setAssignedBy(DatabaseTableConstants.DEFAULT_CCT_ID);
+        newTaskModel.setAssignedBy(assignedBy);
 
         // Title
         String title;
@@ -1330,53 +1331,162 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
         }
     }
 
-    private void performActionClick() {
+    /**
+     * Checks the link status of targeted users and current user to ensure that
+     * Task can be sent successfully
+     */
+    private void checkNetworkLinkStatusOfRelevantParties() {
         // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
         // asynchronously in the background thread and apply changes on the main UI thread
-        SingleObserver<UserModel> singleObserverUser = new SingleObserver<UserModel>() {
+        SingleObserver<List<UserModel>> singleObserverAllUsers = new SingleObserver<List<UserModel>>() {
             @Override
             public void onSubscribe(Disposable d) {
                 // add it to a CompositeDisposable
             }
 
             @Override
-            public void onSuccess(UserModel userModel) {
-                Log.d(TAG, "onSuccess singleObserverUser, " +
-                        "performActionClick. " +
-                        "UserId: " + userModel.getUserId());
+            public void onSuccess(List<UserModel> userModelList) {
+                Log.d(TAG, "onSuccess singleObserverAllUsers, " +
+                        "checkNetworkLinkStatusOfRelevantParties. " +
+                        "userModelList size: " + userModelList.size());
 
-                // Send button
-                if (getString(R.string.btn_create).equalsIgnoreCase(
-                        mTvToolbarCreateOrUpdate.getText().toString().trim())) {
+                // Obtain current User model who is ONLINE from database
+                List<UserModel> currentUserOnlineModelList = userModelList.stream().
+                        filter(userModel -> SharedPreferenceUtil.getCurrentUserCallsignID().
+                                equalsIgnoreCase(userModel.getUserId()) &&
+                                userModel.getRadioFullConnectionStatus().
+                                        equalsIgnoreCase(ERadioConnectionStatus.ONLINE.toString())).
+                        collect(Collectors.toList());
 
-                    // Create new Task, store in local database and broadcast to other connected devices
-                    TaskModel newTaskModel = createNewOrUpdateTaskModelFromForm(
-                            false);
+                if (currentUserOnlineModelList.size() != 1) {
+                    if (getSnackbarView() != null) {
+                        SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                MainApplication.getAppContext().
+                                        getString(R.string.snackbar_send_error_current_user_not_connected_message));
+                    }
+                } else {
+                    // Check if targeted users are connected to network
+                    List<String> tempSelectedUserIdList = new ArrayList<>();
 
-                    addItemToLocalDatabaseAndBroadcast(newTaskModel, userModel.getUserId());
+                    for (int i = 0; i < mLinearLayoutAssignTo.getChildCount(); i++) {
+                        View viewBtnAssignToTeam = mLinearLayoutAssignTo.getChildAt(i);
+
+                        C2OpenSansSemiBoldTextView tvAssignToTeam = viewBtnAssignToTeam.
+                                findViewById(R.id.tv_img_text_fixed_dimension_text_img_btn);
+
+                        if (viewBtnAssignToTeam.isSelected()) {
+                            String currentlySelectedAssignToTeam = StringUtil.removeFirstWord(
+                                    tvAssignToTeam.getText().toString().trim());
+
+                            tempSelectedUserIdList.add(currentlySelectedAssignToTeam);
+                        }
+                    }
+
+                    for (int i = 0; i < tempSelectedUserIdList.size(); i++) {
+                        Log.d(TAG, "tempSelectedUserIdList[" + i + "] userid:" +
+                                tempSelectedUserIdList.get(i));
+                    }
+
+                    // Obtain ALL 'Assign To' User models who are ONLINE from database
+                    List<UserModel> assignToUserOnlineModelList = userModelList.stream().
+                            filter(userModel -> tempSelectedUserIdList.contains(userModel.getUserId()) &&
+                                    userModel.getRadioFullConnectionStatus().
+                                            equalsIgnoreCase(ERadioConnectionStatus.ONLINE.toString())).
+                            collect(Collectors.toList());
+
+                    // Obtain ALL 'Assign To' User Ids who are ONLINE from database
+                    List<String> assignToUserOnlineIdList = assignToUserOnlineModelList.stream().map(
+                            UserModel::getUserId).collect(Collectors.toList());
+
+                    for (int i = 0; i < assignToUserOnlineIdList.size(); i++) {
+                        Log.d(TAG, "assignToUserOnlineIdList[" + i + "] userid:" +
+                                assignToUserOnlineIdList.get(i));
+                    }
+
+                    boolean isAllSelectedUsersConnected = true;
+                    String errorMsg = "";
+
+                    for (int i = 0; i < tempSelectedUserIdList.size(); i++) {
+                        if (!assignToUserOnlineIdList.contains(tempSelectedUserIdList.get(i))) {
+                            isAllSelectedUsersConnected = false;
+                            errorMsg = errorMsg.concat(tempSelectedUserIdList.get(i)).
+                                    concat(StringUtil.COMMA).
+                                    concat(StringUtil.SPACE);
+                        }
+
+                        if (errorMsg.length() > 2 && i == tempSelectedUserIdList.size() - 1) {
+                            errorMsg = errorMsg.substring(0,
+                                    errorMsg.length() - 2);
+                            errorMsg = errorMsg.concat(StringUtil.SPACE);
+                        }
+                    }
+
+                    if (!isAllSelectedUsersConnected) {
+                        if (getSnackbarView() != null) {
+                            if (!errorMsg.contains(StringUtil.COMMA)) {
+                                errorMsg = errorMsg.concat(MainApplication.getAppContext().
+                                        getString(R.string.snackbar_send_error_is_not_connected_message));
+                            } else {
+                                errorMsg = errorMsg.concat(MainApplication.getAppContext().
+                                        getString(R.string.snackbar_send_error_are_not_connected_message));
+                            }
+
+                            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                    errorMsg);
+                        }
+                    } else {
+                        // Only perform send/update action if 'Assign To' users and current user
+                        // are CONNECTED to network
+                        UserModel userModel = currentUserOnlineModelList.get(0);
+                        performActionClick(userModel);
+                    }
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "onError singleObserverAllUsers, " +
+                        "checkNetworkLinkStatusOfRelevantParties. " +
+                        "Error Msg: " + e.toString());
+            }
+        };
+
+        mUserViewModel.getAllUsers(singleObserverAllUsers);
+    }
+
+    private void performActionClick(UserModel userModel) {
+        // Send button
+        if (getString(R.string.btn_create).equalsIgnoreCase(
+                mTvToolbarCreateOrUpdate.getText().toString().trim())) {
+
+            // Create new Task, store in local database and broadcast to other connected devices
+            TaskModel newTaskModel = createNewOrUpdateTaskModelFromForm(
+                    false, userModel.getUserId());
+
+            addItemToLocalDatabaseAndBroadcast(newTaskModel, userModel.getUserId());
 //                    TaskRepository taskRepo = new TaskRepository((Application) MainApplication.getAppContext());
 //                    DatabaseOperation databaseOperation = new DatabaseOperation();
 //                    databaseOperation.insertTaskIntoDatabaseAndBroadcast(taskRepo, newTaskModel);
 
-                } else {    // Update button
+        } else {    // Update button
 
-                    // Update existing Task model
-                    TaskModel newTaskModel = createNewOrUpdateTaskModelFromForm(
-                            true);
+            // Update existing Task model
+            TaskModel newTaskModel = createNewOrUpdateTaskModelFromForm(
+                    true, userModel.getUserId());
 
-                    // Update local Task data
-                    mTaskViewModel.updateTask(newTaskModel);
+            // Update local Task data
+            mTaskViewModel.updateTask(newTaskModel);
 
-                    // Send updated Task data to other connected devices
-                    JeroMQBroadcastOperation.broadcastDataUpdateOverSocket(newTaskModel);
+            // Send updated Task data to other connected devices
+            JeroMQBroadcastOperation.broadcastDataUpdateOverSocket(newTaskModel);
 
-                    // Show snackbar message and return to Task edit fragment page
-                    if (getSnackbarView() != null) {
-                        SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
-                                getString(R.string.snackbar_task_updated_message));
-                    }
+            // Show snackbar message and return to Task edit fragment page
+            if (getSnackbarView() != null) {
+                SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                        getString(R.string.snackbar_task_updated_message));
+            }
 
-                    // Remove sticky TaskModel as update is complete and it is no longer needed
+            // Remove sticky TaskModel as update is complete and it is no longer needed
 //                    if (getActivity() instanceof MainActivity) {
 //                        Object objectToUpdate = ((MainActivity) getActivity()).
 //                                getStickyModel(TaskModel.class.getSimpleName());
@@ -1386,20 +1496,8 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 //                        }
 //                    }
 
-                    popChildBackStack();
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverUser, " +
-                        "performActionClick. " +
-                        "Error Msg: " + e.toString());
-            }
-        };
-
-        mUserViewModel.queryUserByUserId(SharedPreferenceUtil.getCurrentUserCallsignID(),
-                singleObserverUser);
+            popChildBackStack();
+        }
     }
 
     /**
@@ -1460,7 +1558,8 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
     @Override
     public void onSnackbarActionClick() {
-        performActionClick();
+//        performActionClick();
+        checkNetworkLinkStatusOfRelevantParties();
     }
 
 //    @Override

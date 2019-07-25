@@ -37,6 +37,8 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
@@ -64,6 +66,8 @@ import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.DatabaseTableConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 
 public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.SnackbarActionClickListener {
@@ -1289,71 +1293,113 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     }
 
     /**
-     * Performs Send or Update Task actions accordingly based on
+     * Checks the link status of CCT and current user to ensure that
+     * Sit Rep can be sent successfully
      */
-    private void performActionClick() {
+    private void checkNetworkLinkStatusOfRelevantParties() {
         // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
         // asynchronously in the background thread and apply changes on the main UI thread
-        SingleObserver<UserModel> singleObserverUser = new SingleObserver<UserModel>() {
+        SingleObserver<List<UserModel>> singleObserverAllUsers = new SingleObserver<List<UserModel>>() {
             @Override
             public void onSubscribe(Disposable d) {
                 // add it to a CompositeDisposable
             }
 
             @Override
-            public void onSuccess(UserModel userModel) {
-                Log.d(TAG, "onSuccess singleObserverUser, " +
-                        "performActionClick. " +
-                        "UserId: " + userModel.getUserId());
+            public void onSuccess(List<UserModel> userModelList) {
+                Log.d(TAG, "onSuccess singleObserverAllUsers, " +
+                        "checkNetworkLinkStatusOfRelevantParties. " +
+                        "userModelList size: " + userModelList.size());
 
-                // Send button
-                if (MainApplication.getAppContext().getString(R.string.btn_send).equalsIgnoreCase(
-                        mTvToolbarSendOrUpdate.getText().toString().trim())) {
+                // Obtain User model of CCTs who are ONLINE from database
+                List<UserModel> cctUserOnlineModelList = userModelList.stream().
+                        filter(userModel -> EAccessRight.CCT.toString().
+                                equalsIgnoreCase(userModel.getRole()) &&
+                                userModel.getRadioFullConnectionStatus().
+                                        equalsIgnoreCase(ERadioConnectionStatus.ONLINE.toString())).
+                        collect(Collectors.toList());
 
-                    // Create new Sit Rep, store in local database and broadcast to other connected devices
-                    SitRepModel newSitRepModel = createNewOrUpdateSitRepModelFromForm(userModel.getUserId(),
-                            false);
-                    addItemToLocalDatabaseAndBroadcast(newSitRepModel, userModel.getUserId());
+                // Obtain current User model who is ONLINE from database
+                List<UserModel> currentUserOnlineModelList = userModelList.stream().
+                        filter(userModel -> SharedPreferenceUtil.getCurrentUserCallsignID().
+                                equalsIgnoreCase(userModel.getUserId()) &&
+                                userModel.getRadioFullConnectionStatus().
+                                        equalsIgnoreCase(ERadioConnectionStatus.ONLINE.toString())).
+                        collect(Collectors.toList());
 
-                } else {    // Update button
-
-                    // Update existing Sit Rep model
-                    SitRepModel newSitRepModel = createNewOrUpdateSitRepModelFromForm(userModel.getUserId(),
-                            true);
-
-                    // Update local Sit Rep data
-                    mSitRepViewModel.updateSitRep(newSitRepModel);
-
-                    // Send updated Sit Rep data to other connected devices
-                    JeroMQBroadcastOperation.broadcastDataUpdateOverSocket(newSitRepModel);
-
-                    // Show snackbar message and return to Sit Rep edit fragment page
+                if (cctUserOnlineModelList.size() == 0) {
                     if (getSnackbarView() != null) {
                         SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
                                 MainApplication.getAppContext().
-                                        getString(R.string.snackbar_sitrep_updated_message));
+                                        getString(R.string.snackbar_send_error_cct_not_connected_message));
                     }
-
-                    popChildBackStack();
+                } else if(currentUserOnlineModelList.size() != 1) {
+                    if (getSnackbarView() != null) {
+                        SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                MainApplication.getAppContext().
+                                        getString(R.string.snackbar_send_error_current_user_not_connected_message));
+                    }
+                } else {
+                    // Only perform send/update action if CCT and current user
+                    // are CONNECTED to network
+                    UserModel userModel = currentUserOnlineModelList.get(0);
+                    performActionClick(userModel);
                 }
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "onError singleObserverUser, " +
-                        "addSitRepToCompositeTableInDatabase. " +
+                Log.d(TAG, "onError singleObserverAllUsers, " +
+                        "checkNetworkLinkStatusOfRelevantParties. " +
                         "Error Msg: " + e.toString());
             }
         };
 
-        mUserViewModel.queryUserByUserId(SharedPreferenceUtil.getCurrentUserCallsignID(),
-                singleObserverUser);
+        mUserViewModel.getAllUsers(singleObserverAllUsers);
+    }
+
+    /**
+     * Performs Send or Update Sit Rep actions accordingly
+     */
+    private void performActionClick(UserModel userModel) {
+
+        // Send button
+        if (MainApplication.getAppContext().getString(R.string.btn_send).equalsIgnoreCase(
+                mTvToolbarSendOrUpdate.getText().toString().trim())) {
+
+
+            // Create new Sit Rep, store in local database and broadcast to other connected devices
+            SitRepModel newSitRepModel = createNewOrUpdateSitRepModelFromForm(userModel.getUserId(),
+                    false);
+            addItemToLocalDatabaseAndBroadcast(newSitRepModel, userModel.getUserId());
+
+        } else {    // Update button
+
+            // Update existing Sit Rep model
+            SitRepModel newSitRepModel = createNewOrUpdateSitRepModelFromForm(userModel.getUserId(),
+                    true);
+
+            // Update local Sit Rep data
+            mSitRepViewModel.updateSitRep(newSitRepModel);
+
+            // Send updated Sit Rep data to other connected devices
+            JeroMQBroadcastOperation.broadcastDataUpdateOverSocket(newSitRepModel);
+
+            // Show snackbar message and return to Sit Rep edit fragment page
+            if (getSnackbarView() != null) {
+                SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                        MainApplication.getAppContext().
+                                getString(R.string.snackbar_sitrep_updated_message));
+            }
+
+            popChildBackStack();
+        }
     }
 
     /**
      * Accesses child base fragment of current selected view pager item and remove this fragment
      * from child base fragment's stack.
-     * <p>
+     *
      * Possible Selected View Pager Item: Sit Rep / Video Stream
      * Child Base Fragment: SitRepFragment / VideoStreamFragment
      */
@@ -1456,7 +1502,8 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(compressedBitmapFile)));
         }
 
-        performActionClick();
+//        performActionClick();
+        checkNetworkLinkStatusOfRelevantParties();
     }
 
     /**

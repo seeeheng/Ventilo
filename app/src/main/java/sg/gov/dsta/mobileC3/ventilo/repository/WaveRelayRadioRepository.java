@@ -50,6 +50,19 @@ public class WaveRelayRadioRepository {
     }
 
     /**
+     * Obtain WaveRelay Radio model based on Radio IP Address from local database
+     *
+     * @param radioIPAddress
+     * @param singleObserver
+     */
+    public void queryRadioByRadioIPAddress(String radioIPAddress, SingleObserver<WaveRelayRadioModel> singleObserver) {
+        Single<WaveRelayRadioModel> single = mWaveRelayRadioDao.getRadioByRadioIPAddress(radioIPAddress);
+        single.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(singleObserver);
+    }
+
+    /**
      * Insert WaveRelay Radio model into local database
      *
      * @param waveRelayRadioModel

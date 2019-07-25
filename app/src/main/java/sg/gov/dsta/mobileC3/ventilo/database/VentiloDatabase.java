@@ -214,7 +214,7 @@ public abstract class VentiloDatabase extends RoomDatabase {
         userModel.setPhoneToRadioConnectionStatus(ERadioConnectionStatus.DISCONNECTED.toString());
         userModel.setRadioToNetworkConnectionStatus(ERadioConnectionStatus.DISCONNECTED.toString());
         userModel.setRadioFullConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
-        userModel.setLastKnownOnlineDateTime(StringUtil.INVALID_STRING);
+        userModel.setLastKnownConnectionDateTime(StringUtil.INVALID_STRING);
 
         return userModel;
     }
