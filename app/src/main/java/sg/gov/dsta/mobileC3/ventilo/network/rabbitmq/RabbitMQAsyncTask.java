@@ -13,7 +13,7 @@ public class RabbitMQAsyncTask {
 
     private static final String TAG = RabbitMQAsyncTask.class.getSimpleName();
 
-    public static boolean mIsServiceRegistered;
+//    public static boolean mIsServiceRegistered;
     private static RunRabbitMQAsyncTask mTask;
 
     public RabbitMQAsyncTask() {
@@ -48,8 +48,8 @@ public class RabbitMQAsyncTask {
 
 //                    if (rabbitMQHelper != null) {
 
-            mIsServiceRegistered = true;
-            Log.i(TAG, "mIsServiceRegistered is " + mIsServiceRegistered);
+//            mIsServiceRegistered = true;
+//            Log.i(TAG, "mIsServiceRegistered is " + mIsServiceRegistered);
 
             System.out.println("rabbitMQHelper not null");
             boolean isRabbitMQConnected = NetworkService.rabbitMQHelper.startRabbitMQWithDefaultSetting();

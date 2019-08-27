@@ -10,7 +10,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +41,6 @@ import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldEditTextVie
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
-import sg.gov.dsta.mobileC3.ventilo.util.log.LoggerUtil;
 import timber.log.Timber;
 
 public class LoginActivity extends AppCompatActivity {
@@ -538,16 +536,11 @@ public class LoginActivity extends AppCompatActivity {
             accessRight = EAccessRight.TEAM_LEAD.toString();
         }
 
-        prefsEditor.putString(SharedPreferenceConstants.ACCESS_RIGHT, accessRight);
+        prefsEditor.putString(SharedPreferenceConstants.USER_ACCESS_RIGHT, accessRight);
         prefsEditor.apply();
 
-
         Timber.i("Added Access Token to User: %s", userModel.getUserId());
-
         Timber.i("accessToken is  %s",  accessToken);
-
-
-
 
         userModel.setAccessToken(accessToken);
         mUserViewModel.updateUser(userModel);

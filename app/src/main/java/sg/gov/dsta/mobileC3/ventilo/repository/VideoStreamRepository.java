@@ -12,9 +12,11 @@ import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import sg.gov.dsta.mobileC3.ventilo.AsyncParallelTask;
 import sg.gov.dsta.mobileC3.ventilo.database.DAO.VideoStreamDao;
 import sg.gov.dsta.mobileC3.ventilo.database.VentiloDatabase;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
+import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 
 public class VideoStreamRepository {
 
@@ -37,14 +39,30 @@ public class VideoStreamRepository {
     public void getAllVideoStreams(SingleObserver singleObserver) {
         QueryAllVideoStreamsAsyncTask task = new
                 QueryAllVideoStreamsAsyncTask(mVideoStreamDao, singleObserver);
-        task.execute();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute();
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     public void getAllVideoStreamsLiveDataForUser(
             String userId, SingleObserver singleObserver) {
         QueryAllVideoStreamsForUserAsyncTask task = new
                 QueryAllVideoStreamsForUserAsyncTask(mVideoStreamDao, singleObserver);
-        task.execute(userId);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(userId);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     public void getVideoStreamUrlForUserByName(
@@ -52,28 +70,68 @@ public class VideoStreamRepository {
         String[] paramsForGetUrl = {userId, videoName};
         QueryVideoStreamForUserByNameAsyncTask task = new
                 QueryVideoStreamForUserByNameAsyncTask(mVideoStreamDao, singleObserver);
-        task.execute(paramsForGetUrl);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(paramsForGetUrl);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     public void insertVideoStreamWithObserver(VideoStreamModel videoStreamModel,
                                               SingleObserver singleObserver) {
         InsertWithObserverAsyncTask task = new InsertWithObserverAsyncTask(mVideoStreamDao, singleObserver);
-        task.execute(videoStreamModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(videoStreamModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     public void insertVideoStream(VideoStreamModel videoStreamModel) {
         InsertAsyncTask task = new InsertAsyncTask(mVideoStreamDao);
-        task.execute(videoStreamModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(videoStreamModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     public void updateVideoStream(VideoStreamModel videoStreamModel) {
         UpdateAsyncTask task = new UpdateAsyncTask(mVideoStreamDao);
-        task.execute(videoStreamModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(videoStreamModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     public void deleteVideoStream(long videoStreamId) {
         DeleteAsyncTask task = new DeleteAsyncTask(mVideoStreamDao);
-        task.execute(videoStreamId);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(videoStreamId);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     private static class QueryAllVideoStreamsAsyncTask extends

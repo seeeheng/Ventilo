@@ -86,8 +86,9 @@ Platform Deck
         var iconType = Android.getIconTypeToMarker();
         if (iconType == Android.getHazardString() || iconType == Android.getDeceasedString()) {
             console.debug("iconType",iconType);
-            var currentCoordMsg = Android.getCurrentCoordMsg(xyInPixelszInMetres, iconType);
-            androidToJScreateLocation(currentCoordMsg);
+            Android.setCurrentCoordMsg(xyInPixelszInMetres, iconType);
+            <!--var currentCoordMsg = Android.getCurrentCoordMsg(xyInPixelszInMetres, iconType);-->
+            <!--androidToJScreateLocation(currentCoordMsg);-->
         } else {
             console.debug("manualLocationUpdateinPixels","manualLocationUpdateinPixels");
             Android.manualLocationUpdateinPixels(xyInPixelszInMetres);

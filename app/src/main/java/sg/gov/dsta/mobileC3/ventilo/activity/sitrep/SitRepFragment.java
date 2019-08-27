@@ -2,6 +2,7 @@ package sg.gov.dsta.mobileC3.ventilo.activity.sitrep;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -22,16 +23,21 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.helper.SwipeHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.SitRepViewModel;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
+import sg.gov.dsta.mobileC3.ventilo.util.DrawableUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.EIsValid;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 import timber.log.Timber;
@@ -56,6 +62,7 @@ public class SitRepFragment extends Fragment {
     // Add new item UI
     private View mLayoutAddNewItem;
 
+    private RecyclerView mRecyclerView;
     private SitRepRecyclerAdapter mRecyclerAdapter;
     private FloatingActionButton mFabAddSitRep;
 
@@ -66,10 +73,10 @@ public class SitRepFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setRetainInstance(true);
+        observerSetup();
 
         if (mRootView == null) {
             mRootView = inflater.inflate(R.layout.fragment_sitrep, container, false);
-            observerSetup();
             initUI(mRootView);
         }
 
@@ -82,12 +89,12 @@ public class SitRepFragment extends Fragment {
         mLayoutTotalCountDashboard = rootView.findViewById(R.id.layout_total_count_dashboard);
         initTotalCountDashboardUI(mLayoutTotalCountDashboard);
 
-        RecyclerView recyclerView = rootView.findViewById(R.id.recycler_sitrep);
-        recyclerView.setHasFixedSize(true);
+        mRecyclerView = rootView.findViewById(R.id.recycler_sitrep);
+        mRecyclerView.setHasFixedSize(true);
 
         RecyclerView.LayoutManager recyclerLayoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(recyclerLayoutManager);
-        recyclerView.addOnItemTouchListener(new SitRepRecyclerItemTouchListener(getContext(), recyclerView, new SitRepRecyclerItemTouchListener.OnItemClickListener() {
+        mRecyclerView.setLayoutManager(recyclerLayoutManager);
+        mRecyclerView.addOnItemTouchListener(new SitRepRecyclerItemTouchListener(getContext(), mRecyclerView, new SitRepRecyclerItemTouchListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 navigateToSitRepDetailFragment(mSitRepListItems.get(position));
@@ -114,8 +121,10 @@ public class SitRepFragment extends Fragment {
 //        setUpRecyclerData();
 
         mRecyclerAdapter = new SitRepRecyclerAdapter(getContext(), mSitRepListItems);
-        recyclerView.setAdapter(mRecyclerAdapter);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setAdapter(mRecyclerAdapter);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        setUpSwipeHelper();
 
         // Set up floating action button
         mFabAddSitRep = rootView.findViewById(R.id.fab_sitrep_add);
@@ -142,6 +151,47 @@ public class SitRepFragment extends Fragment {
             }
         }
 
+    }
+
+    /**
+     * This creates the delete action swipe button with ItemTouchHelper.SimpleCallback
+     */
+    private void setUpSwipeHelper() {
+        SwipeHelper sitRepSwipeHelper = new SwipeHelper(getContext(), mRecyclerView) {
+            @Override
+            public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
+                if (viewHolder instanceof SitRepViewHolder) {
+                        Drawable deleteSwipeActionButtonImageDrawable =
+                                ResourcesCompat.getDrawable(getResources(),
+                                        R.drawable.btn_task_swipe_action_status_delete, null);
+
+                        SwipeHelper.UnderlayButton deleteUnderlayButton = new SwipeHelper.UnderlayButton(
+                                "", deleteSwipeActionButtonImageDrawable, null,
+                                new SwipeHelper.UnderlayButtonClickListener() {
+                                    @Override
+                                    public void onClick(int pos) {
+                                        deleteTask(pos);
+                                    }
+                                }
+                        );
+
+                        underlayButtons.add(deleteUnderlayButton);
+
+                }
+            }
+        };
+
+        // Attach touch helper to recycler view
+//        TaskItemTouchHelperCallback taskItemTouchHelperCallback = new
+//                TaskItemTouchHelperCallback(this);
+//        new ItemTouchHelper(taskItemTouchHelperCallback).attachToRecyclerView(mRecyclerView);
+        sitRepSwipeHelper.attachSwipe();
+    }
+
+    private void deleteTask(int position) {
+        SitRepModel sitRepModelAtPos = mRecyclerAdapter.getSitRepModelAtPosition(position);
+        mSitRepViewModel.deleteSitRep(sitRepModelAtPos.getId());
+        JeroMQBroadcastOperation.broadcastDataDeletionOverSocket(sitRepModelAtPos);
     }
 
     /**
@@ -257,6 +307,23 @@ public class SitRepFragment extends Fragment {
     }
 
     /**
+     * Obtain all VALID Task Models from database
+     * @param sitRepModelList
+     * @return
+     */
+    private List<SitRepModel> getAllValidSitRepListFromDatabase(List<SitRepModel> sitRepModelList) {
+
+        List<SitRepModel> validSitRepModelList = new ArrayList<>();
+
+        validSitRepModelList = sitRepModelList.stream().
+                filter(sitRepModel -> EIsValid.YES.toString().
+                        equalsIgnoreCase(sitRepModel.getIsValid())).
+                collect(Collectors.toList());
+
+        return validSitRepModelList;
+    }
+
+    /**
      * Set up observer for live updates on view models and update UI accordingly
      */
     private void observerSetup() {
@@ -270,41 +337,51 @@ public class SitRepFragment extends Fragment {
         mSitRepViewModel.getAllSitRepsLiveData().observe(this, new Observer<List<SitRepModel>>() {
             @Override
             public void onChanged(@Nullable List<SitRepModel> sitRepModelList) {
-                if (mSitRepListItems == null) {
-                    mSitRepListItems = new ArrayList<>();
-                } else {
-                    mSitRepListItems.clear();
-                }
 
-                if (sitRepModelList != null) {
-                    mSitRepListItems.addAll(sitRepModelList);
-                }
+                synchronized (mSitRepListItems) {
 
-                if (mRecyclerAdapter != null) {
-                    mRecyclerAdapter.setSitRepListItems(mSitRepListItems);
-                }
+                    List<SitRepModel> validSitRepModelList = null;
 
-                if (mSitRepListItems.size() == 0) {
-                    mLayoutAddNewItem.setVisibility(View.VISIBLE);
-                    mLayoutTotalCountDashboard.setVisibility(View.GONE);
-                } else {
-                    mLayoutAddNewItem.setVisibility(View.GONE);
-                    mLayoutTotalCountDashboard.setVisibility(View.VISIBLE);
-
-                    int totalPersonnelT = 0;
-                    int totalPersonnelS = 0;
-                    int totalPersonnelD = 0;
-                    for (int i = 0; i < sitRepModelList.size(); i++) {
-                        totalPersonnelT += sitRepModelList.get(i).getPersonnelT();
-                        totalPersonnelS += sitRepModelList.get(i).getPersonnelS();
-                        totalPersonnelD += sitRepModelList.get(i).getPersonnelD();
+                    if (sitRepModelList != null) {
+                        validSitRepModelList = getAllValidSitRepListFromDatabase(sitRepModelList);
                     }
 
-                    int totalCount = totalPersonnelT + totalPersonnelS + totalPersonnelD;
-                    mTvTotalCountNumber.setText(String.valueOf(totalCount));
-                    mTvPersonnelTCountNumber.setText(String.valueOf(totalPersonnelT));
-                    mTvPersonnelSCountNumber.setText(String.valueOf(totalPersonnelS));
-                    mTvPersonnelDCountNumber.setText(String.valueOf(totalPersonnelD));
+                    if (mSitRepListItems == null) {
+                        mSitRepListItems = new ArrayList<>();
+                    } else {
+                        mSitRepListItems.clear();
+                    }
+
+                    if (validSitRepModelList != null) {
+                        mSitRepListItems.addAll(validSitRepModelList);
+                    }
+
+                    if (mRecyclerAdapter != null) {
+                        mRecyclerAdapter.setSitRepListItems(mSitRepListItems);
+                    }
+
+                    if (mSitRepListItems.size() == 0) {
+                        mLayoutAddNewItem.setVisibility(View.VISIBLE);
+                        mLayoutTotalCountDashboard.setVisibility(View.GONE);
+                    } else {
+                        mLayoutAddNewItem.setVisibility(View.GONE);
+                        mLayoutTotalCountDashboard.setVisibility(View.VISIBLE);
+
+                        int totalPersonnelT = 0;
+                        int totalPersonnelS = 0;
+                        int totalPersonnelD = 0;
+                        for (int i = 0; i < sitRepModelList.size(); i++) {
+                            totalPersonnelT += sitRepModelList.get(i).getPersonnelT();
+                            totalPersonnelS += sitRepModelList.get(i).getPersonnelS();
+                            totalPersonnelD += sitRepModelList.get(i).getPersonnelD();
+                        }
+
+                        int totalCount = totalPersonnelT + totalPersonnelS + totalPersonnelD;
+                        mTvTotalCountNumber.setText(String.valueOf(totalCount));
+                        mTvPersonnelTCountNumber.setText(String.valueOf(totalPersonnelT));
+                        mTvPersonnelSCountNumber.setText(String.valueOf(totalPersonnelS));
+                        mTvPersonnelDCountNumber.setText(String.valueOf(totalPersonnelD));
+                    }
                 }
             }
         });
@@ -351,8 +428,12 @@ public class SitRepFragment extends Fragment {
 
     private void onVisible() {
         Timber.i("onVisible");
-
         enableFabAddSitRep();
+        observerSetup();
+
+        if (mRecyclerAdapter != null) {
+            mRecyclerAdapter.notifyDataSetChanged();
+        }
     }
 
     private void onInvisible() {

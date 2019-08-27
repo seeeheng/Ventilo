@@ -29,6 +29,6 @@
         android:layout_marginStart="@dimen/elements_margin_spacing"
         android:text="@string/team_profile"
         android:textColor="@color/primary_white"
-        android:textSize="@dimen/text_view_small_text_size" />
+        android:textSize="@dimen/text_view_text_size" />
 
 </LinearLayout>

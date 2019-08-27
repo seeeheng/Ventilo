@@ -7,6 +7,8 @@ import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.google.android.exoplayer2.util.Log;
+
 import java.util.concurrent.Executors;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
@@ -28,8 +30,12 @@ import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.videoStream.EOwner;
+import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 
 @Database(entities = {UserModel.class, BFTModel.class, SitRepModel.class, TaskModel.class,
         UserSitRepJoinModel.class, UserTaskJoinModel.class, VideoStreamModel.class,
@@ -88,6 +94,7 @@ public abstract class VentiloDatabase extends RoomDatabase {
                 }
             }
         }
+
         return INSTANCE;
     }
 
@@ -131,6 +138,7 @@ public abstract class VentiloDatabase extends RoomDatabase {
     }
 
     private void populateDatabaseOnAppStart() {
+
         // Users
         UserModel userOne = createUserModel(USERNAME_ONE, USERNAME_ONE, StringUtil.EMPTY_STRING,
                 "Alpha, Bravo", EAccessRight.TEAM_LEAD.toString());
@@ -170,6 +178,7 @@ public abstract class VentiloDatabase extends RoomDatabase {
 //        String[] phoneIpAddresses = MainApplication.getAppContext().getResources().
 //                getStringArray(R.array.login_user_mobile_ip_addresses);
 
+        // Wave Relay Radios
         WaveRelayRadioModel radioOne = createWaveRelayRadioModel(1, null,
                 radioIpAddresses[0], StringUtil.INVALID_STRING);
         WaveRelayRadioModel radioTwo = createWaveRelayRadioModel(2, null,
@@ -191,6 +200,9 @@ public abstract class VentiloDatabase extends RoomDatabase {
         WaveRelayRadioModel radioTen = createWaveRelayRadioModel(10, null,
                 radioIpAddresses[9], StringUtil.INVALID_STRING);
 
+        SharedPreferenceUtil.setSharedPreference(SharedPreferenceConstants.USER_RADIO_LINK_STATUS,
+                ERadioConnectionStatus.OFFLINE.toString());
+
         waveRelayRadioDao().insertWaveRelayRadioModel(radioOne);
         waveRelayRadioDao().insertWaveRelayRadioModel(radioTwo);
         waveRelayRadioDao().insertWaveRelayRadioModel(radioThree);
@@ -201,6 +213,50 @@ public abstract class VentiloDatabase extends RoomDatabase {
         waveRelayRadioDao().insertWaveRelayRadioModel(radioEight);
         waveRelayRadioDao().insertWaveRelayRadioModel(radioNine);
         waveRelayRadioDao().insertWaveRelayRadioModel(radioTen);
+
+        // Video Streams; Add 'Camera-Radio' label to radio number for radio name
+        VideoStreamModel videoOne = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                getString(R.string.video_stream_video_name_camera_radio).concat(EOwner.OWN.toString()),
+                EOwner.OWN.toString());
+        VideoStreamModel videoTwo = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("2"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoThree = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("3"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoFour = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("4"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoFive = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("5"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoSix = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("6"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoSeven = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("7"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoEight = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("8"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoNine = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("9"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoTen = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("10"),
+                EOwner.OTHERS.toString());
+
+        videoStreamDao().insertVideoStreamModel(videoOne);
+        videoStreamDao().insertVideoStreamModel(videoTwo);
+        videoStreamDao().insertVideoStreamModel(videoThree);
+        videoStreamDao().insertVideoStreamModel(videoFour);
+        videoStreamDao().insertVideoStreamModel(videoFive);
+        videoStreamDao().insertVideoStreamModel(videoSix);
+        videoStreamDao().insertVideoStreamModel(videoSeven);
+        videoStreamDao().insertVideoStreamModel(videoEight);
+        videoStreamDao().insertVideoStreamModel(videoNine);
+        videoStreamDao().insertVideoStreamModel(videoTen);
+
     }
 
     private static UserModel createUserModel(String userId, String password, String accessToken, String team,
@@ -215,6 +271,7 @@ public abstract class VentiloDatabase extends RoomDatabase {
         userModel.setRadioToNetworkConnectionStatus(ERadioConnectionStatus.DISCONNECTED.toString());
         userModel.setRadioFullConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
         userModel.setLastKnownConnectionDateTime(StringUtil.INVALID_STRING);
+        userModel.setMissingHeartBeatCount(Integer.valueOf(StringUtil.INVALID_STRING));
 
         return userModel;
     }
@@ -229,5 +286,17 @@ public abstract class VentiloDatabase extends RoomDatabase {
         waveRelayRadioModel.setPhoneIpAddress(phoneIpAddress);
 
         return waveRelayRadioModel;
+    }
+
+    private static VideoStreamModel createVideoStreamModel(String name, String owner) {
+
+        VideoStreamModel videoStreamModel = new VideoStreamModel();
+        videoStreamModel.setUserId(USERNAME_ONE);
+        videoStreamModel.setName(name);
+        videoStreamModel.setUrl(SharedPreferenceConstants.DEFAULT_STRING);
+        videoStreamModel.setIconType(FragmentConstants.KEY_VIDEO_STREAM_EDIT);
+        videoStreamModel.setOwner(owner);
+
+        return videoStreamModel;
     }
 }

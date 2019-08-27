@@ -4,8 +4,6 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.text.TextUtils;
 
-import org.apache.tools.ant.util.StringUtils;
-
 import java.util.Comparator;
 
 import lombok.Data;
@@ -29,6 +27,9 @@ public class TaskModel {
     private String status; // NEW, IN PROGRESS, COMPLETE
     private String createdDateTime;
     private String completedDateTime;
+    private String lastUpdatedStatusDateTime;
+    private String lastUpdatedMainDateTime;
+    private String isValid;
 
     // --- GETTER ---
     public long getId() { return id; }
@@ -43,6 +44,9 @@ public class TaskModel {
     public String getStatus() { return status; }
     public String getCreatedDateTime() { return createdDateTime; }
     public String getCompletedDateTime() { return completedDateTime; }
+    public String getLastUpdatedStatusDateTime() { return lastUpdatedStatusDateTime; }
+    public String getLastUpdatedMainDateTime() { return lastUpdatedMainDateTime; }
+    public String getIsValid() { return isValid; }
 
     // --- SETTER ---
     public void setId(long id) { this.id = id; }
@@ -57,6 +61,9 @@ public class TaskModel {
     public void setStatus(String status) { this.status = status; }
     public void setCreatedDateTime(String createdDateTime) { this.createdDateTime = createdDateTime; }
     public void setCompletedDateTime(String completedDateTime) { this.completedDateTime = completedDateTime; }
+    public void setLastUpdatedStatusDateTime(String lastUpdatedStatusDateTime) { this.lastUpdatedStatusDateTime = lastUpdatedStatusDateTime; }
+    public void setLastUpdatedMainDateTime(String lastUpdatedMainDateTime) { this.lastUpdatedMainDateTime = lastUpdatedMainDateTime; }
+    public void setIsValid(String isValid) { this.isValid = isValid; }
 
     public static Comparator<TaskModel> getPhaseNoComparator(){
         return new Comparator<TaskModel>() {
@@ -71,26 +78,4 @@ public class TaskModel {
             }
         };
     }
-
-//    private String id;
-//    private String createdBy; // ic
-//    private Date createdDate;
-//    private Date modifiedDate;
-//
-//    private String title;
-//    private String detail;
-////    private GeoJsonPoint location;
-//    private String wsname;
-//    private ETopicType type;
-//
-//
-//    private List<String> receiver; //ic
-//    private EStatus status; // New, Doing, Done
-//    private Date DueDate;
-//    private String refid;	// ref id of incident or issue or task
-//
-//    //private List<String> assignees; //  ic of accountuser
-////    private List<CheckList> checklist;
-//    private List<Comment> comments;
-//    private EStatus levelOfIncident; // HML
 }

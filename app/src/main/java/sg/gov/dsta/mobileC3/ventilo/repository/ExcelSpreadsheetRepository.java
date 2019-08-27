@@ -7,9 +7,11 @@ import android.util.Log;
 
 import java.io.File;
 
+import sg.gov.dsta.mobileC3.ventilo.AsyncParallelTask;
 import sg.gov.dsta.mobileC3.ventilo.activity.user.UserSettingsFragment;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.database.ExcelSpreadsheetUtil;
+import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 
 public class ExcelSpreadsheetRepository {
 
@@ -21,13 +23,29 @@ public class ExcelSpreadsheetRepository {
     public void pullDataFromExcelToDatabase() {
         PullDataFromExcelToDatabaseAsyncTask task =
                 new PullDataFromExcelToDatabaseAsyncTask();
-        task.execute();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute();
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     public void pushDataToExcelFromDatabase() {
         PushDataToExcelFromDatabaseAsyncTask task =
                 new PushDataToExcelFromDatabaseAsyncTask();
-        task.execute();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute();
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     private class PullDataFromExcelToDatabaseAsyncTask extends AsyncTask<String, Void, Void> {

@@ -12,9 +12,11 @@ import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import sg.gov.dsta.mobileC3.ventilo.AsyncParallelTask;
 import sg.gov.dsta.mobileC3.ventilo.database.DAO.UserDao;
 import sg.gov.dsta.mobileC3.ventilo.database.VentiloDatabase;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
+import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 
 public class UserRepository {
 
@@ -44,7 +46,15 @@ public class UserRepository {
     public void getAllUsers(SingleObserver singleObserver) {
         QueryAllUsersAsyncTask task = new
                 QueryAllUsersAsyncTask(mUserDao, singleObserver);
-        task.execute();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute();
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     public void queryUserByAccessToken(String accessToken, SingleObserver<UserModel> singleObserver) {
@@ -63,17 +73,41 @@ public class UserRepository {
 
     public void insertUser(UserModel userModel) {
         InsertAsyncTask task = new InsertAsyncTask(mUserDao);
-        task.execute(userModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(userModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     public void updateUser(UserModel userModel) {
         UpdateAsyncTask task = new UpdateAsyncTask(mUserDao);
-        task.execute(userModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(userModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     public void deleteUser(String userId) {
         DeleteAsyncTask task = new DeleteAsyncTask(mUserDao);
-        task.execute(userId);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(userId);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**

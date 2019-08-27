@@ -3,20 +3,24 @@ package sg.gov.dsta.mobileC3.ventilo.activity.user;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -31,13 +35,20 @@ import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
+import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.WaveRelayRadioViewModel;
+import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQClientPair;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQClientPairRunnable;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQServerPair;
+import sg.gov.dsta.mobileC3.ventilo.network.waveRelayRadio.WaveRelayRadioClient;
 import sg.gov.dsta.mobileC3.ventilo.repository.ExcelSpreadsheetRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 import timber.log.Timber;
@@ -58,25 +69,29 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
 
     // View Models
     private UserViewModel mUserViewModel;
+    private WaveRelayRadioViewModel mWaveRelayRadioViewModel;
 
     // Main
-    private View mLayoutMain;
+    private View mRootView;
+    private View mMainLayout;
 
     // Current user callsign / team profile section
-    private C2OpenSansRegularTextView mTvCurrentUserCallsign;
     private LinearLayout mLinearLayoutTeamProfileSelection;
-    private LinearLayout mLinearLayoutEditSaveIcon;
+    private UserSettingsCallsignTeamProfileRecyclerAdapter mRecyclerAdapter;
     private AppCompatImageView mImgEditSaveIcon;
 
     // Image buttons
     private View mImgLayoutPullFromExcel;
     private View mImgLayoutPushToExcel;
-    private View mImgLayoutSyncUp;
-    private View mImgLayoutLogout;
 
-    private RecyclerView mRecyclerView;
-    private UserSettingsCallsignTeamProfileRecyclerAdapter mRecyclerAdapter;
-    private RecyclerView.LayoutManager mRecyclerLayoutManager;
+    // Sync with Callsign overlay
+    private FrameLayout mFrameLayoutTransparentBg;
+    private View mViewSyncWithCallsign;
+    private C2OpenSansSemiBoldTextView mTvSyncWithCallsignNoOne;
+    private UserSettingsSyncWithCallsignRecyclerAdapter mRecyclerAdapterSyncWithCallsign;
+    private List<UserModel> mSyncWithCallsignUserModelList;
+    private String mSelectedUserIdForSync;
+
     /**
      * Snackbar Options:
      * 0 - Save Settings,
@@ -85,45 +100,49 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
      * 3 - Sync Up,
      * 4 - Logout
      */
-    private int snackbarOption;
+    private int mSnackbarOption;
     private UserModel mCurrentUserModel;
-    private BroadcastReceiver mBroadcastReceiver;
 
+    private BroadcastReceiver mDataSyncBroadcastReceiver;
     private boolean mIsFragmentVisibleToUser;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        View rootView = inflater.inflate(R.layout.fragment_user_settings, container, false);
+        setRetainInstance(true);
         observerSetup();
-        initUI(inflater, rootView);
 
-        return rootView;
+        if (mRootView == null) {
+            mRootView = inflater.inflate(R.layout.fragment_user_settings, container, false);
+            initUI(inflater, mRootView);
+        }
+
+        return mRootView;
     }
 
     private void initUI(LayoutInflater inflater, View rootView) {
-        mLayoutMain = rootView.findViewById(R.id.layout_user_settings);
+        mMainLayout = rootView.findViewById(R.id.layout_user_settings);
 
         initAllCallsignTeamProfileUI(rootView);
         initCurrentUserCallsignTeamProfileUI(inflater, rootView);
         initImageButtons(rootView);
+        initSyncWithCallsign(rootView);
     }
 
     private void initAllCallsignTeamProfileUI(View rootView) {
-        mRecyclerView = rootView.findViewById(R.id.recycler_user_settings_callsign_team_profile);
+        RecyclerView recyclerView = rootView.findViewById(R.id.recycler_user_settings_callsign_team_profile);
 
-        mRecyclerView.setHasFixedSize(false);
+        recyclerView.setHasFixedSize(false);
 
-        mRecyclerLayoutManager = new LinearLayoutManager(getActivity());
-        mRecyclerView.setLayoutManager(mRecyclerLayoutManager);
+        RecyclerView.LayoutManager recyclerLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(recyclerLayoutManager);
 
         List<UserModel> userListItems = new ArrayList<>();
 
         mRecyclerAdapter = new UserSettingsCallsignTeamProfileRecyclerAdapter(
                 getContext(), userListItems);
-        mRecyclerView.setAdapter(mRecyclerAdapter);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mRecyclerAdapter);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
     /**
@@ -133,13 +152,13 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
      * @param rootView
      */
     private void initCurrentUserCallsignTeamProfileUI(LayoutInflater inflater, View rootView) {
-        mTvCurrentUserCallsign = rootView.findViewById(R.id.tv_user_settings_current_user_callsign);
-        mTvCurrentUserCallsign.setText(SharedPreferenceUtil.getCurrentUserCallsignID());
+        C2OpenSansRegularTextView tvCurrentUserCallsign = rootView.findViewById(R.id.tv_user_settings_current_user_callsign);
+        tvCurrentUserCallsign.setText(SharedPreferenceUtil.getCurrentUserCallsignID());
 
         mLinearLayoutTeamProfileSelection = rootView.findViewById(R.id.layout_user_settings_team_profile_selection);
 
-        mLinearLayoutEditSaveIcon = rootView.findViewById(R.id.layout_user_settings_edit_save);
-        mLinearLayoutEditSaveIcon.setOnClickListener(onEditOrSaveTeamProfileClickListener);
+        LinearLayout linearLayoutEditSaveIcon = rootView.findViewById(R.id.layout_user_settings_edit_save);
+        linearLayoutEditSaveIcon.setOnClickListener(onEditOrSaveTeamProfileClickListener);
 
         mImgEditSaveIcon = rootView.findViewById(R.id.img_user_settings_team_profile_edit_save);
 
@@ -154,7 +173,7 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
             @Override
             public void onSuccess(List<UserModel> userModelList) {
 
-                Timber.i("onSuccess singleObserverForAllUsers, initCurrentUserCallsignTeamProfileUI. size of userModelList:  %d" ,userModelList.size());
+                Timber.i("onSuccess singleObserverForAllUsers, initCurrentUserCallsignTeamProfileUI. size of userModelList:  %d", userModelList.size());
 
 
                 // Get a list of a list of team profile names (by removing commas and spaces from
@@ -170,7 +189,7 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                         UserModel -> Arrays.asList(StringUtil.removeCommasAndExtraSpaces(UserModel.getTeam()))).
                         collect(Collectors.toList());
 
-                Timber.i("List of list of team profile names: %s" , listOfListOfTeamsProfileNames);
+                Timber.i("List of list of team profile names: %s", listOfListOfTeamsProfileNames);
 
 
                 // Converts the above list of list into a flat/single hierachy list
@@ -187,7 +206,7 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                                 .flatMap(list -> list.stream()).distinct()
                                 .collect(Collectors.toList());
 
-                Timber.i("List of distinct team profile names: %s" ,
+                Timber.i("List of distinct team profile names: %s",
                         flatListOfDistinctTeamsProfileNames);
 
 
@@ -205,9 +224,8 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                             removeCommasAndExtraSpaces(mCurrentUserModel.getTeam())));
                 }
 
-                Timber.i("List of team profile names which current user belong to: %s" ,
+                Timber.i("List of team profile names which current user belong to: %s",
                         currentUserTeamProfileNameList);
-
 
 
                 // Create button layout for each available Team user
@@ -284,17 +302,16 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
             @Override
             public void onError(Throwable e) {
                 // show an error message
-
-
-                Timber.e("onError singleObserverForAllUsers, initCurrentUserCallsignTeamProfileUI. Error Msg: %s" ,e.toString());
-
-
+                Timber.e("onError singleObserverForAllUsers, initCurrentUserCallsignTeamProfileUI. Error Msg: %s", e.toString());
             }
         };
 
         mUserViewModel.getAllUsers(singleObserverForAllUsers);
     }
 
+    /**
+     * Initialise image buttons UI
+     */
     private void initImageButtons(View rootView) {
 
         // Only allow CCT to push and pull data from Excel
@@ -305,6 +322,7 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                 SharedPreferenceUtil.getCurrentUserAccessRight())) {
             mImgLayoutPullFromExcel.setVisibility(View.GONE);
             mImgLayoutPushToExcel.setVisibility(View.GONE);
+
         } else {
             initPullFromExcelUI();
             initPushToExcelUI();
@@ -314,6 +332,9 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         initLogoutUI(rootView);
     }
 
+    /**
+     * Initialise Pull from Excel button UI
+     */
     private void initPullFromExcelUI() {
         mImgLayoutPullFromExcel.setVisibility(View.VISIBLE);
         LinearLayout layoutPullFromExcel = mImgLayoutPullFromExcel.findViewById(R.id.layout_main_img_text_img_btn);
@@ -331,6 +352,9 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         mImgLayoutPullFromExcel.setOnClickListener(onPullFromExcelClickListener);
     }
 
+    /**
+     * Initialise Push to Excel button UI
+     */
     private void initPushToExcelUI() {
         mImgLayoutPushToExcel.setVisibility(View.VISIBLE);
         LinearLayout layoutPushToExcel = mImgLayoutPushToExcel.findViewById(R.id.layout_main_img_text_img_btn);
@@ -348,11 +372,16 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         mImgLayoutPushToExcel.setOnClickListener(onPushToExcelClickListener);
     }
 
+    /**
+     * Initialise Sync Up button UI
+     *
+     * @param rootView
+     */
     private void initSyncUpUI(View rootView) {
-        mImgLayoutSyncUp = rootView.findViewById(R.id.layout_sync_img_text_img_btn);
-        LinearLayout layoutSyncUp = mImgLayoutSyncUp.findViewById(R.id.layout_main_img_text_img_btn);
-        C2OpenSansSemiBoldTextView tvPullSyncUp = mImgLayoutSyncUp.findViewById(R.id.tv_text_img_btn);
-        AppCompatImageView imgPullSyncUp = mImgLayoutSyncUp.findViewById(R.id.img_pic_img_btn);
+        View imgLayoutSyncUp = rootView.findViewById(R.id.layout_sync_img_text_img_btn);
+        LinearLayout layoutSyncUp = imgLayoutSyncUp.findViewById(R.id.layout_main_img_text_img_btn);
+        C2OpenSansSemiBoldTextView tvPullSyncUp = imgLayoutSyncUp.findViewById(R.id.tv_text_img_btn);
+        AppCompatImageView imgPullSyncUp = imgLayoutSyncUp.findViewById(R.id.img_pic_img_btn);
         layoutSyncUp.setBackground(ResourcesCompat.getDrawable(getResources(),
                 R.drawable.img_btn_background_cyan_border, null));
         tvPullSyncUp.setText(getString(R.string.btn_sync_up));
@@ -362,14 +391,19 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         imgPullSyncUp.setColorFilter(ContextCompat.getColor(getContext(), R.color.primary_highlight_cyan),
                 PorterDuff.Mode.SRC_ATOP);
 
-        mImgLayoutSyncUp.setOnClickListener(onSyncUpClickListener);
+        imgLayoutSyncUp.setOnClickListener(onSyncUpClickListener);
     }
 
+    /**
+     * Initialise Logout button UI
+     *
+     * @param rootView
+     */
     private void initLogoutUI(View rootView) {
-        mImgLayoutLogout = rootView.findViewById(R.id.layout_logout_img_text_img_btn);
-        LinearLayout layoutLogout = mImgLayoutLogout.findViewById(R.id.layout_main_img_text_img_btn);
-        C2OpenSansSemiBoldTextView tvLogout = mImgLayoutLogout.findViewById(R.id.tv_text_img_btn);
-        AppCompatImageView imgLogout = mImgLayoutLogout.findViewById(R.id.img_pic_img_btn);
+        View imgLayoutLogout = rootView.findViewById(R.id.layout_logout_img_text_img_btn);
+        LinearLayout layoutLogout = imgLayoutLogout.findViewById(R.id.layout_main_img_text_img_btn);
+        C2OpenSansSemiBoldTextView tvLogout = imgLayoutLogout.findViewById(R.id.tv_text_img_btn);
+        AppCompatImageView imgLogout = imgLayoutLogout.findViewById(R.id.img_pic_img_btn);
         layoutLogout.setBackground(ResourcesCompat.getDrawable(getResources(),
                 R.drawable.img_btn_background_red_border, null));
         tvLogout.setText(getString(R.string.btn_logout));
@@ -379,7 +413,102 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         imgLogout.setColorFilter(ContextCompat.getColor(getContext(), R.color.dull_red),
                 PorterDuff.Mode.SRC_ATOP);
 
-        mImgLayoutLogout.setOnClickListener(onLogoutClickListener);
+        imgLayoutLogout.setOnClickListener(onLogoutClickListener);
+    }
+
+    /**
+     * Initialise sync with callsign UI
+     *
+     * @param rootView
+     */
+    private void initSyncWithCallsign(View rootView) {
+        mFrameLayoutTransparentBg = rootView.findViewById(R.id.view_user_settings_transparent_bg);
+        mFrameLayoutTransparentBg.setVisibility(View.GONE);
+        mFrameLayoutTransparentBg.setOnClickListener(onTransparentBgClickListener);
+
+        mViewSyncWithCallsign = rootView.findViewById(R.id.layout_user_settings_sync_with_callsign);
+        mViewSyncWithCallsign.setVisibility(View.GONE);
+        mViewSyncWithCallsign.setOnClickListener(onSyncWithCallsignClickListener);
+
+        mTvSyncWithCallsignNoOne = mViewSyncWithCallsign.findViewById(R.id.tv_user_settings_sync_with_callsign_no_one);
+
+        RecyclerView recyclerViewSyncWithCallsign = rootView.findViewById(R.id.recycler_user_settings_sync_with_callsign);
+        recyclerViewSyncWithCallsign.setHasFixedSize(false);
+
+        RecyclerView.LayoutManager recyclerLayoutManagerSyncWithCallsign = new LinearLayoutManager(getActivity());
+        recyclerViewSyncWithCallsign.setLayoutManager(recyclerLayoutManagerSyncWithCallsign);
+
+        recyclerViewSyncWithCallsign.addOnItemTouchListener(new
+                UserSettingsSyncWithCallsignRecyclerItemTouchListener(getContext(), recyclerViewSyncWithCallsign,
+                new UserSettingsSyncWithCallsignRecyclerItemTouchListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+//                navigateToSitRepDetailFragment(mSitRepListItems.get(position));
+                if (getSnackbarView() != null) {
+                    mSnackbarOption = SNACKBAR_SYNC_UP_ID;
+                    mSelectedUserIdForSync = mSyncWithCallsignUserModelList.get(position).getUserId();
+
+                    String syncUpMessage = getString(R.string.snackbar_settings_sync_with_message).
+                            concat(StringUtil.SPACE).concat(mSelectedUserIdForSync).concat(StringUtil.QUESTION_MARK).
+                            concat(getString(R.string.snackbar_settings_data_overridden_message));
+
+                    SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
+                            syncUpMessage, UserSettingsFragment.this);
+                }
+            }
+
+            @Override
+            public void onLongItemClick(View view, int position) {
+            }
+
+            @Override
+            public void onSwipeLeft(View view, int position) {
+            }
+
+            @Override
+            public void onSwipeRight(View view, int position) {
+            }
+
+        }));
+
+        if (mSyncWithCallsignUserModelList == null) {
+            mSyncWithCallsignUserModelList = new ArrayList<>();
+        }
+
+        mRecyclerAdapterSyncWithCallsign = new UserSettingsSyncWithCallsignRecyclerAdapter(
+                getContext(), mSyncWithCallsignUserModelList);
+        recyclerViewSyncWithCallsign.setAdapter(mRecyclerAdapterSyncWithCallsign);
+        recyclerViewSyncWithCallsign.setItemAnimator(new DefaultItemAnimator());
+
+        initSyncWithCallsignCancelButtonUI(mViewSyncWithCallsign);
+    }
+
+    /**
+     * Initialise Sync With Callsign Cancel Button UI
+     * @param rootView
+     */
+    private void initSyncWithCallsignCancelButtonUI(View rootView) {
+        View viewSyncWithCallsignCancelButton = rootView.
+                findViewById(R.id.layout_sync_with_callsign_cancel_img_text_img_btn);
+        viewSyncWithCallsignCancelButton.setOnClickListener(onSyncWithCallsignCancelClickListener);
+
+        LinearLayout layoutSyncWithCallsignCancel = viewSyncWithCallsignCancelButton.
+                findViewById(R.id.layout_main_img_text_img_btn);
+        C2OpenSansSemiBoldTextView tvSyncWithCallsignCancel = viewSyncWithCallsignCancelButton.
+                findViewById(R.id.tv_text_img_btn);
+        AppCompatImageView imgSyncWithCallsignCancelIcon = viewSyncWithCallsignCancelButton.
+                findViewById(R.id.img_pic_img_btn);
+
+        layoutSyncWithCallsignCancel.setBackground(ResourcesCompat.getDrawable(getResources(),
+                R.drawable.img_btn_background_hint_grey_border, null));
+        tvSyncWithCallsignCancel.setTextColor(ContextCompat.getColor(getContext(),
+                R.color.primary_text_hint_dark_grey));
+        imgSyncWithCallsignCancelIcon.setColorFilter(ContextCompat.getColor(getContext(),
+                R.color.primary_text_hint_dark_grey), PorterDuff.Mode.SRC_ATOP);
+
+        tvSyncWithCallsignCancel.setText(getString(R.string.sync_with_callsign_cancel));
+        imgSyncWithCallsignCancelIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+                R.drawable.icon_cancel, null));
     }
 
     private View.OnClickListener onEditOrSaveTeamProfileClickListener = new View.OnClickListener() {
@@ -461,8 +590,8 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         @Override
         public void onClick(View view) {
             if (getSnackbarView() != null) {
-                snackbarOption = SNACKBAR_PULL_FROM_EXCEL_ID;
-                SnackbarUtil.showCustomAlertSnackbar(mLayoutMain, getSnackbarView(),
+                mSnackbarOption = SNACKBAR_PULL_FROM_EXCEL_ID;
+                SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
                         getString(R.string.snackbar_settings_pull_from_excel_message),
                         UserSettingsFragment.this);
             }
@@ -473,8 +602,8 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         @Override
         public void onClick(View view) {
             if (getSnackbarView() != null) {
-                snackbarOption = SNACKBAR_PUSH_TO_EXCEL_ID;
-                SnackbarUtil.showCustomAlertSnackbar(mLayoutMain, getSnackbarView(),
+                mSnackbarOption = SNACKBAR_PUSH_TO_EXCEL_ID;
+                SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
                         getString(R.string.snackbar_settings_push_to_excel_message),
                         UserSettingsFragment.this);
             }
@@ -484,12 +613,14 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     private View.OnClickListener onSyncUpClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            if (getSnackbarView() != null) {
-                snackbarOption = SNACKBAR_SYNC_UP_ID;
-                SnackbarUtil.showCustomAlertSnackbar(mLayoutMain, getSnackbarView(),
-                        getString(R.string.snackbar_settings_sync_up_message),
-                        UserSettingsFragment.this);
-            }
+            showOrHideSyncWithCallsignOptions(true);
+
+//            if (getSnackbarView() != null) {
+//                mSnackbarOption = SNACKBAR_SYNC_UP_ID;
+//                SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
+//                        getString(R.string.snackbar_settings_sync_up_message),
+//                        UserSettingsFragment.this);
+//            }
         }
     };
 
@@ -497,14 +628,42 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         @Override
         public void onClick(View view) {
             if (getSnackbarView() != null) {
-                snackbarOption = SNACKBAR_LOGOUT_ID;
-                SnackbarUtil.showCustomAlertSnackbar(mLayoutMain, getSnackbarView(),
+                mSnackbarOption = SNACKBAR_LOGOUT_ID;
+                SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
                         getString(R.string.snackbar_settings_logout_message),
                         UserSettingsFragment.this);
             }
         }
     };
 
+    private View.OnClickListener onTransparentBgClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mFrameLayoutTransparentBg.setVisibility(View.GONE);
+            mViewSyncWithCallsign.setVisibility(View.GONE);
+        }
+    };
+
+    private View.OnClickListener onSyncWithCallsignClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            // Do nothing; OnClickListener required to obtain focus from other onClick listeners
+        }
+    };
+
+    private View.OnClickListener onSyncWithCallsignCancelClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mFrameLayoutTransparentBg.setVisibility(View.GONE);
+            mViewSyncWithCallsign.setVisibility(View.GONE);
+        }
+    };
+
+    /**
+     * Get Snackbar view from main activity
+     *
+     * @return
+     */
     private View getSnackbarView() {
         if (getActivity() instanceof MainActivity) {
             return ((MainActivity) getActivity()).getSnackbarView();
@@ -514,7 +673,6 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     }
 
     private void pullDataFromExcelToDatabase() {
-
         Timber.i("Pulling data from Excel to Database...");
 
         ExcelSpreadsheetRepository excelSpreadsheetRepository =
@@ -525,40 +683,191 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     private void pushToExcelFromDatabase() {
         Timber.i("Pushing data to Excel from Database...");
 
-
         ExcelSpreadsheetRepository excelSpreadsheetRepository =
                 new ExcelSpreadsheetRepository();
         excelSpreadsheetRepository.pushDataToExcelFromDatabase();
     }
 
-//    private void registerExcelBroadcastReceiver() {
-//        IntentFilter filter = new IntentFilter();
-//        filter.addAction(EXCEL_DATA_PULLED_INTENT_ACTION);
-//        filter.addAction(EXCEL_DATA_PUSHED_INTENT_ACTION);
+    /**
+     * Show or Hide Sync with Callsign layout UI for synchronisation
+     *
+     * @param isVisible
+     */
+    private void showOrHideSyncWithCallsignOptions(boolean isVisible) {
+
+        if (isVisible) {
+            mViewSyncWithCallsign.setVisibility(View.VISIBLE);
+            mFrameLayoutTransparentBg.setVisibility(View.VISIBLE);
+
+//            if (getActivity() instanceof MainActivity) {
+//                MainActivity mainActivity = (MainActivity) getActivity();
+
+//                Blurry.with(MainApplication.getAppContext())
+//                        .radius(10)
+//                        .sampling(8)
+//                        .color(ResourcesCompat.getColor(getResources(),
+//                                R.color.primary_text_hint_dark_grey, null))
+//                        .async()
+//                        .animate(50)
+//                        .onto((ViewGroup) mFrameLayoutTransparentBg);
+//            }
+
+        } else {
+            mViewSyncWithCallsign.setVisibility(View.GONE);
+            mFrameLayoutTransparentBg.setVisibility(View.GONE);
+
+//            if (getActivity() instanceof MainActivity) {
+//                MainActivity mainActivity = (MainActivity) getActivity();
+
+//                Blurry.with(MainApplication.getAppContext())
+//                        .radius(100)
+//                        .sampling(8)
+//                        .color(ResourcesCompat.getColor(getResources(),
+//                                R.color.primary_text_hint_dark_grey, null))
+//                        .async()
+//                        .animate(500)
+//                        .onto((ViewGroup) mFrameLayoutTransparentBg);
+//            }
+        }
+    }
+//    /**
+//     * Synchronise Sit Rep with CCT over the network
+//     */
+//    private void broadcastSitRepForSync() {
+//        Timber.i("Synchronising Sit Rep data...");
 //
-//        mBroadcastReceiver = new BroadcastReceiver() {
+//        SingleObserver<List<SitRepModel>> singleObserverGetAllSitReps = new SingleObserver<List<SitRepModel>>() {
 //            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                if (EXCEL_DATA_PULLED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
-//                    SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
-//                            getString(R.string.snackbar_settings_pull_from_excel_successful_message));
-//                } else if (EXCEL_DATA_PUSHED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
-//                    SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
-//                            getString(R.string.snackbar_settings_push_to_excel_successful_message));
-//                } else if (DATA_SYNCED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
-//                    SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
-//                            getString(R.string.snackbar_settings_sync_up_successful_message));
-//                } else if (LOGGED_OUT_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
-//                    SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
-//                            getString(R.string.snackbar_settings_logout_successful_message));
+//            public void onSubscribe(Disposable d) {
+//                // add it to a CompositeDisposable
+//            }
+//
+//            @Override
+//            public void onSuccess(List<SitRepModel> sitRepModelList) {
+//                Timber.i("onSuccess singleObserverGetAllSitReps, broadcastSitRepForSync. sitRepModelList.size(): %d",
+//                        sitRepModelList.size());
+//
+//                for (int i = 0; i < sitRepModelList.size(); i++) {
+//                    JeroMQBroadcastOperation.UnicastDataSyncOverSocket(sitRepModelList.get(i));
 //                }
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//                Timber.e("onError singleObserverGetAllSitReps, broadcastSitRepForSync. Error Msg: %s ", e.toString());
 //            }
 //        };
 //
-//        LocalBroadcastManager.getInstance(getContext()).registerReceiver(mBroadcastReceiver, filter);
+//        mSitRepViewModel.getAllSitReps(singleObserverGetAllSitReps);
+//    }
+//
+//    /**
+//     * Synchronise Task with CCT over the network
+//     */
+//    private void broadcastTaskForSync() {
+//        Timber.i("Synchronising Task data...");
+//
+//        SingleObserver<List<TaskModel>> singleObserverGetAllTasks = new SingleObserver<List<TaskModel>>() {
+//            @Override
+//            public void onSubscribe(Disposable d) {
+//                // add it to a CompositeDisposable
+//            }
+//
+//            @Override
+//            public void onSuccess(List<TaskModel> taskModelList) {
+//                Timber.i("onSuccess singleObserverGetAllTasks, broadcastTaskForSync. taskModelList.size(): %d",
+//                        taskModelList.size());
+//
+//                for (int i = 0; i < taskModelList.size(); i++) {
+//                    JeroMQBroadcastOperation.UnicastDataSyncOverSocket(taskModelList.get(i));
+//                }
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//                Timber.e("onError singleObserverGetAllTasks, broadcastTaskForSync. Error Msg: %s ", e.toString());
+//            }
+//        };
+//
+//        mTaskViewModel.getAllTasks(singleObserverGetAllTasks);
 //    }
 
+    /**
+     * Sends a synchronisation request message to CCT
+     */
+    private void syncWithCallsign() {
+        mFrameLayoutTransparentBg.setVisibility(View.GONE);
+        mViewSyncWithCallsign.setVisibility(View.GONE);
 
+        SingleObserver<List<WaveRelayRadioModel>> singleObserverGetAllWaveRelayRadios =
+                new SingleObserver<List<WaveRelayRadioModel>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        // add it to a CompositeDisposable
+                    }
+
+                    @Override
+                    public void onSuccess(List<WaveRelayRadioModel> waveRelayRadioModelList) {
+                        Timber.i("onSuccess singleObserverGetAllWaveRelayRadios, syncWithCallsign. waveRelayRadioModelList.size(): %d",
+                                waveRelayRadioModelList.size());
+
+                        boolean isUserConnected = false;
+                        String targetPhoneIPAddress;
+
+                        for (int i = 0; i < waveRelayRadioModelList.size(); i++) {
+                            WaveRelayRadioModel waveRelayRadioModel = waveRelayRadioModelList.get(i);
+                            String userId = waveRelayRadioModel.getUserId();
+
+                            /**
+                             * Request socket has to be executed in this order:
+                             * 1) Set target phone ip address
+                             * 2) Start process of creating and connected socket of target address
+                             * 3) Send message
+                             */
+                            if (mSelectedUserIdForSync.equalsIgnoreCase(userId)) {
+                                Timber.i("Synchronising data with %s over the network...", mSelectedUserIdForSync);
+
+                                isUserConnected = true;
+                                targetPhoneIPAddress = waveRelayRadioModel.getPhoneIpAddress();
+                                JeroMQClientPair.getInstance().setTargetPhoneIPAddress(targetPhoneIPAddress);
+                                JeroMQClientPair.getInstance().start();
+                                JeroMQClientPair.getInstance().sendSyncReqMessage();
+
+                                // Sends a snackbar notification that sync request has been sent
+                                if (getSnackbarView() != null) {
+                                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                            getString(R.string.snackbar_settings_sync_up_request_sent_message));
+                                }
+                            }
+                        }
+
+                        if (!isUserConnected) {
+                            if (getSnackbarView() != null) {
+                                String userLostConnectionMsg = mSelectedUserIdForSync.concat(StringUtil.SPACE).
+                                        concat(getString(R.string.snackbar_send_error_user_not_connected_message));
+
+                                SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                        userLostConnectionMsg);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Timber.e("onError singleObserverGetAllWaveRelayRadios, syncWithCallsign. Error Msg: %s ", e.toString());
+                    }
+                };
+
+        mWaveRelayRadioViewModel.getAllWaveRelayRadios(singleObserverGetAllWaveRelayRadios);
+    }
+
+    /**
+     * Sets each Selected team profile name button UI to Editable layout
+     *
+     * @param viewBtnTeamProfileName
+     * @param tvTeamProfileName
+     * @param imgTeamProfileNameRadioBtn
+     */
     private void setTeamProfileNameSelectedEditableUI(View viewBtnTeamProfileName,
                                                       C2OpenSansSemiBoldTextView tvTeamProfileName,
                                                       AppCompatImageView imgTeamProfileNameRadioBtn) {
@@ -572,6 +881,13 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                 getContext(), R.color.translucent), PorterDuff.Mode.SRC_ATOP);
     }
 
+    /**
+     * Sets each Selected team profile name button UI to Uneditable layout
+     *
+     * @param viewBtnTeamProfileName
+     * @param tvTeamProfileName
+     * @param imgTeamProfileNameRadioBtn
+     */
     private void setTeamProfileNameSelectedUneditableUI(View viewBtnTeamProfileName,
                                                         C2OpenSansSemiBoldTextView tvTeamProfileName,
                                                         AppCompatImageView imgTeamProfileNameRadioBtn) {
@@ -585,6 +901,13 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                 getContext(), R.color.translucent), PorterDuff.Mode.SRC_ATOP);
     }
 
+    /**
+     * Sets each Unselected team profile name button UI to Editable layout
+     *
+     * @param viewBtnTeamProfileName
+     * @param tvTeamProfileName
+     * @param imgTeamProfileNameRadioBtn
+     */
     private void setTeamProfileNameUnselectedEditableUI(View viewBtnTeamProfileName,
                                                         C2OpenSansSemiBoldTextView tvTeamProfileName,
                                                         AppCompatImageView imgTeamProfileNameRadioBtn) {
@@ -598,6 +921,13 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                 getContext(), R.color.translucent), PorterDuff.Mode.SRC_ATOP);
     }
 
+    /**
+     * Sets each Unselected team profile name button UI to Uneditable layout
+     *
+     * @param viewBtnTeamProfileName
+     * @param tvTeamProfileName
+     * @param imgTeamProfileNameRadioBtn
+     */
     private void setTeamProfileNameUnselectedUneditableUI(View viewBtnTeamProfileName,
                                                           C2OpenSansSemiBoldTextView tvTeamProfileName,
                                                           AppCompatImageView imgTeamProfileNameRadioBtn) {
@@ -612,10 +942,84 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     }
 
     /**
+     * Registers broadcast receiver notification of successful connection of wave relay client
+     */
+    private void registerDataSyncBroadcastReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(JeroMQClientPairRunnable.DATA_SYNC_SUCCESSFUL_INTENT_ACTION);
+        filter.addAction(JeroMQClientPairRunnable.DATA_SYNC_FAILED_INTENT_ACTION);
+
+        mDataSyncBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (JeroMQClientPairRunnable.DATA_SYNC_SUCCESSFUL_INTENT_ACTION.
+                        equalsIgnoreCase(intent.getAction())) {
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                            MainApplication.getAppContext().
+                                    getString(R.string.snackbar_settings_sync_up_successful_message));
+
+                } else if (JeroMQClientPairRunnable.DATA_SYNC_FAILED_INTENT_ACTION.
+                        equalsIgnoreCase(intent.getAction())) {
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                            MainApplication.getAppContext().
+                                    getString(R.string.snackbar_settings_sync_up_failed_message));
+                }
+            }
+        };
+
+        LocalBroadcastManager.getInstance(MainApplication.getAppContext()).registerReceiver(mDataSyncBroadcastReceiver, filter);
+    }
+
+    /**
+     * Refresh Sync with Callsign UI with updated live data
+     * @param userModelList
+     */
+    private void refreshSyncWithCallsignUI(List<UserModel> userModelList) {
+
+        if (mSyncWithCallsignUserModelList == null) {
+            mSyncWithCallsignUserModelList = new ArrayList<>();
+        } else {
+            mSyncWithCallsignUserModelList.clear();
+        }
+
+        // Obtain User model of CCTs who are ONLINE from database
+        List<UserModel> cctUserOnlineModelList = userModelList.stream().
+                filter(userModel -> EAccessRight.CCT.toString().
+                        equalsIgnoreCase(userModel.getRole()) &&
+                        !SharedPreferenceUtil.getCurrentUserCallsignID().
+                                equalsIgnoreCase(userModel.getUserId()) &&
+                        userModel.getRadioFullConnectionStatus().
+                                equalsIgnoreCase(ERadioConnectionStatus.ONLINE.toString())).
+                collect(Collectors.toList());
+
+        // Obtain User model of Team Leads who are ONLINE from database
+        List<UserModel> teamLeadUserOnlineModelList = userModelList.stream().
+                filter(userModel -> EAccessRight.TEAM_LEAD.toString().
+                        equalsIgnoreCase(userModel.getRole()) &&
+                                !SharedPreferenceUtil.getCurrentUserCallsignID().
+                                        equalsIgnoreCase(userModel.getUserId()) &&
+                        userModel.getRadioFullConnectionStatus().
+                                equalsIgnoreCase(ERadioConnectionStatus.ONLINE.toString())).
+                collect(Collectors.toList());
+
+        mSyncWithCallsignUserModelList.addAll(cctUserOnlineModelList);
+        mSyncWithCallsignUserModelList.addAll(teamLeadUserOnlineModelList);
+
+        mRecyclerAdapterSyncWithCallsign.setUserListItems(mSyncWithCallsignUserModelList);
+
+        if (mSyncWithCallsignUserModelList.size() == 0) {
+            mTvSyncWithCallsignNoOne.setVisibility(View.VISIBLE);
+        } else {
+            mTvSyncWithCallsignNoOne.setVisibility(View.GONE);
+        }
+    }
+
+    /**
      * Set up observer for live updates on view models and update UI accordingly
      */
     private void observerSetup() {
         mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+        mWaveRelayRadioViewModel = ViewModelProviders.of(this).get(WaveRelayRadioViewModel.class);
 
         /*
          * Refreshes UI whenever there is a change in User (insert, update or delete)
@@ -623,10 +1027,11 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         mUserViewModel.getAllUsersLiveData().observe(this, new Observer<List<UserModel>>() {
             @Override
             public void onChanged(@Nullable List<UserModel> userModelList) {
-                System.out.println("userModelList is " + userModelList);
-
+                Timber.i("SyncWithCallsign userModelList: " + userModelList);
 
                 mRecyclerAdapter.setUserListItems(userModelList);
+
+                refreshSyncWithCallsignUI(userModelList);
             }
         });
     }
@@ -640,7 +1045,7 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         if (!isAdded())
             return false;
 
-        if(getChildFragmentManager().getBackStackEntryCount() > 0) {
+        if (getChildFragmentManager().getBackStackEntryCount() > 0) {
             getChildFragmentManager().popBackStackImmediate();
             return true;
         } else
@@ -650,6 +1055,7 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     private void onVisible() {
         Timber.i("onVisible");
 
+        registerDataSyncBroadcastReceiver();
 
 //        FragmentManager fm = getChildFragmentManager();
 //        boolean isFragmentFound = false;
@@ -672,14 +1078,17 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     }
 
     private void onInvisible() {
-
         Timber.i("onInvisible");
 
+        if (mDataSyncBroadcastReceiver != null) {
+            LocalBroadcastManager.getInstance(MainApplication.getAppContext()).unregisterReceiver(mDataSyncBroadcastReceiver);
+            mDataSyncBroadcastReceiver = null;
+        }
     }
 
     @Override
     public void onSnackbarActionClick() {
-        switch (snackbarOption) {
+        switch (mSnackbarOption) {
             case SNACKBAR_PULL_FROM_EXCEL_ID: // Pull from Excel
                 pullDataFromExcelToDatabase();
                 break;
@@ -688,7 +1097,8 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                 pushToExcelFromDatabase();
                 break;
 
-            case SNACKBAR_SYNC_UP_ID: // Sync Up
+            case SNACKBAR_SYNC_UP_ID: // Sync Up with selected user
+                syncWithCallsign();
                 break;
 
             case SNACKBAR_LOGOUT_ID: // Logout

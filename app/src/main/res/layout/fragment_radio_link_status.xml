@@ -90,7 +90,7 @@
     <!--</LinearLayout>-->
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_radio_status_link_offline"
+        android:id="@+id/recycler_ship_blueprint_personnel_status_link"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/img_btn_background_without_border"

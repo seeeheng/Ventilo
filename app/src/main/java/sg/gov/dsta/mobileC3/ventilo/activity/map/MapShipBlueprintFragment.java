@@ -2,22 +2,25 @@ package sg.gov.dsta.mobileC3.ventilo.activity.map;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.AppCompatImageView;
-import android.util.Log;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,14 +32,18 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.exoplayer2.util.Log;
 import com.nutiteq.components.Color;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -56,19 +63,29 @@ import sg.gov.dh.utils.Coords;
 import sg.gov.dh.utils.FileSaver;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
+import sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.radioLinkStatus.DashboardRadioLinkStatusFragment;
+import sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.sitRepPersonnelStatus.DashboardSitRepPersonnelStatusFragment;
+import sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.taskPhaseStatus.DashboardTaskPhaseStatusFragment;
+import sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.videoStream.DashboardVideoStreamFragment;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
+import sg.gov.dsta.mobileC3.ventilo.model.eventbus.BftEvent;
+import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.BFTViewModel;
+import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQParent;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQ;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.JSONUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SpinnerItemListDataBank;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.DatabaseTableConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.bft.EBftType;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 import timber.log.Timber;
@@ -84,13 +101,15 @@ public class MapShipBlueprintFragment extends Fragment {
     private C2OpenSansSemiBoldTextView mTextAction;
 
     // View models
+    private UserViewModel mUserViewModel;
     private BFTViewModel mBFTViewModel;
 
     // Main UI
     private View mRootView;
-    private LinearLayout mMainLayout;
+    private FrameLayout mMainLayout;
     private FrameLayout mFrameLayoutBlueprint;
-    private WebView myWebView;
+    private LinearLayout mLinearLayoutDashboardFragments;
+    private static WebView myWebView;
     private View mMiddleDivider;
     private View mBottomDivider;
 
@@ -101,8 +120,23 @@ public class MapShipBlueprintFragment extends Fragment {
     private View mTaskPhaseStatusFragment;
     private View mRadioLinkStatusFragment;
 
+    private DashboardVideoStreamFragment mDashboardVideoStreamFragment;
+    private DashboardSitRepPersonnelStatusFragment mDashboardSitRepPersonnelStatusFragment;
+    private DashboardTaskPhaseStatusFragment mDashboardTaskPhaseStatusFragment;
+    private DashboardRadioLinkStatusFragment mDashboardRadioLinkStatusFragment;
+
     private List<String> mSpinnerFloorNameLinkList;
 //    private ArrayList<String> mSpinnerFloorNameList;
+
+    // Personnel Link Status
+    private ConstraintLayout mConstraintLayoutPersonnelLinkStatus;
+    private RelativeLayout mRelativeLayoutPersonnelLinkStatusImgBtn;
+    private AppCompatImageView mImgPersonnelLinkStatusIcon;
+    private AppCompatImageView mImgPersonnelLinkStatusTriangleIcon;
+    private RecyclerView mRecyclerViewPersonnelLinkStatus;
+    private MapPersonnelLinkStatusRecyclerAdapter mRecyclerAdapterPersonnelLinkStatus;
+    private RecyclerView.LayoutManager mRecyclerLayoutManagerPersonnelLinkStatus;
+    private List<UserModel> mPersonnelLinkStatusUserListItems;
 
     // Killed In Action (KIA)/Hazard and Deceased UI
     private static RelativeLayout mRelativeLayoutHazardImgBtn;
@@ -136,51 +170,68 @@ public class MapShipBlueprintFragment extends Fragment {
 //    private boolean mIsTrackerUpdateInitialised; // For onNewCoord listener to fire at least once
 
     private boolean mIsFragmentVisibleToUser;
+    private boolean mIsDbVideoFragmentRefreshed;
+    private boolean mIsDbSitRepPersonnelStatusFragmentRefreshed;
+    private boolean mIsDbTaskPhaseStatusFragmentRefreshed;
+    private boolean mIsDbRadioLinkStatusFragmentRefreshed;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        if (mRootView == null) {
-            observerSetup();
+        observerSetup();
 
+        if (mRootView == null) {
             mRootView = inflater.inflate(R.layout.fragment_map_ship_blueprint, container, false);
             initUI(mRootView);
 
-            mOwnBFTModel = new BFTModel();
             prefs = new BFTLocalPreferences(this.getContext());
 
             initTracker();
             initWebviewSettings();
+            setupMQListener();
         }
 
         return mRootView;
     }
 
-    private void initUI(View rootMapShipBlueprintView) {
-        mMainLayout = rootMapShipBlueprintView.findViewById(R.id.layout_map_ship_blueprint_fragment);
-        mFrameLayoutBlueprint = rootMapShipBlueprintView.findViewById(R.id.layout_map_ship_blueprint);
-        mMiddleDivider = rootMapShipBlueprintView.
+    private void initUI(View rootView) {
+        mMainLayout = rootView.findViewById(R.id.layout_map_ship_blueprint_fragment);
+        mFrameLayoutBlueprint = rootView.findViewById(R.id.layout_map_ship_blueprint);
+        mLinearLayoutDashboardFragments = rootView.findViewById(R.id.layout_fragment_dashboard);
+        mMiddleDivider = rootView.
                 findViewById(R.id.view_map_ship_blueprint_middle_divider);
-        mHorizontalSVDashboardFragments = rootMapShipBlueprintView.
+        mHorizontalSVDashboardFragments = rootView.
                 findViewById(R.id.hs_view_map_ship_blueprint_dashboard_fragments);
-        mBottomDivider = rootMapShipBlueprintView.
+        mBottomDivider = rootView.
                 findViewById(R.id.view_map_ship_blueprint_bottom_divider);
 
-        if (myWebView != null) {
-            myWebView.evaluateJavascript("javascript: disconnectRabbitMQ()", null);
-        }
-        myWebView = rootMapShipBlueprintView.findViewById(R.id.webview_bft);
+        initPersonnelLinkStatusUI(rootView);
 
-        mVideoStreamFragment = rootMapShipBlueprintView.
+//        if (myWebView != null) {
+//            myWebView.evaluateJavascript("javascript: disconnectRabbitMQ()", null);
+//        }
+        myWebView = rootView.findViewById(R.id.webview_bft);
+
+        mVideoStreamFragment = rootView.
                 findViewById(R.id.fragment_dashboard_video_stream);
-        mSitRepPersonnelStatusFragment = rootMapShipBlueprintView.
+        mSitRepPersonnelStatusFragment = rootView.
                 findViewById(R.id.fragment_dashboard_sitrep_personnel_status);
-        mTaskPhaseStatusFragment = rootMapShipBlueprintView.
+        mTaskPhaseStatusFragment = rootView.
                 findViewById(R.id.fragment_dashboard_task_phase_status);
-        mRadioLinkStatusFragment = rootMapShipBlueprintView.
+        mRadioLinkStatusFragment = rootView.
                 findViewById(R.id.fragment_dashboard_radio_link_status);
+
+        mDashboardVideoStreamFragment = (DashboardVideoStreamFragment)
+                getChildFragmentManager().findFragmentById(R.id.fragment_dashboard_video_stream);
+        mDashboardSitRepPersonnelStatusFragment = (DashboardSitRepPersonnelStatusFragment)
+                getChildFragmentManager().findFragmentById(R.id.fragment_dashboard_sitrep_personnel_status);
+        mDashboardTaskPhaseStatusFragment = (DashboardTaskPhaseStatusFragment)
+                getChildFragmentManager().findFragmentById(R.id.fragment_dashboard_task_phase_status);
+        mDashboardRadioLinkStatusFragment = (DashboardRadioLinkStatusFragment)
+                getChildFragmentManager().findFragmentById(R.id.fragment_dashboard_radio_link_status);
 
         if (!EAccessRight.CCT.toString().equalsIgnoreCase(
                 SharedPreferenceUtil.getCurrentUserAccessRight())) {
@@ -190,6 +241,7 @@ public class MapShipBlueprintFragment extends Fragment {
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     760.0f
             );
+
             mFrameLayoutBlueprint.setLayoutParams(param);
 
             mMiddleDivider.setVisibility(View.GONE);
@@ -207,19 +259,62 @@ public class MapShipBlueprintFragment extends Fragment {
             mBottomDivider.setVisibility(View.VISIBLE);
         }
 
-        mTextXYZ = rootMapShipBlueprintView.findViewById(R.id.tv_map_blueprint_textXYZ);
-        mTextBearing = rootMapShipBlueprintView.findViewById(R.id.tv_map_blueprint_textBearing);
-        mTextAction = rootMapShipBlueprintView.findViewById(R.id.tv_map_blueprint_textAction);
+        mTextXYZ = rootView.findViewById(R.id.tv_map_blueprint_textXYZ);
+        mTextBearing = rootView.findViewById(R.id.tv_map_blueprint_textBearing);
+        mTextAction = rootView.findViewById(R.id.tv_map_blueprint_textAction);
 
-        initSideButtons(rootMapShipBlueprintView);
-        initFloorSpinner(rootMapShipBlueprintView);
+        initSideButtons(rootView);
+        initFloorSpinner(rootView);
 
-        final ImageView imgSetting = rootMapShipBlueprintView.findViewById(R.id.img_btn_ship_blueprint_setting);
-        imgSetting.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-            }
-        });
+//        final ImageView imgSetting = rootMapShipBlueprintView.findViewById(R.id.img_btn_ship_blueprint_setting);
+//        imgSetting.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                startActivity(new Intent(getActivity(), SettingsActivity.class));
+//            }
+//        });
+    }
+
+    private void initPersonnelLinkStatusUI(View rootView) {
+        mConstraintLayoutPersonnelLinkStatus = rootView.
+                findViewById(R.id.layout_map_ship_blueprint_personnel_link_status);
+        View layoutPersonnelLinkStatusImgBtn = rootView.
+                findViewById(R.id.layout_map_ship_blueprint_personnel_link_status_icon);
+        mRelativeLayoutPersonnelLinkStatusImgBtn = layoutPersonnelLinkStatusImgBtn.
+                findViewById(R.id.relative_layout_img_with_img_btn);
+        mImgPersonnelLinkStatusIcon = layoutPersonnelLinkStatusImgBtn.findViewById(R.id.img_pic_within_img_btn);
+        mImgPersonnelLinkStatusIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+                R.drawable.icon_personnel, null));
+        setPersonnelLinkStatusIconUnselectedStateUI();
+        mRelativeLayoutPersonnelLinkStatusImgBtn.setOnClickListener(onPersonnelLinkStatusIconClickListener);
+
+        mImgPersonnelLinkStatusTriangleIcon = rootView.findViewById(R.id.img_ship_blueprint_triangle);
+        mImgPersonnelLinkStatusTriangleIcon.setVisibility(View.GONE);
+
+        mRecyclerViewPersonnelLinkStatus = rootView.findViewById(R.id.recycler_ship_blueprint_personnel_status_link);
+        mRecyclerViewPersonnelLinkStatus.setHasFixedSize(true);
+        mRecyclerViewPersonnelLinkStatus.setNestedScrollingEnabled(false);
+        mRecyclerViewPersonnelLinkStatus.setVisibility(View.GONE);
+
+        if (!EAccessRight.CCT.toString().equalsIgnoreCase(
+                SharedPreferenceUtil.getCurrentUserAccessRight())) {
+            DimensionUtil.setDimensions(mRecyclerViewPersonnelLinkStatus,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    (int) getResources().getDimension(
+                            R.dimen.map_blueprint_recycler_personnel_link_status_height_for_TL),
+                    new LinearLayout(getContext()));
+        }
+
+        mRecyclerLayoutManagerPersonnelLinkStatus = new LinearLayoutManager(getActivity());
+        mRecyclerViewPersonnelLinkStatus.setLayoutManager(mRecyclerLayoutManagerPersonnelLinkStatus);
+
+        if (mPersonnelLinkStatusUserListItems == null) {
+            mPersonnelLinkStatusUserListItems = new ArrayList<>();
+        }
+
+        mRecyclerAdapterPersonnelLinkStatus = new MapPersonnelLinkStatusRecyclerAdapter(getContext(),
+                mPersonnelLinkStatusUserListItems);
+        mRecyclerViewPersonnelLinkStatus.setAdapter(mRecyclerAdapterPersonnelLinkStatus);
+        mRecyclerViewPersonnelLinkStatus.setItemAnimator(new DefaultItemAnimator());
     }
 
     private void initWebviewSettings() {
@@ -248,9 +343,9 @@ public class MapShipBlueprintFragment extends Fragment {
         setupFileSaver();
     }
 
-    private void initFloorSpinner(View rootBlueprintView) {
+    private void initFloorSpinner(View rootView) {
         // Floor Spinner
-        Spinner spinnerBlueprintList = rootBlueprintView.findViewById(R.id.spinner_ship_blueprint_floor_selector);
+        Spinner spinnerBlueprintList = rootView.findViewById(R.id.spinner_ship_blueprint_floor_selector);
         List<String> spinnerFloorNameList = new ArrayList<>(Arrays.asList(SpinnerItemListDataBank.getInstance().
                 getBlueprintFloorStrArray()));
         mSpinnerFloorNameLinkList = Arrays.asList(SpinnerItemListDataBank.getInstance().
@@ -291,8 +386,9 @@ public class MapShipBlueprintFragment extends Fragment {
                 }
             };
 
-    private void initSideButtons(View rootMapShipBlueprintView) {
-        View layoutMainHazardImgBtn = rootMapShipBlueprintView.findViewById(R.id.layout_map_ship_blueprint_fragment_hazard_icon);
+    // Initialises Hazard and Deceased icon buttons UI and listeners
+    private void initSideButtons(View rootView) {
+        View layoutMainHazardImgBtn = rootView.findViewById(R.id.layout_map_ship_blueprint_hazard_icon);
         mRelativeLayoutHazardImgBtn = layoutMainHazardImgBtn.findViewById(R.id.relative_layout_img_with_img_btn);
         mImgHazardIcon = layoutMainHazardImgBtn.findViewById(R.id.img_pic_within_img_btn);
         mImgHazardIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
@@ -301,7 +397,7 @@ public class MapShipBlueprintFragment extends Fragment {
 
         mRelativeLayoutHazardImgBtn.setOnClickListener(onHazardIconClickListener);
 
-        View layoutDeceasedImgBtn = rootMapShipBlueprintView.findViewById(R.id.layout_map_ship_blueprint_fragment_deceased_icon);
+        View layoutDeceasedImgBtn = rootView.findViewById(R.id.layout_map_ship_blueprint_deceased_icon);
         mRelativeLayoutDeceasedImgBtn = layoutDeceasedImgBtn.findViewById(R.id.relative_layout_img_with_img_btn);
         mImgDeceasedIcon = layoutDeceasedImgBtn.findViewById(R.id.img_pic_within_img_btn);
         mImgDeceasedIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
@@ -313,6 +409,51 @@ public class MapShipBlueprintFragment extends Fragment {
         mHazardMsgList = new ArrayList<>();
         mDeceasedMsgList = new ArrayList<>();
     }
+
+    /**
+     * -------------------- Personnel Link Status --------------------
+     **/
+
+    private void setPersonnelLinkStatusIconUnselectedStateUI() {
+        Drawable layoutDrawable = mRelativeLayoutPersonnelLinkStatusImgBtn.getBackground();
+        layoutDrawable = DrawableCompat.wrap(layoutDrawable);
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+                R.color.primary_white));
+        mRelativeLayoutPersonnelLinkStatusImgBtn.setBackground(layoutDrawable);
+
+        mImgPersonnelLinkStatusIcon.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
+    }
+
+    private void setPersonnelLinkStatusIconSelectedStateUI() {
+        Drawable layoutDrawable = mRelativeLayoutPersonnelLinkStatusImgBtn.getBackground();
+        layoutDrawable = DrawableCompat.wrap(layoutDrawable);
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+                R.color.primary_highlight_cyan));
+        mRelativeLayoutPersonnelLinkStatusImgBtn.setBackground(layoutDrawable);
+
+        mImgPersonnelLinkStatusIcon.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
+    }
+
+    private View.OnClickListener onPersonnelLinkStatusIconClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            view.setSelected(!view.isSelected());
+
+            if (view.isSelected()) {
+                setPersonnelLinkStatusIconSelectedStateUI();
+                mImgPersonnelLinkStatusTriangleIcon.setVisibility(View.VISIBLE);
+                mRecyclerViewPersonnelLinkStatus.setVisibility(View.VISIBLE);
+            } else {
+                setPersonnelLinkStatusIconUnselectedStateUI();
+                mImgPersonnelLinkStatusTriangleIcon.setVisibility(View.GONE);
+                mRecyclerViewPersonnelLinkStatus.setVisibility(View.GONE);
+            }
+        }
+    };
+
+    /**
+     * -------------------- Hazard Personnel --------------------
+     **/
 
     private void setHazardIconUnselectedStateUI() {
         Drawable layoutDrawable = mRelativeLayoutHazardImgBtn.getBackground();
@@ -335,6 +476,29 @@ public class MapShipBlueprintFragment extends Fragment {
         mImgHazardIcon.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
     }
 
+    private View.OnClickListener onHazardIconClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+//            closeWebSocketClient();
+            view.setSelected(!view.isSelected());
+
+            if (view.isSelected()) {
+                if (mRelativeLayoutDeceasedImgBtn.isSelected()) {
+                    mRelativeLayoutDeceasedImgBtn.setSelected(false);
+                    setDeceasedIconUnselectedStateUI();
+                }
+
+                setHazardIconSelectedStateUI();
+            } else {
+                setHazardIconUnselectedStateUI();
+            }
+        }
+    };
+
+    /**
+     * -------------------- Deceased Personnel --------------------
+     **/
+
     private void setDeceasedIconUnselectedStateUI() {
         Drawable layoutDrawable = mRelativeLayoutDeceasedImgBtn.getBackground();
         layoutDrawable = DrawableCompat.wrap(layoutDrawable);
@@ -355,25 +519,6 @@ public class MapShipBlueprintFragment extends Fragment {
 
         mImgDeceasedIcon.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
     }
-
-    private View.OnClickListener onHazardIconClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-//            closeWebSocketClient();
-            view.setSelected(!view.isSelected());
-
-            if (view.isSelected()) {
-                if (mRelativeLayoutDeceasedImgBtn.isSelected()) {
-                    mRelativeLayoutDeceasedImgBtn.setSelected(false);
-                    setDeceasedIconUnselectedStateUI();
-                }
-
-                setHazardIconSelectedStateUI();
-            } else {
-                setHazardIconUnselectedStateUI();
-            }
-        }
-    };
 
     private View.OnClickListener onDeceasedIconClickListener = new View.OnClickListener() {
         @Override
@@ -423,7 +568,7 @@ public class MapShipBlueprintFragment extends Fragment {
 //
 //                            Log.i(TAG, "ownBFTModelList, size:" + ownBFTModelList.size());
 //
-//                            // There should only be one 'Own' type BFTModel belonging to a user
+//                            // There should only be one 'OWN' type BFTModel belonging to a user
 //                            if (ownBFTModelList.size() == 1) {
 //                                mOwnBFTModel = ownBFTModelList.get(0);
 //
@@ -453,10 +598,10 @@ public class MapShipBlueprintFragment extends Fragment {
 //                                mOwnBFTModel.setUserId(SharedPreferenceUtil.getCurrentUserCallsignID());
 //                                mOwnBFTModel.setType(MainApplication.getAppContext().
 //                                        getString(R.string.map_blueprint_own_type));
-//                                mOwnBFTModel.setCreatedTime(DateTimeUtil.dateToCustomTimeStringFormat(
-//                                        DateTimeUtil.stringToDate(DateTimeUtil.getCurrentTime())));
+//                                mOwnBFTModel.setCreatedDateTime(DateTimeUtil.dateToCustomTimeStringFormat(
+//                                        DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime())));
 //
-//                                Log.i(TAG, "Own BFT model inserted");
+//                                Log.i(TAG, "OWN BFT model inserted");
 //                                mBFTViewModel.insertBFT(mOwnBFTModel);
 //                            }
 //
@@ -513,16 +658,16 @@ public class MapShipBlueprintFragment extends Fragment {
 //
 //                mIsTrackerUpdateInitialised = true;
 
-                Timber.i("X: %s" , coords.getX());
-                Timber.i("Y: %s" , coords.getY());
-                Timber.i("Z: %s" , coords.getAltitude());
-                Timber.i("bearing: %s" , coords.getBearing());
-                Timber.i("Action: %s" , coords.getAction());
-                Timber.i("RealAlt: %s" , coords.getLatitude());
+                Timber.i("X: %s", coords.getX());
+                Timber.i("Y: %s", coords.getY());
+                Timber.i("Z: %s", coords.getAltitude());
+                Timber.i("bearing: %s", coords.getBearing());
+                Timber.i("Action: %s", coords.getAction());
+                Timber.i("RealAlt: %s", coords.getLatitude());
 
 
                 updateMap(coords);
-                sendCoords(coords);
+//                sendCoords(coords);
                 saveCoords(coords);
                 showCoords(coords);
             }
@@ -558,29 +703,161 @@ public class MapShipBlueprintFragment extends Fragment {
         mTextAction.setText("Action: " + coords.getAction());
     }
 
-    private void updateMap(Coords coords) {
-        // Android to Javascript
-        String message;
-
-        message = coords.getX() + "," + coords.getY() + "," + coords.getAltitude() +
-                "," + coords.getBearing() + "," + SharedPreferenceUtil.getCurrentUserCallsignID() +
-                "," + coords.getAction();
-
-        if (mOwnBFTModel != null) {
+    private synchronized void updateMap(Coords coords) {
+        if (mOwnBFTModel == null) {
+            mOwnBFTModel = new BFTModel();
             mOwnBFTModel.setXCoord(String.valueOf(coords.getX()));
             mOwnBFTModel.setYCoord(String.valueOf(coords.getY()));
             mOwnBFTModel.setAltitude(String.valueOf(coords.getAltitude()));
             mOwnBFTModel.setBearing(String.valueOf(coords.getBearing()));
+            mOwnBFTModel.setAction(String.valueOf(coords.getAction()));
             mOwnBFTModel.setUserId(SharedPreferenceUtil.getCurrentUserCallsignID());
-            mOwnBFTModel.setType(MainApplication.getAppContext().
-                    getString(R.string.map_blueprint_own_type));
-            mOwnBFTModel.setCreatedTime(DateTimeUtil.dateToCustomTimeStringFormat(
-                    DateTimeUtil.stringToDate(DateTimeUtil.getCurrentTime())));
+            mOwnBFTModel.setType(EBftType.OWN.toString());
+            mOwnBFTModel.setCreatedDateTime(DateTimeUtil.dateToStandardIsoDateTimeStringFormat(
+                    DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime())));
+
+            addItemToLocalDatabase(mOwnBFTModel);
+
+        } else {
+            mOwnBFTModel.setXCoord(String.valueOf(coords.getX()));
+            mOwnBFTModel.setYCoord(String.valueOf(coords.getY()));
+            mOwnBFTModel.setAltitude(String.valueOf(coords.getAltitude()));
+            mOwnBFTModel.setBearing(String.valueOf(coords.getBearing()));
+            mOwnBFTModel.setAction(String.valueOf(coords.getAction()));
+
+            updateOwnTypeBftInfo(mOwnBFTModel);
+
         }
-        Timber.i("Calling JAVASCRIPT with %s" , message);
 
+        accessDatabaseAndRefreshBftUI();
+    }
 
-        myWebView.evaluateJavascript("javascript: " + "androidToJSupdateLocation(\"" + message + "\")", null);
+    protected static void androidToJsCreateObjectAtLocation(String message) {
+        if (myWebView != null) {
+            myWebView.evaluateJavascript("javascript: " + "androidToJScreateLocation(\""
+                    + message + "\")", null);
+        }
+    }
+
+    private void androidToJsUpdateObjectToLocation(BFTModel bftModel) {
+        if (myWebView != null) {
+            // Android to Javascript
+            String message;
+
+            message = bftModel.getRefId() + "," + bftModel.getXCoord() + "," + bftModel.getYCoord() + "," + bftModel.getAltitude() +
+                    "," + bftModel.getBearing() + "," + bftModel.getUserId() +
+                    "," + bftModel.getAction() + "," + bftModel.getType();
+
+            Timber.i("Calling JAVASCRIPT with %s", message);
+
+            myWebView.evaluateJavascript("javascript: " + "androidToJSupdateLocation(\""
+                    + message + "\")", null);
+        }
+    }
+
+    /**
+     * Insert/Update 'Own' type BFT info into database
+     *
+     * @param ownBftModel
+     */
+    private synchronized void updateOwnTypeBftInfo(BFTModel ownBftModel) {
+        SingleObserver<List<BFTModel>> singleObserverGetOwnTypeBFT = new SingleObserver<List<BFTModel>>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onSuccess(List<BFTModel> bftModelList) {
+
+                Timber.i("onSuccess singleObserverGetOwnTypeBFT, insertOrUpdateOwnTypeBftInfo. bftModelList.size(): %d", bftModelList.size());
+
+                // If available, there should only be ONE Bft model which has current user Id AND 'Own' Type;
+                // Update existing entry in database
+                if (bftModelList.size() >= 1) {
+                    BFTModel bftModelToUpdate = bftModelList.get(0);
+                    bftModelToUpdate.setUserId(ownBftModel.getUserId());
+                    bftModelToUpdate.setXCoord(ownBftModel.getXCoord());
+                    bftModelToUpdate.setYCoord(ownBftModel.getYCoord());
+                    bftModelToUpdate.setAltitude(ownBftModel.getAltitude());
+                    bftModelToUpdate.setBearing(ownBftModel.getBearing());
+                    bftModelToUpdate.setAction(ownBftModel.getAction());
+
+                    mBFTViewModel.updateBFT(bftModelToUpdate);
+
+                    androidToJsUpdateObjectToLocation(bftModelToUpdate);
+
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e("onError singleObserverGetOwnTypeBFT, insertOrUpdateOwnTypeBftInfo. Error Msg: %s", e.toString());
+
+            }
+        };
+
+        mBFTViewModel.queryBFTByUserIdAndType(SharedPreferenceUtil.getCurrentUserCallsignID(),
+                EBftType.OWN.toString(), singleObserverGetOwnTypeBFT);
+    }
+
+    /**
+     * Stores Bft data locally with updated Ref Id
+     *
+     * @param bftModel
+     */
+    private void addItemToLocalDatabase(BFTModel bftModel) {
+
+        SingleObserver<Long> singleObserverAddBft = new SingleObserver<Long>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                // add it to a CompositeDisposable
+            }
+
+            @Override
+            public void onSuccess(Long bftId) {
+                Timber.i("onSuccess singleObserverAddBft, addItemToLocalDatabase. BftId: %d", bftId);
+
+                updateBftModelRefId(bftId);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e("onError singleObserverAddBft, addItemToLocalDatabase. Error Msg: %s ", e.toString());
+            }
+        };
+
+        mBFTViewModel.insertBFTWithObserver(bftModel, singleObserverAddBft);
+    }
+
+    /**
+     * Updates Ref Id of newly inserted BFT model
+     *
+     * @param bftId
+     */
+    private void updateBftModelRefId(Long bftId) {
+        SingleObserver<BFTModel> singleObserverUpdateBftRefId = new SingleObserver<BFTModel>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                // add it to a CompositeDisposable
+            }
+
+            @Override
+            public void onSuccess(BFTModel bftModel) {
+                Timber.i("onSuccess singleObserverUpdateBftRefId, updateBftModelRefId. BftId: %d", bftId);
+
+                bftModel.setRefId(bftId);
+                mBFTViewModel.updateBFT(bftModel);
+
+                androidToJsUpdateObjectToLocation(bftModel);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e("onError singleObserverUpdateBftRefId, updateBftModelRefId. Error Msg: %s ", e.toString());
+            }
+        };
+
+        mBFTViewModel.queryBFTById(bftId, singleObserverUpdateBftRefId);
     }
 
 //    private void updateMapOfBeacon(Coords coords, String beaconId) {
@@ -599,10 +876,9 @@ public class MapShipBlueprintFragment extends Fragment {
      */
     private void updateMapOfHazardBeacon() {
         for (int i = 0; i < mHazardMsgList.size(); i++) {
-            myWebView.evaluateJavascript("javascript: " + "androidToJScreateLocation(\""
-                    + mHazardMsgList.get(i) + "\")", null);
+            androidToJsCreateObjectAtLocation(mHazardMsgList.get(i));
 
-            Timber.i("Calling JAVASCRIPT with Hazard Msg List: %s" , mHazardMsgList.get(i));
+            Timber.i("Calling JAVASCRIPT with Hazard Msg List: %s", mHazardMsgList.get(i));
 
         }
     }
@@ -613,10 +889,9 @@ public class MapShipBlueprintFragment extends Fragment {
      */
     private void updateMapOfDeceasedBeacon() {
         for (int i = 0; i < mDeceasedMsgList.size(); i++) {
-            myWebView.evaluateJavascript("javascript: " + "androidToJScreateLocation(\""
-                    + mDeceasedMsgList.get(i) + "\")", null);
+            androidToJsCreateObjectAtLocation(mDeceasedMsgList.get(i));
 
-            Timber.i("Calling JAVASCRIPT with Deceased Msg List: %s " , mDeceasedMsgList.get(i));
+            Timber.i("Calling JAVASCRIPT with Deceased Msg List: %s ", mDeceasedMsgList.get(i));
 
         }
     }
@@ -746,8 +1021,8 @@ public class MapShipBlueprintFragment extends Fragment {
                 //        mqRabbit.setListener(new MQListener() {
                 @Override
                 public void onNewMessage(String message) {
-                    if (!JSONUtil.isJSONValid(message)) {
-
+//                    if (!JSONUtil.isJSONValid(message)) {
+//
 //                        String[] messageArray = message.split(",");
 //                        String action = messageArray[5];
 //                        if (action.equals(BeaconZeroing.BEACONREQ)) {
@@ -770,13 +1045,43 @@ public class MapShipBlueprintFragment extends Fragment {
 //                                beaconZeroing.dropBeacon(new Coords(0.0, 0.0, Double.valueOf(z), Double.valueOf(bearing), 0, 0, 0, Double.valueOf(x), Double.valueOf(y), ""), beaconId);
 //                            }
 //                        }
+//                    }
 
-                    }
 
+//                    Timber.i("New BFT message: %s ", message);
+//
+//                    String messageTopic = StringUtil.getFirstWord(message);
+//                    String messageContent = StringUtil.removeFirstWord(message);
+//                    String[] messageTopicParts = messageTopic.split(StringUtil.HYPHEN);
+//
+//                    String messageTopicAction = messageTopicParts[2];
+//
+//                    switch (messageTopicAction) {
+//                        case JeroMQParent.TOPIC_OWN_FORCE:
+//                            Timber.i("onNewBFTMessage (OWN Force) insert");
+//
+//                            if (!StringUtil.EMPTY_STRING.equalsIgnoreCase(messageContent)) {
+//                                myWebView.evaluateJavascript("javascript: " + "androidToJSupdateLocation(\"" +
+//                                        messageContent + "\")", null);
+//                            }
+//
+//                            break;
+//
+//                        case JeroMQParent.TOPIC_OTHERS:
+//                            Timber.i("onNewBFTMessage (Others) insert");
+//
+//                            if (!StringUtil.EMPTY_STRING.equalsIgnoreCase(messageContent)) {
+//                                myWebView.evaluateJavascript("javascript: " + "androidToJScreateLocation(\""
+//                                        + messageContent + "\")", null);
+//                            }
+//
+//                            break;
+//                    }
                 }
             };
 
-            RabbitMQHelper.getInstance().addRabbitListener(mIMQListener);
+//            RabbitMQHelper.getInstance().addRabbitListener(mIMQListener);
+
         }
     }
 
@@ -790,10 +1095,47 @@ public class MapShipBlueprintFragment extends Fragment {
 //            e.printStackTrace();
 //        }
 
-        String pattern = "yyyyMMddHHmmss";
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-        String date = simpleDateFormat.format(new Date());
-        RabbitMQHelper.getInstance().sendBFTMessage(_coords.getX() + "," + _coords.getY() + "," + _coords.getAltitude() + "," + _coords.getBearing() + "," + SharedPreferenceUtil.getCurrentUserCallsignID() + "," + _coords.getAction() + "," + _coords.getLatitude() + "," + date);
+//        String pattern = "yyyyMMddHHmmss";
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+//        String date = simpleDateFormat.format(new Date());
+//        String message = _coords.getX() + "," + _coords.getY() + "," + _coords.getAltitude() + "," +
+//                _coords.getBearing() + "," + SharedPreferenceUtil.getCurrentUserCallsignID() + "," +
+//                _coords.getAction() + "," + _coords.getLatitude() + "," + date;
+
+//        RabbitMQHelper.getInstance().sendBFTMessage(message);
+//        JeroMQBroadcastOperation.broadcastBftOwnForceDataOverSocket(message);
+
+
+//        JeroMQBroadcastOperation.broadcastBftOthersDataOverSocket(message);
+
+
+//        SingleObserver<List<BFTModel>> singleObserverGetOwnTypeBFT = new SingleObserver<List<BFTModel>>() {
+//            @Override
+//            public void onSubscribe(Disposable d) {}
+//
+//            @Override
+//            public void onSuccess(List<BFTModel> bftModelList) {
+//
+//                Timber.i("onSuccess singleObserverGetOwnTypeBFT, sendCoords. bftModelList.size(): %d" , bftModelList.size());
+//
+//                // If available, There should only be ONE Bft model which has current user Id AND 'Own' Type
+//                if (bftModelList.size() == 1) {
+//
+//                } else { // Insert new entry of Own Type Bft model
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//
+//                Timber.e("onError singleObserverGetOwnTypeBFT, sendCoords. Error Msg: %s" , e.toString());
+//
+//            }
+//        };
+//
+//        mBFTViewModel.queryBFTByUserIdAndType(SharedPreferenceUtil.getCurrentUserCallsignID(),
+//                EBftType.OWN.toString(), singleObserverGetOwnTypeBFT);
     }
 
     private void sendBeacon(Coords _coords, String beaconId) {
@@ -827,70 +1169,70 @@ public class MapShipBlueprintFragment extends Fragment {
         return iconType;
     }
 
-    /**
-     * Get own BFT model from database and updates with latest location for future viewing
-     */
-    private void updateOwnBFTModel() {
-
-        Timber.i("Update own BFT model: %s " , mOwnBFTModel);
-
-        SingleObserver<List<BFTModel>> singleObserverBFTForUser =
-                new SingleObserver<List<BFTModel>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        // add it to a CompositeDisposable
-                    }
-
-                    @Override
-                    public void onSuccess(List<BFTModel> bFTModelList) {
-                        if (bFTModelList != null) {
-
-                            Timber.i("onSuccess singleObserverBFTForUser, updateOwnBFTModel. bFTModelList, size: %s" , bFTModelList.size());
-
-
-
-                            // Get BFT models belonging to a current user (including hazard and deceased entities)
-                            List<BFTModel> currentUserBFTModelList = bFTModelList.stream().
-                                    filter(bftModel -> SharedPreferenceUtil.getCurrentUserCallsignID().
-                                            equalsIgnoreCase(bftModel.getUserId())).collect(Collectors.toList());
-
-                            // Get own BFT model
-                            List<BFTModel> ownBFTModelList = currentUserBFTModelList.stream().
-                                    filter(bftModel -> MainApplication.getAppContext().
-                                            getString(R.string.map_blueprint_own_type).
-                                            equalsIgnoreCase(bftModel.getType())).collect(Collectors.toList());
-
-                            Timber.i("ownBFTModelList, size: %s" , ownBFTModelList.size());
-
-
-                            // There should only be one 'own' type BFTModel belonging to a user
-                            if (ownBFTModelList.size() == 1) {
-                                BFTModel ownBFTModel = ownBFTModelList.get(0);
-
-                                // Update location and push updated model back to database
-                                ownBFTModel.setXCoord(mOwnBFTModel.getXCoord());
-                                ownBFTModel.setYCoord(mOwnBFTModel.getYCoord());
-                                ownBFTModel.setAltitude(mOwnBFTModel.getAltitude());
-                                ownBFTModel.setBearing(mOwnBFTModel.getBearing());
-                                mBFTViewModel.updateBFT(ownBFTModel);
-                            }
-
-                        } else {
-                            Timber.i("onSuccess singleObserverBFTForUser, updateOwnBFTModel. bFTModelList is null");
-
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Timber.e("onError singleObserverBFTForUser, updateOwnBFTModel.bError Msg: %s" , e.toString());
-
-
-                    }
-                };
-
-        mBFTViewModel.getAllBFTs(singleObserverBFTForUser);
-    }
+//    /**
+//     * Get own BFT model from database and updates with latest location for future viewing
+//     */
+//    private void updateOwnBFTModel() {
+//
+//        Timber.i("Update own BFT model: %s ", mOwnBFTModel);
+//
+//        SingleObserver<List<BFTModel>> singleObserverBFTForUser =
+//                new SingleObserver<List<BFTModel>>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//                        // add it to a CompositeDisposable
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(List<BFTModel> bFTModelList) {
+//                        if (bFTModelList != null) {
+//
+//                            Timber.i("onSuccess singleObserverBFTForUser, updateOwnBFTModel. bFTModelList, size: %s", bFTModelList.size());
+//
+//
+//                            // Get BFT models belonging to a current user (including hazard and deceased entities)
+//                            List<BFTModel> currentUserBFTModelList = bFTModelList.stream().
+//                                    filter(bftModel -> SharedPreferenceUtil.getCurrentUserCallsignID().
+//                                            equalsIgnoreCase(bftModel.getUserId())).collect(Collectors.toList());
+//
+//                            // Get own BFT model
+//                            List<BFTModel> ownBFTModelList = currentUserBFTModelList.stream().
+//                                    filter(bftModel -> MainApplication.getAppContext().
+//                                            getString(R.string.map_blueprint_own_type).
+//                                            equalsIgnoreCase(bftModel.getType())).collect(Collectors.toList());
+//
+//                            Timber.i("ownBFTModelList, size: %s", ownBFTModelList.size());
+//
+//
+//                            // There should only be one 'own' type BFTModel belonging to a user
+//                            if (ownBFTModelList.size() == 1) {
+//                                BFTModel ownBFTModel = ownBFTModelList.get(0);
+//
+//                                // Update location and push updated model back to database
+//                                ownBFTModel.setXCoord(mOwnBFTModel.getXCoord());
+//                                ownBFTModel.setYCoord(mOwnBFTModel.getYCoord());
+//                                ownBFTModel.setAltitude(mOwnBFTModel.getAltitude());
+//                                ownBFTModel.setBearing(mOwnBFTModel.getBearing());
+//                                ownBFTModel.setAction(mOwnBFTModel.getAction());
+//                                mBFTViewModel.updateBFT(ownBFTModel);
+//                            }
+//
+//                        } else {
+//                            Timber.i("onSuccess singleObserverBFTForUser, updateOwnBFTModel. bFTModelList is null");
+//
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        Timber.e("onError singleObserverBFTForUser, updateOwnBFTModel.bError Msg: %s", e.toString());
+//
+//
+//                    }
+//                };
+//
+//        mBFTViewModel.getAllBFTs(singleObserverBFTForUser);
+//    }
 
     /**
      * Form BFT message list for javascript location update
@@ -903,7 +1245,13 @@ public class MapShipBlueprintFragment extends Fragment {
 
         for (int i = 0; i < bFTModelList.size(); i++) {
             BFTModel bFTModel = bFTModelList.get(i);
+
+            String createdTime = DateTimeUtil.dateToCustomTimeStringFormat(
+                    DateTimeUtil.stringToDate(bFTModel.getCreatedDateTime()));
+
             StringBuilder msgStrBuilder = new StringBuilder();
+            msgStrBuilder.append(bFTModel.getRefId());
+            msgStrBuilder.append(StringUtil.COMMA);
             msgStrBuilder.append(bFTModel.getXCoord());
             msgStrBuilder.append(StringUtil.COMMA);
             msgStrBuilder.append(bFTModel.getYCoord());
@@ -916,7 +1264,7 @@ public class MapShipBlueprintFragment extends Fragment {
             msgStrBuilder.append(StringUtil.COMMA);
             msgStrBuilder.append(bFTModel.getType());
             msgStrBuilder.append(StringUtil.COMMA);
-            msgStrBuilder.append(bFTModel.getCreatedTime());
+            msgStrBuilder.append(createdTime);
 
             msgList.add(msgStrBuilder.toString());
         }
@@ -925,10 +1273,150 @@ public class MapShipBlueprintFragment extends Fragment {
     }
 
     /**
+     * Get own BFT model from database and updates with latest location for future viewing
+     */
+    private void accessDatabaseAndRefreshBftUI() {
+
+        Timber.i("Pulling BFT models from database...");
+
+        SingleObserver<List<BFTModel>> singleObserverGetAllBFTs =
+                new SingleObserver<List<BFTModel>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        // add it to a CompositeDisposable
+                    }
+
+                    @Override
+                    public void onSuccess(List<BFTModel> bFTModelList) {
+
+                        if (bFTModelList != null) {
+                            Timber.i("onSuccess singleObserverGetAllBFTs, accessDatabaseAndRefreshBftUI. bFTModelList size: %s", bFTModelList.size());
+                            refreshBftUI(bFTModelList);
+
+                        } else {
+                            Timber.i("onSuccess singleObserverGetAllBFTs, accessDatabaseAndRefreshBftUI. bFTModelList is empty");
+
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Timber.e("onError singleObserverGetAllBFTs, accessDatabaseAndRefreshBftUI. Error Msg: %s", e.toString());
+
+                    }
+                };
+
+        mBFTViewModel.getAllBFTs(singleObserverGetAllBFTs);
+    }
+
+    /**
+     * There are FIVE groups of BFT models to check and update:
+     * 1) Current user 'Own' BFT
+     * 2) Other users 'Own' BFT
+     * 3) 'Hazard' BFT
+     * 4) 'Deceased' BFT
+     *
+     * @param bFTModelList
+     */
+    private void refreshBftUI(List<BFTModel> bFTModelList) {
+        Timber.i("Refreshing UI of all BFT models...");
+
+        /** ---------- Current user 'Own' BFT model ---------- **/
+        List<BFTModel> currentUserOwnBFTModelList = bFTModelList.stream().
+                filter(bftModel -> SharedPreferenceUtil.getCurrentUserCallsignID().
+                        equalsIgnoreCase(bftModel.getUserId()) &&
+                        EBftType.OWN.toString().
+                                equalsIgnoreCase(bftModel.getType())).collect(Collectors.toList());
+
+        // If available, there should only be ONE 'Own' Bft model of current user
+        if (currentUserOwnBFTModelList.size() == 1) {
+            BFTModel bftModel = currentUserOwnBFTModelList.get(0);
+
+            // Automatically initialise location from database if user
+            // has not initialise current location and database has this info
+            if (tracker != null && myWebView != null && !WebAppInterface.mIsLocationInitialised) {
+                tracker.setManualLocation(new Coords(0, 0,
+                        Double.parseDouble(bftModel.getAltitude()), Double.parseDouble(bftModel.getBearing()),
+                        0, 0, 0, Double.parseDouble(bftModel.getXCoord()),
+                        Double.parseDouble(bftModel.getYCoord()), null));
+            }
+        }
+
+        /** ---------- Other users' 'Own' BFT model ---------- **/
+        List<BFTModel> otherUsersOwnBFTModelList = bFTModelList.stream().
+                filter(bftModel -> !SharedPreferenceUtil.getCurrentUserCallsignID().
+                        equalsIgnoreCase(bftModel.getUserId()) &&
+                        EBftType.OWN.toString().
+                                equalsIgnoreCase(bftModel.getType()) ||
+                        EBftType.OWN_STALE.toString().
+                        equalsIgnoreCase(bftModel.getType())).collect(Collectors.toList());
+
+        for (int i = 0; i < otherUsersOwnBFTModelList.size(); i++) {
+
+            BFTModel bftModel = otherUsersOwnBFTModelList.get(i);
+
+            String message = bftModel.getRefId() + "," + bftModel.getXCoord() + "," + bftModel.getYCoord() + "," + bftModel.getAltitude() +
+                    "," + bftModel.getBearing() + "," + bftModel.getUserId() +
+                    "," + bftModel.getAction() + "," + bftModel.getType();
+
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("javascript: " +
+                        "androidToJSupdateLocation(\"" + message + "\")", null);
+            }
+        }
+
+        /** ---------- 'Hazard' or 'Hazard-Stale' BFT models ---------- **/
+        if (mHazardMsgList == null) {
+            mHazardMsgList = new ArrayList<>();
+        } else {
+            mHazardMsgList.clear();
+        }
+
+        List<BFTModel> hazardBftModelList = bFTModelList.stream().
+                filter(bftModel -> EBftType.HAZARD.toString().
+                        equalsIgnoreCase(bftModel.getType()) ||
+                        EBftType.HAZARD_STALE.toString().
+                                equalsIgnoreCase(bftModel.getType())).
+                collect(Collectors.toList());
+
+        List<String> hazardBftMsgList = formBFTMsgList(hazardBftModelList);
+        mHazardMsgList.addAll(hazardBftMsgList);
+
+        for (int i = 0; i < hazardBftMsgList.size(); i++) {
+            String hazardBftMsg = hazardBftMsgList.get(i);
+
+            androidToJsCreateObjectAtLocation(hazardBftMsg);
+        }
+
+        /** ---------- 'Deceased' or 'Deceased-Stale' BFT models ---------- **/
+        if (mDeceasedMsgList == null) {
+            mDeceasedMsgList = new ArrayList<>();
+        } else {
+            mDeceasedMsgList.clear();
+        }
+
+        List<BFTModel> deceasedBftModelList = bFTModelList.stream().
+                filter(bftModel -> EBftType.DECEASED.toString().
+                        equalsIgnoreCase(bftModel.getType()) ||
+                        EBftType.DECEASED_STALE.toString().
+                        equalsIgnoreCase(bftModel.getType())).collect(Collectors.toList());
+
+        List<String> deceasedBftMsgList = formBFTMsgList(deceasedBftModelList);
+        mDeceasedMsgList.addAll(deceasedBftMsgList);
+
+        for (int i = 0; i < deceasedBftMsgList.size(); i++) {
+            String deceasedBftMsg = deceasedBftMsgList.get(i);
+
+            androidToJsCreateObjectAtLocation(deceasedBftMsg);
+        }
+    }
+
+    /**
      * -------------------- UI Components Visibility Methods --------------------
      **/
     public void setBlueprintVisibility(int isVisible) {
         mFrameLayoutBlueprint.setVisibility(isVisible);
+        mConstraintLayoutPersonnelLinkStatus.setVisibility(isVisible);
     }
 
     public void setMiddleDividerVisibility(int isVisible) {
@@ -941,6 +1429,10 @@ public class MapShipBlueprintFragment extends Fragment {
 
     public View getHorizontalSVDashboardFragments() {
         return mHorizontalSVDashboardFragments;
+    }
+
+    public View getLinearLayoutDashboardFragments() {
+        return mLinearLayoutDashboardFragments;
     }
 
     public View getVideoStreamFragment() {
@@ -967,50 +1459,47 @@ public class MapShipBlueprintFragment extends Fragment {
      * Set up observer for live updates on view models and update UI accordingly
      */
     private void observerSetup() {
+        mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         mBFTViewModel = ViewModelProviders.of(this).get(BFTViewModel.class);
 
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String userId = sharedPrefs.getString(SharedPreferenceConstants.USER_ID,
-                SharedPreferenceConstants.DEFAULT_STRING);
+//        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//        String userId = sharedPrefs.getString(SharedPreferenceConstants.USER_ID,
+//                SharedPreferenceConstants.DEFAULT_STRING);
 
         /*
          * Refreshes spinner UI whenever there is a change in BFTs (insert, update or delete)
          */
-        mBFTViewModel.getAllBFTsLiveDataForUser(userId).observe(this, new Observer<List<BFTModel>>() {
+        mBFTViewModel.getAllBFTsLiveData().observe(this, new Observer<List<BFTModel>>() {
             @Override
             public void onChanged(@Nullable List<BFTModel> bFTModelList) {
-                Timber.i("bFTModelList onChanged: %s" , bFTModelList);
-
-                if (mHazardMsgList == null) {
-                    mHazardMsgList = new ArrayList<>();
-                } else {
-                    mHazardMsgList.clear();
-                }
-
-                if (mDeceasedMsgList == null) {
-                    mDeceasedMsgList = new ArrayList<>();
-                } else {
-                    mDeceasedMsgList.clear();
-                }
-
-                List<BFTModel> hazardBFTModelList = bFTModelList.stream().
-                        filter(bftModel -> MainApplication.getAppContext().
-                                getString(R.string.map_blueprint_hazard_type).
-                                equalsIgnoreCase(bftModel.getType())).collect(Collectors.toList());
-
-                List<String> hazardBFTMsgList = formBFTMsgList(hazardBFTModelList);
-                mHazardMsgList.addAll(hazardBFTMsgList);
-
-                List<BFTModel> deceasedBFTModelList = bFTModelList.stream().
-                        filter(bftModel -> MainApplication.getAppContext().
-                                getString(R.string.map_blueprint_deceased_type).
-                                equalsIgnoreCase(bftModel.getType())).collect(Collectors.toList());
-
-                List<String> deceasedBFTMsgList = formBFTMsgList(deceasedBFTModelList);
-                mDeceasedMsgList.addAll(deceasedBFTMsgList);
+                refreshBftUI(bFTModelList);
             }
         });
 
+        /*
+         * Refreshes recyclerview UI whenever there is a change in user data (insert, update or delete)
+         */
+        mUserViewModel.getAllUsersLiveData().observe(this, new Observer<List<UserModel>>() {
+            @Override
+            public void onChanged(@Nullable List<UserModel> userModelList) {
+
+                synchronized (mPersonnelLinkStatusUserListItems) {
+                    if (mPersonnelLinkStatusUserListItems == null) {
+                        mPersonnelLinkStatusUserListItems = new ArrayList<>();
+                    } else {
+                        mPersonnelLinkStatusUserListItems.clear();
+                    }
+
+                    if (userModelList != null) {
+                        mPersonnelLinkStatusUserListItems.addAll(userModelList);
+                    }
+
+                    if (mRecyclerAdapterPersonnelLinkStatus != null) {
+                        mRecyclerAdapterPersonnelLinkStatus.setUserListItems(mPersonnelLinkStatusUserListItems);
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -1039,19 +1528,6 @@ public class MapShipBlueprintFragment extends Fragment {
         }
     }
 
-//    /**
-//     * Release all resources related to / referenced by fragment upon onDestroy of Main Activity
-//     */
-//    public void onMainActivityDestroy() {
-//        if (fs != null) {
-//            try {
-//                fs.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
     /**
      * Pops back stack of ONLY current tab
      *
@@ -1071,7 +1547,6 @@ public class MapShipBlueprintFragment extends Fragment {
     /**
      * Properly releases all resources related to / referenced by fragment (itself)
      * when main (parent) activity is destroyed
-     *
      */
     public void destroySelf() {
         if (tracker != null) {
@@ -1087,10 +1562,126 @@ public class MapShipBlueprintFragment extends Fragment {
         }
     }
 
-    private void onVisible() {
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//
+//        // Save the fragments' instance
+//        getChildFragmentManager().putFragment(outState, "myFragmentName", mDashboardSitRepPersonnelStatusFragment);
+//        getChildFragmentManager().putFragment(outState, "myFragmentName", mDashboardTaskPhaseStatusFragment);
+//        getChildFragmentManager().putFragment(outState, "myFragmentName", mDashboardRadioLinkStatusFragment);
+//    }
 
+    private boolean isViewFullyVisible(HorizontalScrollView scrollView, View view) {
+        Rect scrollBounds = new Rect();
+        scrollView.getDrawingRect(scrollBounds);
+
+//        float top = view.getY();
+//        float bottom = top + view.getHeight();
+        float left = view.getX();
+        float right = left + view.getWidth();
+
+        Timber.i("scrollBounds.left: " + scrollBounds.left);
+        Timber.i("left: " + left);
+
+//        if (scrollBounds.top < top && scrollBounds.bottom < bottom &&
+        if (scrollBounds.left < left && scrollBounds.right > right) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void updateVisibleDashboardViews(HorizontalScrollView scrollView) {
+        Rect scrollBounds = new Rect();
+        scrollView.getHitRect(scrollBounds);
+        if (isViewFullyVisible(scrollView, mVideoStreamFragment)) {
+            // Any portion of the imageView, even a single pixel, is within the visible window
+//            Timber.i("mVideoStreamFragment is VISIBLE");
+
+            if (mDashboardVideoStreamFragment != null &&
+                    !mIsDbVideoFragmentRefreshed) {
+                mDashboardVideoStreamFragment.onVisible();
+            }
+
+            mIsDbVideoFragmentRefreshed = true;
+        } else {
+            mIsDbVideoFragmentRefreshed = false;
+        }
+
+//        if (mSitRepPersonnelStatusFragment.getLocalVisibleRect(scrollBounds)) {
+        if (isViewFullyVisible(scrollView, mSitRepPersonnelStatusFragment)) {
+//            Timber.i("mSitRepPersonnelStatusFragment is VISIBLE");
+
+            if (mDashboardSitRepPersonnelStatusFragment != null &&
+                    !mIsDbSitRepPersonnelStatusFragmentRefreshed) {
+                mDashboardSitRepPersonnelStatusFragment.onVisible();
+            }
+
+            mIsDbSitRepPersonnelStatusFragmentRefreshed = true;
+
+        } else {
+            mIsDbSitRepPersonnelStatusFragmentRefreshed = false;
+        }
+
+        if (isViewFullyVisible(scrollView, mTaskPhaseStatusFragment)) {
+//            Timber.i("mTaskPhaseStatusFragment is VISIBLE");
+
+            if (mDashboardTaskPhaseStatusFragment != null &&
+                    !mIsDbTaskPhaseStatusFragmentRefreshed) {
+                mDashboardTaskPhaseStatusFragment.onVisible();
+            }
+
+            mIsDbTaskPhaseStatusFragmentRefreshed = true;
+
+        } else {
+            mIsDbTaskPhaseStatusFragmentRefreshed = false;
+        }
+
+        if (isViewFullyVisible(scrollView, mRadioLinkStatusFragment)) {
+//            Timber.i("mRadioLinkStatusFragment is VISIBLE");
+
+            if (mDashboardRadioLinkStatusFragment != null &&
+                    !mIsDbRadioLinkStatusFragmentRefreshed) {
+                mDashboardRadioLinkStatusFragment.onVisible();
+            }
+
+            mIsDbRadioLinkStatusFragmentRefreshed = true;
+
+        } else {
+            mIsDbRadioLinkStatusFragmentRefreshed = false;
+        }
+    }
+
+    private void onVisible() {
         Timber.i("onVisible");
 
+//        if (mHorizontalSVDashboardFragments != null) {
+////            updateVisibleDashboardViews(mHorizontalSVDashboardFragments);
+////
+////            mHorizontalSVDashboardFragments.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+////                @Override
+////                public void onScrollChange(View scrollView, int x, int y, int oldX, int oldY) {
+////                    updateVisibleDashboardViews(mHorizontalSVDashboardFragments);
+////                }
+////            });
+////        }
+
+        if (mDashboardVideoStreamFragment != null) {
+            mDashboardVideoStreamFragment.onVisible();
+        }
+
+        if (mDashboardSitRepPersonnelStatusFragment != null) {
+            mDashboardSitRepPersonnelStatusFragment.onVisible();
+        }
+
+        if (mDashboardTaskPhaseStatusFragment != null) {
+            mDashboardTaskPhaseStatusFragment.onVisible();
+        }
+
+        if (mDashboardRadioLinkStatusFragment != null) {
+            mDashboardRadioLinkStatusFragment.onVisible();
+        }
 
 //        if ((tracker == null || !tracker.isActive()) && !mIsTrackerInitialised) {
 ////            initBeacon();
@@ -1098,6 +1689,15 @@ public class MapShipBlueprintFragment extends Fragment {
 //                    "webview settings and refreshing BFT");
 //
 //            mIsTrackerInitialised = true;
+//            initTracker();
+//            initWebviewSettings();
+//        }
+
+//        if ((tracker == null || !tracker.isActive())) {
+////            initBeacon();
+//            Log.i(TAG, "onVisible: Initialising tracker, " +
+//                    "webview settings and refreshing BFT");
+//
 //            initTracker();
 //            initWebviewSettings();
 //        }
@@ -1113,10 +1713,13 @@ public class MapShipBlueprintFragment extends Fragment {
     }
 
     private void onInvisible() {
-
         Timber.i("onInvisible");
+//        updateOwnBFTModel();
 
-        updateOwnBFTModel();
+        mIsDbVideoFragmentRefreshed = false;
+        mIsDbSitRepPersonnelStatusFragmentRefreshed = false;
+        mIsDbTaskPhaseStatusFragmentRefreshed = false;
+        mIsDbRadioLinkStatusFragmentRefreshed = false;
 
 //        if (mRelativeLayoutHazardImgBtn.isSelected()) {
 //            mRelativeLayoutHazardImgBtn.setSelected(false);
@@ -1166,7 +1769,7 @@ public class MapShipBlueprintFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-//        EventBus.getDefault().register(this);
+        EventBus.getDefault().register(this);
 
         if (mIsFragmentVisibleToUser) {
             onVisible();
@@ -1186,7 +1789,7 @@ public class MapShipBlueprintFragment extends Fragment {
     public void onStop() {
         super.onStop();
 
-//        EventBus.getDefault().unregister(this);
+        EventBus.getDefault().unregister(this);
 
         if (mIsFragmentVisibleToUser) {
             onInvisible();
@@ -1224,6 +1827,24 @@ public class MapShipBlueprintFragment extends Fragment {
 ////            initUI(mRootMapView, mSavedInstanceState);
 //        }
 //    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(BftEvent bftEvent) {
+        if (bftEvent != null) {
+            String bftMessage = bftEvent.getBftMessage();
+
+            Timber.i("New bftEvent message: %s ", bftMessage);
+
+            if (!StringUtil.EMPTY_STRING.equalsIgnoreCase(bftMessage) && mIMQListener != null) {
+                mIMQListener.onNewMessage(bftMessage);
+            }
+        }
+//        if (SettingsActivity.class.getSimpleName().equalsIgnoreCase(bftEvent.getPreviousActivityName())) {
+//            System.out.println("Settings Activity found!");
+//            setupMessageQueue();
+//            initUI(mRootMapView, mSavedInstanceState);
+//        }
+    }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {

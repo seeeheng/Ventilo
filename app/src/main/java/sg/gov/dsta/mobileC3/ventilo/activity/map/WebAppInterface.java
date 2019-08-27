@@ -5,14 +5,18 @@ import android.content.Context;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
+import io.reactivex.SingleObserver;
+import io.reactivex.disposables.Disposable;
 import sg.gov.dh.trackers.NavisensLocalTracker;
 import sg.gov.dh.utils.Coords;
-import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.database.DatabaseOperation;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
 import sg.gov.dsta.mobileC3.ventilo.repository.BFTRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.DatabaseTableConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.bft.EBftAction;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.bft.EBftType;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import timber.log.Timber;
 
@@ -24,6 +28,8 @@ public class WebAppInterface {
     BFTLocalPreferences pref = null;
     NavisensLocalTracker tracker = null;
     String TAG = "JStoANDROIDinterface";
+
+    protected static boolean mIsLocationInitialised;
 
     /**
      * Instantiate the interface and set the context
@@ -41,25 +47,23 @@ public class WebAppInterface {
     public void manualLocationUpdateinPixels(String xyInPixelszInMetres) {
         String[] xyz = xyInPixelszInMetres.split(",");
 
-        Timber.i("1.manualLocationUpdateinPixels: %s %s %s" , xyz[0] , xyz[1] , xyz[2]);
-
-        Timber.i("2.manualLocationUpdateinPixels: %d %d " , Double.parseDouble(xyz[0]) ,Double.parseDouble(xyz[1]));
-
-        Timber.i("3.manualLocationUpdateinPixels: %s %s " , pref.getMetresFromPixels(Double.parseDouble(xyz[0])) , pref.getMetresFromPixels(Double.parseDouble(xyz[1])));
-
+        Timber.i("1.manualLocationUpdateinPixels: %s, %s, %s", xyz[0], xyz[1], xyz[2]);
+        Timber.i("2.manualLocationUpdateinPixels: %f, %f ", Double.parseDouble(xyz[0]), Double.parseDouble(xyz[1]));
+        Timber.i("3.manualLocationUpdateinPixels: %s, %s ", pref.getMetresFromPixels(Double.parseDouble(xyz[0])), pref.getMetresFromPixels(Double.parseDouble(xyz[1])));
 
         Log.d(TAG, "1.manualLocationUpdateinPixels: " + xyz[0] + "," + xyz[1] + "," + xyz[2]);
         Log.d(TAG, "2.manualLocationUpdateinPixels: " + Double.parseDouble(xyz[0]) + "," + Double.parseDouble(xyz[1]));
         Log.d(TAG, "3.manualLocationUpdateinPixels: " + pref.getMetresFromPixels(Double.parseDouble(xyz[0])) + "," + pref.getMetresFromPixels(Double.parseDouble(xyz[1])));
 
         tracker.setManualLocation(new Coords(0, 0, Double.parseDouble(xyz[2]), 0, 0, 0, 0, pref.getMetresFromPixels(Double.parseDouble(xyz[0])), pref.getMetresFromPixels(Double.parseDouble(xyz[1])), null));
+
+        mIsLocationInitialised = true;
     }
 
     @JavascriptInterface
     public String getMQSettings() {
         String message = pref.getMqHost() + "," + pref.getMqUsername() + "," + pref.getMqPassword() + "," + pref.getTopic() + "," + pref.getPort();
-
-        Timber.i("getMQSettings: %s" , message);
+        Timber.i("getMQSettings: %s", message);
 
         return message;
     }
@@ -67,23 +71,35 @@ public class WebAppInterface {
     @JavascriptInterface
     public String getName() {
         String message = pref.getName();
-        Timber.i("getName: %s" , message);
+        Timber.i("getName: %s", message);
         return message;
     }
 
+    /**
+     * Inserts bft model into database and obtain current coordinate info
+     *
+     * @param xyInPixelszInMetres
+     * @param type
+     * @return
+     */
     @JavascriptInterface
-    public String getCurrentCoordMsg(String xyInPixelszInMetres, String type) {
+    public void setCurrentCoordMsg(String xyInPixelszInMetres, String type) {
         String[] xyz = xyInPixelszInMetres.split(",");
-        String currentTime = DateTimeUtil.dateToCustomTimeStringFormat(
-                DateTimeUtil.stringToDate(DateTimeUtil.getCurrentTime()));
 
         Coords currentCoord = new Coords(0, 0, Double.parseDouble(xyz[2]),
                 0, 0, 0, 0,
                 pref.getMetresFromPixels(Double.parseDouble(xyz[0])),
                 pref.getMetresFromPixels(Double.parseDouble(xyz[1])), null);
-        String currentCoordMsg = currentCoord.getX() + "," + currentCoord.getY() + "," + currentCoord.getAltitude() +
-                "," + currentCoord.getBearing() + "," + "others" +
-                "," + type + "," + currentTime;
+
+//        String currentTimeToDisplay = DateTimeUtil.dateToCustomTimeStringFormat(
+//                DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime()));
+//
+//        String currentCoordMsg = currentCoord.getX() + "," + currentCoord.getY() + "," + currentCoord.getAltitude() +
+//                "," + currentCoord.getBearing() + "," + SharedPreferenceUtil.getCurrentUserCallsignID() +
+//                "," + type + "," + currentTimeToDisplay;
+
+        String currentDateTime = DateTimeUtil.dateToStandardIsoDateTimeStringFormat(
+                DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime()));
 
         BFTModel bFTModel = new BFTModel();
         bFTModel.setUserId(SharedPreferenceUtil.getCurrentUserCallsignID());
@@ -91,14 +107,13 @@ public class WebAppInterface {
         bFTModel.setYCoord(String.valueOf(currentCoord.getY()));
         bFTModel.setAltitude(String.valueOf(currentCoord.getAltitude()));
         bFTModel.setBearing(String.valueOf(currentCoord.getBearing()));
+        bFTModel.setAction(EBftAction.BEACONDROP.toString());
         bFTModel.setType(type);
-        bFTModel.setCreatedTime(currentTime);
+        bFTModel.setCreatedDateTime(currentDateTime);
 
-        DatabaseOperation databaseOperation = new DatabaseOperation();
-        BFTRepository bFTRepository = new BFTRepository((Application) MainApplication.getAppContext());
-        databaseOperation.insertBFTIntoDatabase(bFTRepository, bFTModel);
+        addItemToLocalDatabase(bFTModel);
 
-        return currentCoordMsg;
+//        return currentCoordMsg;
     }
 
     @JavascriptInterface
@@ -108,12 +123,116 @@ public class WebAppInterface {
 
     @JavascriptInterface
     public String getHazardString() {
-        return MainApplication.getAppContext().getString(R.string.map_blueprint_hazard_type);
+        return EBftType.HAZARD.toString();
+    }
+
+    @JavascriptInterface
+    public String getHazardStaleString() {
+        return EBftType.HAZARD_STALE.toString();
     }
 
     @JavascriptInterface
     public String getDeceasedString() {
-        return MainApplication.getAppContext().getString(R.string.map_blueprint_deceased_type);
+        return EBftType.DECEASED.toString();
+    }
+
+    @JavascriptInterface
+    public String getDeceasedStaleString() {
+        return EBftType.DECEASED_STALE.toString();
+    }
+
+    @JavascriptInterface
+    public String getOwnString() {
+        return EBftType.OWN.toString();
+    }
+
+    @JavascriptInterface
+    public String getCurrentUserId() {
+        return SharedPreferenceUtil.getCurrentUserCallsignID();
+    }
+
+    /**
+     * Deleting marker from javascript
+     *
+     * @param bftId
+     */
+    @JavascriptInterface
+    public void deleteMarker(String bftId) {
+        Timber.i("Deleting bftId: %d", Long.valueOf(bftId));
+        DatabaseOperation databaseOperation = new DatabaseOperation();
+        BFTRepository bftRepository = new BFTRepository((Application)
+                MainApplication.getAppContext());
+        databaseOperation.deleteBftInDatabase(bftRepository, Long.valueOf(bftId));
+    }
+
+    /**
+     * Stores Bft data locally with updated Ref Id
+     *
+     * @param bftModel
+     */
+    private void addItemToLocalDatabase(BFTModel bftModel) {
+
+        BFTRepository bFTRepository = new BFTRepository((Application) MainApplication.getAppContext());
+
+        SingleObserver<Long> singleObserverAddBft = new SingleObserver<Long>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                // add it to a CompositeDisposable
+            }
+
+            @Override
+            public void onSuccess(Long bftId) {
+                Timber.i("onSuccess singleObserverAddBft,addItemToLocalDatabase. SitRepId: %d", bftId);
+
+                updateBftModelRefId(bFTRepository, bftId);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e("onError singleObserverAddBft, addItemToLocalDatabase.Error Msg: %s ", e.toString());
+            }
+        };
+
+        bFTRepository.insertBFTWithObserver(bftModel, singleObserverAddBft);
+    }
+
+    /**
+     * Updates Ref Id of newly inserted BFT model
+     *
+     * @param bftId
+     */
+    private void updateBftModelRefId(BFTRepository bFTRepository, Long bftId) {
+        SingleObserver<BFTModel> singleObserverUpdateBftRefId = new SingleObserver<BFTModel>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                // add it to a CompositeDisposable
+            }
+
+            @Override
+            public void onSuccess(BFTModel bftModel) {
+                Timber.i("onSuccess singleObserverUpdateBftRefId, updateBftModelRefId. SitRepId: %d", bftId);
+
+                bftModel.setRefId(bftId);
+                bFTRepository.updateBFT(bftModel);
+
+                String currentTimeToDisplay = DateTimeUtil.dateToCustomTimeStringFormat(
+                        DateTimeUtil.stringToDate(bftModel.getCreatedDateTime()));
+
+                String currentCoordMsg = bftModel.getRefId() + "," + bftModel.getXCoord() +
+                        "," + bftModel.getYCoord() + "," + bftModel.getAltitude() +
+                        "," + bftModel.getBearing() + "," + bftModel.getUserId() +
+                        "," + bftModel.getType() + "," + currentTimeToDisplay;
+
+                MapShipBlueprintFragment.androidToJsCreateObjectAtLocation(currentCoordMsg);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e("onError singleObserverUpdateBftRefId, updateBftModelRefId. Error Msg: %s ", e.toString());
+            }
+        };
+
+        bFTRepository.queryBFTById(bftId, singleObserverUpdateBftRefId);
     }
 
 //    @JavascriptInterface

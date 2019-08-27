@@ -3,7 +3,7 @@ package sg.gov.dsta.mobileC3.ventilo.util.enums.task;
 import java.util.HashMap;
 
 public enum EStatus {
-    NEW("New"), IN_PROGRESS("In Progress"), COMPLETE("Complete"), NA("N.A.");
+    NEW("New"), IN_PROGRESS("In Progress"), COMPLETE("Complete"), NA("---");
 
     public static HashMap<String, EStatus> statusMapping = new HashMap<>();
     private final String name;

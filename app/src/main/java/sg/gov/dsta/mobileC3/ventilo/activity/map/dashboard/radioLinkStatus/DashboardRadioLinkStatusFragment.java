@@ -24,13 +24,15 @@ import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansLightTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
+import timber.log.Timber;
 
 public class DashboardRadioLinkStatusFragment extends Fragment {
 
-    private static final String TAG = DashboardRadioLinkStatusFragment.class.getSimpleName();
-
     // View Models
     private UserViewModel mUserViewModel;
+
+    // Main layout
+    private View mRootView;
 
     // UI components
     private C2OpenSansLightTextView mTvOfflineTotal;
@@ -46,12 +48,15 @@ public class DashboardRadioLinkStatusFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_dashboard_radio_link_status, container, false);
-
+        setRetainInstance(true);
         observerSetup();
-        initUI(rootView);
 
-        return rootView;
+        if (mRootView == null) {
+            mRootView = inflater.inflate(R.layout.fragment_dashboard_radio_link_status, container, false);
+            initUI(mRootView);
+        }
+
+        return mRootView;
     }
 
     /**
@@ -67,15 +72,15 @@ public class DashboardRadioLinkStatusFragment extends Fragment {
         mRecyclerViewStatusOffline.setHasFixedSize(true);
         mRecyclerViewStatusOffline.setNestedScrollingEnabled(true);
 
-        mRecyclerLayoutManagerStatusOffline = new LinearLayoutManager(getActivity());
+        mRecyclerLayoutManagerStatusOffline = new LinearLayoutManager(getParentFragment().getActivity());
         mRecyclerViewStatusOffline.setLayoutManager(mRecyclerLayoutManagerStatusOffline);
 
         if (mRadioLinkStatusUserListItems == null) {
             mRadioLinkStatusUserListItems = new ArrayList<>();
         }
 
-        mRecyclerAdapterStatusOffline = new RadioLinkStatusOfflineRecyclerAdapter(getContext(),
-                mRadioLinkStatusUserListItems);
+        mRecyclerAdapterStatusOffline = new RadioLinkStatusOfflineRecyclerAdapter(getParentFragment().
+                getContext(), mRadioLinkStatusUserListItems);
         mRecyclerViewStatusOffline.setAdapter(mRecyclerAdapterStatusOffline);
         mRecyclerViewStatusOffline.setItemAnimator(new DefaultItemAnimator());
     }
@@ -104,107 +109,85 @@ public class DashboardRadioLinkStatusFragment extends Fragment {
      * Set up observer for live updates on view models and update UI accordingly
      */
     private void observerSetup() {
-        mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+        if (getParentFragment() != null) {
+            mUserViewModel = ViewModelProviders.of(getParentFragment()).get(UserViewModel.class);
 
-        /*
-         * Refreshes recyclerview UI whenever there is a change in user data (insert, update or delete)
-         */
-        mUserViewModel.getAllUsersLiveData().observe(this, new Observer<List<UserModel>>() {
-            @Override
-            public void onChanged(@Nullable List<UserModel> userModelList) {
-                if (mRadioLinkStatusUserListItems == null) {
-                    mRadioLinkStatusUserListItems = new ArrayList<>();
-                } else {
-                    mRadioLinkStatusUserListItems.clear();
+            /*
+             * Refreshes recyclerview UI whenever there is a change in user data (insert, update or delete)
+             */
+            mUserViewModel.getAllUsersLiveData().observe(getParentFragment(), new Observer<List<UserModel>>() {
+                @Override
+                public void onChanged(@Nullable List<UserModel> userModelList) {
+
+                    synchronized (mRadioLinkStatusUserListItems) {
+                        if (mRadioLinkStatusUserListItems == null) {
+                            mRadioLinkStatusUserListItems = new ArrayList<>();
+                        } else {
+                            mRadioLinkStatusUserListItems.clear();
+                        }
+
+                        if (userModelList != null) {
+                            mRadioLinkStatusUserListItems.addAll(userModelList);
+                        }
+
+                        if (mRecyclerAdapterStatusOffline != null) {
+                            mRecyclerAdapterStatusOffline.setUserListItems(mRadioLinkStatusUserListItems);
+                        }
+
+                        refreshUI();
+                    }
                 }
-
-                if (userModelList != null) {
-                    mRadioLinkStatusUserListItems.addAll(userModelList);
-                }
-
-                if (mRecyclerAdapterStatusOffline != null) {
-                    mRecyclerAdapterStatusOffline.setUserListItems(mRadioLinkStatusUserListItems);
-                }
-
-                refreshUI();
-            }
-        });
+            });
+        }
     }
 
-//    /**
-//     * Pops back stack of ONLY current tab
-//     *
-//     * @return
-//     */
-//    public boolean popBackStack() {
-//        if (!isAdded())
-//            return false;
-//
-//        if(getChildFragmentManager().getBackStackEntryCount() > 0) {
-//            getChildFragmentManager().popBackStackImmediate();
-//            return true;
-//        } else
-//            return false;
-//    }
-//
-//    private void onVisible() {
-//        Log.d(TAG, "onVisible");
-//
-//        FragmentManager fm = getChildFragmentManager();
-//        boolean isFragmentFound = false;
-//
-//        int count = fm.getBackStackEntryCount();
-//
-//        // Checks if current fragment exists in Back stack
-//        for (int i = 0; i < count; i++) {
-//            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
-//                isFragmentFound = true;
-//            }
-//        }
-//
-//        // If not found, add to current fragment to Back stack
-//        if (!isFragmentFound) {
-//            FragmentTransaction ft = fm.beginTransaction();
-//            ft.addToBackStack(this.getClass().getSimpleName());
-//            ft.commit();
-//        }
-//    }
-//
-//    private void onInvisible() {
-//        Log.d(TAG, "onInvisible");
-//    }
-//
-//    @Override
-//    public void setUserVisibleHint(boolean isVisibleToUser) {
-//        super.setUserVisibleHint(isVisibleToUser);
-//        mIsFragmentVisibleToUser = isVisibleToUser;
-//
-//        if (isResumed()) { // fragment has been created at this point
-//            if (mIsFragmentVisibleToUser) {
-//                Log.d(TAG, "setUserVisibleHint onVisible");
-//                onVisible();
-//            } else {
-//                Log.d(TAG, "setUserVisibleHint onInvisible");
-//                onInvisible();
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void onStop() {
-//        super.onStop();
-//
-//        if (mIsFragmentVisibleToUser) {
-//            onVisible();
-//        }
-//    }
-//
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//
-//        if (mIsFragmentVisibleToUser) {
-//            onVisible();
-//        }
-//    }
+    public void onVisible() {
+        Timber.i("onVisible");
+//        observerSetup();
+//        mRecyclerAdapterStatusOffline.notifyDataSetChanged();
+        observerSetup();
+
+        if (mRecyclerAdapterStatusOffline != null) {
+
+            mRecyclerAdapterStatusOffline.notifyDataSetChanged();
+        }
+    }
+
+    private void onInvisible() {
+        Timber.i("onInvisible");
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        mIsFragmentVisibleToUser = isVisibleToUser;
+
+        if (isResumed()) { // fragment has been created at this point
+            if (mIsFragmentVisibleToUser) {
+                Timber.i("setUserVisibleHint onVisible");
+                onVisible();
+            } else {
+                Timber.i("setUserVisibleHint onInvisible");
+                onInvisible();
+            }
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mIsFragmentVisibleToUser) {
+            onVisible();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (mIsFragmentVisibleToUser) {
+            onVisible();
+        }
+    }
 }

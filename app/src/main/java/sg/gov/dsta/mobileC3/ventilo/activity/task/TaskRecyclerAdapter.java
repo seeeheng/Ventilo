@@ -109,7 +109,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         // Reported date/time
         StringBuilder createdDateTimeStringBuilder = new StringBuilder();
         String createdDateTime = item.getCreatedDateTime();
-        String createdDateTimeInCustomStrFormat = DateTimeUtil.dateToCustomStringFormat(
+        String createdDateTimeInCustomStrFormat = DateTimeUtil.dateToCustomDateTimeStringFormat(
                 DateTimeUtil.stringToDate(createdDateTime));
 
         if (createdDateTime != null) {

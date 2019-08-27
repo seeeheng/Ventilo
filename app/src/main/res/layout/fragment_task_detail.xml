@@ -61,7 +61,7 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginEnd="@dimen/elements_margin_spacing"
                         android:scaleType="fitCenter"
-                        app:srcCompat="@drawable/icon_team" />
+                        app:srcCompat="@drawable/icon_personnel" />
 
                     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView
                         android:id="@+id/tv_task_detail_reporter"

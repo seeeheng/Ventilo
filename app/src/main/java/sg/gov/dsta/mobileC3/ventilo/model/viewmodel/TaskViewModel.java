@@ -30,10 +30,6 @@ public class TaskViewModel extends AndroidViewModel {
         repository.getAllTasks(singleObserver);
     }
 
-    public void addTask(TaskModel taskModel, SingleObserver singleObserver) {
-        repository.addTask(taskModel, singleObserver);
-    }
-
     public void insertTaskWithObserver(TaskModel taskModel, SingleObserver singleObserver) {
         repository.insertTaskWithObserver(taskModel, singleObserver);
     }

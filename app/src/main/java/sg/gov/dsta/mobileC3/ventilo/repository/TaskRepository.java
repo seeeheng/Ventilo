@@ -15,6 +15,7 @@ import io.reactivex.schedulers.Schedulers;
 import sg.gov.dsta.mobileC3.ventilo.database.DAO.TaskDao;
 import sg.gov.dsta.mobileC3.ventilo.database.VentiloDatabase;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
+import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 
 public class TaskRepository {
 
@@ -46,21 +47,29 @@ public class TaskRepository {
     public void getAllTasks(SingleObserver singleObserver) {
         QueryAllTasksAsyncTask task = new
                 QueryAllTasksAsyncTask(mTaskDao, singleObserver);
-        task.execute();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute();
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
-    /**
-     * Obtain Task based on Id with Id from local database
-     *
-     * @param taskId
-     * @param singleObserver
-     */
-    public void queryTaskById(long taskId, SingleObserver<TaskModel> singleObserver) {
-        Single<TaskModel> single = mTaskDao.queryTaskById(taskId);
-        single.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(singleObserver);
-    }
+//    /**
+//     * Obtain Task based on Id with Id from local database
+//     *
+//     * @param taskId
+//     * @param singleObserver
+//     */
+//    public void queryTaskById(long taskId, SingleObserver<TaskModel> singleObserver) {
+//        Single<TaskModel> single = mTaskDao.queryTaskById(taskId);
+//        single.subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(singleObserver);
+//    }
 
     /**
      * Obtain Task based on Ref Id with Id from local database
@@ -76,13 +85,16 @@ public class TaskRepository {
     }
 
     /**
-     * Insert Task model in local database with updates to Observer
-     * @param taskModel
+     * Obtain Task based on created date and time from local database
+     *
+     * @param createdDateTime
      * @param singleObserver
      */
-    public void insertTaskWithObserver(TaskModel taskModel, SingleObserver singleObserver) {
-        InsertWithObserverAsyncTask task = new InsertWithObserverAsyncTask(mTaskDao, singleObserver);
-        task.execute(taskModel);
+    public void queryTaskByCreatedDateTime(String createdDateTime, SingleObserver<TaskModel> singleObserver) {
+        Single<TaskModel> single = mTaskDao.queryTaskByCreatedDateTime(createdDateTime);
+        single.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(singleObserver);
     }
 
     /**
@@ -90,9 +102,17 @@ public class TaskRepository {
      * @param taskModel
      * @param singleObserver
      */
-    public void addTask(TaskModel taskModel, SingleObserver singleObserver) {
+    public void insertTaskWithObserver(TaskModel taskModel, SingleObserver singleObserver) {
         InsertWithObserverAsyncTask task = new InsertWithObserverAsyncTask(mTaskDao, singleObserver);
-        task.execute(taskModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(taskModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**
@@ -101,7 +121,15 @@ public class TaskRepository {
      */
     public void insertTask(TaskModel taskModel) {
         InsertAsyncTask task = new InsertAsyncTask(mTaskDao);
-        task.execute(taskModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(taskModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**
@@ -110,7 +138,15 @@ public class TaskRepository {
      */
     public void updateTask(TaskModel taskModel) {
         UpdateAsyncTask task = new UpdateAsyncTask(mTaskDao);
-        task.execute(taskModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(taskModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**
@@ -119,7 +155,15 @@ public class TaskRepository {
      */
     public void updateTaskByRefId(TaskModel taskModel) {
         UpdateByRefIdAsyncTask task = new UpdateByRefIdAsyncTask(mTaskDao);
-        task.execute(taskModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(taskModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**
@@ -128,7 +172,15 @@ public class TaskRepository {
      */
     public void deleteTask(long taskId) {
         DeleteAsyncTask task = new DeleteAsyncTask(mTaskDao);
-        task.execute(taskId);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(taskId);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**
@@ -137,7 +189,15 @@ public class TaskRepository {
      */
     public void deleteTaskByRefId(long taskId) {
         DeleteByRefIdAsyncTask task = new DeleteByRefIdAsyncTask(mTaskDao);
-        task.execute(taskId);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(taskId);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**
@@ -260,7 +320,9 @@ public class TaskRepository {
                     taskModelToUpdate.getAdHocTaskPriority(),taskModelToUpdate.getAssignedTo(),
                     taskModelToUpdate.getAssignedBy(), taskModelToUpdate.getTitle(),
                     taskModelToUpdate.getDescription(), taskModelToUpdate.getStatus(),
-                    taskModelToUpdate.getCreatedDateTime(), taskModelToUpdate.getCompletedDateTime());
+                    taskModelToUpdate.getCreatedDateTime(), taskModelToUpdate.getCompletedDateTime(),
+                    taskModelToUpdate.getLastUpdatedStatusDateTime(), taskModelToUpdate.getLastUpdatedMainDateTime(),
+                    taskModelToUpdate.getIsValid());
 
             return null;
         }

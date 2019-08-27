@@ -37,6 +37,9 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
     private UserViewModel mUserViewModel;
     private TaskViewModel mTaskViewModel;
 
+    // Main layout
+    private View mRootView;
+
 //    // UI components
 //    private C2OpenSansLightTextView mTvOfflineTotal;
 //    private C2OpenSansLightTextView mTvOnlineTotal;
@@ -49,15 +52,43 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
     private List<String> mTeamListItems;
     private List<String> mPhaseStatusListItems;
 
+    private boolean mIsFragmentVisibleToUser;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_dashboard_task_phase_status, container, false);
-
+        setRetainInstance(true);
         observerSetup();
-        initUI(rootView);
 
-        return rootView;
+        Log.d(TAG, "onCreate in");
+
+        if (mRootView == null) {
+            mRootView = inflater.inflate(R.layout.fragment_dashboard_task_phase_status, container, false);
+            initUI(mRootView);
+            Log.d(TAG, "onCreate out");
+        }
+
+        return mRootView;
     }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        Log.d(TAG, "onViewCreated");
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (hidden) {
+            Log.d(TAG, ((Object) this).getClass().getSimpleName() + " is NOT on screen");
+        }
+        else
+        {
+            Log.d(TAG, ((Object) this).getClass().getSimpleName() + " is on screen");
+        }
+    }
+
 
     /**
      * Initialise view with recycler data
@@ -68,7 +99,7 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
         mRecyclerView = rootView.findViewById(R.id.recycler_dashboard_task_phase_status);
         mRecyclerView.setHasFixedSize(true);
 
-        mRecyclerLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerLayoutManager = new LinearLayoutManager(getParentFragment().getActivity());
         mRecyclerView.setLayoutManager(mRecyclerLayoutManager);
         mRecyclerView.setNestedScrollingEnabled(true);
 
@@ -80,7 +111,7 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
             mPhaseStatusListItems = new ArrayList<>();
         }
 
-        mRecyclerAdapter = new DashboardTaskPhaseStatusRecyclerAdapter(getContext(),
+        mRecyclerAdapter = new DashboardTaskPhaseStatusRecyclerAdapter(getParentFragment().getContext(),
                 mTeamListItems, mPhaseStatusListItems);
         mRecyclerView.setAdapter(mRecyclerAdapter);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -93,19 +124,7 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
      * @param taskModelList
      * @return
      */
-    private List<TaskModel> refreshUI(List<TaskModel> taskModelList) {
-        if (mTeamListItems == null) {
-            mTeamListItems = new ArrayList<>();
-        } else {
-            mTeamListItems.clear();
-        }
-
-        if (mPhaseStatusListItems == null) {
-            mPhaseStatusListItems = new ArrayList<>();
-        } else {
-            mPhaseStatusListItems.clear();
-        }
-
+    private synchronized List<TaskModel> refreshUI(List<TaskModel> taskModelList) {
         List<TaskModel> teamPhaseTaskModelListItems = new ArrayList<>();
 
         // Remove 'Ad Hoc' Tasks from list
@@ -114,14 +133,14 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
                 teamPhaseTaskModelListItems.add(taskModelList.get(i));
             }
         }
-        Timber.i("onSuccess singleObserverForAllUsers, refreshUI. teamPhaseTaskModelListItems before sorting: %s " , teamPhaseTaskModelListItems);
+        Timber.i("onSuccess singleObserverForAllUsers, refreshUI. teamPhaseTaskModelListItems before sorting: %s ", teamPhaseTaskModelListItems);
 
 
         // Sort according to ascending order of phases (e.g. 1, 2, 3, 4...)
         teamPhaseTaskModelListItems.sort(TaskModel.getPhaseNoComparator());
 
 
-        Timber.i("onSuccess singleObserverForAllUsers, refreshUI. teamPhaseTaskModelListItems after sorting: %s" ,teamPhaseTaskModelListItems);
+        Timber.i("onSuccess singleObserverForAllUsers, refreshUI. teamPhaseTaskModelListItems after sorting: %s", teamPhaseTaskModelListItems);
 
 
         // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
@@ -135,8 +154,20 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
             @Override
             public void onSuccess(List<UserModel> userModelList) {
 
-                Timber.i("onSuccess singleObserverForAllUsers, refreshUI. size of userModelList: %s" , userModelList.size());
+                Timber.i("onSuccess singleObserverForAllUsers, refreshUI. size of userModelList: %s", userModelList.size());
 
+
+                if (mTeamListItems == null) {
+                    mTeamListItems = new ArrayList<>();
+                } else {
+                    mTeamListItems.clear();
+                }
+
+                if (mPhaseStatusListItems == null) {
+                    mPhaseStatusListItems = new ArrayList<>();
+                } else {
+                    mPhaseStatusListItems.clear();
+                }
 
                 StringBuilder taskStatusPhaseCompletionStrBuilder = new StringBuilder();
                 String taskStatusPhaseCompletion = StringUtil.EMPTY_STRING;
@@ -201,10 +232,8 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
 
                 // Updates recycler adapter data for UI refresh
                 if (mRecyclerAdapter != null) {
-
-                    Timber.i("onSuccess singleObserverForAllUsers, refreshUI. mTeamListItems:  %s" , mTeamListItems);
-
-                    Timber.i("onSuccess singleObserverForAllUsers, refreshUI. mPhaseStatusListItems: %s" , mPhaseStatusListItems);
+                    Timber.i("onSuccess singleObserverForAllUsers, refreshUI. mTeamListItems:  %s", mTeamListItems);
+                    Timber.i("onSuccess singleObserverForAllUsers, refreshUI. mPhaseStatusListItems: %s", mPhaseStatusListItems);
 
                     mRecyclerAdapter.setTeamPhaseStatusListItems(mTeamListItems, mPhaseStatusListItems);
                 }
@@ -213,7 +242,7 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
             @Override
             public void onError(Throwable e) {
                 // show an error message
-                Timber.i("onError singleObserverForAllUsers, refreshUI. Error Msg: %s" , e.toString());
+                Timber.i("onError singleObserverForAllUsers, refreshUI. Error Msg: %s", e.toString());
 
             }
         };
@@ -227,104 +256,77 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
      * Set up observer for live updates on view models and update UI accordingly
      */
     private void observerSetup() {
-        mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
-        mTaskViewModel = ViewModelProviders.of(this).get(TaskViewModel.class);
+        if (getParentFragment() != null) {
 
-        /*
-         * Refreshes recyclerview UI whenever there is a change in task (insert, update or delete)
-         */
-        mTaskViewModel.getAllTasksLiveData().observe(this, new Observer<List<TaskModel>>() {
-            @Override
-            public void onChanged(@Nullable List<TaskModel> taskModelList) {
+            mUserViewModel = ViewModelProviders.of(getParentFragment()).get(UserViewModel.class);
+            mTaskViewModel = ViewModelProviders.of(getParentFragment()).get(TaskViewModel.class);
+
+            /*
+             * Refreshes recyclerview UI whenever there is a change in task (insert, update or delete)
+             */
+            mTaskViewModel.getAllTasksLiveData().observe(getParentFragment(), new Observer<List<TaskModel>>() {
+                @Override
+                public void onChanged(@Nullable List<TaskModel> taskModelList) {
 //                if (mTaskListItems == null) {
 //                    mTaskListItems = new ArrayList<>();
 //                } else {
 //                    mTaskListItems.clear();
 //                }
 
-                Log.d(TAG, "taskModelList: " + taskModelList);
+                    Log.d(TAG, "taskModelList: " + taskModelList);
 
-                if (taskModelList != null) {
-                    refreshUI(taskModelList);
+                    if (taskModelList != null) {
+                        refreshUI(taskModelList);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
-//    /**
-//     * Pops back stack of ONLY current tab
-//     *
-//     * @return
-//     */
-//    public boolean popBackStack() {
-//        if (!isAdded())
-//            return false;
-//
-//        if(getChildFragmentManager().getBackStackEntryCount() > 0) {
-//            getChildFragmentManager().popBackStackImmediate();
-//            return true;
-//        } else
-//            return false;
-//    }
-//
-//    private void onVisible() {
-//        Log.d(TAG, "onVisible");
-//
-//        FragmentManager fm = getChildFragmentManager();
-//        boolean isFragmentFound = false;
-//
-//        int count = fm.getBackStackEntryCount();
-//
-//        // Checks if current fragment exists in Back stack
-//        for (int i = 0; i < count; i++) {
-//            if (this.getClass().getSimpleName().equalsIgnoreCase(fm.getBackStackEntryAt(i).getName())) {
-//                isFragmentFound = true;
-//            }
-//        }
-//
-//        // If not found, add to current fragment to Back stack
-//        if (!isFragmentFound) {
-//            FragmentTransaction ft = fm.beginTransaction();
-//            ft.addToBackStack(this.getClass().getSimpleName());
-//            ft.commit();
-//        }
-//    }
-//
-//    private void onInvisible() {
-//        Log.d(TAG, "onInvisible");
-//    }
-//
-//    @Override
-//    public void setUserVisibleHint(boolean isVisibleToUser) {
-//        super.setUserVisibleHint(isVisibleToUser);
-//        mIsFragmentVisibleToUser = isVisibleToUser;
-//
-//        if (isResumed()) { // fragment has been created at this point
-//            if (mIsFragmentVisibleToUser) {
-//                Log.d(TAG, "setUserVisibleHint onVisible");
-//                onVisible();
-//            } else {
-//                Log.d(TAG, "setUserVisibleHint onInvisible");
-//                onInvisible();
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void onStop() {
-//        super.onStop();
-//
-//        if (mIsFragmentVisibleToUser) {
-//            onVisible();
-//        }
-//    }
-//
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//
-//        if (mIsFragmentVisibleToUser) {
-//            onVisible();
-//        }
-//    }
+    public void onVisible() {
+        Timber.i("onVisible");
+        observerSetup();
+
+        if (mRecyclerAdapter != null) {
+            mRecyclerAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void onInvisible() {
+        Timber.i("onInvisible");
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        mIsFragmentVisibleToUser = isVisibleToUser;
+
+        if (isResumed()) { // fragment has been created at this point
+            if (mIsFragmentVisibleToUser) {
+                Timber.i("setUserVisibleHint onVisible");
+                onVisible();
+            } else {
+                Timber.i("setUserVisibleHint onInvisible");
+                onInvisible();
+            }
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mIsFragmentVisibleToUser) {
+            onVisible();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (mIsFragmentVisibleToUser) {
+            onVisible();
+        }
+    }
 }

@@ -24,6 +24,7 @@ public class UserModel {
     private String radioToNetworkConnectionStatus;  // For e.g., Connected / Disconnected
     private String radioFullConnectionStatus;       // For e.g., Online / Offline
     private String lastKnownConnectionDateTime;
+    private int missingHeartBeatCount;
 
     public UserModel(@NonNull String userId) {
         this.userId = userId;
@@ -40,6 +41,7 @@ public class UserModel {
     public String getRadioToNetworkConnectionStatus() { return radioToNetworkConnectionStatus; }
     public String getRadioFullConnectionStatus() { return radioFullConnectionStatus; }
     public String getLastKnownConnectionDateTime() { return lastKnownConnectionDateTime; }
+    public int getMissingHeartBeatCount() { return missingHeartBeatCount; }
 
     // --- SETTER ---
     public void setUserId(@NonNull String userId) { this.userId = userId; }
@@ -55,4 +57,6 @@ public class UserModel {
         this.radioFullConnectionStatus = radioFullConnectionStatus; }
     public void setLastKnownConnectionDateTime(String lastKnownConnectionDateTime) {
         this.lastKnownConnectionDateTime = lastKnownConnectionDateTime; }
+    public void setMissingHeartBeatCount(int missingHeartBeatCount) {
+        this.missingHeartBeatCount = missingHeartBeatCount; }
 }

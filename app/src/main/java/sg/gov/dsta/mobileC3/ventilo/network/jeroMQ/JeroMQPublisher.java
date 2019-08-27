@@ -1,15 +1,12 @@
 package sg.gov.dsta.mobileC3.ventilo.network.jeroMQ;
 
-import android.os.AsyncTask;
-import android.util.Log;
-
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ.Socket;
 
 import java.util.List;
-import java.util.concurrent.Executors;
 
+import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 import sg.gov.dsta.mobileC3.ventilo.util.PowerManagerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.network.NetworkUtil;
@@ -18,11 +15,10 @@ import timber.log.Timber;
 /**
  * Reads from multiple sockets in Java
  */
-public class JeroMQPublisher extends JeroMQParentPublisher {
+public class JeroMQPublisher extends JeroMQParent {
 
     //    private static final Logger LOGGER = LoggerFactory.getLogger(JeroMQPublisher.class);
     private static final String TAG = JeroMQPublisher.class.getSimpleName();
-    private static final int DEFAULT_PORT = 5556;
 
 //    protected static final String SERVER_PUB_IP_ADDRESS = "tcp://" +
 //            NetworkUtil.getOwnIPAddressThroughWiFiOrEthernet(true) + ":" +
@@ -32,22 +28,10 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 //            NetworkUtil.getOwnIPAddressThroughWiFiOrEthernet(true) + ":" +
 //            DEFAULT_PORT;
 
-    protected static final String SERVER_PUB_IP_ADDRESS = "tcp://*:" + DEFAULT_PORT;
+    protected static final String SERVER_PUB_IP_ADDRESS = "tcp://*:" + PUB_SUB_PORT;
 
 //    protected static final String SERVER_PUB_IP_ADDRESS = "tcp://192.168.1.3:" +
 //            JeroMQPubSubBrokerProxy.DEFAULT_XSUB_PORT;
-
-    public static final String TOPIC_PREFIX_BFT = "PREFIX-BFT";
-    public static final String TOPIC_PREFIX_USER = "PREFIX-USER";
-    public static final String TOPIC_PREFIX_RADIO = "PREFIX-RADIO";
-    public static final String TOPIC_PREFIX_SITREP = "PREFIX-SITREP";
-    public static final String TOPIC_PREFIX_TASK = "PREFIX-TASK";
-    //    public static final String TOPIC_PREFIX_USER_SITREP_JOIN = "PREFIX-USER-SITREP-JOIN";
-//    public static final String TOPIC_PREFIX_USER_TASK_JOIN = "PREFIX-USER-TASK-JOIN";
-    public static final String TOPIC_SYNC = "SYNC";
-    public static final String TOPIC_INSERT = "INSERT";
-    public static final String TOPIC_UPDATE = "UPDATE";
-    public static final String TOPIC_DELETE = "DELETE";
 
     private static volatile JeroMQPublisher instance;
     //    private Socket mSocket;
@@ -95,7 +79,8 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
      */
     private JeroMQPublisher() {
 //        super(zContext, Executors.newFixedThreadPool(ADDRESSES.size()));
-        super(Executors.newSingleThreadExecutor());
+//        super(Executors.newSingleThreadExecutor());
+        super(CustomThreadPoolManager.getInstance());
     }
 
     /**
@@ -110,11 +95,11 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
                 if (instance == null) {
                     instance = new JeroMQPublisher();
                 } else {
-                    instance.initExecutorService();
+                    instance.initCustomThreadPoolManagerService();
                 }
             }
         } else {
-            instance.initExecutorService();
+            instance.initCustomThreadPoolManagerService();
         }
 
         return instance;
@@ -137,9 +122,9 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
      * Processes messages based on topics
      */
     @Override
-    protected void startServerProcess() {
+    protected void startProcess() {
         Timber.i("Start server pub sockets connection");
-        Timber.i("Own IP address is: %s" , NetworkUtil.getOwnIPAddressThroughWiFiOrEthernet(true));
+        Timber.i("OWN IP address is: %s" , NetworkUtil.getOwnIPAddressThroughWiFiOrEthernet(true));
 
         mZContext = new ZContext();
         mPubSocket = mZContext.createSocket(SocketType.PUB);
@@ -153,56 +138,6 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 
    }
 
-
-    /**
-     * Broadcasts BFT JSON message to all relevant devices for data storage
-     *
-     * @param message
-     */
-    public void sendBFTMessage(String message, String actionPrefix) {
-//        for (int i = 0; i < ADDRESSES.size(); i++) {
-//            final String currentAddress = ADDRESSES.get(i);
-
-        String topicPrefix = getActionPrefix(TOPIC_PREFIX_BFT, actionPrefix);
-
-        if ("".equalsIgnoreCase(topicPrefix)) {
-            return;
-        }
-
-        PowerManagerUtil.acquirePartialWakeLock();
-
-
-
-        mExecutorService.submit(new Runnable() {
-            @Override
-            public void run() {
-//                    LOGGER.info("Creating and binding PUB socket with address={}", currentAddress);
-
-                StringBuilder bftMessageToSend = new StringBuilder();
-                bftMessageToSend.append(topicPrefix);
-                bftMessageToSend.append(" ");
-                bftMessageToSend.append(message);
-                Timber.i("Publishing BFT message: %s" , message );
-
-
-
-                mPubSocket.send(bftMessageToSend.toString());
-                Timber.i("BFT message sent");
-
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Timber.e("Interrupted while sleeping:  %s" , e);
-
-                    return;
-                }
-            }
-        });
-
-        PowerManagerUtil.releasePartialWakeLock();
-//        }
-    }
-
     /**
      * Broadcasts User JSON message to all relevant devices for data storage
      *
@@ -214,12 +149,12 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
         if (StringUtil.EMPTY_STRING.equalsIgnoreCase(topicPrefix)) {
             return;
         }
-        Timber.i("Publishing User");
 
+        Timber.i("Publishing User");
 
         PowerManagerUtil.acquirePartialWakeLock();
 
-        mExecutorService.submit(new Runnable() {
+        mCustomThreadPoolManager.addRunnable(new Runnable() {
             @Override
             public void run() {
                 StringBuilder userMessageToSend = new StringBuilder();
@@ -227,23 +162,17 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
                 userMessageToSend.append(StringUtil.SPACE);
                 userMessageToSend.append(message);
 
-
-                Timber.i("Publishing User %s" , actionPrefix ) ;
-
-               Timber.i( " message: %s" , userMessageToSend );
-
+                Timber.i("Publishing User %s" , actionPrefix) ;
+                Timber.i( "message: %s" , userMessageToSend);
 
                 mPubSocket.send(userMessageToSend.toString());
 
-
-                Timber.i( "User %s" , actionPrefix   );
+                Timber.i( "User %s" , actionPrefix);
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
                 } catch (InterruptedException e) {
-
                     Timber.e( "Interrupted while sleeping: " + e);
-
                     return;
                 }
             }
@@ -260,11 +189,12 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
     public void sendWaveRelayRadioMessage(String message, String actionPrefix) {
 
         String topicPrefix = getActionPrefix(TOPIC_PREFIX_RADIO, actionPrefix);
+
         Timber.i( "Publishing WaveRelay Radio");
 
         PowerManagerUtil.acquirePartialWakeLock();
 
-        mExecutorService.submit(new Runnable() {
+        mCustomThreadPoolManager.addRunnable(new Runnable() {
             @Override
             public void run() {
                 StringBuilder radioMessageToSend = new StringBuilder();
@@ -274,25 +204,65 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
                 Timber.i( "Publishing WaveRelay Radio %s" , actionPrefix );
                 Timber.i( "Publishing WaveRelay Radio message %s" , message );
 
-
-
-
                 mPubSocket.send(radioMessageToSend.toString());
                 Timber.i( "WaveRelay Radio message sent %s" , actionPrefix );
 
-
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
                 } catch (InterruptedException e) {
-
                     Timber.e( "Interrupted while sleeping: %s" , e);
-
                     return;
                 }
             }
         });
 
         PowerManagerUtil.releasePartialWakeLock();
+    }
+
+    /**
+     * Broadcasts BFT JSON message to all relevant devices for data storage
+     *
+     * @param message
+     */
+    public void sendBFTMessage(String message, String actionPrefix) {
+//        for (int i = 0; i < ADDRESSES.size(); i++) {
+//            final String currentAddress = ADDRESSES.get(i);
+
+        String topicPrefix = getActionPrefix(TOPIC_PREFIX_BFT, actionPrefix);
+
+        if (StringUtil.EMPTY_STRING.equalsIgnoreCase(topicPrefix)) {
+            return;
+        }
+
+        PowerManagerUtil.acquirePartialWakeLock();
+
+        mCustomThreadPoolManager.addRunnable(new Runnable() {
+            @Override
+            public void run() {
+//                    LOGGER.info("Creating and binding PUB socket with address={}", currentAddress);
+
+                StringBuilder bftMessageToSend = new StringBuilder();
+                bftMessageToSend.append(topicPrefix);
+                bftMessageToSend.append(" ");
+                bftMessageToSend.append(message);
+
+                Timber.i("Publishing BFT message: %s" , message );
+
+                mPubSocket.send(bftMessageToSend.toString());
+
+                Timber.i("BFT message sent");
+
+                try {
+                    Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
+                } catch (InterruptedException e) {
+                    Timber.e("Interrupted while sleeping:  %s" , e);
+                    return;
+                }
+            }
+        });
+
+        PowerManagerUtil.releasePartialWakeLock();
+//        }
     }
 
     /**
@@ -310,7 +280,7 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 
         PowerManagerUtil.acquirePartialWakeLock();
 
-        mExecutorService.submit(new Runnable() {
+        mCustomThreadPoolManager.addRunnable(new Runnable() {
             @Override
             public void run() {
 //                    LOGGER.info("Creating and binding PUB socket with address={}", currentAddress);
@@ -321,18 +291,14 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 
                 Timber.i( "Publishing SitRep %s %s" , actionPrefix , message );
 
-
-
                 mPubSocket.send(sitRepMessageToSend.toString());
 
                 Timber.i( "SitRep message sent %s" , actionPrefix );
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
                 } catch (InterruptedException e) {
-
                     Timber.e( "Interrupted while sleeping: %s" , e);
-
                     return;
                 }
             }
@@ -357,7 +323,7 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
 
         PowerManagerUtil.acquirePartialWakeLock();
 
-        mExecutorService.submit(new Runnable() {
+        mCustomThreadPoolManager.addRunnable(new Runnable() {
             @Override
             public void run() {
 //                    LOGGER.info("Creating and binding PUB socket with address={}", currentAddress);
@@ -367,17 +333,14 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
                 taskMessageToSend.append(StringUtil.SPACE);
                 taskMessageToSend.append(message);
 
-
-                Timber.i( "Publishing Task %s  , messge: %s" , actionPrefix ,taskMessageToSend );
-
+                Timber.i( "Publishing Task %s  , messge: %s" , actionPrefix, taskMessageToSend );
 
                 mPubSocket.send(taskMessageToSend.toString());
                 Timber.i( "Task message sent %s" , actionPrefix );
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
                 } catch (InterruptedException e) {
-
                     Timber.i("Interrupted while sleeping: %s" , e);
                     return;
                 }
@@ -490,16 +453,12 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
             mPubSocket.unbind(SERVER_PUB_IP_ADDRESS);
             Timber.i("Server pub socket unbound.");
 
-
             mPubSocket.close();
             Timber.i("Server pub socket closed.");
 
-
             if (mZContext != null) {
                 mZContext.destroySocket(mPubSocket);
-
                 Timber.i("Server pub socket destroyed.");
-
             }
         }
 
@@ -507,11 +466,7 @@ public class JeroMQPublisher extends JeroMQParentPublisher {
             Timber.i("Destroying ZContext.");
 
             mZContext.destroy();
-
             Timber.i("ZContext destroyed.");
-
         }
-
-
     }
 }

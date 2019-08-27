@@ -9,6 +9,7 @@ import android.arch.persistence.room.Update;
 
 import java.util.List;
 
+import io.reactivex.Single;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
 
 @Dao
@@ -23,11 +24,29 @@ public interface BFTDao {
     @Query("DELETE FROM BFT WHERE id = :id")
     void deleteBFTModel(long id);
 
+    @Query("SELECT * FROM BFT")
+    LiveData<List<BFTModel>> getAllBFTsLiveData();
+
     @Query("SELECT * FROM BFT WHERE userId = :userId")
     LiveData<List<BFTModel>> getAllBFTsLiveDataForUser(String userId);
 
     @Query("SELECT * FROM BFT")
     List<BFTModel> getAllBFTs();
+
+    @Query("SELECT * FROM BFT WHERE id = :id")
+    Single<BFTModel> getBFTById(long id);
+
+    @Query("SELECT * FROM BFT WHERE refId = :refId")
+    Single<BFTModel> getBFTByRefId(long refId);
+
+    @Query("SELECT * FROM BFT WHERE userId = :userId AND type = :type")
+    Single<List<BFTModel>> getBFTByUserIdAndType(String userId, String type);
+
+    @Query("SELECT * FROM BFT WHERE userId = :userId AND type = :type " +
+            "AND createdDateTime = :createdDateTime")
+    Single<List<BFTModel>> getBFTByUserIdAndTypeAndCreatedDateTime(String userId,
+                                                                   String type,
+                                                                   String createdDateTime);
 
 //    @Query("SELECT * FROM BFT WHERE userId = :userId")
 //    List<BFTModel> getAllBFTsForUser(String userId);

@@ -28,7 +28,7 @@ public class SitRepViewModel extends AndroidViewModel {
         return mAllSitRepsLiveData;
     }
 
-    public void getAllSitReps(SingleObserver<SitRepModel> singleObserver) {
+    public void getAllSitReps(SingleObserver<List<SitRepModel>> singleObserver) {
         repository.getAllSitReps(singleObserver);
     }
 
@@ -38,10 +38,6 @@ public class SitRepViewModel extends AndroidViewModel {
 
     public void insertSitRep(SitRepModel sitRepModel) {
         repository.insertSitRep(sitRepModel);
-    }
-
-    public void querySitRepBySitRepId(long sitRepId, SingleObserver<SitRepModel> singleObserver) {
-        repository.querySitRepById(sitRepId, singleObserver);
     }
 
     public void updateSitRep(SitRepModel sitRepModel) {

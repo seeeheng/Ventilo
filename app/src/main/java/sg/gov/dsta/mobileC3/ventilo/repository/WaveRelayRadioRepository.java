@@ -11,10 +11,12 @@ import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import sg.gov.dsta.mobileC3.ventilo.AsyncParallelTask;
 import sg.gov.dsta.mobileC3.ventilo.database.DAO.WaveRelayRadioDao;
 import sg.gov.dsta.mobileC3.ventilo.database.VentiloDatabase;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
+import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 
 public class WaveRelayRadioRepository {
 
@@ -33,7 +35,15 @@ public class WaveRelayRadioRepository {
     public void getAllWaveRelayRadios(SingleObserver singleObserver) {
         QueryAllWaveRelayRadiosAsyncTask task = new
                 QueryAllWaveRelayRadiosAsyncTask(mWaveRelayRadioDao, singleObserver);
-        task.execute();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute();
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**
@@ -44,6 +54,19 @@ public class WaveRelayRadioRepository {
      */
     public void queryRadioByRadioId(long radioId, SingleObserver<WaveRelayRadioModel> singleObserver) {
         Single<WaveRelayRadioModel> single = mWaveRelayRadioDao.getRadioByRadioId(radioId);
+        single.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(singleObserver);
+    }
+
+    /**
+     * Obtain WaveRelay Radio model based on User Id from local database
+     *
+     * @param userId
+     * @param singleObserver
+     */
+    public void queryRadioByUserId(String userId, SingleObserver<WaveRelayRadioModel> singleObserver) {
+        Single<WaveRelayRadioModel> single = mWaveRelayRadioDao.getRadioByUserId(userId);
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(singleObserver);
@@ -69,7 +92,15 @@ public class WaveRelayRadioRepository {
      */
     public void insertWaveRelayRadio(WaveRelayRadioModel waveRelayRadioModel) {
         InsertAsyncTask task = new InsertAsyncTask(mWaveRelayRadioDao);
-        task.execute(waveRelayRadioModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(waveRelayRadioModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**
@@ -79,7 +110,15 @@ public class WaveRelayRadioRepository {
      */
     public void updateWaveRelayRadio(WaveRelayRadioModel waveRelayRadioModel) {
         UpdateAsyncTask task = new UpdateAsyncTask(mWaveRelayRadioDao);
-        task.execute(waveRelayRadioModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(waveRelayRadioModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**
@@ -89,7 +128,15 @@ public class WaveRelayRadioRepository {
      */
     public void deleteWaveRelayRadio(long radioId) {
         DeleteAsyncTask task = new DeleteAsyncTask(mWaveRelayRadioDao);
-        task.execute(radioId);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(radioId);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     private static class QueryAllWaveRelayRadiosAsyncTask extends

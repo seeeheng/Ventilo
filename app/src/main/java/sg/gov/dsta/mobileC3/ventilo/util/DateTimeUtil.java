@@ -18,10 +18,11 @@ import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 public class DateTimeUtil {
 
     public static final String TAG = "DateTimeUtil";
-        public static final String STANDARD_ISO_8601_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-//    public static final String STANDARD_ISO_8601_DATE_TIME_FORMAT = DateTimeFormatter.ISO_ZONED_DATE_TIME.toString();
-    public static final String CUSTOM_DATE_TIME_FORMAT = "d MMM yyyy, HH:mm";
-    public static final String CUSTOM_TIME_FORMAT = "HH:mm";
+    public static final String STANDARD_ISO_8601_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    //    public static final String STANDARD_ISO_8601_DATE_TIME_FORMAT = DateTimeFormatter.ISO_ZONED_DATE_TIME.toString();
+    private static final String CUSTOM_DATE_TIME_FORMAT = "d MMM yyyy, HH:mm";
+    private static final String CUSTOM_DATE_FORMAT = "d MMM yyyy";
+    private static final String CUSTOM_TIME_FORMAT = "HH:mm";
 
     public static Date getSpecifiedDateBySecond(int second) {
         return getSpecifiedDate(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH),
@@ -77,9 +78,7 @@ public class DateTimeUtil {
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, second);
 
-        Date date = calendar.getTime();
-
-        return date;
+        return calendar.getTime();
     }
 
     public static String getTimeDifference(Date date) {
@@ -171,7 +170,7 @@ public class DateTimeUtil {
         }
     }
 
-    public static String getCurrentTime() {
+    public static String getCurrentDateTime() {
         return ZonedDateTime.now().toString();
     }
 
@@ -190,17 +189,23 @@ public class DateTimeUtil {
         return date;
     }
 
-    public static String dateToCustomStringFormat(Date dateToConvert) {
-        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(CUSTOM_DATE_TIME_FORMAT);
-        String dateTime = dateTimeFormat.format(dateToConvert);
+    public static String dateToStandardIsoDateTimeStringFormat(Date dateToConvert) {
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(STANDARD_ISO_8601_DATE_TIME_FORMAT);
+        return dateTimeFormat.format(dateToConvert);
+    }
 
-        return dateTime;
+    public static String dateToCustomDateTimeStringFormat(Date dateToConvert) {
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(CUSTOM_DATE_TIME_FORMAT);
+        return dateTimeFormat.format(dateToConvert);
+    }
+
+    public static String dateToCustomDateStringFormat(Date dateToConvert) {
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(CUSTOM_DATE_FORMAT);
+        return dateTimeFormat.format(dateToConvert);
     }
 
     public static String dateToCustomTimeStringFormat(Date dateToConvert) {
         SimpleDateFormat dateTimeFormat = new SimpleDateFormat(CUSTOM_TIME_FORMAT);
-        String dateTime = dateTimeFormat.format(dateToConvert);
-
-        return dateTime;
+        return dateTimeFormat.format(dateToConvert);
     }
 }

@@ -125,7 +125,7 @@ public class TimelinePlannedRecyclerAdapter extends RecyclerView.Adapter<Timelin
             }
 
             // Compare to get latest completion time with current one
-            // True if completedTime is more than finalCompletionTime
+            // True if completedTime is more (later) than finalCompletionTime
             if (completedTime.compareTo(finalCompletionTime) > 0) {
                 finalCompletionTime = completedTime;
             }

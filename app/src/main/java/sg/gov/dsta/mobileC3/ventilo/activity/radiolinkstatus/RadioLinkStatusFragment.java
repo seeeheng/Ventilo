@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,10 +50,10 @@ public class RadioLinkStatusFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         setRetainInstance(true);
+        observerSetup();
 
         if (mRootView == null) {
             mRootView = inflater.inflate(R.layout.fragment_radio_link_status, container, false);
-            observerSetup();
             initUI(mRootView);
         }
 
@@ -70,7 +69,7 @@ public class RadioLinkStatusFragment extends Fragment {
         mTvOfflineTotal = rootView.findViewById(R.id.tv_radio_link_status_offline_total);
         mTvOnlineTotal = rootView.findViewById(R.id.tv_radio_link_status_online_total);
 
-        mRecyclerViewStatusOffline = rootView.findViewById(R.id.recycler_radio_status_link_offline);
+        mRecyclerViewStatusOffline = rootView.findViewById(R.id.recycler_ship_blueprint_personnel_status_link);
         mRecyclerViewStatusOffline.setHasFixedSize(true);
         mRecyclerViewStatusOffline.setNestedScrollingEnabled(false);
 
@@ -124,21 +123,24 @@ public class RadioLinkStatusFragment extends Fragment {
         mUserViewModel.getAllUsersLiveData().observe(this, new Observer<List<UserModel>>() {
             @Override
             public void onChanged(@Nullable List<UserModel> userModelList) {
-                if (mRadioLinkStatusUserListItems == null) {
-                    mRadioLinkStatusUserListItems = new ArrayList<>();
-                } else {
-                    mRadioLinkStatusUserListItems.clear();
-                }
 
-                if (userModelList != null) {
-                    mRadioLinkStatusUserListItems.addAll(userModelList);
-                }
+                synchronized (mRadioLinkStatusUserListItems) {
+                    if (mRadioLinkStatusUserListItems == null) {
+                        mRadioLinkStatusUserListItems = new ArrayList<>();
+                    } else {
+                        mRadioLinkStatusUserListItems.clear();
+                    }
 
-                if (mRecyclerAdapterStatusOffline != null) {
-                    mRecyclerAdapterStatusOffline.setUserListItems(mRadioLinkStatusUserListItems);
-                }
+                    if (userModelList != null) {
+                        mRadioLinkStatusUserListItems.addAll(userModelList);
+                    }
 
-                refreshUI();
+                    if (mRecyclerAdapterStatusOffline != null) {
+                        mRecyclerAdapterStatusOffline.setUserListItems(mRadioLinkStatusUserListItems);
+                    }
+
+                    refreshUI();
+                }
             }
         });
     }
@@ -160,9 +162,8 @@ public class RadioLinkStatusFragment extends Fragment {
     }
 
     private void onVisible() {
-
         Timber.i("onVisible");
-
+        mRecyclerAdapterStatusOffline.notifyDataSetChanged();
     }
 
     private void onInvisible() {
@@ -181,7 +182,6 @@ public class RadioLinkStatusFragment extends Fragment {
                 onVisible();
             } else {
                 Timber.i("setUserVisibleHint onInvisible");
-
                 onInvisible();
             }
         }

@@ -23,6 +23,8 @@ public class SitRepModel {
     private String request;
     private String others;
     private String createdDateTime;
+    private String lastUpdatedDateTime;
+    private String isValid;
 
     // --- GETTER ---
     public long getId() { return id; }
@@ -38,6 +40,8 @@ public class SitRepModel {
     public String getRequest() { return request; }
     public String getOthers() { return others; }
     public String getCreatedDateTime() { return createdDateTime; }
+    public String getLastUpdatedDateTime() { return lastUpdatedDateTime; }
+    public String getIsValid() { return isValid; }
 
     // --- SETTER ---
     public void setId(long id) { this.id = id; }
@@ -53,4 +57,6 @@ public class SitRepModel {
     public void setRequest(String request) { this.request = request; }
     public void setOthers(String others) { this.others = others; }
     public void setCreatedDateTime(String createdDateTime) { this.createdDateTime = createdDateTime; }
+    public void setLastUpdatedDateTime(String lastUpdatedDateTime) { this.lastUpdatedDateTime = lastUpdatedDateTime; }
+    public void setIsValid(String isValid) { this.isValid = isValid; }
 }

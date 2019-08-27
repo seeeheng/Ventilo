@@ -58,13 +58,15 @@ public class TimelineFragment extends Fragment {
     // Add new item UI
     private View mLayoutAddNewItem;
 
+    private boolean mIsFragmentVisibleToUser;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         setRetainInstance(true);
+        observerSetup();
 
         if (mRootView == null) {
             mRootView = inflater.inflate(R.layout.fragment_timeline, container, false);
-            observerSetup();
             initUI(mRootView);
         }
 
@@ -281,35 +283,38 @@ public class TimelineFragment extends Fragment {
         mTaskViewModel.getAllTasksLiveData().observe(this, new Observer<List<TaskModel>>() {
             @Override
             public void onChanged(@Nullable List<TaskModel> taskModelList) {
-                if (mTimelinePhaseListItems == null) {
-                    mTimelinePhaseListItems = new ArrayList<>();
-                } else {
-                    mTimelinePhaseListItems.clear();
+
+                synchronized (mTimelinePhaseListItems) {
+                    if (mTimelinePhaseListItems == null) {
+                        mTimelinePhaseListItems = new ArrayList<>();
+                    } else {
+                        mTimelinePhaseListItems.clear();
+                    }
+
+                    if (mTimelineAdHocListItems == null) {
+                        mTimelineAdHocListItems = new ArrayList<>();
+                    } else {
+                        mTimelineAdHocListItems.clear();
+                    }
+
+                    if (taskModelList != null) {
+                        List<TaskModel> timelinePlannedListItems = getTimelinePlannedListItems(taskModelList);
+                        mTimelinePhaseListItems.addAll(timelinePlannedListItems);
+
+                        List<TaskModel> timelineAdHocListItems = getTimelineAdHocListItems(taskModelList);
+                        mTimelineAdHocListItems.addAll(timelineAdHocListItems);
+                    }
+
+                    if (mRecyclerAdapterPlanned != null) {
+                        mRecyclerAdapterPlanned.setTimelineListItems(mTimelinePhaseListItems);
+                    }
+
+                    if (mRecyclerAdapterAdHoc != null) {
+                        mRecyclerAdapterAdHoc.setTimelineListItems(mTimelineAdHocListItems);
+                    }
+
+                    refreshUI();
                 }
-
-                if (mTimelineAdHocListItems == null) {
-                    mTimelineAdHocListItems = new ArrayList<>();
-                } else {
-                    mTimelineAdHocListItems.clear();
-                }
-
-                if (taskModelList != null) {
-                    List<TaskModel> timelinePlannedListItems = getTimelinePlannedListItems(taskModelList);
-                    mTimelinePhaseListItems.addAll(timelinePlannedListItems);
-
-                    List<TaskModel> timelineAdHocListItems = getTimelineAdHocListItems(taskModelList);
-                    mTimelineAdHocListItems.addAll(timelineAdHocListItems);
-                }
-
-                if (mRecyclerAdapterPlanned != null) {
-                    mRecyclerAdapterPlanned.setTimelineListItems(mTimelinePhaseListItems);
-                }
-
-                if (mRecyclerAdapterAdHoc != null) {
-                    mRecyclerAdapterAdHoc.setTimelineListItems(mTimelineAdHocListItems);
-                }
-
-                refreshUI();
             }
         });
     }
@@ -328,5 +333,49 @@ public class TimelineFragment extends Fragment {
             return true;
         } else
             return false;
+    }
+
+    public void onVisible() {
+        Timber.i("onVisible");
+        mRecyclerAdapterAdHoc.notifyDataSetChanged();
+        mRecyclerAdapterPlanned.notifyDataSetChanged();
+    }
+
+    private void onInvisible() {
+        Timber.i("onInvisible");
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        mIsFragmentVisibleToUser = isVisibleToUser;
+
+        if (isResumed()) { // fragment has been created at this point
+            if (mIsFragmentVisibleToUser) {
+                Timber.i("setUserVisibleHint onVisible");
+                onVisible();
+            } else {
+                Timber.i("setUserVisibleHint onInvisible");
+                onInvisible();
+            }
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mIsFragmentVisibleToUser) {
+            onVisible();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (mIsFragmentVisibleToUser) {
+            onVisible();
+        }
     }
 }

@@ -13,8 +13,8 @@
     </item>
 
     <item
-        android:width="@dimen/snackbar_action_icon_width"
-        android:height="@dimen/snackbar_action_icon_height"
+        android:width="@dimen/snackbar_ok_action_icon_width"
+        android:height="@dimen/snackbar_ok_action_icon_height"
         android:drawable="@drawable/icon_done"
         android:gravity="center" />
 </layer-list>

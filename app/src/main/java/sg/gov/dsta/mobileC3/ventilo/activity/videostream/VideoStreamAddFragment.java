@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -47,7 +46,7 @@ public class VideoStreamAddFragment extends Fragment {
     // View Models
     private VideoStreamViewModel mVideoStreamViewModel;
 
-    // Own Video Stream
+    // OWN Video Stream
     private ImageView mImgOwnVideoStreamDelete;
     private C2OpenSansRegularEditTextView mEtvOwnVideoStreamName;
     private C2OpenSansRegularEditTextView mEtvOwnVideoStreamURL;
@@ -84,10 +83,8 @@ public class VideoStreamAddFragment extends Fragment {
         C2OpenSansSemiBoldTextView tvToolbarDone = layoutToolbar.findViewById(R.id.toolbar_top_right_btn_text);
         tvToolbarDone.setText(MainApplication.getAppContext().getString(R.string.btn_done));
 
-        // -------------------- -------------------- //
         initOwnVideoStreamUI(rootView);
 
-        // --------------------  -------------------- //
         initOtherVideoStreamsUI(rootView);
 
         LinearLayout linearLayoutAddVideoStream = rootView.findViewById(R.id.layout_video_stream_add);
@@ -153,7 +150,7 @@ public class VideoStreamAddFragment extends Fragment {
         }
     };
 
-    // -------------------- Own Video Stream onClick Listeners -------------------- //
+    // -------------------- OWN Video Stream onClick Listeners -------------------- //
     private View.OnClickListener onDeleteOwnVideoStreamItemClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -172,7 +169,7 @@ public class VideoStreamAddFragment extends Fragment {
 
 
                             List<VideoStreamModel> ownVideoStreamModelList = videoStreamModelList.stream().
-                                    filter(videoStreamModel -> EOwner.SELF.toString().
+                                    filter(videoStreamModel -> EOwner.OWN.toString().
                                             equalsIgnoreCase(videoStreamModel.getOwner())).collect(Collectors.toList());
 
                             // There should only be ONE 'Self' video stream
@@ -240,21 +237,19 @@ public class VideoStreamAddFragment extends Fragment {
 
                                 Timber.i("onSuccess singleObserverEditOrSaveOwnVideoStream, onEditOrSaveOwnVideoStreamItemClickListener. videoStreamModelList.size(): %d" , videoStreamModelList.size());
 
-
-
                                 List<VideoStreamModel> ownVideoStreamModelList = videoStreamModelList.stream().
-                                        filter(videoStreamModel -> EOwner.SELF.toString().
+                                        filter(videoStreamModel -> EOwner.OWN.toString().
                                                 equalsIgnoreCase(videoStreamModel.getOwner())).collect(Collectors.toList());
 
                                 if (ownVideoStreamModelList.size() == 0) {
-                                    // Save new 'Self' (Own) video stream
+                                    // Save new 'Self' (OWN) video stream
                                     mEtvOwnVideoStreamName.setEnabled(false);
                                     mEtvOwnVideoStreamURL.setEnabled(false);
                                     mImgOwnVideoStreamEditOrSave.setImageDrawable(view.getContext().getDrawable(R.drawable.btn_edit));
 
                                     addVideoStreamItem(mEtvOwnVideoStreamName.getText().toString().trim(),
                                             mEtvOwnVideoStreamURL.getText().toString().trim(),
-                                            EOwner.SELF.toString());
+                                            EOwner.OWN.toString());
 
                                 } else if (ownVideoStreamModelList.size() == 1) {
                                     // If not empty, there should only be ONE 'Self' video stream in the list
@@ -282,9 +277,7 @@ public class VideoStreamAddFragment extends Fragment {
 
                             @Override
                             public void onError(Throwable e) {
-
                                 Timber.i("onError singleObserverEditOrSaveOwnVideoStream, onEditOrSaveOwnVideoStreamItemClickListener. Error Msg: %S" , e.toString());
-
                             }
                         };
 
@@ -568,9 +561,9 @@ public class VideoStreamAddFragment extends Fragment {
                     @Override
                     public void onChanged(@Nullable List<VideoStreamModel> videoStreamModelList) {
 
-                        // Own Video Stream
+                        // OWN Video Stream
                         List<VideoStreamModel> ownVideoStreamModelList = videoStreamModelList.stream().
-                                filter(videoStreamModel -> EOwner.SELF.toString().
+                                filter(videoStreamModel -> EOwner.OWN.toString().
                                         equalsIgnoreCase(videoStreamModel.getOwner())).collect(Collectors.toList());
 
                         // There should only be ONE 'Self' video stream

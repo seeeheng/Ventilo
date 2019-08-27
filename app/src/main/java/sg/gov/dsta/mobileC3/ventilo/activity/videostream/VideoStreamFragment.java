@@ -11,12 +11,10 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
-import android.support.constraint.ConstraintSet;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
@@ -69,8 +67,9 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,6 +78,7 @@ import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.activity.sitrep.SitRepAddUpdateFragment;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
@@ -257,10 +257,10 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         setRetainInstance(true);
+        observerSetup();
 
         if (mRootView == null) {
             mRootView = inflater.inflate(R.layout.fragment_video_stream, container, false);
-            observerSetup();
             initUI(mRootView);
         }
 
@@ -337,7 +337,8 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         mSpinnerOneVideoStreamList = rootVideoStreamView.findViewById(R.id.spinner_video_stream_selector_one);
 
         mVideoStreamNameList = new ArrayList<>();
-        mVideoStreamNameList.add(getString(R.string.video_stream_select_spinner_item));
+        mVideoStreamNameList.add(MainApplication.getAppContext().
+                getString(R.string.video_stream_select_spinner_item));
 
         mSpinnerVideoStreamAdapterOne = getSpinnerArrayAdapter(mVideoStreamNameList, FIRST_VIDEO_STREAM_ID);
 
@@ -736,7 +737,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 img.setVisibility(View.GONE);
                 viewExtraMargin.setVisibility(View.GONE);
 
-                if (position == 1 && EOwner.SELF.toString().
+                if (position == 1 && EOwner.OWN.toString().
                         equalsIgnoreCase(mVideoStreamModelList.get(0).getOwner())) {
                     img.setVisibility(View.VISIBLE);
                 } else if (position != 0) {
@@ -783,7 +784,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 if (position == 0) {
                     // Set the hint text color gray
                     tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_text_hint_dark_grey, null));
-                } else if (position == 1 && EOwner.SELF.toString().
+                } else if (position == 1 && EOwner.OWN.toString().
                         equalsIgnoreCase(mVideoStreamModelList.get(0).getOwner())) {
                     img.setVisibility(View.VISIBLE);
                 } else {
@@ -823,9 +824,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                     public void onSuccess(String videoUrl) {
                         if (videoUrl != null) {
 
-
-                            Timber.i("onSuccess singleObserverVideoStreamForUserByName, getUrlStreamFromName. videoUrl: %s" , videoUrl);
-
+                            Timber.i("onSuccess singleObserverVideoStreamForUserByName, getUrlStreamFromName. videoUrl: %s", videoUrl);
 
 //                            Runnable videoStreamRunnable = new Runnable() {
 //                                @Override
@@ -887,7 +886,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 
                     @Override
                     public void onError(Throwable e) {
-                        Timber.e("onError singleObserverVideoStreamForUserByName, getUrlStreamFromName. Error Msg: %s" , e.toString());
+                        Timber.e("onError singleObserverVideoStreamForUserByName, getUrlStreamFromName. Error Msg: %s", e.toString());
 
 
                     }
@@ -980,14 +979,16 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                     if (mBitmapTakenScreenshot != null) {
                         String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
                                 mBitmapTakenScreenshot, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
-//                System.out.println("imagePath is " + imagePath);
+                    System.out.println("imagePath is " + imagePath);
 
                         if (imagePath != null && getSnackbarView() != null) {
                             StringBuilder screenshotStringBuilder = new StringBuilder();
-                            screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_taken_message));
+                            screenshotStringBuilder.append(MainApplication.getAppContext().
+                                    getString(R.string.snackbar_screenshot_taken_message));
                             screenshotStringBuilder.append(System.lineSeparator());
                             screenshotStringBuilder.append(System.lineSeparator());
-                            screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_create_sitrep_message));
+                            screenshotStringBuilder.append(MainApplication.getAppContext().
+                                    getString(R.string.snackbar_screenshot_create_sitrep_message));
 
                             SnackbarUtil.showCustomAlertSnackbar(mConstraintLayoutMain, getSnackbarView(),
                                     screenshotStringBuilder.toString(), VideoStreamFragment.this);
@@ -1087,14 +1088,16 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 if (mBitmapTakenScreenshot != null) {
                     String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
                             mBitmapTakenScreenshot, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
-//                System.out.println("imagePath is " + imagePath);
+                System.out.println("imagePath is " + imagePath);
 
                     if (imagePath != null && getSnackbarView() != null) {
                         StringBuilder screenshotStringBuilder = new StringBuilder();
-                        screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_taken_message));
+                        screenshotStringBuilder.append(MainApplication.getAppContext().
+                                getString(R.string.snackbar_screenshot_taken_message));
                         screenshotStringBuilder.append(System.lineSeparator());
                         screenshotStringBuilder.append(System.lineSeparator());
-                        screenshotStringBuilder.append(getString(R.string.snackbar_screenshot_create_sitrep_message));
+                        screenshotStringBuilder.append(MainApplication.getAppContext().
+                                getString(R.string.snackbar_screenshot_create_sitrep_message));
 
                         SnackbarUtil.showCustomAlertSnackbar(mConstraintLayoutMain, getSnackbarView(),
                                 screenshotStringBuilder.toString(), VideoStreamFragment.this);
@@ -1682,21 +1685,24 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         // Produces DataSource instances through which media data is loaded.
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(),
-                Util.getUserAgent(getContext(), getString(R.string.app_name)), bandwidthMeter);
+                Util.getUserAgent(getContext(), MainApplication.getAppContext().
+                        getString(R.string.app_name)), bandwidthMeter);
 
 //        DataSource.Factory dataSourceFactory = new DefaultHttpDataSourceFactory("exoplayer-codelab");
 
         String extension = media.substring(media.lastIndexOf(StringUtil.DOT) + 1);
 
-        Timber.i("stream media url extension: %s" , extension);
+        Timber.i("stream media url extension: %s", extension);
 
 
         // This is the MediaSource representing the media to be played.
         MediaSource videoSource = buildMediaSource(Uri.parse(media), extension, dataSourceFactory);
 
         // Prepare the player with the source.
-        mediaPlayer.prepare(videoSource);
-        mediaPlayer.setPlayWhenReady(true);
+        if (mediaPlayer != null) {
+            mediaPlayer.prepare(videoSource);
+            mediaPlayer.setPlayWhenReady(true);
+        }
     }
 
     private MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension,
@@ -1706,12 +1712,15 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
             case C.TYPE_DASH:
                 return new DashMediaSource.Factory(dataSourceFactory)
                         .createMediaSource(uri);
+
             case C.TYPE_SS:
                 return new SsMediaSource.Factory(dataSourceFactory)
                         .createMediaSource(uri);
+
             case C.TYPE_HLS:
                 return new HlsMediaSource.Factory(dataSourceFactory)
                         .createMediaSource(uri);
+
             case C.TYPE_OTHER:
                 if (Util.isRtspUri(uri)) {
                     return new RtspMediaSource.Factory(RtspDefaultClient.factory()
@@ -1722,10 +1731,10 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                     return new ExtractorMediaSource.Factory(dataSourceFactory)
                             .createMediaSource(uri);
                 }
-            default: {
-                Timber.e("Unsupported type: %s" , type);
-                throw new IllegalStateException("Unsupported type: " + type);
 
+            default: {
+                Timber.e("Unsupported type: %s", type);
+                throw new IllegalStateException("Unsupported type: " + type);
 
             }
         }
@@ -1757,23 +1766,28 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                     case Player.STATE_ENDED:
                         // Activate the force enable
                         tvStream.setVisibility(View.VISIBLE);
-                        tvStream.setText(getString(R.string.video_stream_stream_ended));
+                        tvStream.setText(MainApplication.getAppContext().
+                                getString(R.string.video_stream_stream_ended));
                         break;
                     case Player.STATE_IDLE:
                         tvStream.setVisibility(View.VISIBLE);
-                        tvStream.setText(getString(R.string.video_stream_no_video_selected));
+                        tvStream.setText(MainApplication.getAppContext().
+                                getString(R.string.video_stream_no_video_selected));
                         progressBar.setVisibility(View.GONE);
 
                         if (tvStream == mTvStreamOne && mSpinnerOneSelectedPos != 0) {
-                            tvStream.setText(getString(R.string.video_stream_unable_to_load));
+                            tvStream.setText(MainApplication.getAppContext().
+                                    getString(R.string.video_stream_unable_to_load));
                         }
 
                         if (tvStream == mTvStreamTwo && mSpinnerTwoSelectedPos != 0) {
-                            tvStream.setText(getString(R.string.video_stream_unable_to_load));
+                            tvStream.setText(MainApplication.getAppContext().
+                                    getString(R.string.video_stream_unable_to_load));
                         }
 
                         if (tvStream == mTvStreamThree && mSpinnerThreeSelectedPos != 0) {
-                            tvStream.setText(getString(R.string.video_stream_unable_to_load));
+                            tvStream.setText(MainApplication.getAppContext().
+                                    getString(R.string.video_stream_unable_to_load));
                         }
 
                         if (tvStream == mTvStreamFour && mSpinnerFourSelectedPos != 0) {
@@ -1810,7 +1824,8 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
             @Override
             public void onPlayerError(ExoPlaybackException e) {
                 tvStream.setVisibility(View.VISIBLE);
-                tvStream.setText(getString(R.string.video_stream_unable_to_load));
+                tvStream.setText(MainApplication.getAppContext().
+                        getString(R.string.video_stream_unable_to_load));
             }
 
             @Override
@@ -1905,7 +1920,8 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 currentVideoStreamNameList.clear();
             }
 
-            currentVideoStreamNameList.add(getString(R.string.video_stream_select_spinner_item));
+            currentVideoStreamNameList.add(MainApplication.getAppContext().
+                    getString(R.string.video_stream_select_spinner_item));
             currentVideoStreamNameList.addAll(newVideoStreamNameList);
 
             /**
@@ -1928,6 +1944,12 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         }
     }
 
+    /**
+     * Sort video stream list in ascending order
+     *
+     * @param videoStreamModelList
+     * @return
+     */
     private List<String> sortVideoStreamNameList(List<VideoStreamModel> videoStreamModelList) {
 
         List<String> videoStreamNameList = null;
@@ -1943,13 +1965,44 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                     filter(videoStreamModel -> EOwner.OTHERS.toString().equalsIgnoreCase(
                             videoStreamModel.getOwner())).collect(Collectors.toList());
 
+            // Remove first word of 'Camera-Radio' if it exists
+            for (int i = 0; i < otherVideoStreamModelList.size(); i++) {
+                VideoStreamModel otherVideoStreamModel = otherVideoStreamModelList.get(i);
+                String radioNumberOfName = StringUtil.
+                        removeFirstWordForMoreThanOneWord(otherVideoStreamModel.getName());
+                otherVideoStreamModel.setName(radioNumberOfName);
+            }
+
+            // Sort radio number (video names) in ascending order
+            Collections.sort(otherVideoStreamModelList, new Comparator<VideoStreamModel>() {
+                public int compare(VideoStreamModel videoStreamModelOne,
+                                   VideoStreamModel videoStreamModelTwo) {
+                    if (videoStreamModelOne.getName() == null ||
+                            videoStreamModelTwo.getName() == null ||
+                            StringUtil.EMPTY_STRING.equalsIgnoreCase(videoStreamModelOne.getName()) ||
+                            StringUtil.EMPTY_STRING.equalsIgnoreCase(videoStreamModelTwo.getName()))
+                        return 0;
+                    return Integer.valueOf(videoStreamModelOne.getName()).
+                            compareTo(Integer.valueOf(videoStreamModelTwo.getName()));
+                }
+            });
+
+            // Add back 'Camera-Radio' label after sorting in ascending order
+            for (int i = 0; i < otherVideoStreamModelList.size(); i++) {
+                VideoStreamModel otherVideoStreamModel = otherVideoStreamModelList.get(i);
+                String radioNameWithRadioLabel = MainApplication.getAppContext().
+                        getString(R.string.video_stream_video_name_camera_radio).
+                        concat(StringUtil.SPACE).concat(otherVideoStreamModel.getName());
+                otherVideoStreamModel.setName(radioNameWithRadioLabel);
+            }
+
             mVideoStreamModelList.addAll(otherVideoStreamModelList);
 
             List<VideoStreamModel> ownVideoStreamModelList = videoStreamModelList.stream().
-                    filter(videoStreamModel -> EOwner.SELF.toString().equalsIgnoreCase(
+                    filter(videoStreamModel -> EOwner.OWN.toString().equalsIgnoreCase(
                             videoStreamModel.getOwner())).collect(Collectors.toList());
 
-            // There should only be ONE 'Self' video stream in the list
+            // There should only be ONE 'Own' video stream in the list
             if (ownVideoStreamModelList.size() == 1) {
                 mVideoStreamModelList.add(0, ownVideoStreamModelList.get(0));
             }
@@ -1974,6 +2027,19 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 
         /*
          * Refreshes spinner UI whenever there is a change in video streams (insert, update or delete)
+         * For each video, the following will be done in sequential order:
+         * 1) Sorts list with 'OWN' video stream, followed by 'Others' video stream, if available
+         * 2) Refreshes all spinner adapters with newly sorted video stream name list
+         * 3) For each video, check the following
+         *      a) If current icon state is 'Save', it means that current entry is in editing mode.
+         *         Hence, no need to play video.
+         *      b) If current icon state is 'Edit', it means that current entry is confirmed.
+         *         Hence, play video. Also, setSelectedItem() only executes when previous selected item
+         *         is a different item. Therefore, if the previous selected item is the same item, the
+         *         method function to play video has to be called manually.
+         *
+         * Point to note: This gets called even when user select to change into editing mode. Hence,
+         *                that has to be taken into consideration.
          */
         mVideoStreamViewModel.getAllVideoStreamsLiveDataForUser(userId).observe(this,
                 new Observer<List<VideoStreamModel>>() {
@@ -1992,6 +2058,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                                         mSpinnerVideoStreamAdapterFour != null ||
                                         mSpinnerVideoStreamAdapterFive != null ||
                                         mSpinnerVideoStreamAdapterSix != null)) {
+
                             mSpinnerVideoStreamAdapterTwo.notifyDataSetChanged();
                             mSpinnerVideoStreamAdapterThree.notifyDataSetChanged();
                             mSpinnerVideoStreamAdapterFour.notifyDataSetChanged();
@@ -1999,58 +2066,130 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                             mSpinnerVideoStreamAdapterSix.notifyDataSetChanged();
 
                             if (mVideoStreamNameList.size() > SIXTH_VIDEO_STREAM_ID) {
-                                mSpinnerSixVideoStreamList.setSelection(SIXTH_VIDEO_STREAM_ID);
+                                int selectedPos = mSpinnerSixVideoStreamList.getSelectedItemPosition();
+
+                                if (selectedPos == SIXTH_VIDEO_STREAM_ID &&
+                                        !mVideoStreamModelList.get(selectedPos - 1).getIconType().
+                                                equalsIgnoreCase(FragmentConstants.KEY_VIDEO_STREAM_SAVE)) {
+
+                                    getUrlStreamFromName((String) mSpinnerSixVideoStreamList.getSelectedItem(),
+                                            SIXTH_VIDEO_STREAM_ID);
+
+                                } else {
+                                    mSpinnerSixVideoStreamList.setSelection(SIXTH_VIDEO_STREAM_ID);
+                                }
                             } else {
                                 mSpinnerSixSelectedPos = 0;
                                 mSpinnerSixVideoStreamList.setSelection(0);
                                 stopPlayerSix(true);
-                                mTvStreamSix.setText(getString(R.string.video_stream_no_video_selected));
+                                mTvStreamSix.setText(MainApplication.getAppContext().
+                                        getString(R.string.video_stream_no_video_selected));
                             }
 
                             if (mVideoStreamNameList.size() > FIFTH_VIDEO_STREAM_ID) {
-                                mSpinnerFiveVideoStreamList.setSelection(FIFTH_VIDEO_STREAM_ID);
+                                int selectedPos = mSpinnerFiveVideoStreamList.getSelectedItemPosition();
+
+                                if (selectedPos == FIFTH_VIDEO_STREAM_ID &&
+                                        !mVideoStreamModelList.get(selectedPos - 1).getIconType().
+                                                equalsIgnoreCase(FragmentConstants.KEY_VIDEO_STREAM_SAVE)) {
+
+                                    getUrlStreamFromName((String) mSpinnerFiveVideoStreamList.getSelectedItem(),
+                                            FIFTH_VIDEO_STREAM_ID);
+
+                                } else {
+                                    mSpinnerFiveVideoStreamList.setSelection(FIFTH_VIDEO_STREAM_ID);
+                                }
                             } else {
                                 mSpinnerFiveSelectedPos = 0;
                                 mSpinnerFiveVideoStreamList.setSelection(0);
                                 stopPlayerFive(true);
-                                mTvStreamFive.setText(getString(R.string.video_stream_no_video_selected));
+                                mTvStreamFive.setText(MainApplication.getAppContext().
+                                        getString(R.string.video_stream_no_video_selected));
                             }
 
                             if (mVideoStreamNameList.size() > FOURTH_VIDEO_STREAM_ID) {
-                                mSpinnerFourVideoStreamList.setSelection(FOURTH_VIDEO_STREAM_ID);
+                                int selectedPos = mSpinnerFourVideoStreamList.getSelectedItemPosition();
+
+                                if (selectedPos == FOURTH_VIDEO_STREAM_ID &&
+                                        !mVideoStreamModelList.get(selectedPos - 1).getIconType().
+                                                equalsIgnoreCase(FragmentConstants.KEY_VIDEO_STREAM_SAVE)) {
+
+                                    getUrlStreamFromName((String) mSpinnerFourVideoStreamList.getSelectedItem(),
+                                            FOURTH_VIDEO_STREAM_ID);
+
+                                } else {
+                                    mSpinnerFourVideoStreamList.setSelection(FOURTH_VIDEO_STREAM_ID);
+                                }
                             } else {
                                 mSpinnerFourSelectedPos = 0;
                                 mSpinnerFourVideoStreamList.setSelection(0);
                                 stopPlayerFour(true);
-                                mTvStreamFour.setText(getString(R.string.video_stream_no_video_selected));
+                                mTvStreamFour.setText(MainApplication.getAppContext().
+                                        getString(R.string.video_stream_no_video_selected));
                             }
 
                             if (mVideoStreamNameList.size() > THIRD_VIDEO_STREAM_ID) {
-                                mSpinnerThreeVideoStreamList.setSelection(THIRD_VIDEO_STREAM_ID);
+                                int selectedPos = mSpinnerThreeVideoStreamList.getSelectedItemPosition();
+
+                                if (selectedPos == THIRD_VIDEO_STREAM_ID &&
+                                        !mVideoStreamModelList.get(selectedPos - 1).getIconType().
+                                                equalsIgnoreCase(FragmentConstants.KEY_VIDEO_STREAM_SAVE)) {
+
+                                    getUrlStreamFromName((String) mSpinnerThreeVideoStreamList.getSelectedItem(),
+                                            THIRD_VIDEO_STREAM_ID);
+
+                                } else {
+                                    mSpinnerThreeVideoStreamList.setSelection(THIRD_VIDEO_STREAM_ID);
+                                }
                             } else {
                                 mSpinnerThreeSelectedPos = 0;
                                 mSpinnerThreeVideoStreamList.setSelection(0);
                                 stopPlayerThree(true);
-                                mTvStreamThree.setText(getString(R.string.video_stream_no_video_selected));
+                                mTvStreamThree.setText(MainApplication.getAppContext().
+                                        getString(R.string.video_stream_no_video_selected));
                             }
 
                             if (mVideoStreamNameList.size() > SECOND_VIDEO_STREAM_ID) {
-                                mSpinnerTwoVideoStreamList.setSelection(SECOND_VIDEO_STREAM_ID);
+                                int selectedPos = mSpinnerTwoVideoStreamList.getSelectedItemPosition();
+
+                                if (selectedPos == SECOND_VIDEO_STREAM_ID &&
+                                        !mVideoStreamModelList.get(selectedPos - 1).getIconType().
+                                                equalsIgnoreCase(FragmentConstants.KEY_VIDEO_STREAM_SAVE)) {
+
+                                    getUrlStreamFromName((String) mSpinnerTwoVideoStreamList.getSelectedItem(),
+                                            SECOND_VIDEO_STREAM_ID);
+
+                                } else {
+                                    mSpinnerTwoVideoStreamList.setSelection(SECOND_VIDEO_STREAM_ID);
+                                }
                             } else {
                                 mSpinnerTwoSelectedPos = 0;
                                 mSpinnerTwoVideoStreamList.setSelection(0);
                                 stopPlayerTwo(true);
-                                mTvStreamTwo.setText(getString(R.string.video_stream_no_video_selected));
+                                mTvStreamTwo.setText(MainApplication.getAppContext().
+                                        getString(R.string.video_stream_no_video_selected));
                             }
                         }
 
                         if (mVideoStreamNameList.size() > FIRST_VIDEO_STREAM_ID) {
-                            mSpinnerOneVideoStreamList.setSelection(FIRST_VIDEO_STREAM_ID);
+                            int selectedPos = mSpinnerOneVideoStreamList.getSelectedItemPosition();
+
+                            if (selectedPos == FIRST_VIDEO_STREAM_ID &&
+                                    !mVideoStreamModelList.get(selectedPos - 1).getIconType().
+                                            equalsIgnoreCase(FragmentConstants.KEY_VIDEO_STREAM_SAVE)) {
+
+                                getUrlStreamFromName((String) mSpinnerOneVideoStreamList.getSelectedItem(),
+                                        FIRST_VIDEO_STREAM_ID);
+
+                            } else {
+                                mSpinnerOneVideoStreamList.setSelection(FIRST_VIDEO_STREAM_ID);
+                            }
                         } else {
                             mSpinnerOneSelectedPos = 0;
                             mSpinnerOneVideoStreamList.setSelection(0);
                             stopPlayerOne(true);
-                            mTvStreamOne.setText(getString(R.string.video_stream_no_video_selected));
+                            mTvStreamOne.setText(MainApplication.getAppContext().
+                                    getString(R.string.video_stream_no_video_selected));
                         }
                     }
                 });
@@ -2066,7 +2205,6 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
     /**
      * Properly releases all resources related to / referenced by fragment (itself)
      * when main (parent) activity is destroyed
-     *
      */
     public void destroySelf() {
         releasePlayers();

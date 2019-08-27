@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -192,7 +191,7 @@ public class TaskDetailFragment extends Fragment {
             // Created date/time
             StringBuilder createdDateTimeStringBuilder = new StringBuilder();
             String createdDateTime = taskModel.getCreatedDateTime();
-            String createdDateTimeInCustomStrFormat = DateTimeUtil.dateToCustomStringFormat(
+            String createdDateTimeInCustomStrFormat = DateTimeUtil.dateToCustomDateTimeStringFormat(
                     DateTimeUtil.stringToDate(createdDateTime));
 
             if (createdDateTime != null) {

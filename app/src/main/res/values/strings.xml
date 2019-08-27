@@ -12,6 +12,8 @@
     <string name="btm_nav_menu_video_stream">STREAM</string>
     <string name="btm_nav_menu_report">REPORT</string>
     <string name="btm_nav_menu_status">STATUS</string>
+    <string name="btm_panel_radio">Radio</string>
+    <string name="btm_panel_since">since</string>
 
     <string name="app">ToyVPN</string>
     <string name="address">Server Address:</string>
@@ -55,15 +57,6 @@
         is already being used by another device</string>
     <string name="snackbar_wave_relay_client_connected_message">Wave Relay radio connection established.</string>
     <string name="snackbar_wave_relay_client_disconnected_message">Wave Relay radio connection lost.</string>
-    <string name="snackbar_settings_save_message">Save Settings?</string>
-    <string name="snackbar_settings_pull_from_excel_message">Pull data from Excel?</string>
-    <string name="snackbar_settings_pull_from_excel_successful_message">Data is successfully pulled.</string>
-    <string name="snackbar_settings_push_to_excel_message">Push data to Excel?</string>
-    <string name="snackbar_settings_push_to_excel_successful_message">Data is successfully pushed.</string>
-    <string name="snackbar_settings_sync_up_message">Sync with other devices?</string>
-    <string name="snackbar_settings_sync_up_successful_message">Data is successfully synced.</string>
-    <string name="snackbar_settings_logout_message">Logout?</string>
-    <string name="snackbar_settings_logout_successful_message">Logged out succesfully.</string>
     <string name="snackbar_screenshot_taken_message">Screenshot has been taken.</string>
     <string name="snackbar_screenshot_create_sitrep_message">Create a new SitRep with this screenshot?</string>
     <string name="snackbar_form_incomplete_message">Form is incomplete.
@@ -72,10 +65,6 @@
     <string name="snackbar_sitrep_updated_message">Sit Rep has been updated</string>
     <string name="snackbar_sitrep_send_confirmation_message">Send Sitrep?</string>
     <string name="snackbar_sitrep_update_confirmation_message">Update Sitrep?</string>
-    <string name="snackbar_send_error_current_user_not_connected_message"><![CDATA[You are not connected to the network.\n\nPlease try again when you are online.]]></string>
-    <string name="snackbar_send_error_cct_not_connected_message"><![CDATA[CCT is not connected to the network.\n\nPlease try again later.]]></string>
-    <string name="snackbar_send_error_is_not_connected_message"><![CDATA[is not connected to the network.\n\nPlease try again later.]]></string>
-    <string name="snackbar_send_error_are_not_connected_message"><![CDATA[are not connected to the network.\n\nPlease try again later.]]></string>
     <string name="snackbar_confirmation_action">OK</string>
 
     <string name="snackbar_task_select_task_phase_no_option">All Task Phases have been assigned</string>
@@ -84,6 +73,24 @@
     <string name="snackbar_task_updated_message">Task has been updated</string>
     <string name="snackbar_task_create_confirmation_message">Create Task?</string>
     <string name="snackbar_task_update_confirmation_message">Update Task?</string>
+
+    <string name="snackbar_settings_save_message">Save Settings?</string>
+    <string name="snackbar_settings_pull_from_excel_message">Pull data from Excel?</string>
+    <string name="snackbar_settings_pull_from_excel_successful_message">Data is successfully pulled.</string>
+    <string name="snackbar_settings_push_to_excel_message">Push data to Excel?</string>
+    <string name="snackbar_settings_push_to_excel_successful_message">Data is successfully pushed.</string>
+    <string name="snackbar_settings_sync_with_message">Sync with</string>
+    <string name="snackbar_settings_data_overridden_message"><![CDATA[\n\nData will be overridden.]]></string>
+    <string name="snackbar_settings_sync_up_request_sent_message">Data sync request has been sent.</string>
+    <string name="snackbar_settings_sync_up_successful_message">Data is successfully synced.</string>
+    <string name="snackbar_settings_sync_up_failed_message">Data sync failed.</string>
+    <string name="snackbar_settings_logout_message">Logout?</string>
+    <string name="snackbar_settings_logout_successful_message">Logged out succesfully.</string>
+    <string name="snackbar_send_error_current_user_not_connected_message"><![CDATA[You are not connected to the network.\n\nPlease try again when you are online.]]></string>
+    <string name="snackbar_send_error_user_not_connected_message"><![CDATA[lost connection to the network.\n\nPlease try again later.]]></string>
+    <string name="snackbar_send_error_cct_not_connected_message"><![CDATA[CCT is not connected to the network.\n\nPlease try again later.]]></string>
+    <string name="snackbar_send_error_is_not_connected_message"><![CDATA[is not connected to the network.\n\nPlease try again later.]]></string>
+    <string name="snackbar_send_error_are_not_connected_message"><![CDATA[are not connected to the network.\n\nPlease try again later.]]></string>
 
     <!-- Login -->
     <string name="login_username">User ID</string>
@@ -127,10 +134,13 @@
         <!--<item>192.168.1.7</item>-->
         <!--<item>192.168.1.8</item>-->
         <!--<item>192.168.1.9</item>-->
-        <!--<item>192.168.1.250</item>-->
+        <!--<item>192.168.1.207</item>-->
         <!--<item>192.168.1.68</item>-->
-        <!--<item>192.168.1.94</item>-->
+        <!--<item>192.168.1.58</item>-->
         <!--<item>192.168.1.118</item>-->
+        <!--<item>10.255.200.254</item>-->
+        <!--<item>10.179.188.126</item>-->
+        <!--<item>10.118.145.213</item>-->
     </string-array>
 
     <!-- Map -->
@@ -140,50 +150,50 @@
     <string name="map_blueprint_loading_status">Loading status</string>
 
     <string-array name="map_ship_blueprint_floor_items">
-        <!--<item>Lateral View</item>-->
-        <!--<item>Deck Platform</item>-->
-        <!--<item>Deck 7</item>-->
-        <!--<item>Deck 6</item>-->
-        <!--<item>Deck 5</item>-->
-        <!--<item>Deck 4</item>-->
-        <!--<item>Deck 3</item>-->
-        <!--<item>Deck 2</item>-->
-        <!--<item>Main Deck</item>-->
-        <!--<item>Tween Deck</item>-->
-        <!--<item>2nd Deck</item>-->
-        <!--<item>3rd Deck</item>-->
-        <item>Profile View</item>
-        <item>Midship View</item>
-        <item>Navigation Bridge Deck</item>
-        <item>D Deck</item>
-        <item>C Deck</item>
-        <item>B Deck</item>
-        <item>Upper Deck</item>
-        <item>A Deck</item>
-        <item>Tank Top</item>
+        <item>Lateral View</item>
+        <item>Deck Platform</item>
+        <item>Deck 7</item>
+        <item>Deck 6</item>
+        <item>Deck 5</item>
+        <item>Deck 4</item>
+        <item>Deck 3</item>
+        <item>Deck 2</item>
+        <item>Main Deck</item>
+        <item>Tween Deck</item>
+        <item>2nd Deck</item>
+        <item>3rd Deck</item>
+        <!--<item>Profile View</item>-->
+        <!--<item>Midship View</item>-->
+        <!--<item>Navigation Bridge Deck</item>-->
+        <!--<item>D Deck</item>-->
+        <!--<item>C Deck</item>-->
+        <!--<item>B Deck</item>-->
+        <!--<item>Upper Deck</item>-->
+        <!--<item>A Deck</item>-->
+        <!--<item>Tank Top</item>-->
     </string-array>
     <string-array name="map_ship_blueprint_floor_html_link_items">
-        <!--<item>leaflet-avatar-lateral.html</item>-->
-        <!--<item>leaflet-avatar-deckplatform.html</item>-->
-        <!--<item>leaflet-avatar-deck7.html</item>-->
-        <!--<item>leaflet-avatar-deck6.html</item>-->
-        <!--<item>leaflet-avatar-deck5.html</item>-->
-        <!--<item>leaflet-avatar-deck4.html</item>-->
-        <!--<item>leaflet-avatar-deck3.html</item>-->
-        <!--<item>leaflet-avatar-deck2.html</item>-->
-        <!--<item>leaflet-avatar-maindeck.html</item>-->
-        <!--<item>leaflet-avatar-decktween.html</item>-->
-        <!--<item>leaflet-avatar-deck2nd.html</item>-->
-        <!--<item>leaflet-avatar-deck3rd.html</item>-->
-        <item>leaflet-bw-paris-profile.html</item>
-        <item>leaflet-bw-paris-midship.html</item>
-        <item>leaflet-bw-paris-nav-bri-deck.html</item>
-        <item>leaflet-bw-paris-d-deck.html</item>
-        <item>leaflet-bw-paris-c-deck.html</item>
-        <item>leaflet-bw-paris-b-deck.html</item>
-        <item>leaflet-bw-paris-upper-deck.html</item>
-        <item>leaflet-bw-paris-a-deck.html</item>
-        <item>leaflet-bw-paris-tank-top.html</item>
+        <item>leaflet-avatar-lateral.html</item>
+        <item>leaflet-avatar-deckplatform.html</item>
+        <item>leaflet-avatar-deck7.html</item>
+        <item>leaflet-avatar-deck6.html</item>
+        <item>leaflet-avatar-deck5.html</item>
+        <item>leaflet-avatar-deck4.html</item>
+        <item>leaflet-avatar-deck3.html</item>
+        <item>leaflet-avatar-deck2.html</item>
+        <item>leaflet-avatar-maindeck.html</item>
+        <item>leaflet-avatar-decktween.html</item>
+        <item>leaflet-avatar-deck2nd.html</item>
+        <item>leaflet-avatar-deck3rd.html</item>
+        <!--<item>leaflet-bw-paris-profile.html</item>-->
+        <!--<item>leaflet-bw-paris-midship.html</item>-->
+        <!--<item>leaflet-bw-paris-nav-bri-deck.html</item>-->
+        <!--<item>leaflet-bw-paris-d-deck.html</item>-->
+        <!--<item>leaflet-bw-paris-c-deck.html</item>-->
+        <!--<item>leaflet-bw-paris-b-deck.html</item>-->
+        <!--<item>leaflet-bw-paris-upper-deck.html</item>-->
+        <!--<item>leaflet-bw-paris-a-deck.html</item>-->
+        <!--<item>leaflet-bw-paris-tank-top.html</item>-->
     </string-array>
     <string name="snackbar_map_blueprint_init_location_message">
         Initialise your location via long press on the map</string>
@@ -192,6 +202,8 @@
     <string name="map_blueprint_deceased_type">Deceased</string>
     <string name="map_blueprint_other_type">Others</string>
     <string name="map_blueprint_own_type">Own</string>
+    <string name="map_blueprint_type_stale">Stale</string>
+    <string name="map_blueprint_personnel_link_status_no_records">No records</string>
 
     <!-- Map Dashboard -->
     <string name="dashboard_video_stream">Video Stream</string>
@@ -219,6 +231,10 @@
     <string name="video_stream_no_video_selected">No video selected</string>
     <string name="video_stream_unable_to_load">Unable to load stream</string>
     <string name="video_stream_stream_ended">Stream Ended</string>
+
+    <string name="video_stream_url_names_prefix">rtsp://</string>
+    <string name="video_stream_url_names_suffix">:9722/rtsp_video_stream</string>
+    <string name="video_stream_video_name_camera_radio">Camera-Radio</string>
 
     <!-- Timeline Fragment -->
     <string name="timeline_page_title">Timeline</string>
@@ -438,8 +454,12 @@
     <string name="radio_link_status_offline_since">Offline since</string>
     <string name="radio_link_status_no_records">No records of past connection</string>
 
-    <!-- Settings -->
+    <!-- User Settings -->
     <string name="settings_label">Settings</string>
     <string name="call_sign">Call Sign</string>
     <string name="team_profile">Team Profile</string>
+    <string name="sync_with_callsign">Sync with:</string>
+    <string name="sync_with_callsign_cct">CCT</string>
+    <string name="sync_with_callsign_no_user_available">No user is currently online</string>
+    <string name="sync_with_callsign_cancel">Cancel</string>
 </resources>

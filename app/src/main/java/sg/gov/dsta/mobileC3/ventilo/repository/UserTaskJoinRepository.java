@@ -9,11 +9,13 @@ import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import sg.gov.dsta.mobileC3.ventilo.AsyncParallelTask;
 import sg.gov.dsta.mobileC3.ventilo.database.DAO.UserTaskJoinDao;
 import sg.gov.dsta.mobileC3.ventilo.database.VentiloDatabase;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
+import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 
 public class UserTaskJoinRepository {
 
@@ -26,7 +28,15 @@ public class UserTaskJoinRepository {
 
     public void addUserTaskJoin(UserTaskJoinModel userTaskJoinModel) {
         InsertAsyncTask task = new InsertAsyncTask(mUserTaskJoinDao);
-        task.execute(userTaskJoinModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(userTaskJoinModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     public void queryTasksForUser(String userId, SingleObserver<List<TaskModel>> singleObserver) {

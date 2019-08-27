@@ -7,7 +7,8 @@ public class SharedPreferenceConstants {
     public static final String USER_RADIO_NO = "User Radio No";
     public static final String USER_DEVICE_IP_ADDRESS = "User Device IP Address";
     public static final String USER_TEAM = "User Team";
-    public static final String ACCESS_RIGHT = "Access Right";
+    public static final String USER_ACCESS_RIGHT = "User Access Right";
+    public static final String USER_RADIO_LINK_STATUS = "User Radio Link Status";
     public static final String DEFAULT_STRING = "";
     public static final String SEPARATOR = "_";
 

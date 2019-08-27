@@ -15,9 +15,10 @@ public class BFTLocalPreferences {
 
     private ArrayList<String> floors = new ArrayList();
     private int currentFloor = 0;
-    private double mapScale = 300; // 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris, however, works on 119.91)
-//    private double onePixelToMetres = (11.82 / 1400 * mapScale / 100); // For Avatar; 0.021 (Avatar); 0.05291 (BW Paris)
-    private double onePixelToMetres = (41.45 / 2350 * mapScale / 100); // For BW Paris; 0.021 (Avatar); 0.05291 (BW Paris)
+    private double mapScale = 250; // 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris, however, works on 119.91)
+//    private double mapScale = 300; // 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris, however, works on 119.91)
+    private double onePixelToMetres = (11.82 / 1400 * mapScale / 100); // For Avatar; 0.021 (Avatar); 0.05291 (BW Paris)
+//    private double onePixelToMetres = (41.45 / 2350 * mapScale / 100); // For BW Paris; 0.021 (Avatar); 0.05291 (BW Paris)
 
     public double getBeaconActivateDistance() {
         return Double.valueOf(this.prefs.getString(context.getResources().getString(R.string.estimoteDist), "null"));
@@ -71,29 +72,29 @@ public class BFTLocalPreferences {
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
 //        //Ground floor up
-//        floors.add(0, "leaflet-avatar-deck3rd.html");
-//        floors.add(1, "leaflet-avatar-deck2nd.html");
-//        floors.add(2, "leaflet-avatar-decktween.html");
-//        floors.add(3, "leaflet-avatar-maindeck.html");
-//        floors.add(4, "leaflet-avatar-deck2.html");
-//        floors.add(5, "leaflet-avatar-deck3.html");
-//        floors.add(6, "leaflet-avatar-deck4.html");
-//        floors.add(7, "leaflet-avatar-deck5.html");
-//        floors.add(8, "leaflet-avatar-deck6.html");
-//        floors.add(9, "leaflet-avatar-deck7.html");
-//        floors.add(10, "leaflet-avatar-deckplatform.html");
-//        floors.add(11, "leaflet-avatar-lateral.html");
+        floors.add(0, "leaflet-avatar-deck3rd.html");
+        floors.add(1, "leaflet-avatar-deck2nd.html");
+        floors.add(2, "leaflet-avatar-decktween.html");
+        floors.add(3, "leaflet-avatar-maindeck.html");
+        floors.add(4, "leaflet-avatar-deck2.html");
+        floors.add(5, "leaflet-avatar-deck3.html");
+        floors.add(6, "leaflet-avatar-deck4.html");
+        floors.add(7, "leaflet-avatar-deck5.html");
+        floors.add(8, "leaflet-avatar-deck6.html");
+        floors.add(9, "leaflet-avatar-deck7.html");
+        floors.add(10, "leaflet-avatar-deckplatform.html");
+        floors.add(11, "leaflet-avatar-lateral.html");
 
         //Ground floor up
-        floors.add(0, "leaflet-bw-paris-tank-top.html");
-        floors.add(1, "leaflet-bw-paris-a-deck.html");
-        floors.add(2, "leaflet-bw-paris-upper-deck.html");
-        floors.add(3, "leaflet-bw-paris-b-deck.html");
-        floors.add(4, "leaflet-bw-paris-c-deck.html");
-        floors.add(5, "leaflet-bw-paris-d-deck.html");
-        floors.add(6, "leaflet-bw-paris-nav-bri-deck.html");
-        floors.add(7, "leaflet-bw-paris-midship.html");
-        floors.add(8, "leaflet-bw-paris-profile.html");
+//        floors.add(0, "leaflet-bw-paris-tank-top.html");
+//        floors.add(1, "leaflet-bw-paris-a-deck.html");
+//        floors.add(2, "leaflet-bw-paris-upper-deck.html");
+//        floors.add(3, "leaflet-bw-paris-b-deck.html");
+//        floors.add(4, "leaflet-bw-paris-c-deck.html");
+//        floors.add(5, "leaflet-bw-paris-d-deck.html");
+//        floors.add(6, "leaflet-bw-paris-nav-bri-deck.html");
+//        floors.add(7, "leaflet-bw-paris-midship.html");
+//        floors.add(8, "leaflet-bw-paris-profile.html");
     }
 
 //    private int getOneFloorUp() {

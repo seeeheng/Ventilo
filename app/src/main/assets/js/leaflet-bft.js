@@ -27,6 +27,10 @@ function loadLeaflet(imageoverlay, lowerleftx, lowerlefty, upperrightx, upperrig
     console.debug(bounds0)
     var image0 = L.imageOverlay(imageoverlay, bounds0).addTo(map0);
 
+    image0.setStyle({
+      opacity: 0.6
+    });
+
     // map0.setView( [5, 80], -3);
     map0.fitBounds(bounds0);
     // map0.flyTo([initialy*factor,initialx*factor],initialzoom);
@@ -42,8 +46,24 @@ var hazardIcon = L.icon({
     tooltipAnchor:[10, 3]
 });
 
+var hazardStaleIcon = L.icon({
+    iconUrl: 'icon_hazard_stale.png',
+    iconSize:     [20, 20], // size of the icon
+    iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
+    popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
+    tooltipAnchor:[10, 3]
+});
+
 var deceasedIcon = L.icon({
     iconUrl: 'icon_deceased.png',
+    iconSize:     [20, 20], // size of the icon
+    iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
+    popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
+    tooltipAnchor:[10, 3]
+});
+
+var deceasedStaleIcon = L.icon({
+    iconUrl: 'icon_deceased_stale.png',
     iconSize:     [20, 20], // size of the icon
     iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
     popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
@@ -91,28 +111,63 @@ var ownNavigatingIcon = L.icon({
 //        tooltipAnchor:[10, 3]
 });
 
+var allyStandingIcon = L.icon({
+    iconUrl: 'icon_ally.png',
+    iconSize:     [20, 20], // size of the icon
+    iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
+    popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
+    tooltipAnchor:[10, 3]
+});
+
+var allyStandingStaleIcon = L.icon({
+    iconUrl: 'icon_own_stale.png',
+    iconSize:     [20, 20], // size of the icon
+    iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
+    popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
+    tooltipAnchor:[10, 3]
+});
+
+var allyNavigatingIcon = L.icon({
+    iconUrl: 'icon_ally_direction.png',
+    iconSize:     [30, 30], // size of the icon
+    iconAnchor:   [15, 15], // point of the icon which will correspond to marker's location
+//    popupAnchor:  [-10, -76], // point from which the popup should open relative to the iconAnchor
+    tooltipAnchor:[15, 5]
+});
+
+var allyNavigatingStaleIcon = L.icon({
+    iconUrl: 'icon_own_direction_stale.png',
+    iconSize:     [30, 30], // size of the icon
+    iconAnchor:   [15, 15], // point of the icon which will correspond to marker's location
+//    popupAnchor:  [-10, -76], // point from which the popup should open relative to the iconAnchor
+    tooltipAnchor:[15, 5]
+});
+
 function getCustomMarker(xMetres, yMetres, markerType, label, isPermanentLabel, angle){
     var icon;
     var solMarker;
     var classStyleName;
     var sol = L.latLng([ (yMetres) * factor, xMetres * factor ]);
 
-    if (markerType == 'standing')
-    {
-        console.debug("Adding standing icon");
-        icon = ownStandingIcon;
-        classStyleName = "leafletTooltipLabel-green";
+    if (Android.getCurrentUserId() == label) {
+        if (markerType == 'standing')
+        {
+            console.debug("Adding standing icon");
+            icon = ownStandingIcon;
+            classStyleName = "leafletTooltipLabel-green";
 
-        solMarker= L.marker(sol,{icon: icon, rotationAngle: angle});
-    }
-    else if (markerType =='navigating')
-    {
-        console.debug("Adding navigating icon");
-        icon = ownNavigatingIcon;
-        classStyleName = "leafletTooltipLabel-green";
+            solMarker= L.marker(sol,{icon: icon, rotationAngle: angle});
+        }
+        else if (markerType =='navigating')
+        {
+            console.debug("Adding navigating icon");
+            icon = ownNavigatingIcon;
+            classStyleName = "leafletTooltipLabel-green";
 
-        solMarker = L.marker(sol,{icon: icon, rotationAngle: angle});
+            solMarker = L.marker(sol,{icon: icon, rotationAngle: angle});
+        }
     }
+
     else if (markerType == Android.getHazardString()) {
         console.debug("Adding hazard icon");
         icon = hazardIcon;
@@ -120,6 +175,15 @@ function getCustomMarker(xMetres, yMetres, markerType, label, isPermanentLabel, 
 
         solMarker = L.marker(sol,{icon: icon, rotationAngle: angle});
     }
+
+    else if (markerType == Android.getHazardStaleString()) {
+        console.debug("Adding hazard stale icon");
+        icon = hazardStaleIcon;
+        classStyleName = "leafletTooltipLabel-staleGrey";
+
+        solMarker = L.marker(sol,{icon: icon, rotationAngle: angle});
+    }
+
     else if (markerType == Android.getDeceasedString()) {
         console.debug("Adding deceased icon");
         icon = deceasedIcon;
@@ -127,11 +191,57 @@ function getCustomMarker(xMetres, yMetres, markerType, label, isPermanentLabel, 
 
         solMarker = L.marker(sol,{icon: icon, rotationAngle: angle});
     }
-    else
-    {
-        console.debug("Adding default icon");
-        solMarker = L.marker(sol,{rotationAngle: angle});
+
+    else if (markerType == Android.getDeceasedStaleString()) {
+        console.debug("Adding deceased stale icon");
+        icon = deceasedStaleIcon;
+        classStyleName = "leafletTooltipLabel-staleGrey";
+
+        solMarker = L.marker(sol,{icon: icon, rotationAngle: angle});
     }
+
+    else {
+        if (markerType == 'standing')
+        {
+            console.debug("Adding ally standing icon");
+            icon = allyStandingIcon;
+            classStyleName = "leafletTooltipLabel-cyan";
+
+            solMarker= L.marker(sol,{icon: icon, rotationAngle: angle});
+        }
+
+        else if (markerType == 'standing-stale')
+        {
+            console.debug("Adding ally standing stale icon");
+            icon = allyStandingStaleIcon;
+            classStyleName = "leafletTooltipLabel-staleGrey";
+
+            solMarker = L.marker(sol,{icon: icon, rotationAngle: angle});
+        }
+
+        else if (markerType == 'navigating')
+        {
+            console.debug("Adding ally navigating icon");
+            icon = allyNavigatingIcon;
+            classStyleName = "leafletTooltipLabel-cyan";
+
+            solMarker = L.marker(sol,{icon: icon, rotationAngle: angle});
+        }
+
+        else if (markerType == 'navigating-stale')
+        {
+            console.debug("Adding ally navigating stale icon");
+            icon = allyNavigatingStaleIcon;
+            classStyleName = "leafletTooltipLabel-staleGrey";
+
+            solMarker = L.marker(sol,{icon: icon, rotationAngle: angle});
+        }
+    }
+//    else
+//    {
+//        console.debug("Adding default icon");
+//        solMarker = L.marker(sol,{rotationAngle: angle});
+//    }
 
     solMarker.bindTooltip(label, {permanent:isPermanentLabel, className: classStyleName});
     return solMarker;

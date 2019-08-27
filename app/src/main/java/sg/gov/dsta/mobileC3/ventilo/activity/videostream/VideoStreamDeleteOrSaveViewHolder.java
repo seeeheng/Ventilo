@@ -97,7 +97,6 @@ public class VideoStreamDeleteOrSaveViewHolder extends RecyclerView.ViewHolder {
 
                     VideoStreamViewModel videoStreamViewModel = ViewModelProviders.
                             of(fragment).get(VideoStreamViewModel.class);
-
                     VideoStreamModel selVideoStreamModel = mAdapter.getVideoStreamListItems().get(getAdapterPosition());
 
                     if (selVideoStreamModel.getIconType().equalsIgnoreCase(FragmentConstants.KEY_VIDEO_STREAM_EDIT)) {

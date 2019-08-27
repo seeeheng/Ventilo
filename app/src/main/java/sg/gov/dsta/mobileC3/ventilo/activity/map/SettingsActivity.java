@@ -22,7 +22,7 @@ public class SettingsActivity extends PreferenceActivity {
         super.onBackPressed();
         System.out.println("SettingsActivity onBackPressed");
         // Notify mapfragment of previous activity (SettingsActivity) that it was switched from
-        EventBus.getDefault().post(PageEvent.getInstance().addPage(PageEvent.ACTIVITY_KEY, SettingsActivity.class.getSimpleName()));
+//        EventBus.getDefault().post(PageEvent.getInstance().addPage(PageEvent.ACTIVITY_KEY, SettingsActivity.class.getSimpleName()));
 
         killmyself();
     }

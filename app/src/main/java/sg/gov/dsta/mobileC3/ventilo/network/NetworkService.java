@@ -9,6 +9,7 @@ import android.util.Log;
 
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQServerPair;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQSubscriber;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
 //import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQ;
@@ -38,19 +39,19 @@ public class NetworkService extends IntentService {
         super.onCreate();
 
         Log.i(TAG, "Creating network service...");
-        createConnection();
+//        createConnection();
     }
 
-    private void createConnection() {
-//        mqttHelper = MqttHelper.getInstance();
-//        mqttHelper.connectionStatus = MqttHelper.MQTTConnectionStatus.INITIAL;
-        // register to be notified whenever the user changes their preferences
-        //  relating to background data use - so that we can respect the current
-        //  preference
-
-        rabbitMQHelper = RabbitMQHelper.getInstance();
-        rabbitMQHelper.connectionStatus = RabbitMQHelper.RabbitMQConnectionStatus.INITIAL;
-    }
+//    private void createConnection() {
+////        mqttHelper = MqttHelper.getInstance();
+////        mqttHelper.connectionStatus = MqttHelper.MQTTConnectionStatus.INITIAL;
+//        // register to be notified whenever the user changes their preferences
+//        //  relating to background data use - so that we can respect the current
+//        //  preference
+//
+//        rabbitMQHelper = RabbitMQHelper.getInstance();
+//        rabbitMQHelper.connectionStatus = RabbitMQHelper.RabbitMQConnectionStatus.INITIAL;
+//    }
 
 //    private boolean isOnline() {
 //        ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
@@ -76,20 +77,30 @@ public class NetworkService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         Log.i(TAG, "onHandleIntent");
 
-        if (rabbitMQHelper != null) {
-            mIsServiceRegistered = true;
-            Log.i(TAG, "mIsServiceRegistered: " + mIsServiceRegistered);
+//        if (rabbitMQHelper != null) {
+//            mIsServiceRegistered = true;
+//            Log.i(TAG, "mIsServiceRegistered: " + mIsServiceRegistered);
+//
+////            System.out.println("rabbitMQHelper not null");
+////            boolean isRabbitMQConnected = NetworkService.rabbitMQHelper.startRabbitMQWithDefaultSetting();
+////            if (isRabbitMQConnected) {
+////                System.out.println("rabbitMQHelper notify");
+////                notifyRabbitMQConnectedBroadcastIntent();
+////            }
+//
+//            JeroMQPublisher.getInstance().start();
+//            JeroMQSubscriber.getInstance().start();
+//        }
 
-            System.out.println("rabbitMQHelper not null");
-            boolean isRabbitMQConnected = NetworkService.rabbitMQHelper.startRabbitMQWithDefaultSetting();
-            if (isRabbitMQConnected) {
-                System.out.println("rabbitMQHelper notify");
-                notifyRabbitMQConnectedBroadcastIntent();
-            }
+        mIsServiceRegistered = true;
+        Log.i(TAG, "mIsServiceRegistered: " + mIsServiceRegistered);
 
-            JeroMQPublisher.getInstance().start();
-            JeroMQSubscriber.getInstance().start();
-        }
+        JeroMQPublisher.getInstance().start();
+        JeroMQSubscriber.getInstance().start();
+        JeroMQServerPair.getInstance().start();
+
+        mIsServiceRegistered = false;
+        stopSelf();
     }
 
     @Override

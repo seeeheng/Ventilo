@@ -11,7 +11,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -50,6 +49,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.DatabaseTableConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.EIsValid;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EAdHocTaskPriority;
@@ -967,9 +967,17 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
         if (toUpdate) {
             newTaskModel = mTaskModelToUpdate;
+
+            // Last Updated Date Time of main information
+            newTaskModel.setLastUpdatedMainDateTime(DateTimeUtil.getCurrentDateTime());
+
         } else {
             newTaskModel = new TaskModel();
             newTaskModel.setRefId(DatabaseTableConstants.LOCAL_REF_ID);
+            newTaskModel.setLastUpdatedMainDateTime(StringUtil.INVALID_STRING);
+
+            // Created DateTime
+            newTaskModel.setCreatedDateTime(DateTimeUtil.getCurrentDateTime());
         }
 
         // Phase No, Ad Hoc Task Priority
@@ -984,16 +992,18 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
             newTaskModel.setAdHocTaskPriority(StringUtil.INVALID_STRING);
         }
 
-        // Assign To, Status and Completed DateTime
+        // Assign To, Status, Completed DateTime and Last Updated DateTime
         StringBuilder assignToStringBuilder = new StringBuilder();
         StringBuilder statusStringBuilder = new StringBuilder();
         StringBuilder completedDateTimeStringBuilder = new StringBuilder();
+        StringBuilder lastUpdatedDateTimeStringBuilder = new StringBuilder();
         String assignToGroup = StringUtil.INVALID_STRING;
         String statusGroup = StringUtil.INVALID_STRING;
         String completedDateTimeGroup = StringUtil.INVALID_STRING;
+        String lastUpdatedDateTimeGroup = StringUtil.INVALID_STRING;
 
         // For update; extract current list of existing 'Assign To', 'Status',
-        // 'CompletedDateTime' data for comparison later
+        // 'CompletedDateTime' and 'LastUpdatedDateTime' data for comparison later
         List<String> toUpdateAssignedToList = null;
         List<String> toUpdateStatusList = null;
         List<String> toUpdateCompletedDateTimeList = null;
@@ -1031,14 +1041,19 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                     int index = toUpdateAssignedToList.indexOf(currentlySelectedAssignToTeam);
                     statusStringBuilder.append(toUpdateStatusList.get(index));
                     completedDateTimeStringBuilder.append(toUpdateCompletedDateTimeList.get(index));
-                } else {
 
+                } else {
                     statusStringBuilder.append(EStatus.NEW.toString());
                     completedDateTimeStringBuilder.append(StringUtil.INVALID_STRING);
+
                 }
+
+                // Always update lastUpdatedDateTime for any changes regardless
+                lastUpdatedDateTimeStringBuilder.append(DateTimeUtil.getCurrentDateTime());
 
                 statusStringBuilder.append(StringUtil.COMMA);
                 completedDateTimeStringBuilder.append(StringUtil.COMMA);
+                lastUpdatedDateTimeStringBuilder.append(StringUtil.COMMA);
             }
 
             if (i == mLinearLayoutAssignTo.getChildCount() - 1) {
@@ -1048,12 +1063,15 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                         statusStringBuilder.length() - 1);
                 completedDateTimeGroup = completedDateTimeStringBuilder.substring(0,
                         completedDateTimeStringBuilder.length() - 1);
+                lastUpdatedDateTimeGroup = lastUpdatedDateTimeStringBuilder.substring(0,
+                        lastUpdatedDateTimeStringBuilder.length() - 1);
             }
         }
 
         newTaskModel.setAssignedTo(assignToGroup);
         newTaskModel.setStatus(statusGroup);
         newTaskModel.setCompletedDateTime(completedDateTimeGroup);
+        newTaskModel.setLastUpdatedStatusDateTime(lastUpdatedDateTimeGroup);
 
         // Assign By (Default CCT - 999)
 //        newTaskModel.setAssignedBy(DatabaseTableConstants.DEFAULT_CCT_ID);
@@ -1074,8 +1092,8 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
         // Description
         newTaskModel.setDescription(mEtvTaskDescription.getText().toString().trim());
 
-        // Created DateTime
-        newTaskModel.setCreatedDateTime(DateTimeUtil.getCurrentTime());
+        // Is Valid (Task Model's validity - whether it has been deleted or not)
+        newTaskModel.setIsValid(EIsValid.YES.toString());
 
         return newTaskModel;
     }
@@ -1100,7 +1118,7 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                         "TaskId: %d", taskId);
 
                 taskModel.setRefId(taskId);
-                mTaskViewModel.updateTask(taskModel);
+//                mTaskViewModel.updateTask(taskModel);
 
                 // AssignedTo is used as userId(s) for UserTaskJoin composite table in local database
                 // Create row for UserTaskJoin with userId and taskId

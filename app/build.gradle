@@ -80,10 +80,16 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.android.volley:volley:1.1.1'
 
+    // Client / Server communication (Sending data to laptop)
+    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
+
     implementation 'com.github.qapqap:TimelineView:v1.6'
 
     // Photo View
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
+
+    // Blur View
+    implementation 'jp.wasabeef:blurry:3.0.0'
 
     // BFT Tracking
     implementation 'com.navisens:motiondnaapi:1.7.3'

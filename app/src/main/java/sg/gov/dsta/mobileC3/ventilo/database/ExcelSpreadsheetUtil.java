@@ -2,7 +2,6 @@ package sg.gov.dsta.mobileC3.ventilo.database;
 
 import android.app.Application;
 import android.os.Environment;
-import android.util.Log;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -441,6 +440,7 @@ public class ExcelSpreadsheetUtil {
                 userModel.setRadioToNetworkConnectionStatus(ERadioConnectionStatus.DISCONNECTED.toString());
                 userModel.setRadioFullConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
                 userModel.setLastKnownConnectionDateTime(StringUtil.INVALID_STRING);
+                userModel.setMissingHeartBeatCount(Integer.valueOf(StringUtil.INVALID_STRING));
 
             } else {
                 Timber.i("Table data from Excel does not match User data model");
@@ -727,7 +727,7 @@ public class ExcelSpreadsheetUtil {
                     sitRepModel.setOthers(dataFields.get(9).toString());
                 }
 
-                sitRepModel.setCreatedDateTime(DateTimeUtil.getCurrentTime());
+                sitRepModel.setCreatedDateTime(DateTimeUtil.getCurrentDateTime());
 
             } else {
                 Timber.i("Table data from Excel does not match Sit Rep data model");
@@ -892,7 +892,7 @@ public class ExcelSpreadsheetUtil {
                     taskModel.setDescription(dataFields.get(5).toString());
                 }
 
-                taskModel.setCreatedDateTime(DateTimeUtil.getCurrentTime());
+                taskModel.setCreatedDateTime(DateTimeUtil.getCurrentDateTime());
 
             } else {
 

@@ -29,7 +29,7 @@ public class RadioLinkStatusOfflineRecyclerAdapter extends RecyclerView.Adapter<
     @Override
     public RadioLinkStatusOfflineViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-        View view = inflater.inflate(R.layout.recycler_view_row_radio_link_status_offline, viewGroup, false);
+        View view = inflater.inflate(R.layout.recycler_view_row_radio_link_status, viewGroup, false);
 
         return new RadioLinkStatusOfflineViewHolder(view);
     }
@@ -44,16 +44,16 @@ public class RadioLinkStatusOfflineRecyclerAdapter extends RecyclerView.Adapter<
             itemViewHolder.getImgRadioLinkStatusIcon().setImageDrawable(ResourcesCompat.getDrawable(
                     mContext.getResources(), R.drawable.icon_offline, null));
 
-            // Last known online status datetime
-            String lastKnownOnlineDateTime = userModel.getLastKnownConnectionDateTime();
+            // Last known offline status datetime
+            String lastKnownOfflineDateTime = userModel.getLastKnownConnectionDateTime();
 
-            if (lastKnownOnlineDateTime != null) {
-                if (!lastKnownOnlineDateTime.equalsIgnoreCase(StringUtil.INVALID_STRING)) {
+            if (lastKnownOfflineDateTime != null) {
+                if (!lastKnownOfflineDateTime.equalsIgnoreCase(StringUtil.INVALID_STRING)) {
                     connectionStatusMessageStrBuilder.append(mContext.getString(
                             R.string.radio_link_status_offline_since));
                     connectionStatusMessageStrBuilder.append(StringUtil.SPACE);
                     connectionStatusMessageStrBuilder.append(DateTimeUtil.getTimeDifference(
-                            DateTimeUtil.stringToDate(lastKnownOnlineDateTime)));
+                            DateTimeUtil.stringToDate(lastKnownOfflineDateTime)));
                 } else {
                     connectionStatusMessageStrBuilder.append(mContext.getString(
                             R.string.radio_link_status_no_records));
@@ -66,8 +66,6 @@ public class RadioLinkStatusOfflineRecyclerAdapter extends RecyclerView.Adapter<
 
             // Reported date/time
             String lastKnownOnlineDateTime = userModel.getLastKnownConnectionDateTime();
-            String lastKnownOnlineDateTimeInCustomStrFormat = DateTimeUtil.dateToCustomStringFormat(
-                    DateTimeUtil.stringToDate(lastKnownOnlineDateTime));
 
             if (lastKnownOnlineDateTime != null) {
                 connectionStatusMessageStrBuilder.append(mContext.getString(R.string.radio_link_status_online_since));

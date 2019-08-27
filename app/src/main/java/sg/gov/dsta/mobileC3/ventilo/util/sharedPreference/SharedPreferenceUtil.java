@@ -8,6 +8,7 @@ import java.util.Set;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 
 public class SharedPreferenceUtil {
@@ -58,9 +59,22 @@ public class SharedPreferenceUtil {
      */
     public static String getCurrentUserAccessRight() {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainApplication.getAppContext());
-        String accessToken = pref.getString(SharedPreferenceConstants.ACCESS_RIGHT, EAccessRight.TEAM_LEAD.toString());
+        String accessToken = pref.getString(SharedPreferenceConstants.USER_ACCESS_RIGHT, EAccessRight.TEAM_LEAD.toString());
 
         return accessToken;
+    }
+
+    /**
+     * Get current user radio link status
+     *
+     * @return
+     */
+    public static String getCurrentUserRadioLinkStatus() {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainApplication.getAppContext());
+        String userRadioLinkStatus = pref.getString(SharedPreferenceConstants.USER_RADIO_LINK_STATUS,
+                ERadioConnectionStatus.OFFLINE.toString());
+
+        return userRadioLinkStatus;
     }
 
     public static Object getSharedPreference(String key, Object defaultValue) {

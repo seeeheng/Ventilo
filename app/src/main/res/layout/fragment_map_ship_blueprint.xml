@@ -1,225 +1,265 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout_map_ship_blueprint_fragment"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:weightSum="760">
+    android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/layout_map_ship_blueprint"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="385">
-
-        <WebView
-            android:id="@+id/webview_bft"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        </WebView>
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="760">
 
         <FrameLayout
+            android:id="@+id/layout_map_ship_blueprint"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="@dimen/elements_margin_spacing">
+            android:layout_height="0dp"
+            android:layout_weight="385">
 
-            <RelativeLayout
+            <WebView
+                android:id="@+id/webview_bft"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="start">
+                android:layout_height="match_parent" />
 
-                <android.support.v7.widget.AppCompatImageView
-                    android:id="@+id/img_btn_ship_blueprint_setting"
-                    android:layout_width="@dimen/map_blueprint_btn_width"
-                    android:layout_height="@dimen/map_blueprint_btn_height"
-                    android:background="?android:selectableItemBackground"
-                    app:srcCompat="@drawable/btn_setting" />
-
-                <!--<android.support.v7.widget.AppCompatImageView-->
-                <!--android:id="@+id/img_btn_ship_blueprint_world_map"-->
-                <!--android:layout_width="@dimen/map_blueprint_btn_width"-->
-                <!--android:layout_height="@dimen/map_blueprint_btn_height"-->
-                <!--android:layout_below="@+id/img_btn_ship_blueprint_setting"-->
-                <!--android:layout_marginTop="@dimen/elements_margin_spacing"-->
-                <!--android:background="?android:selectableItemBackground"-->
-                <!--app:srcCompat="@drawable/btn_world_map" />-->
-
-            </RelativeLayout>
-
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="end"
-                android:orientation="vertical">
+                android:layout_height="match_parent"
+                android:padding="@dimen/elements_margin_spacing">
 
-                <Spinner
-                    android:id="@+id/spinner_ship_blueprint_floor_selector"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/spinner_rect"
-                    android:gravity="center_vertical"
-                    android:spinnerMode="dropdown" />
+                    android:gravity="end"
+                    android:orientation="vertical">
 
-                <!--<RelativeLayout-->
-                <!--android:id="@+id/layout_deck_switch"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:gravity="end">-->
-
-                <!--<android.support.v7.widget.AppCompatImageView-->
-                <!--android:id="@+id/img_ship_blueprint_upButton"-->
-                <!--android:layout_width="@dimen/map_blueprint_btn_width"-->
-                <!--android:layout_height="@dimen/map_blueprint_btn_height"-->
-                <!--android:background="?android:selectableItemBackground"-->
-                <!--app:srcCompat="@drawable/btn_map_toggle_up" />-->
-
-                <!--<android.support.v7.widget.AppCompatImageView-->
-                <!--android:id="@+id/img_ship_blueprint_zeroButton"-->
-                <!--android:layout_width="@dimen/map_blueprint_btn_width"-->
-                <!--android:layout_height="@dimen/map_blueprint_btn_height"-->
-                <!--android:layout_below="@+id/img_ship_blueprint_upButton"-->
-                <!--android:layout_marginTop="@dimen/elements_margin_spacing"-->
-                <!--android:background="?android:selectableItemBackground"-->
-                <!--app:srcCompat="@drawable/btn_map_gps" />-->
-
-                <!--<android.support.v7.widget.AppCompatImageView-->
-                <!--android:id="@+id/img_ship_blueprint_downButton"-->
-                <!--android:layout_width="@dimen/map_blueprint_btn_width"-->
-                <!--android:layout_height="@dimen/map_blueprint_btn_height"-->
-                <!--android:layout_below="@+id/img_ship_blueprint_zeroButton"-->
-                <!--android:layout_marginTop="@dimen/elements_margin_spacing"-->
-                <!--android:background="?android:selectableItemBackground"-->
-                <!--app:srcCompat="@drawable/btn_map_toggle_down" />-->
-
-                <!--</RelativeLayout>-->
-
-                <RelativeLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/elements_margin_spacing">
-
-                    <include
-                        android:id="@+id/layout_map_ship_blueprint_fragment_hazard_icon"
-                        layout="@layout/layout_rounded_img_with_img_btn" />
-
-                    <include
-                        android:id="@+id/layout_map_ship_blueprint_fragment_deceased_icon"
-                        layout="@layout/layout_rounded_img_with_img_btn"
+                    <Spinner
+                        android:id="@+id/spinner_ship_blueprint_floor_selector"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/elements_margin_spacing"
-                        android:layout_toEndOf="@+id/layout_map_ship_blueprint_fragment_hazard_icon" />
+                        android:background="@drawable/spinner_rect"
+                        android:gravity="center_vertical"
+                        android:spinnerMode="dropdown" />
+
+                    <!--<RelativeLayout-->
+                    <!--android:id="@+id/layout_deck_switch"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:gravity="end">-->
+
+                    <!--<android.support.v7.widget.AppCompatImageView-->
+                    <!--android:id="@+id/img_ship_blueprint_upButton"-->
+                    <!--android:layout_width="@dimen/map_blueprint_btn_width"-->
+                    <!--android:layout_height="@dimen/map_blueprint_btn_height"-->
+                    <!--android:background="?android:selectableItemBackground"-->
+                    <!--app:srcCompat="@drawable/btn_map_toggle_up" />-->
+
+                    <!--<android.support.v7.widget.AppCompatImageView-->
+                    <!--android:id="@+id/img_ship_blueprint_zeroButton"-->
+                    <!--android:layout_width="@dimen/map_blueprint_btn_width"-->
+                    <!--android:layout_height="@dimen/map_blueprint_btn_height"-->
+                    <!--android:layout_below="@+id/img_ship_blueprint_upButton"-->
+                    <!--android:layout_marginTop="@dimen/elements_margin_spacing"-->
+                    <!--android:background="?android:selectableItemBackground"-->
+                    <!--app:srcCompat="@drawable/btn_map_gps" />-->
+
+                    <!--<android.support.v7.widget.AppCompatImageView-->
+                    <!--android:id="@+id/img_ship_blueprint_downButton"-->
+                    <!--android:layout_width="@dimen/map_blueprint_btn_width"-->
+                    <!--android:layout_height="@dimen/map_blueprint_btn_height"-->
+                    <!--android:layout_below="@+id/img_ship_blueprint_zeroButton"-->
+                    <!--android:layout_marginTop="@dimen/elements_margin_spacing"-->
+                    <!--android:background="?android:selectableItemBackground"-->
+                    <!--app:srcCompat="@drawable/btn_map_toggle_down" />-->
+
+                    <!--</RelativeLayout>-->
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/elements_margin_spacing">
+
+                        <include
+                            android:id="@+id/layout_map_ship_blueprint_hazard_icon"
+                            layout="@layout/layout_rounded_img_with_img_btn" />
+
+                        <include
+                            android:id="@+id/layout_map_ship_blueprint_deceased_icon"
+                            layout="@layout/layout_rounded_img_with_img_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/elements_margin_spacing"
+                            android:layout_toEndOf="@+id/layout_map_ship_blueprint_hazard_icon" />
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="bottom">
+
+                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                        android:id="@+id/tv_map_blueprint_textXYZ"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_above="@+id/tv_map_blueprint_textBearing"
+                        android:layout_marginBottom="@dimen/thin_line_margin"
+                        android:text="@string/map_blueprint_loading_coord"
+                        android:textColor="@color/primary_white"
+                        android:textSize="@dimen/text_view_text_size" />
+
+                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                        android:id="@+id/tv_map_blueprint_textBearing"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/elements_margin_spacing"
+                        android:text="@string/map_blueprint_loading_bearing"
+                        android:textColor="@color/primary_white"
+                        android:textSize="@dimen/text_view_text_size" />
+
+                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                        android:id="@+id/tv_map_blueprint_textAction"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginBottom="@dimen/elements_margin_spacing"
+                        android:text="@string/map_blueprint_loading_status"
+                        android:textColor="@color/primary_white"
+                        android:textSize="@dimen/text_view_text_size" />
 
                 </RelativeLayout>
 
-            </LinearLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="bottom">
-
-                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                    android:id="@+id/tv_map_blueprint_textXYZ"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_above="@+id/tv_map_blueprint_textBearing"
-                    android:layout_marginBottom="@dimen/thin_line_margin"
-                    android:text="@string/map_blueprint_loading_coord"
-                    android:textColor="@color/primary_white"
-                    android:textSize="@dimen/text_view_text_size" />
-
-                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                    android:id="@+id/tv_map_blueprint_textBearing"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/elements_margin_spacing"
-                    android:text="@string/map_blueprint_loading_bearing"
-                    android:textColor="@color/primary_white"
-                    android:textSize="@dimen/text_view_text_size" />
-
-                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                    android:id="@+id/tv_map_blueprint_textAction"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginBottom="@dimen/elements_margin_spacing"
-                    android:text="@string/map_blueprint_loading_status"
-                    android:textColor="@color/primary_white"
-                    android:textSize="@dimen/text_view_text_size" />
-
-            </RelativeLayout>
+            </FrameLayout>
 
         </FrameLayout>
 
-    </FrameLayout>
+        <View
+            android:id="@+id/view_map_ship_blueprint_middle_divider"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="20"
+            android:visibility="gone" />
 
-    <View
-        android:id="@+id/view_map_ship_blueprint_middle_divider"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="20"
-        android:visibility="gone" />
-
-    <HorizontalScrollView
-        android:id="@+id/hs_view_map_ship_blueprint_dashboard_fragments"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="335"
-        android:animateLayoutChanges="true"
-        android:fadeScrollbars="false"
-        android:paddingStart="@dimen/elements_large_margin_spacing"
-        android:paddingEnd="@dimen/elements_large_margin_spacing"
-        android:visibility="gone">
-
-        <LinearLayout
+        <HorizontalScrollView
+            android:id="@+id/hs_view_map_ship_blueprint_dashboard_fragments"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:layout_height="0dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="335"
+            android:animateLayoutChanges="true"
+            android:fadeScrollbars="false"
+            android:paddingStart="@dimen/elements_margin_spacing"
+            android:paddingEnd="@dimen/elements_margin_spacing"
+            android:visibility="gone">
 
-            <fragment
-                android:id="@+id/fragment_dashboard_video_stream"
-                android:name="sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.videoStream.DashboardVideoStreamFragment"
-                android:layout_width="@dimen/dashboard_video_stream_main_container_width"
+            <LinearLayout
+                android:id="@+id/layout_fragment_dashboard"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:background="@drawable/img_btn_background_without_border" />
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/elements_margin_spacing"
+                android:paddingEnd="@dimen/elements_margin_spacing">
 
-            <fragment
-                android:id="@+id/fragment_dashboard_sitrep_personnel_status"
-                android:name="sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.sitRepPersonnelStatus.DashboardSitRepPersonnelStatusFragment"
-                android:layout_width="@dimen/dashboard_sitrep_personnel_status_main_container_width"
-                android:layout_height="match_parent"
-                android:layout_marginStart="@dimen/elements_large_margin_spacing"
-                android:background="@drawable/img_btn_background_without_border" />
+                <fragment
+                    android:id="@+id/fragment_dashboard_video_stream"
+                    android:name="sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.videoStream.DashboardVideoStreamFragment"
+                    android:layout_width="@dimen/dashboard_video_stream_main_container_width"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/img_btn_background_without_border" />
 
-            <fragment
-                android:id="@+id/fragment_dashboard_task_phase_status"
-                android:name="sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.taskPhaseStatus.DashboardTaskPhaseStatusFragment"
-                android:layout_width="@dimen/dashboard_task_phase_status_main_container_width"
-                android:layout_height="match_parent"
-                android:layout_marginStart="@dimen/elements_large_margin_spacing"
-                android:background="@drawable/img_btn_background_without_border" />
+                <fragment
+                    android:id="@+id/fragment_dashboard_sitrep_personnel_status"
+                    android:name="sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.sitRepPersonnelStatus.DashboardSitRepPersonnelStatusFragment"
+                    android:layout_width="@dimen/dashboard_sitrep_personnel_status_main_container_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/elements_large_margin_spacing"
+                    android:background="@drawable/img_btn_background_without_border" />
 
-            <fragment
-                android:id="@+id/fragment_dashboard_radio_link_status"
-                android:name="sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.radioLinkStatus.DashboardRadioLinkStatusFragment"
-                android:layout_width="@dimen/dashboard_status_link_main_container_width"
-                android:layout_height="match_parent"
-                android:layout_marginStart="@dimen/elements_large_margin_spacing"
-                android:background="@drawable/img_btn_background_without_border" />
+                <fragment
+                    android:id="@+id/fragment_dashboard_task_phase_status"
+                    android:name="sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.taskPhaseStatus.DashboardTaskPhaseStatusFragment"
+                    android:layout_width="@dimen/dashboard_task_phase_status_main_container_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/elements_large_margin_spacing"
+                    android:background="@drawable/img_btn_background_without_border" />
 
-        </LinearLayout>
+                <fragment
+                    android:id="@+id/fragment_dashboard_radio_link_status"
+                    android:name="sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.radioLinkStatus.DashboardRadioLinkStatusFragment"
+                    android:layout_width="@dimen/dashboard_status_link_main_container_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/elements_large_margin_spacing"
+                    android:background="@drawable/img_btn_background_without_border" />
 
-    </HorizontalScrollView>
+            </LinearLayout>
 
-    <View
-        android:id="@+id/view_map_ship_blueprint_bottom_divider"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="20"
-        android:visibility="gone" />
+        </HorizontalScrollView>
 
-</LinearLayout>
+        <View
+            android:id="@+id/view_map_ship_blueprint_bottom_divider"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="20"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/layout_map_ship_blueprint_personnel_link_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/elements_margin_spacing"
+        android:layout_marginStart="@dimen/elements_margin_spacing"
+        android:gravity="start">
+
+        <include
+            android:id="@+id/layout_map_ship_blueprint_personnel_link_status_icon"
+            layout="@layout/layout_rounded_img_with_img_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/img_ship_blueprint_triangle"
+            android:layout_width="@dimen/timeline_outer_icon_width"
+            android:layout_height="@dimen/timeline_outer_icon_height"
+            app:layout_constraintEnd_toEndOf="@+id/layout_map_ship_blueprint_personnel_link_status_icon"
+            app:layout_constraintStart_toStartOf="@+id/layout_map_ship_blueprint_personnel_link_status_icon"
+            app:layout_constraintTop_toBottomOf="@+id/layout_map_ship_blueprint_personnel_link_status_icon"
+            app:srcCompat="@drawable/icon_triangle_pointed_up" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_ship_blueprint_personnel_status_link"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/map_blueprint_recycler_personnel_link_status_height_for_CCT"
+            android:layout_below="@+id/img_ship_blueprint_triangle"
+            android:background="@drawable/img_btn_background_without_border"
+            android:paddingStart="@dimen/elements_margin_spacing"
+            android:paddingTop="@dimen/elements_small_margin_spacing"
+            android:paddingEnd="@dimen/elements_margin_spacing"
+            android:scrollbars="vertical"
+            app:layout_constraintStart_toStartOf="@+id/layout_map_ship_blueprint_personnel_link_status_icon"
+            app:layout_constraintTop_toBottomOf="@+id/img_ship_blueprint_triangle" />
+
+        <!--<android.support.v7.widget.AppCompatImageView-->
+        <!--android:id="@+id/img_btn_ship_blueprint_setting"-->
+        <!--android:layout_width="@dimen/map_blueprint_btn_width"-->
+        <!--android:layout_height="@dimen/map_blueprint_btn_height"-->
+        <!--android:background="?android:selectableItemBackground"-->
+        <!--app:srcCompat="@drawable/btn_setting" />-->
+
+        <!--<android.support.v7.widget.AppCompatImageView-->
+        <!--android:id="@+id/img_btn_ship_blueprint_world_map"-->
+        <!--android:layout_width="@dimen/map_blueprint_btn_width"-->
+        <!--android:layout_height="@dimen/map_blueprint_btn_height"-->
+        <!--android:layout_below="@+id/img_btn_ship_blueprint_setting"-->
+        <!--android:layout_marginTop="@dimen/elements_margin_spacing"-->
+        <!--android:background="?android:selectableItemBackground"-->
+        <!--app:srcCompat="@drawable/btn_world_map" />-->
+
+    </android.support.constraint.ConstraintLayout>
+
+</FrameLayout>

@@ -1,14 +1,11 @@
 package sg.gov.dsta.mobileC3.ventilo.database;
 
 import android.app.Application;
-import android.util.Log;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
-import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserSitRepJoinModel;
@@ -27,7 +24,6 @@ import sg.gov.dsta.mobileC3.ventilo.repository.UserSitRepJoinRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserTaskJoinRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.VideoStreamRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
-import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.DatabaseTableConstants;
 import timber.log.Timber;
@@ -60,7 +56,7 @@ public class DatabaseOperation {
      * @param singleObserver
      */
     public void queryUserByUserIdInDatabase(UserRepository userRepo, String userId,
-                                             SingleObserver<UserModel> singleObserver) {
+                                            SingleObserver<UserModel> singleObserver) {
         userRepo.queryUserByUserId(userId, singleObserver);
     }
 
@@ -103,7 +99,7 @@ public class DatabaseOperation {
      * @param singleObserver
      */
     public void getAllRadiosFromDatabase(WaveRelayRadioRepository waveRelayRadioRepo,
-                                        SingleObserver<List<WaveRelayRadioModel>> singleObserver) {
+                                         SingleObserver<List<WaveRelayRadioModel>> singleObserver) {
         waveRelayRadioRepo.getAllWaveRelayRadios(singleObserver);
     }
 
@@ -115,7 +111,7 @@ public class DatabaseOperation {
      * @param singleObserver
      */
     public void queryRadioByRadioIdInDatabase(WaveRelayRadioRepository waveRelayRadioRepo, long radioId,
-                                            SingleObserver<WaveRelayRadioModel> singleObserver) {
+                                              SingleObserver<WaveRelayRadioModel> singleObserver) {
         waveRelayRadioRepo.queryRadioByRadioId(radioId, singleObserver);
     }
 
@@ -137,7 +133,7 @@ public class DatabaseOperation {
      * @param waveRelayRadioModel
      */
     public void updateRadioInDatabase(WaveRelayRadioRepository waveRelayRadioRepo,
-                                     WaveRelayRadioModel waveRelayRadioModel) {
+                                      WaveRelayRadioModel waveRelayRadioModel) {
         waveRelayRadioRepo.updateWaveRelayRadio(waveRelayRadioModel);
     }
 
@@ -156,12 +152,83 @@ public class DatabaseOperation {
     /**
      * Insertion of BFT model into database
      *
-     * @param bFTRepo
-     * @param bFTModel
+     * @param bftRepo
+     * @param bftModel
      */
-    public void insertBFTIntoDatabase(BFTRepository bFTRepo, BFTModel bFTModel) {
-        bFTRepo.insertBFT(bFTModel);
+    public synchronized void insertBftIntoDatabase(BFTRepository bftRepo, BFTModel bftModel) {
+
+        SingleObserver<BFTModel> singleObserverGetBFT = new SingleObserver<BFTModel>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onSuccess(BFTModel bftModelToUpdate) {
+
+                Timber.i("onSuccess singleObserverGetBFT, insertBftIntoDatabase. bftModelToUpdate: %s", bftModelToUpdate);
+
+                // If available, there should only be ONE unique BFT model of searched parameters
+                // (user id, type and created date & time)
+                if (bftModelToUpdate != null) {
+                    bftModelToUpdate.setUserId(bftModel.getUserId());
+                    bftModelToUpdate.setXCoord(bftModel.getXCoord());
+                    bftModelToUpdate.setYCoord(bftModel.getYCoord());
+                    bftModelToUpdate.setAltitude(bftModel.getAltitude());
+                    bftModelToUpdate.setBearing(bftModel.getBearing());
+                    bftModelToUpdate.setAction(bftModel.getAction());
+                    bftModelToUpdate.setType(bftModel.getType());
+                    bftModelToUpdate.setMissingHeartBeatCount(bftModel.getMissingHeartBeatCount());
+                    bftRepo.updateBFT(bftModelToUpdate);
+
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+                Timber.e("onError singleObserverGetBFT, insertBftIntoDatabase. Error Msg: %s", e.toString());
+
+                BFTModel bftModelToInsert = new BFTModel();
+                bftModelToInsert.setRefId(bftModel.getRefId());
+                bftModelToInsert.setUserId(bftModel.getUserId());
+                bftModelToInsert.setXCoord(bftModel.getXCoord());
+                bftModelToInsert.setYCoord(bftModel.getYCoord());
+                bftModelToInsert.setAltitude(bftModel.getAltitude());
+                bftModelToInsert.setBearing(bftModel.getBearing());
+                bftModelToInsert.setAction(bftModel.getAction());
+                bftModelToInsert.setType(bftModel.getType());
+                bftModelToInsert.setCreatedDateTime(bftModel.getCreatedDateTime());
+                bftModelToInsert.setMissingHeartBeatCount(bftModel.getMissingHeartBeatCount());
+                bftRepo.insertBFT(bftModelToInsert);
+
+            }
+        };
+
+//            bftRepo.queryBFTByUserIdAndTypeAndCreatedDateTime(bftModel.getUserId(), bftModel.getType(),
+//                    bftModel.getCreatedDateTime(), singleObserverGetBFT);
+        bftRepo.queryBFTByRefId(bftModel.getRefId(), singleObserverGetBFT);
+//        }
     }
+
+    /**
+     * Deletion of BFT model in database
+     *
+     * @param bftRepository
+     * @param bftId
+     */
+    public void deleteBftInDatabase(BFTRepository bftRepository, long bftId) {
+        bftRepository.deleteBFT(bftId);
+    }
+
+//    /**
+//     * Update of BFT model in database
+//     *
+//     * @param bFTRepo
+//     * @param bFTModel
+//     */
+//    public void updateBftInDatabase(BFTRepository bFTRepo, BFTModel bFTModel) {
+//        bFTRepo.updateBFT(bFTModel);
+//    }
 
     /* ---------------------------------------- Video Stream ---------------------------------------- */
 
@@ -235,6 +302,18 @@ public class DatabaseOperation {
     }
 
     /**
+     * Obtain Sit Rep based on created date and time from database
+     *
+     * @param sitRepRepo
+     * @param createdDateTime
+     * @param singleObserver
+     */
+    public void querySitRepByCreatedDateTimeInDatabase(SitRepRepository sitRepRepo, String createdDateTime,
+                                                       SingleObserver<SitRepModel> singleObserver) {
+        sitRepRepo.querySitRepByCreatedDateTime(createdDateTime, singleObserver);
+    }
+
+    /**
      * Insertion of SitRepModel into database
      *
      * @param sitRepRepo
@@ -250,9 +329,7 @@ public class DatabaseOperation {
 
             @Override
             public void onSuccess(Long sitRepId) {
-                Timber.i("onSuccess singleObserverAddSitRep, insertSitRepIntoDatabase. SitRepId: %ld", sitRepId);
-
-
+                Timber.i("onSuccess singleObserverAddSitRep, insertSitRepIntoDatabase. SitRepId: %d", sitRepId);
 
                 UserSitRepJoinRepository userSitRepJoinRepository = new
                         UserSitRepJoinRepository((Application) MainApplication.getAppContext());
@@ -272,7 +349,7 @@ public class DatabaseOperation {
             @Override
             public void onError(Throwable e) {
 
-                Timber.e("onError singleObserverAddSitRep, insertSitRepIntoDatabase. Error Msg: %s" , e.toString());
+                Timber.e("onError singleObserverAddSitRep, insertSitRepIntoDatabase. Error Msg: %s", e.toString());
 
             }
         };
@@ -294,24 +371,25 @@ public class DatabaseOperation {
         if (sitRepModel.getRefId() == DatabaseTableConstants.LOCAL_REF_ID) {
             sitRepRepo.updateSitRepByRefId(sitRepModel);
         } else {    // Else received updated sitRepModel may not be from original creator,
-                    // but from a Team Lead who updated his sit rep details and sends this update to 2 users:
-                    // 1) CCT
-                    // 2) Other Team Leads
-                    //
-                    // Hence, to handle each user recipient, the following is to be done:
-                    // 1) For CCT - check if received RefId sitRepModel is
-                    // the same as a TaskId in his own sit rep list database, and update his own sitRepModel
-                    // 2) For other Team Leads - received RefId sitRepModel is
-                    // the same as a RefId in his own task list database, and update this sitRepModel
+            // but from a Team Lead who updated his sit rep details and sends this update to 2 users:
+            // 1) CCT
+            // 2) Other Team Leads
+            //
+            // Hence, to handle each user recipient, the following is to be done:
+            // 1) For CCT - check if received RefId sitRepModel is
+            // the same as a TaskId in his own sit rep list database, and update his own sitRepModel
+            // 2) For other Team Leads - received RefId sitRepModel is
+            // the same as a RefId in his own task list database, and update this sitRepModel
 
             SingleObserver<List<SitRepModel>> singleObserverGetAllSitReps = new SingleObserver<List<SitRepModel>>() {
                 @Override
-                public void onSubscribe(Disposable d) {}
+                public void onSubscribe(Disposable d) {
+                }
 
                 @Override
                 public void onSuccess(List<SitRepModel> sitRepModelList) {
 
-                    Timber.i("onSuccess singleObserverGetAllSitReps, updateSitRepInDatabase. sitRepModelList.size(): %d" , sitRepModelList.size());
+                    Timber.i("onSuccess singleObserverGetAllSitReps, updateSitRepInDatabase. sitRepModelList.size(): %d", sitRepModelList.size());
 
 
                     // Extracts a list of all Ref Id from the list of all SitRepModel objects
@@ -341,7 +419,7 @@ public class DatabaseOperation {
                 @Override
                 public void onError(Throwable e) {
 
-                    Timber.e("onError singleObserverGetAllSitReps, updateSitRepInDatabase. Error Msg: %s" , e.toString());
+                    Timber.e("onError singleObserverGetAllSitReps, updateSitRepInDatabase. Error Msg: %s", e.toString());
 
                 }
             };
@@ -387,6 +465,18 @@ public class DatabaseOperation {
     }
 
     /**
+     * Obtain Task based on created time from database
+     *
+     * @param taskRepo
+     * @param createdDateTime
+     * @param singleObserver
+     */
+    public void queryTaskByCreatedDateTimeInDatabase(TaskRepository taskRepo, String createdDateTime,
+                                                     SingleObserver<TaskModel> singleObserver) {
+        taskRepo.queryTaskByCreatedDateTime(createdDateTime, singleObserver);
+    }
+
+    /**
      * Insertion of TaskModel into database
      *
      * @param taskRepo
@@ -402,9 +492,7 @@ public class DatabaseOperation {
 
             @Override
             public void onSuccess(Long taskId) {
-
-                Timber.i("onSuccess singleObserverAddTask, insertTaskIntoDatabase. TaskId: %ld" , taskId);
-
+                Timber.i("onSuccess singleObserverAddTask, insertTaskIntoDatabase. TaskId: %d", taskId);
 
                 UserTaskJoinRepository userTaskJoinRepository = new
                         UserTaskJoinRepository((Application) MainApplication.getAppContext());
@@ -422,12 +510,12 @@ public class DatabaseOperation {
 
             @Override
             public void onError(Throwable e) {
-                Timber.e("onError singleObserverAddTask, insertTaskIntoDatabase. Error Msg: %s" , e.toString());
+                Timber.e("onError singleObserverAddTask, insertTaskIntoDatabase. Error Msg: %s", e.toString());
 
             }
         };
 
-        taskRepo.addTask(taskModel, singleObserverAddTask);
+        taskRepo.insertTaskWithObserver(taskModel, singleObserverAddTask);
     }
 
     /**
@@ -445,11 +533,10 @@ public class DatabaseOperation {
 
             @Override
             public void onSuccess(Long taskId) {
-                Timber.i("onSuccess singleObserverAddTask, insertTaskIntoDatabaseAndBroadcast. TaskId: %ld" , taskId);
-
+                Timber.i("onSuccess singleObserverAddTask, insertTaskIntoDatabaseAndBroadcast. TaskId: %d", taskId);
 
                 taskModel.setRefId(taskId);
-                taskRepo.updateTask(taskModel);
+//                taskRepo.updateTask(taskModel);
 
                 UserTaskJoinRepository userTaskJoinRepository = new
                         UserTaskJoinRepository((Application) MainApplication.getAppContext());
@@ -471,7 +558,7 @@ public class DatabaseOperation {
             @Override
             public void onError(Throwable e) {
 
-                Timber.e("onError singleObserverAddTask, insertTaskIntoDatabaseAndBroadcast. Error Msg: %s" , e.toString());
+                Timber.e("onError singleObserverAddTask, insertTaskIntoDatabaseAndBroadcast. Error Msg: %s", e.toString());
 
             }
         };
@@ -491,24 +578,25 @@ public class DatabaseOperation {
         if (taskModel.getRefId() == DatabaseTableConstants.LOCAL_REF_ID) {
             taskRepo.updateTaskByRefId(taskModel);
         } else {    // Else received taskModel may not be from original creator,
-                    // but from a Team Lead who updated his task status and sends this update to 2 users:
-                    // 1) CCT (for viewing in Tasks and Timeline)
-                    // 2) Other Team Leads (for viewing in Timeline)
-                    //
-                    // Hence, to handle each user recipient, the following is to be done:
-                    // 1) For CCT (original creator) - check if received RefId taskModel is
-                    // the same as a TaskId in his own task list database, and update his own task model
-                    // 2) For other Team Leads (NOT original creator) - received RefId taskModel is
-                    // the same as a RefId in his own task list database, and update this task model
+            // but from a Team Lead who updated his task status and sends this update to 2 users:
+            // 1) CCT (for viewing in Tasks and Timeline)
+            // 2) Other Team Leads (for viewing in Timeline)
+            //
+            // Hence, to handle each user recipient, the following is to be done:
+            // 1) For CCT (original creator) - check if received RefId taskModel is
+            // the same as a TaskId in his own task list database, and update his own task model
+            // 2) For other Team Leads (NOT original creator) - received RefId taskModel is
+            // the same as a RefId in his own task list database, and update this task model
 
             SingleObserver<List<TaskModel>> singleObserverGetAllTasks = new SingleObserver<List<TaskModel>>() {
                 @Override
-                public void onSubscribe(Disposable d) {}
+                public void onSubscribe(Disposable d) {
+                }
 
                 @Override
                 public void onSuccess(List<TaskModel> taskModelList) {
 
-                    Timber.i("onSuccess singleObserverGetAllTasks, updateTaskInDatabase. taskModelList.size(): %d" , taskModelList.size());
+                    Timber.i("onSuccess singleObserverGetAllTasks, updateTaskInDatabase. taskModelList.size(): %d", taskModelList.size());
 
 
                     // Extracts a list of all Ref Id from the list of all TaskModel objects
@@ -516,18 +604,10 @@ public class DatabaseOperation {
                     boolean isMatchedIdFound = taskModelList.stream().map(
                             TaskModel -> TaskModel.getId()).anyMatch(id -> id == taskModel.getRefId());
 
-//                    List<Long> matchedIdList = taskIdList.stream().
-//                            filter(id -> id == taskModel.getId()).
-//                            collect(Collectors.toList());
-
-//                    boolean isMatchedRefIdFound = taskRefIdList.stream().anyMatch(refId -> refId == taskModel.getRefId());
-
                     // Extracts a list of all Ref Id from the list of all TaskModel objects
                     // Finds a match between receiving model's RefId and own model's RefId from local database
                     boolean isMatchedRefIdFound = taskModelList.stream().map(
                             TaskModel -> TaskModel.getRefId()).anyMatch(refId -> refId == taskModel.getRefId());
-
-//                    boolean isMatchedRefIdFound = taskRefIdList.stream().anyMatch(refId -> refId == taskModel.getRefId());
 
                     // Set received task model's id to its own refId
                     // For both CCT and Team Lead recipients
@@ -547,7 +627,7 @@ public class DatabaseOperation {
                 @Override
                 public void onError(Throwable e) {
 
-                    Timber.e("onError singleObserverGetAllTasks, updateTaskInDatabase. Error Msg: %s" , e.toString());
+                    Timber.e("onError singleObserverGetAllTasks, updateTaskInDatabase. Error Msg: %s", e.toString());
 
 
                 }

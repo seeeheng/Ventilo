@@ -12,9 +12,11 @@ import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import sg.gov.dsta.mobileC3.ventilo.AsyncParallelTask;
 import sg.gov.dsta.mobileC3.ventilo.database.DAO.SitRepDao;
 import sg.gov.dsta.mobileC3.ventilo.database.VentiloDatabase;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
+import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 
 public class SitRepRepository {
 
@@ -45,21 +47,29 @@ public class SitRepRepository {
     public void getAllSitReps(SingleObserver singleObserver) {
         QueryAllSitRepsAsyncTask task = new
                 QueryAllSitRepsAsyncTask(mSitRepDao, singleObserver);
-        task.execute();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute();
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
-    /**
-     * Obtain Sit Rep based on Id with Id from local database
-     *
-     * @param sitRepId
-     * @param singleObserver
-     */
-    public void querySitRepById(long sitRepId, SingleObserver<SitRepModel> singleObserver) {
-        Single<SitRepModel> single = mSitRepDao.querySitRepById(sitRepId);
-        single.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(singleObserver);
-    }
+//    /**
+//     * Obtain Sit Rep based on Id with Id from local database
+//     *
+//     * @param sitRepId
+//     * @param singleObserver
+//     */
+//    public void querySitRepById(long sitRepId, SingleObserver<SitRepModel> singleObserver) {
+//        Single<SitRepModel> single = mSitRepDao.querySitRepById(sitRepId);
+//        single.subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(singleObserver);
+//    }
 
     /**
      * Obtain Sit Rep based on Ref Id with Id from local database
@@ -75,13 +85,34 @@ public class SitRepRepository {
     }
 
     /**
+     * Obtain Sit Rep based on created date and time from local database
+     *
+     * @param createdDateTime
+     * @param singleObserver
+     */
+    public void querySitRepByCreatedDateTime(String createdDateTime, SingleObserver<SitRepModel> singleObserver) {
+        Single<SitRepModel> single = mSitRepDao.querySitRepByCreatedDateTime(createdDateTime);
+        single.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(singleObserver);
+    }
+
+    /**
      * Insert Sit Rep model in local database with updates to Observer
      * @param sitRepModel
      * @param singleObserver
      */
     public void insertSitRepWithObserver(SitRepModel sitRepModel, SingleObserver singleObserver) {
         InsertWithObserverAsyncTask task = new InsertWithObserverAsyncTask(mSitRepDao, singleObserver);
-        task.execute(sitRepModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(sitRepModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**
@@ -91,7 +122,17 @@ public class SitRepRepository {
      */
     public void insertSitRep(SitRepModel sitRepModel) {
         InsertAsyncTask task = new InsertAsyncTask(mSitRepDao);
-        task.execute(sitRepModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(sitRepModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
+
+//        AsyncParallelTask.executeTask(task, sitRepModel);
     }
 
     /**
@@ -101,7 +142,15 @@ public class SitRepRepository {
      */
     public void updateSitRep(SitRepModel sitRepModel) {
         UpdateAsyncTask task = new UpdateAsyncTask(mSitRepDao);
-        task.execute(sitRepModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(sitRepModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**
@@ -111,7 +160,15 @@ public class SitRepRepository {
      */
     public void updateSitRepByRefId(SitRepModel sitRepModel) {
         UpdateByRefIdAsyncTask task = new UpdateByRefIdAsyncTask(mSitRepDao);
-        task.execute(sitRepModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(sitRepModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**
@@ -121,7 +178,15 @@ public class SitRepRepository {
      */
     public void deleteSitRep(long sitRepId) {
         DeleteAsyncTask task = new DeleteAsyncTask(mSitRepDao);
-        task.execute(sitRepId);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(sitRepId);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**
@@ -131,7 +196,15 @@ public class SitRepRepository {
      */
     public void deleteSitRepByRefId(long sitRepId) {
         DeleteByRefIdAsyncTask task = new DeleteByRefIdAsyncTask(mSitRepDao);
-        task.execute(sitRepId);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(sitRepId);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     /**
@@ -256,7 +329,8 @@ public class SitRepRepository {
                     sitRepModelToUpdate.getPersonnelT(), sitRepModelToUpdate.getPersonnelS(),
                     sitRepModelToUpdate.getPersonnelD(), sitRepModelToUpdate.getNextCoa(),
                     sitRepModelToUpdate.getRequest(), sitRepModelToUpdate.getOthers(),
-                    sitRepModelToUpdate.getCreatedDateTime());
+                    sitRepModelToUpdate.getCreatedDateTime(), sitRepModelToUpdate.getLastUpdatedDateTime(),
+                    sitRepModelToUpdate.getIsValid());
 
             return null;
         }

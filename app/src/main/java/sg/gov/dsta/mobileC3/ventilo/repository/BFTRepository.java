@@ -15,7 +15,7 @@ import io.reactivex.schedulers.Schedulers;
 import sg.gov.dsta.mobileC3.ventilo.database.DAO.BFTDao;
 import sg.gov.dsta.mobileC3.ventilo.database.VentiloDatabase;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
-import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
+import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 
 public class BFTRepository {
 
@@ -24,6 +24,10 @@ public class BFTRepository {
     public BFTRepository(Application application) {
         VentiloDatabase db = VentiloDatabase.getInstance(application);
         mBFTDao = db.bFTDao();
+    }
+
+    public LiveData<List<BFTModel>> getAllBFTsLiveData() {
+        return mBFTDao.getAllBFTsLiveData();
     }
 
     public LiveData<List<BFTModel>> getAllBFTsLiveDataForUser(String userId) {
@@ -37,43 +41,126 @@ public class BFTRepository {
     public void getAllBFTs(SingleObserver singleObserver) {
         QueryAllBFTsAsyncTask task = new
                 QueryAllBFTsAsyncTask(mBFTDao, singleObserver);
-        task.execute();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute();
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
-//    public void getAllBFTsLiveDataForUser(
-//            String userId, SingleObserver singleObserver) {
-//        QueryAllBFTsForUserAsyncTask task = new
-//                QueryAllBFTsForUserAsyncTask(mBFTDao, singleObserver);
-//        task.execute(userId);
-//    }
+    /**
+     * Get BFT model by Id from database
+     *
+     * @param id
+     * @param singleObserver
+     */
+    public void queryBFTById(long id, SingleObserver<BFTModel> singleObserver) {
+        Single<BFTModel> single = mBFTDao.getBFTById(id);
+        single.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(singleObserver);
+    }
 
-//    public void getVideoStreamUrlForUserByName(
-//            String userId, String videoName, SingleObserver singleObserver) {
-//        String[] paramsForGetUrl = {userId, videoName};
-//        QueryVideoStreamForUserByNameAsyncTask task = new
-//                QueryVideoStreamForUserByNameAsyncTask(mBFTDao, singleObserver);
-//        task.execute(paramsForGetUrl);
-//    }
+    /**
+     * Get BFT model by Ref Id from database
+     *
+     * @param refId
+     * @param singleObserver
+     */
+    public void queryBFTByRefId(long refId, SingleObserver<BFTModel> singleObserver) {
+        Single<BFTModel> single = mBFTDao.getBFTByRefId(refId);
+        single.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(singleObserver);
+    }
 
-//    public void insertVideoStreamWithObserver(VideoStreamModel videoStreamModel,
-//                                              SingleObserver singleObserver) {
-//        InsertWithObserverAsyncTask task = new InsertWithObserverAsyncTask(mBFTDao, singleObserver);
-//        task.execute(videoStreamModel);
-//    }
+    /**
+     * Get Own Type BFT model from database
+     *
+     * @param userId
+     * @param type
+     * @param singleObserver
+     */
+    public void queryBFTByUserIdAndType(String userId, String type,
+                                        SingleObserver<List<BFTModel>> singleObserver) {
+        Single<List<BFTModel>> single = mBFTDao.getBFTByUserIdAndType(userId, type);
+        single.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(singleObserver);
+    }
+
+    /**
+     * Get existing BFT model from database based on userId, type and created date & time
+     *
+     * @param userId
+     * @param type
+     * @param createdDateTime
+     * @param singleObserver
+     */
+    public void queryBFTByUserIdAndTypeAndCreatedDateTime(String userId, String type,
+                                                          String createdDateTime,
+                                                          SingleObserver<List<BFTModel>> singleObserver) {
+        Single<List<BFTModel>> single = mBFTDao.getBFTByUserIdAndTypeAndCreatedDateTime(userId,
+                type, createdDateTime);
+        single.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(singleObserver);
+    }
 
     public void insertBFT(BFTModel bFTModel) {
         InsertAsyncTask task = new InsertAsyncTask(mBFTDao);
-        task.execute(bFTModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(bFTModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
+    }
+
+    public void insertBFTWithObserver(BFTModel bFTModel, SingleObserver singleObserver) {
+        InsertWithObserverAsyncTask task = new InsertWithObserverAsyncTask(mBFTDao, singleObserver);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(bFTModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     public void updateBFT(BFTModel bFTModel) {
         UpdateAsyncTask task = new UpdateAsyncTask(mBFTDao);
-        task.execute(bFTModel);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(bFTModel);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     public void deleteBFT(long bFTId) {
         DeleteAsyncTask task = new DeleteAsyncTask(mBFTDao);
-        task.execute(bFTId);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(bFTId);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
     private static class QueryAllBFTsAsyncTask extends AsyncTask<String, Void, Void> {
@@ -203,6 +290,24 @@ public class BFTRepository {
 //        }
 //    }
 
+//    private static class InsertAsyncTask extends AsyncTask<BFTModel, Void, Void> {
+//
+//        private BFTDao asyncBFTDao;
+//
+//        InsertAsyncTask(BFTDao dao) {
+//            asyncBFTDao = dao;
+//        }
+//
+//        @Override
+//        protected Void doInBackground(final BFTModel... bFTModel) {
+//            asyncBFTDao.insertBFTModel(bFTModel[0]);
+//            return null;
+//        }
+//    }
+
+    /**
+     * Execute insertion of Bft model into database as a background task
+     */
     private static class InsertAsyncTask extends AsyncTask<BFTModel, Void, Void> {
 
         private BFTDao asyncBFTDao;
@@ -212,8 +317,37 @@ public class BFTRepository {
         }
 
         @Override
-        protected Void doInBackground(final BFTModel... bFTModel) {
-            asyncBFTDao.insertBFTModel(bFTModel[0]);
+        protected Void doInBackground(final BFTModel... bftModel) {
+            asyncBFTDao.insertBFTModel(bftModel[0]);
+            return null;
+        }
+    }
+
+    /**
+     * Execute insertion of Bft model into database as a background task, and sends
+     * id to subscribed Observer object
+     */
+    private static class InsertWithObserverAsyncTask extends AsyncTask<BFTModel, Void, Void> {
+
+        private BFTDao asyncBFTDao;
+        private SingleObserver asyncSingleObserver;
+
+        InsertWithObserverAsyncTask(BFTDao dao, SingleObserver singleObserver) {
+            asyncBFTDao = dao;
+            asyncSingleObserver = singleObserver;
+        }
+
+        @Override
+        protected Void doInBackground(final BFTModel... bftModel) {
+            // Converts type Long to Observable, then to Single for RxJava use
+            Long insertedBftId = asyncBFTDao.insertBFTModel(bftModel[0]);
+            Observable<Long> observableInsertedBftId = Observable.just(insertedBftId);
+            Single<Long> singleInsertedBftId = Single.fromObservable(observableInsertedBftId);
+
+            singleInsertedBftId.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(asyncSingleObserver);
+
             return null;
         }
     }

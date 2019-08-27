@@ -1,10 +1,5 @@
 package sg.gov.dsta.mobileC3.ventilo.network.jeroMQ;
 
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.util.Log;
-
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
@@ -12,23 +7,19 @@ import org.zeromq.ZMQ.Socket;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 import sg.gov.dsta.mobileC3.ventilo.util.PowerManagerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.network.NetworkUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import timber.log.Timber;
 
-public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSubscriberRunnable.CloseSocketsListener {
+public class JeroMQSubscriber extends JeroMQParent implements JeroMQSubscriberRunnable.CloseSocketsListener {
 
     //    private static final Logger LOGGER = LoggerFactory.getLogger(JeroMQSubscriber.class);
     private static final String TAG = JeroMQSubscriber.class.getSimpleName();
-    private static final int DEFAULT_PORT = 5556;
 
 //    protected static final String CLIENT_SUB_IP_ADDRESS = "tcp://192.168.1.2:" +
 //            JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT;
@@ -47,7 +38,8 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSu
      * Creates a super class instance
      */
     private JeroMQSubscriber() {
-        super(Executors.newSingleThreadExecutor());
+//        super(Executors.newSingleThreadExecutor());
+        super(CustomThreadPoolManager.getInstance());
         mZContext = new ZContext();
         mClientSubEndpointList = new ArrayList<>();
         mSocketList = new ArrayList<>();
@@ -65,11 +57,11 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSu
                 if (instance == null) {
                     instance = new JeroMQSubscriber();
                 } else {
-                    instance.initExecutorService();
+                    instance.initCustomThreadPoolManagerService();
                 }
             }
         } else {
-            instance.initExecutorService();
+            instance.initCustomThreadPoolManagerService();
         }
 
         return instance;
@@ -81,14 +73,14 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSu
      * Topics are defined as the first word of each incoming message
      */
     @Override
-    protected void startClientProcess() {
-        Timber.i("Start client sub sockets connection");
+    protected void startProcess() {
+        Timber.i("Start client SUB sockets connection");
 
         // Add client IP Addresses to be connected to in this address list
 //        mClientSubEndpointList.add("tcp://192.168.1.3:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 //        mClientSubEndpointList.add("tcp://192.168.1.2:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
-//        mClientSubEndpointList.add("tcp://192.168.1.3:" + DEFAULT_PORT);
-//        mClientSubEndpointList.add("tcp://192.168.1.4:" + DEFAULT_PORT);
+//        mClientSubEndpointList.add("tcp://192.168.1.3:" + PUB_SUB_PORT);
+//        mClientSubEndpointList.add("tcp://192.168.1.4:" + PUB_SUB_PORT);
 
 //        mClientSubEndpointList.add("tcp://192.168.1.17:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
 //        mClientSubEndpointList.add("tcp://192.168.1.58:" + JeroMQPubSubBrokerProxy.DEFAULT_XPUB_PORT);
@@ -116,36 +108,30 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSu
 
         String[] fixedIpAddresses = MainApplication.getAppContext().getResources().
                 getStringArray(R.array.login_user_mobile_ip_addresses);
-        Timber.i("Own Device IP Address to be excluded for broadcast: %s" ,ownDeviceIpAddress);
-
+        Timber.i("OWN Device IP Address to be excluded for broadcast: %s", ownDeviceIpAddress);
 
         for (int i = 0; i < fixedIpAddresses.length; i++) {
             if (!ownDeviceIpAddress.equalsIgnoreCase(fixedIpAddresses[i])) {
                 String endpoint = "tcp://";
                 endpoint = endpoint.concat(fixedIpAddresses[i]).concat(StringUtil.COLON);
-                endpoint = endpoint.concat(String.valueOf(DEFAULT_PORT));
+                endpoint = endpoint.concat(String.valueOf(PUB_SUB_PORT));
 
-
-                Timber.i("Endpoint %d %s " , i , endpoint);
-
+                Timber.i("Endpoint %d %s ", i, endpoint);
 
                 mClientSubEndpointList.add(endpoint);
             }
         }
 
-        Timber.i("Client sub sockets connected");
+        Timber.i("Creating and connecting SUB socket...");
 
-        mExecutorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                PowerManagerUtil.acquirePartialWakeLock();
+        PowerManagerUtil.acquirePartialWakeLock();
 
-                for (int i = 0; i < mClientSubEndpointList.size(); i++) {
-                    Socket socket = mZContext.createSocket(SocketType.SUB);
+        for (int i = 0; i < mClientSubEndpointList.size(); i++) {
+            Socket socket = mZContext.createSocket(SocketType.SUB);
 //            socket.setHWM(5000);
-                    socket.setMaxMsgSize(-1);
-                    socket.setLinger(0);
-                    socket.connect(mClientSubEndpointList.get(i));
+            socket.setMaxMsgSize(-1);
+            socket.setLinger(0);
+            socket.connect(mClientSubEndpointList.get(i));
 //                    boolean isConnected;
 //                    isConnected = socket.connect(mClientSubEndpointList.get(i));
 //                    if (BuildConfig.DEBUG && !(isConnected)) { throw new AssertionError(); }
@@ -156,21 +142,23 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSu
 //                    } catch (InterruptedException e) {
 //                        e.printStackTrace();
 //                    }
-                    mSocketList.add(socket);
-                }
-                Timber.i("Creating and connecting SUB socket...");
+            mSocketList.add(socket);
+        }
 
+        Timber.i("Client SUB sockets connected");
 
-                //  Initialize poll set
-                ZMQ.Poller items = mZContext.createPoller(mSocketList.size());
-                for (int i = 0; i < mSocketList.size(); i++) {
-                    items.register(mSocketList.get(i), ZMQ.Poller.POLLIN);
-                }
+        //  Initialize poll set
+        ZMQ.Poller items = mZContext.createPoller(mSocketList.size());
+        for (int i = 0; i < mSocketList.size(); i++) {
+            items.register(mSocketList.get(i), ZMQ.Poller.POLLIN);
+        }
 
-                mJeroMQSubscriberRunnable = new JeroMQSubscriberRunnable(mSocketList, items,
-                        JeroMQSubscriber.this);
-                Thread JeroMQSubscriberThread = new Thread(mJeroMQSubscriberRunnable);
-                JeroMQSubscriberThread.start();
+        mJeroMQSubscriberRunnable = new JeroMQSubscriberRunnable(mSocketList, items,
+                JeroMQSubscriber.this);
+//                Thread JeroMQSubscriberThread = new Thread(mJeroMQSubscriberRunnable);
+//                JeroMQSubscriberThread.start();
+
+        mCustomThreadPoolManager.addRunnable(mJeroMQSubscriberRunnable);
 
 //                for (int i = 0; i < mSocketList.size(); i++) {
 ////                    final String currentAddress = CLIENT_SUB_IP_ADDRESSES.get(i);
@@ -182,9 +170,7 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSu
 //                    JeroMQSubscriberThread.start();
 //                }
 
-                PowerManagerUtil.releasePartialWakeLock();
-            }
-        });
+        PowerManagerUtil.releasePartialWakeLock();
     }
 
     /**
@@ -197,10 +183,6 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSu
         if (mJeroMQSubscriberRunnable != null) {
             mJeroMQSubscriberRunnable.closePoller();
         }
-
-//        CloseSocketAsyncTask task = new CloseSocketAsyncTask(mZContext,
-//                mSocketList, mClientSubEndpointList);
-//        task.execute();
     }
 
     @Override
@@ -212,14 +194,14 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSu
                 if (mClientSubEndpointList != null &&
                         mClientSubEndpointList.get(i) != null) {
                     socket.disconnect(mClientSubEndpointList.get(i));
-                    Timber.i("Client sub socket disconnected %d" , i);
+                    Timber.i("Client SUB socket disconnected %d", i);
 
                     socket.close();
-                    Timber.i("Client sub socket closed %d" , i);
+                    Timber.i("Client SUB socket closed %d", i);
                 }
 
                 mZContext.destroySocket(socket);
-                Timber.i("Client sub socket destroyed %d" , i);
+                Timber.i("Client SUB socket destroyed %d", i);
             }
         }
 
@@ -229,7 +211,6 @@ public class JeroMQSubscriber extends JeroMQParentSubscriber implements JeroMQSu
             mZContext.destroy();
 
             Timber.i("ZContext destroyed.");
-
         }
     }
 

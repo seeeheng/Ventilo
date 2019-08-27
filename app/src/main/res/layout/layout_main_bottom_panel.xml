@@ -39,11 +39,21 @@
             android:paddingEnd="@dimen/elements_small_margin_spacing"
             android:paddingBottom="@dimen/minor_margin">
 
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
+                android:id="@+id/tv_bottom_panel_radio_number"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/bottom_panel_sub_components_height"
+                android:gravity="center_vertical"
+                android:text="Radio: 4"
+                android:textColor="@color/primary_white"
+                android:textSize="@dimen/text_view_small_text_size" />
+
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/img_bottom_panel_radio_link_status_icon"
                 android:layout_width="@dimen/bottom_panel_radio_link_status_icon_width"
                 android:layout_height="@dimen/bottom_panel_radio_link_status_icon_height"
                 android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/elements_margin_spacing"
                 app:srcCompat="@drawable/icon_online" />
 
             <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
@@ -52,29 +62,29 @@
                 android:layout_height="@dimen/bottom_panel_sub_components_height"
                 android:layout_marginStart="@dimen/elements_small_margin_spacing"
                 android:gravity="center_vertical"
-                android:text="ONLINE"
+                android:text="Online"
                 android:textColor="@color/dull_green"
                 android:textSize="@dimen/text_view_small_text_size" />
 
             <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
-                android:id="@+id/tv_bottom_panel_last_connection_date"
+                android:id="@+id/tv_bottom_panel_last_connection_date_time"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/bottom_panel_sub_components_height"
-                android:layout_marginStart="@dimen/elements_margin_spacing"
+                android:layout_marginStart="@dimen/elements_small_margin_spacing"
                 android:gravity="center_vertical"
-                android:text="1 Mar 2019"
+                android:text="@string/btm_panel_since"
                 android:textColor="@color/primary_white"
                 android:textSize="@dimen/text_view_small_text_size" />
 
-            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView
-                android:id="@+id/tv_bottom_panel_last_connection_time"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/bottom_panel_sub_components_height"
-                android:layout_marginStart="@dimen/elements_margin_spacing"
-                android:gravity="center_vertical"
-                android:text="15:30"
-                android:textColor="@color/primary_highlight_cyan"
-                android:textSize="@dimen/text_view_small_text_size" />
+            <!--<sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView-->
+                <!--android:id="@+id/tv_bottom_panel_last_connection_date"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="@dimen/bottom_panel_sub_components_height"-->
+                <!--android:layout_marginStart="@dimen/elements_margin_spacing"-->
+                <!--android:gravity="center_vertical"-->
+                <!--android:text="1 Mar 2019"-->
+                <!--android:textColor="@color/primary_white"-->
+                <!--android:textSize="@dimen/text_view_small_text_size" />-->
 
         </LinearLayout>
 
@@ -102,7 +112,7 @@
                     android:layout_width="@dimen/bottom_panel_user_callsign_icon_width"
                     android:layout_height="@dimen/bottom_panel_user_callsign_icon_height"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/icon_team"
+                    android:src="@drawable/icon_personnel"
                     android:tint="@color/primary_white" />
 
             </LinearLayout>

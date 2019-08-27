@@ -69,7 +69,7 @@
                     android:gravity="center"
                     android:padding="@dimen/elements_margin_spacing"
                     android:textColor="@color/primary_white"
-                    android:textSize="@dimen/text_view_small_text_size"
+                    android:textSize="@dimen/text_view_text_size"
                     android:visibility="gone" />
 
                 <android.support.v7.widget.AppCompatImageView
@@ -92,7 +92,7 @@
                     android:gravity="center"
                     android:padding="@dimen/elements_margin_spacing"
                     android:textColor="@color/primary_white"
-                    android:textSize="@dimen/text_view_small_text_size"
+                    android:textSize="@dimen/text_view_text_size"
                     android:visibility="gone" />
 
                 <android.support.v7.widget.AppCompatImageView

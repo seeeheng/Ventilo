@@ -25,8 +25,28 @@ public class BFTViewModel extends AndroidViewModel {
         repository.getAllBFTs(singleObserver);
     }
 
+    public LiveData<List<BFTModel>> getAllBFTsLiveData() {
+        return repository.getAllBFTsLiveData();
+    }
+
     public LiveData<List<BFTModel>> getAllBFTsLiveDataForUser(String userId) {
         return repository.getAllBFTsLiveDataForUser(userId);
+    }
+
+    public void queryBFTById(long id, SingleObserver<BFTModel> singleObserver) {
+        repository.queryBFTById(id, singleObserver);
+    }
+
+    public void queryBFTByUserIdAndType(String userId, String type,
+                                        SingleObserver<List<BFTModel>> singleObserver) {
+        repository.queryBFTByUserIdAndType(userId, type, singleObserver);
+    }
+
+    public void queryBFTByUserIdAndTypeAndCreatedDateTime(String userId, String type,
+                                        String createdDateTime,
+                                        SingleObserver<List<BFTModel>> singleObserver) {
+        repository.queryBFTByUserIdAndTypeAndCreatedDateTime(userId, type,
+                createdDateTime, singleObserver);
     }
 
 //
@@ -45,6 +65,10 @@ public class BFTViewModel extends AndroidViewModel {
 
     public void insertBFT(BFTModel bFTModel) {
         repository.insertBFT(bFTModel);
+    }
+
+    public void insertBFTWithObserver(BFTModel bFTModel, SingleObserver singleObserver) {
+        repository.insertBFTWithObserver(bFTModel, singleObserver);
     }
 
 //    public void insertVideoStream(VideoStreamModel videoStreamModel,

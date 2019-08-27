@@ -12,7 +12,6 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +35,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.EIsValid;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EAdHocTaskPriority;
@@ -85,10 +85,10 @@ public class TaskFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setRetainInstance(true);
+        observerSetup();
 
         if (mRootView == null) {
             mRootView = inflater.inflate(R.layout.fragment_task, container, false);
-            observerSetup();
             initUI(mRootView);
         }
 
@@ -174,10 +174,10 @@ public class TaskFragment extends Fragment {
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         // CCT will be able to view but NOT change task's status
-        if (!EAccessRight.CCT.toString().equalsIgnoreCase(
-                SharedPreferenceUtil.getCurrentUserAccessRight())) {
+//        if (!EAccessRight.CCT.toString().equalsIgnoreCase(
+//                SharedPreferenceUtil.getCurrentUserAccessRight())) {
             setUpSwipeHelper();
-        }
+//        }
 
         // Set up floating action button
         mFabAddTask = rootView.findViewById(R.id.fab_task_add);
@@ -274,90 +274,97 @@ public class TaskFragment extends Fragment {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
                 if (viewHolder instanceof TaskViewHolder) {
-                    TaskViewHolder taskViewHolder = (TaskViewHolder) viewHolder;
-                    String taskStatus = taskViewHolder.getTvStatus().getText().toString().trim();
 
-                    int firstSwipeActionButtonImageId = 0;
-                    int secondSwipeActionButtonImageId = 0;
+                    // Team Lead is able to set task's status but NOT delete them
+                    if (!EAccessRight.CCT.toString().equalsIgnoreCase(
+                            SharedPreferenceUtil.getCurrentUserAccessRight())) {
+                        TaskViewHolder taskViewHolder = (TaskViewHolder) viewHolder;
+                        String taskStatus = taskViewHolder.getTvStatus().getText().toString().trim();
 
-                    if (EStatus.NEW.toString().equalsIgnoreCase(taskStatus)) {
-                        firstSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_in_progress;
-                        secondSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_complete;
+                        int firstSwipeActionButtonImageId = 0;
+                        int secondSwipeActionButtonImageId = 0;
 
-                    } else if (EStatus.IN_PROGRESS.toString().equalsIgnoreCase(taskStatus)) {
-                        firstSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_new;
-                        secondSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_complete;
+                        if (EStatus.NEW.toString().equalsIgnoreCase(taskStatus)) {
+                            firstSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_in_progress;
+                            secondSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_complete;
 
-                    } else {
-                        firstSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_new;
-                        secondSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_in_progress;
+                        } else if (EStatus.IN_PROGRESS.toString().equalsIgnoreCase(taskStatus)) {
+                            firstSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_new;
+                            secondSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_complete;
+
+                        } else {
+                            firstSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_new;
+                            secondSwipeActionButtonImageId = R.drawable.btn_task_swipe_action_status_in_progress;
+                        }
+
+                        final Drawable firstSwipeActionButtonImageDrawable =
+                                ResourcesCompat.getDrawable(getResources(),
+                                        firstSwipeActionButtonImageId, null);
+
+                        SwipeHelper.UnderlayButton firstUnderlayButton = new SwipeHelper.UnderlayButton(
+                                "", firstSwipeActionButtonImageDrawable, null,
+                                new SwipeHelper.UnderlayButtonClickListener() {
+                                    @Override
+                                    public void onClick(int pos) {
+                                        if (DrawableUtil.areDrawablesIdentical(firstSwipeActionButtonImageDrawable,
+                                                ResourcesCompat.getDrawable(getResources(),
+                                                        R.drawable.btn_task_swipe_action_status_new, null))) {
+                                            setTaskStatusNew(pos);
+                                        } else if (DrawableUtil.areDrawablesIdentical(firstSwipeActionButtonImageDrawable,
+                                                ResourcesCompat.getDrawable(getResources(),
+                                                        R.drawable.btn_task_swipe_action_status_in_progress, null))) {
+                                            setTaskStatusInProgress(pos);
+                                        } else {
+                                            setTaskStatusComplete(pos);
+                                        }
+                                    }
+                                }
+                        );
+
+                        final Drawable secondSwipeActionButtonImageDrawable =
+                                ResourcesCompat.getDrawable(getResources(),
+                                        secondSwipeActionButtonImageId, null);
+
+                        SwipeHelper.UnderlayButton secondUnderlayButton = new SwipeHelper.UnderlayButton(
+                                "", secondSwipeActionButtonImageDrawable, null,
+                                new SwipeHelper.UnderlayButtonClickListener() {
+                                    @Override
+                                    public void onClick(int pos) {
+                                        if (DrawableUtil.areDrawablesIdentical(secondSwipeActionButtonImageDrawable,
+                                                ResourcesCompat.getDrawable(getResources(),
+                                                        R.drawable.btn_task_swipe_action_status_new, null))) {
+                                            setTaskStatusNew(pos);
+                                        } else if (DrawableUtil.areDrawablesIdentical(secondSwipeActionButtonImageDrawable,
+                                                ResourcesCompat.getDrawable(getResources(),
+                                                        R.drawable.btn_task_swipe_action_status_in_progress, null))) {
+                                            setTaskStatusInProgress(pos);
+                                        } else {
+                                            setTaskStatusComplete(pos);
+                                        }
+                                    }
+                                }
+                        );
+
+                        underlayButtons.add(secondUnderlayButton);
+                        underlayButtons.add(firstUnderlayButton);
+
+                    } else { // CCT will only be able to delete tasks
+                        Drawable deleteSwipeActionButtonImageDrawable =
+                                ResourcesCompat.getDrawable(getResources(),
+                                        R.drawable.btn_task_swipe_action_status_delete, null);
+
+                        SwipeHelper.UnderlayButton deleteUnderlayButton = new SwipeHelper.UnderlayButton(
+                                "", deleteSwipeActionButtonImageDrawable, null,
+                                new SwipeHelper.UnderlayButtonClickListener() {
+                                    @Override
+                                    public void onClick(int pos) {
+                                        deleteTask(pos);
+                                    }
+                                }
+                        );
+
+                        underlayButtons.add(deleteUnderlayButton);
                     }
-
-                    final Drawable firstSwipeActionButtonImageDrawable =
-                            ResourcesCompat.getDrawable(getResources(),
-                                    firstSwipeActionButtonImageId, null);
-
-                    SwipeHelper.UnderlayButton firstUnderlayButton = new SwipeHelper.UnderlayButton(
-                            "", firstSwipeActionButtonImageDrawable, null,
-                            new SwipeHelper.UnderlayButtonClickListener() {
-                                @Override
-                                public void onClick(int pos) {
-                                    if (DrawableUtil.areDrawablesIdentical(firstSwipeActionButtonImageDrawable,
-                                            ResourcesCompat.getDrawable(getResources(),
-                                                    R.drawable.btn_task_swipe_action_status_new, null))) {
-                                        setTaskStatusNew(pos);
-                                    } else if (DrawableUtil.areDrawablesIdentical(firstSwipeActionButtonImageDrawable,
-                                            ResourcesCompat.getDrawable(getResources(),
-                                                    R.drawable.btn_task_swipe_action_status_in_progress, null))) {
-                                        setTaskStatusInProgress(pos);
-                                    } else {
-                                        setTaskStatusComplete(pos);
-                                    }
-                                }
-                            }
-                    );
-
-                    final Drawable secondSwipeActionButtonImageDrawable =
-                            ResourcesCompat.getDrawable(getResources(),
-                                    secondSwipeActionButtonImageId, null);
-
-                    SwipeHelper.UnderlayButton secondUnderlayButton = new SwipeHelper.UnderlayButton(
-                            "", secondSwipeActionButtonImageDrawable, null,
-                            new SwipeHelper.UnderlayButtonClickListener() {
-                                @Override
-                                public void onClick(int pos) {
-                                    if (DrawableUtil.areDrawablesIdentical(secondSwipeActionButtonImageDrawable,
-                                            ResourcesCompat.getDrawable(getResources(),
-                                                    R.drawable.btn_task_swipe_action_status_new, null))) {
-                                        setTaskStatusNew(pos);
-                                    } else if (DrawableUtil.areDrawablesIdentical(secondSwipeActionButtonImageDrawable,
-                                            ResourcesCompat.getDrawable(getResources(),
-                                                    R.drawable.btn_task_swipe_action_status_in_progress, null))) {
-                                        setTaskStatusInProgress(pos);
-                                    } else {
-                                        setTaskStatusComplete(pos);
-                                    }
-                                }
-                            }
-                    );
-
-                    Drawable deleteSwipeActionButtonImageDrawable =
-                            ResourcesCompat.getDrawable(getResources(),
-                                    R.drawable.btn_task_swipe_action_status_delete, null);
-
-                    SwipeHelper.UnderlayButton deleteUnderlayButton = new SwipeHelper.UnderlayButton(
-                            "", deleteSwipeActionButtonImageDrawable, null,
-                            new SwipeHelper.UnderlayButtonClickListener() {
-                                @Override
-                                public void onClick(int pos) {
-                                    deleteTask(pos);
-                                }
-                            }
-                    );
-
-                    underlayButtons.add(deleteUnderlayButton);
-                    underlayButtons.add(secondUnderlayButton);
-                    underlayButtons.add(firstUnderlayButton);
                 }
             }
         };
@@ -417,23 +424,29 @@ public class TaskFragment extends Fragment {
         String[] assignedToPersonnel = StringUtil.removeCommasAndExtraSpaces(taskModelAtPos.getAssignedTo());
         String[] statusGroup = StringUtil.removeCommasAndExtraSpaces(taskModelAtPos.getStatus());
         String[] completedDateTimeGroup = StringUtil.removeCommasAndExtraSpaces(taskModelAtPos.getCompletedDateTime());
+        String[] lastUpdatedDateTimeGroup = StringUtil.removeCommasAndExtraSpaces(taskModelAtPos.getLastUpdatedStatusDateTime());
+
         for (int i = 0; i < assignedToPersonnel.length; i++) {
             if (assignedToPersonnel[i].equalsIgnoreCase(
                     SharedPreferenceUtil.getCurrentUserCallsignID())) {
                 statusGroup[i] = newStatus;
 
                 if (newStatus.equalsIgnoreCase(EStatus.COMPLETE.toString())) {
-                    completedDateTimeGroup[i] = DateTimeUtil.getCurrentTime();
+                    completedDateTimeGroup[i] = DateTimeUtil.getCurrentDateTime();
                 } else {
                     completedDateTimeGroup[i] = StringUtil.INVALID_STRING;
                 }
+
+                lastUpdatedDateTimeGroup[i] = DateTimeUtil.getCurrentDateTime();
             }
         }
 
         String status = String.join(StringUtil.COMMA, statusGroup);
         String completedDateTime = String.join(StringUtil.COMMA, completedDateTimeGroup);
+        String lastUpdatedDateTime = String.join(StringUtil.COMMA, lastUpdatedDateTimeGroup);
         taskModelAtPos.setStatus(status);
         taskModelAtPos.setCompletedDateTime(completedDateTime);
+        taskModelAtPos.setLastUpdatedStatusDateTime(lastUpdatedDateTime);
 
         return taskModelAtPos;
     }
@@ -735,6 +748,23 @@ public class TaskFragment extends Fragment {
     }
 
     /**
+     * Obtain all VALID Task Models from database
+     * @param taskModelList
+     * @return
+     */
+    private List<TaskModel> getAllValidTaskListFromDatabase(List<TaskModel> taskModelList) {
+
+        List<TaskModel> validTaskModelList = new ArrayList<>();
+
+        validTaskModelList = taskModelList.stream().
+                filter(taskModel -> EIsValid.YES.toString().
+                        equalsIgnoreCase(taskModel.getIsValid())).
+                collect(Collectors.toList());
+
+        return validTaskModelList;
+    }
+
+    /**
      * Set up observer for live updates on view models and update UI accordingly
      */
     private void observerSetup() {
@@ -748,34 +778,44 @@ public class TaskFragment extends Fragment {
         mTaskViewModel.getAllTasksLiveData().observe(this, new Observer<List<TaskModel>>() {
             @Override
             public void onChanged(@Nullable List<TaskModel> taskModelList) {
-                if (mTaskListItems == null) {
-                    mTaskListItems = new ArrayList<>();
-                } else {
-                    mTaskListItems.clear();
-                }
 
-                if (taskModelList != null) {
-                    List<TaskModel> taskModelListForDisplay;
+                synchronized (mTaskListItems) {
 
-                    // Show only current user's task list if access right is NOT 'CCT'
-                    if (!EAccessRight.CCT.toString().equalsIgnoreCase(
-                            SharedPreferenceUtil.getCurrentUserAccessRight())) {
-                        taskModelListForDisplay = getCurrentUserTasks(taskModelList);
+                    List<TaskModel> validTaskModelList = null;
 
-                    } else {
-                        taskModelListForDisplay = taskModelList;
+                    if (taskModelList != null) {
+                        validTaskModelList = getAllValidTaskListFromDatabase(taskModelList);
                     }
 
-                    // Sort task list accordingly based on importance (more details in method)
-                    List<TaskModel> sortedTaskModelList = sortTaskListItems(taskModelListForDisplay);
-                    mTaskListItems.addAll(sortedTaskModelList);
-                }
+                    if (mTaskListItems == null) {
+                        mTaskListItems = new ArrayList<>();
+                    } else {
+                        mTaskListItems.clear();
+                    }
 
-                if (mRecyclerAdapter != null) {
-                    mRecyclerAdapter.setTaskListItems(mTaskListItems);
-                }
+                    if (validTaskModelList != null) {
+                        List<TaskModel> taskModelListForDisplay;
 
-                refreshDashboardUI();
+                        // Show only current user's task list if access right is NOT 'CCT'
+                        if (!EAccessRight.CCT.toString().equalsIgnoreCase(
+                                SharedPreferenceUtil.getCurrentUserAccessRight())) {
+                            taskModelListForDisplay = getCurrentUserTasks(validTaskModelList);
+
+                        } else {
+                            taskModelListForDisplay = validTaskModelList;
+                        }
+
+                        // Sort task list accordingly based on importance (more details in method)
+                        List<TaskModel> sortedTaskModelList = sortTaskListItems(taskModelListForDisplay);
+                        mTaskListItems.addAll(sortedTaskModelList);
+                    }
+
+                    if (mRecyclerAdapter != null) {
+                        mRecyclerAdapter.setTaskListItems(mTaskListItems);
+                    }
+
+                    refreshDashboardUI();
+                }
             }
         });
     }
@@ -846,17 +886,13 @@ public class TaskFragment extends Fragment {
     }
 
     private void onVisible() {
-
         Timber.i("onVisible");
-
-
         enableFabAddTask();
+        mRecyclerAdapter.notifyDataSetChanged();
     }
 
     private void onInvisible() {
-
         Timber.i("onInvisible");
-
     }
 
     @Override

@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
-import android.hardware.usb.UsbManager;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,17 +19,21 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatImageView;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
@@ -50,14 +52,16 @@ import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
+import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
+import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.WaveRelayRadioViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
 import sg.gov.dsta.mobileC3.ventilo.network.waveRelayRadio.WaveRelayRadioAsyncTask;
 import sg.gov.dsta.mobileC3.ventilo.network.waveRelayRadio.WaveRelayRadioClient;
-import sg.gov.dsta.mobileC3.ventilo.network.waveRelayRadio.WaveRelayRadioSocketClient;
+import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.JSONUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
@@ -65,8 +69,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.USBConnectionConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.network.NetworkUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.videoStream.EOwner;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
 import timber.log.Timber;
@@ -75,16 +78,13 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    // MQTT
-    private static final String MQTT_TOPIC_TASK = "Task";
-    private static final String MQTT_TOPIC_INCIDENT = "Incident";
-
     // View Models
     private UserViewModel mUserViewModel;
     private WaveRelayRadioViewModel mWaveRelayRadioViewModel;
+    private VideoStreamViewModel mVideoStreamViewModel;
 
     // Main
-    private RelativeLayout mLayoutMain;
+    private RelativeLayout mMainLayout;
 
     private NoSwipeViewPager mNoSwipeViewPager;
 //    private BottomNavigationView mBottomNavigationView;
@@ -98,13 +98,6 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
     private ImageView mImgViewTabTask;
     private ImageView mImgViewTabRadioLink;
 
-    private RelativeLayout mRelativeLayoutTabMap;
-    private RelativeLayout mRelativeLayoutTabVideoStream;
-    private RelativeLayout mRelativeLayoutTabReport;
-    private RelativeLayout mRelativeLayoutTabTimeline;
-    private RelativeLayout mRelativeLayoutTabTask;
-    private RelativeLayout mRelativeLayoutTabRadioLink;
-
     private LinearLayout mLinearLayoutLineSelectorMap;
     private LinearLayout mLinearLayoutLineSelectorVideoStream;
     private LinearLayout mLinearLayoutLineSelectorReport;
@@ -117,10 +110,8 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
     private C2OpenSansBoldTextView mTvFragmentTitle;
     private AppCompatImageView mImgRadioLinkStatus;
     private C2OpenSansBoldTextView mTvRadioLinkStatus;
-    private C2OpenSansBoldTextView mTvLastConnectionDate;
-    private C2OpenSansBoldTextView mTvLastConnectionTime;
-    private C2OpenSansBoldTextView mTvCallsign;
-    private LinearLayout mLayoutSetting;
+    private C2OpenSansBoldTextView mTvRadioNumber;
+    private C2OpenSansBoldTextView mTvLastConnectionDateTime;
     private AppCompatImageView mImgSetting;
     private C2OpenSansBoldTextView mTvSetting;
 
@@ -138,25 +129,19 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
 //    private MapView mMapView;
 
     private WaveRelayRadioAsyncTask mWaveRelayRadioAsyncTask;
-    private WaveRelayRadioClient mWaveRelayRadioClient;
+//    private WaveRelayRadioClient mWaveRelayRadioClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mLayoutMain = findViewById(R.id.layout_main_activity);
-
-//        DimensionUtil.convertPixelToDps(20);
-
-//        setBroadcastReceivers();
+        mMainLayout = findViewById(R.id.layout_main_activity);
 
         observerSetup();
-        initNetwork();
+        initNetworkAndPopulateVideoStreamData();
         initSideMenuPanel();
         initBottomPanel();
         initSnackbar();
-//        ownUserId = 10;
-//        ownUserId = Long.parseLong(getIntent().getStringExtra("USER_ID"));
 
         MainStatePagerAdapter mainStatePagerAdapter = new MainStatePagerAdapter(
                 getSupportFragmentManager(), getApplication().getApplicationContext());
@@ -165,79 +150,59 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
         mNoSwipeViewPager.setPagingEnabled(false);
     }
 
-//    private void setBroadcastReceivers() {
-//        //Reference: http://www.codepool.biz/how-to-monitor-usb-events-on-android.html
-//
-//        mUsbReceiver = new BroadcastReceiver() {
-//
-//            String usbStateChangeAction = "android.hardware.usb.action.USB_STATE";
-//
-//            public void onReceive(Context context, Intent intent) {
-////                String action = intent.getAction();
-////                Log.d(LOG_TAG, "Received Broadcast: "+action);
-////                if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action) || UsbManager.ACTION_USB_ACCESSORY_ATTACHED.equals(action)) {
-////
-////                    updateUSBstatus();
-////                    Log.d(LOG_TAG, "USB Connected..");
-////                } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action) || UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
-////                    UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-////                    if (device != null) {
-////                        updateUSBstatus();
-////                    }
-////                    Log.d(LOG_TAG, "USB Disconnected..");
-////                }
-//
-//                String action = intent.getAction();
-//                Log.d(TAG, "Received Broadcast: " + action);
-//                if (action.equalsIgnoreCase(usbStateChangeAction)) { //Check if change in USB state
-//                    if (intent.getExtras().getBoolean("connected")) {
-//                        // USB was connected
-//                        Toast.makeText(getApplicationContext(), "USB CONNECTED", Toast.LENGTH_LONG).show();
-//                    } else {
-//                        // USB was disconnected
-//                        Toast.makeText(getApplicationContext(), "USB DISCONNECTED", Toast.LENGTH_LONG).show();
-//                    }
-//                }
-//            }
-//        };
-//
-//        IntentFilter filter = new IntentFilter();
-//        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
-//        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-//        //filter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED);
-//        //filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
-//        registerReceiver(mUsbReceiver , filter);
-//        Log.d(TAG, "mUsbReceiver Registered");
-//    }
-
-    private void initNetwork() {
+    /**
+     * Initialises Wave Relay radio network, updates link status of local database and
+     * populate video stream data
+     */
+    private void initNetworkAndPopulateVideoStreamData() {
         Bundle b = getIntent().getBundleExtra(MainNavigationConstants.WAVE_RELAY_RADIO_NO_BUNDLE_KEY);
         int radioId = b.getInt(MainNavigationConstants.WAVE_RELAY_RADIO_NO_KEY);
 
         SharedPreferenceUtil.setSharedPreference(SharedPreferenceConstants.USER_RADIO_NO,
                 radioId);
 
-        getDeviceIpAddrAndRunWrRadioSocket(radioId);
+        getDeviceIpAddrAndRunWrRadioSocketWithVideoStreamDataPopulation(radioId);
     }
 
+    /**
+     * Initialises side panel UI which includes the following tabs fragments:
+     * 1) Map Blueprint
+     * 2) Video Stream
+     * 3) Situation Report
+     * 4) Timeline
+     * 5) Task
+     * 6) Radio Link Status
+     */
     private void initSideMenuPanel() {
         mViewSideMenuPanel = findViewById(R.id.layout_main_side_menu_panel);
 
         // Tab Views
-        mRelativeLayoutTabMap = mViewSideMenuPanel.findViewById(R.id.layout_tab_map_selector_status);
-        mRelativeLayoutTabVideoStream = mViewSideMenuPanel.findViewById(R.id.layout_tab_video_stream_selector_status);
-        mRelativeLayoutTabReport = mViewSideMenuPanel.findViewById(R.id.layout_tab_report_selector_status);
-        mRelativeLayoutTabTimeline = mViewSideMenuPanel.findViewById(R.id.layout_tab_timeline_selector_status);
-        mRelativeLayoutTabTask = mViewSideMenuPanel.findViewById(R.id.layout_tab_task_selector_status);
-        mRelativeLayoutTabRadioLink = mViewSideMenuPanel.findViewById(R.id.layout_tab_radio_link_selector_status);
+        RelativeLayout relativeLayoutTabMap = mViewSideMenuPanel.
+                findViewById(R.id.layout_tab_map_selector_status);
+        RelativeLayout relativeLayoutTabVideoStream = mViewSideMenuPanel.
+                findViewById(R.id.layout_tab_video_stream_selector_status);
+        RelativeLayout relativeLayoutTabReport = mViewSideMenuPanel.
+                findViewById(R.id.layout_tab_report_selector_status);
+        RelativeLayout relativeLayoutTabTimeline = mViewSideMenuPanel.
+                findViewById(R.id.layout_tab_timeline_selector_status);
+        RelativeLayout relativeLayoutTabTask = mViewSideMenuPanel.
+                findViewById(R.id.layout_tab_task_selector_status);
+        RelativeLayout relativeLayoutTabRadioLink = mViewSideMenuPanel.
+                findViewById(R.id.layout_tab_radio_link_selector_status);
 
         // Line within Tab View
-        mLinearLayoutLineSelectorMap = mViewSideMenuPanel.findViewById(R.id.linear_layout_map_line_selector);
-        mLinearLayoutLineSelectorVideoStream = mViewSideMenuPanel.findViewById(R.id.linear_layout_video_stream_line_selector);
-        mLinearLayoutLineSelectorReport = mViewSideMenuPanel.findViewById(R.id.linear_layout_report_line_selector);
-        mLinearLayoutLineSelectorTimeline = mViewSideMenuPanel.findViewById(R.id.linear_layout_timeline_line_selector);
-        mLinearLayoutLineSelectorTask = mViewSideMenuPanel.findViewById(R.id.linear_layout_task_line_selector);
-        mLinearLayoutLineSelectorRadioLink = mViewSideMenuPanel.findViewById(R.id.linear_layout_radio_link_line_selector);
+        mLinearLayoutLineSelectorMap = mViewSideMenuPanel.
+                findViewById(R.id.linear_layout_map_line_selector);
+        mLinearLayoutLineSelectorVideoStream = mViewSideMenuPanel.
+                findViewById(R.id.linear_layout_video_stream_line_selector);
+        mLinearLayoutLineSelectorReport = mViewSideMenuPanel.
+                findViewById(R.id.linear_layout_report_line_selector);
+        mLinearLayoutLineSelectorTimeline = mViewSideMenuPanel.
+                findViewById(R.id.linear_layout_timeline_line_selector);
+        mLinearLayoutLineSelectorTask = mViewSideMenuPanel.
+                findViewById(R.id.linear_layout_task_line_selector);
+        mLinearLayoutLineSelectorRadioLink = mViewSideMenuPanel.
+                findViewById(R.id.linear_layout_radio_link_line_selector);
 
         // Image Views within Tab View
         mImgViewTabMap = mViewSideMenuPanel.findViewById(R.id.img_tab_map);
@@ -248,34 +213,62 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
         mImgViewTabRadioLink = mViewSideMenuPanel.findViewById(R.id.img_tab_radio_link);
 
         // Tab Views OnClickListeners
-        mRelativeLayoutTabMap.setOnClickListener(onMapTabClickListener);
-        mRelativeLayoutTabVideoStream.setOnClickListener(onVideoStreamTabClickListener);
-        mRelativeLayoutTabReport.setOnClickListener(onReportTabClickListener);
-        mRelativeLayoutTabTimeline.setOnClickListener(onTimelineTabClickListener);
-        mRelativeLayoutTabTask.setOnClickListener(onTaskTabClickListener);
-        mRelativeLayoutTabRadioLink.setOnClickListener(onRadioLinkTabClickListener);
+        relativeLayoutTabMap.setOnClickListener(onMapTabClickListener);
+        relativeLayoutTabVideoStream.setOnClickListener(onVideoStreamTabClickListener);
+        relativeLayoutTabReport.setOnClickListener(onReportTabClickListener);
+        relativeLayoutTabTimeline.setOnClickListener(onTimelineTabClickListener);
+        relativeLayoutTabTask.setOnClickListener(onTaskTabClickListener);
+        relativeLayoutTabRadioLink.setOnClickListener(onRadioLinkTabClickListener);
 
         // Map selected by default on start up
         removeLineSelector();
         setMapSelectedUI();
     }
 
+    /**
+     * Initialises bottom panel UI which includes the following:
+     * 1) Fragment title
+     * 2) Link status of current user
+     * 3) Radio number
+     * 4) Date & Time of last connection
+     * 5) Callsign of current user
+     * 6) Settings button
+     */
     private void initBottomPanel() {
         mViewBottomPanel = findViewById(R.id.layout_main_bottom_panel);
 
         mTvFragmentTitle = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_fragment_title);
+
         mImgRadioLinkStatus = mViewBottomPanel.findViewById(R.id.img_bottom_panel_radio_link_status_icon);
         mTvRadioLinkStatus = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_radio_link_status);
-        mTvLastConnectionDate = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_last_connection_date);
-        mTvLastConnectionTime = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_last_connection_time);
-        mTvCallsign = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_callsign);
-        mLayoutSetting = mViewBottomPanel.findViewById(R.id.layout_bottom_panel_settings);
+        mTvRadioNumber = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_radio_number);
+        mTvLastConnectionDateTime = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_last_connection_date_time);
+
+        String lastConnectionDateTimeNoRecords = getString(R.string.radio_link_status_offline_since).
+                concat(StringUtil.COLON).concat(StringUtil.SPACE).
+                concat(getString(R.string.map_blueprint_personnel_link_status_no_records));
+        mTvLastConnectionDateTime.setText(lastConnectionDateTimeNoRecords);
+
+        C2OpenSansBoldTextView tvCallsign = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_callsign);
+        LinearLayout layoutSetting = mViewBottomPanel.findViewById(R.id.layout_bottom_panel_settings);
         mImgSetting = mViewBottomPanel.findViewById(R.id.img_bottom_panel_settings_icon);
         mTvSetting = mViewBottomPanel.findViewById(R.id.tv_bottom_panel_settings_text);
 
         setBottomPanelRadioLinkStatus(ERadioConnectionStatus.OFFLINE.toString());
-        mTvCallsign.setText(SharedPreferenceUtil.getCurrentUserCallsignID());
-        mLayoutSetting.setOnClickListener(onSettingsClickListener);
+
+        String selectedRadioNumber = SharedPreferenceUtil.getSharedPreference(SharedPreferenceConstants.USER_RADIO_NO,
+                0).toString();
+
+        if (selectedRadioNumber == null) {
+            mTvRadioNumber.setText(getString(R.string.btm_panel_radio).concat(StringUtil.COLON).
+                    concat(StringUtil.SPACE).concat(StringUtil.N_A));
+        } else {
+            mTvRadioNumber.setText(getString(R.string.btm_panel_radio).concat(StringUtil.COLON).
+                    concat(StringUtil.SPACE).concat(selectedRadioNumber));
+        }
+
+        tvCallsign.setText(SharedPreferenceUtil.getCurrentUserCallsignID());
+        layoutSetting.setOnClickListener(onSettingsClickListener);
     }
 
     private void initSnackbar() {
@@ -469,21 +462,113 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                 R.color.primary_highlight_cyan));
     }
 
+//    /**
+//     * Updates/resets radio information with userId account and broadcast updated model to other devices
+//     */
+//    private void saveAndBroadcastRadioInfo(WaveRelayRadioModel waveRelayRadioModel,
+//                                           String userId, String phoneIpAddr) {
+//        waveRelayRadioModel.setUserId(userId);
+//        waveRelayRadioModel.setPhoneIpAddress(phoneIpAddr);
+//
+//        mWaveRelayRadioViewModel.updateWaveRelayRadio(waveRelayRadioModel);
+//
+//        // Send updated WaveRelay model to all other devices
+//        JeroMQBroadcastOperation.broadcastDataUpdateOverSocket(waveRelayRadioModel);
+//
+//        SharedPreferenceUtil.setSharedPreference(SharedPreferenceConstants.USER_DEVICE_IP_ADDRESS,
+//                phoneIpAddr);
+//    }
+
     /**
-     * Updates/resets radio information with userId account and broadcast updated model to other devices
+     * Populate video stream data
      */
-    private void saveAndBroadcastRadioInfo(WaveRelayRadioModel waveRelayRadioModel,
-                                           String userId, String phoneIpAddr) {
-        waveRelayRadioModel.setUserId(userId);
-        waveRelayRadioModel.setPhoneIpAddress(phoneIpAddr);
+    private void populateVideoStreamData(String radioId, String radioIpAddress) {
 
-        mWaveRelayRadioViewModel.updateWaveRelayRadio(waveRelayRadioModel);
+        SingleObserver<List<VideoStreamModel>> singleObserverAllVideoStreams =
+                new SingleObserver<List<VideoStreamModel>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        // add it to a CompositeDisposable
+                    }
 
-        // Send updated WaveRelay model to all other devices
-        JeroMQBroadcastOperation.broadcastDataUpdateOverSocket(waveRelayRadioModel);
+                    @Override
+                    public void onSuccess(List<VideoStreamModel> videoStreamModelList) {
+                        if (videoStreamModelList != null) {
+                            Timber.i("onSuccess singleObserverAllVideoStreams, " +
+                                    "populateVideoStreamData. " +
+                                    "videoStreamModelList size: %d", videoStreamModelList.size());
 
-        SharedPreferenceUtil.setSharedPreference(SharedPreferenceConstants.USER_DEVICE_IP_ADDRESS,
-                phoneIpAddr);
+                            String ownVideoStreamUrl = getString(R.string.video_stream_url_names_prefix).
+                                    concat(radioIpAddress).
+                                    concat(getString(R.string.video_stream_url_names_suffix));
+
+                            String[] radioIpAddresses = MainApplication.getAppContext().getResources().
+                                    getStringArray(R.array.login_radio_ip_addresses);
+
+                            for (int i = 0; i < videoStreamModelList.size(); i++) {
+
+                                VideoStreamModel videoStreamModel = videoStreamModelList.get(i);
+
+                                if (EOwner.OWN.toString().
+                                        equalsIgnoreCase(videoStreamModel.getOwner())) {
+
+                                    videoStreamModel.setName(MainApplication.getAppContext().getResources().
+                                            getString(R.string.video_stream_video_name_camera_radio).
+                                            concat(StringUtil.SPACE).concat(radioId));
+                                    videoStreamModel.setUrl(ownVideoStreamUrl);
+
+                                } else {
+
+                                    String otherVideoStreamUrl;
+
+                                    // By default, home ('Own') video radio IP Address is 198.18.5.1 (radioIpAddresses[0]).
+                                    // However, if current user's 'Camera-Radio Own' radio IP is NOT the default IP address,
+                                    // replace default IP address with whichever IP addresses have been used
+                                    // instead and set its name to 'Camera-Radio 1'.
+                                    if (radioIpAddresses[i].equalsIgnoreCase(radioIpAddress)) {
+                                        videoStreamModel.setName(MainApplication.getAppContext().getResources().
+                                                getString(R.string.video_stream_video_name_camera_radio).
+                                                concat(StringUtil.SPACE).concat("1"));
+
+                                        otherVideoStreamUrl = MainApplication.getAppContext().getResources().
+                                                getString(R.string.video_stream_url_names_prefix).
+                                                concat(radioIpAddresses[0]).
+                                                concat(getString(R.string.video_stream_url_names_suffix));
+                                    } else {
+                                        videoStreamModel.setName(MainApplication.getAppContext().getResources().
+                                                getString(R.string.video_stream_video_name_camera_radio).
+                                                concat(StringUtil.SPACE).concat(String.valueOf(i + 1)));
+
+                                        otherVideoStreamUrl = MainApplication.getAppContext().getResources().
+                                                getString(R.string.video_stream_url_names_prefix).
+                                                concat(radioIpAddresses[i]).
+                                                concat(getString(R.string.video_stream_url_names_suffix));
+                                    }
+
+                                    videoStreamModel.setUrl(otherVideoStreamUrl);
+                                }
+
+                                videoStreamModel.setUserId(SharedPreferenceUtil.getCurrentUserCallsignID());
+                                mVideoStreamViewModel.updateVideoStream(videoStreamModel);
+                            }
+
+                        } else {
+                            Timber.i("onSuccess singleObserverAllVideoStreams, " +
+                                    "populateVideoStreamData. " +
+                                    "videoStreamModelList is null");
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                        Timber.e("onError singleObserverAllVideoStreams, " +
+                                "populateVideoStreamData. " +
+                                "Error Msg: %s", e.toString());
+                    }
+                };
+
+        mVideoStreamViewModel.getAllVideoStreams(singleObserverAllVideoStreams);
     }
 
     /**
@@ -492,7 +577,7 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
      *
      * @param radioId
      */
-    private void getDeviceIpAddrAndRunWrRadioSocket(long radioId) {
+    private void getDeviceIpAddrAndRunWrRadioSocketWithVideoStreamDataPopulation(long radioId) {
 
         SingleObserver<WaveRelayRadioModel> singleObserverWaveRelayRadioByRadioNo =
                 new SingleObserver<WaveRelayRadioModel>() {
@@ -504,30 +589,29 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                     @Override
                     public void onSuccess(WaveRelayRadioModel waveRelayRadioModel) {
                         if (waveRelayRadioModel != null) {
-
-
                             Timber.i("onSuccess singleObserverWaveRelayRadioByRadioNo, " +
-                                    "getDeviceIpAddrAndRunWrRadioSocket. " +
-                                    "waveRelayRadioModel: %s" ,waveRelayRadioModel);
-
-
+                                    "getDeviceIpAddrAndRunWrRadioSocketWithVideoStreamDataPopulation. " +
+                                    "waveRelayRadioModel: %s", waveRelayRadioModel);
 
 //                            // Subscribe to RabbitMQ and JeroMQ
 //                            subscribeToNetwork();
 
                             broadcastUserInfoUpdate();
 
-                            saveAndBroadcastRadioInfo(waveRelayRadioModel,
-                                    SharedPreferenceUtil.getCurrentUserCallsignID(),
-                                    NetworkUtil.getOwnIPAddressThroughWiFiOrEthernet(true));
+//                            saveAndBroadcastRadioInfo(waveRelayRadioModel,
+//                                    SharedPreferenceUtil.getCurrentUserCallsignID(),
+//                                    NetworkUtil.getOwnIPAddressThroughWiFiOrEthernet(true));
 
                             mWaveRelayRadioAsyncTask = new WaveRelayRadioAsyncTask();
                             mWaveRelayRadioAsyncTask.runWrRadioSocketConnection(
                                     waveRelayRadioModel.getRadioIpAddress());
 
+                            populateVideoStreamData(String.valueOf(waveRelayRadioModel.getRadioId()),
+                                    waveRelayRadioModel.getRadioIpAddress());
+
                         } else {
                             Timber.i("onSuccess singleObserverWaveRelayRadioByRadioNo, " +
-                                    "getDeviceIpAddrAndRunWrRadioSocket. " +
+                                    "getDeviceIpAddrAndRunWrRadioSocketWithVideoStreamDataPopulation. " +
                                     "waveRelayRadioModel is null");
                         }
                     }
@@ -536,61 +620,67 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                     public void onError(Throwable e) {
 
                         Timber.e("onError singleObserverWaveRelayRadioByRadioNo, " +
-                                "getDeviceIpAddrAndRunWrRadioSocket. " +
-                                "Error Msg: %s" , e.toString());
+                                "getDeviceIpAddrAndRunWrRadioSocketWithVideoStreamDataPopulation. " +
+                                "Error Msg: %s", e.toString());
                     }
                 };
 
         mWaveRelayRadioViewModel.queryRadioByRadioId(radioId, singleObserverWaveRelayRadioByRadioNo);
     }
 
-    /**
-     * Resets User Id of Radio info and notifies (broadcasts update to) other devices
-     *
-     * @param radioId
-     */
-    private void resetWrRadioUserIDAndBroadcastUpdate(long radioId) {
-
-        SingleObserver<WaveRelayRadioModel> singleObserverWaveRelayRadioByRadioNo =
-                new SingleObserver<WaveRelayRadioModel>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        // add it to a CompositeDisposable
-                    }
-
-                    @Override
-                    public void onSuccess(WaveRelayRadioModel waveRelayRadioModel) {
-                        if (waveRelayRadioModel != null) {
-
-                            Timber.i("onSuccess singleObserverWaveRelayRadioByRadioNo, resetWrRadioUserIDAndBroadcastUpdate. waveRelayRadioModel: %s" , waveRelayRadioModel);
-
-                            saveAndBroadcastRadioInfo(waveRelayRadioModel,
-                                    null, StringUtil.INVALID_STRING);
-
-                        } else {
-
-
-                            Timber.i("onSuccess singleObserverWaveRelayRadioByRadioNo, resetWrRadioUserIDAndBroadcastUpdate. waveRelayRadioModel is null");
-
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                        Timber.e("onError singleObserverWaveRelayRadioByRadioNo,resetWrRadioUserIDAndBroadcastUpdate. Error Msg: %s " , e.toString());
-
-                    }
-                };
-
-        mWaveRelayRadioViewModel.queryRadioByRadioId(radioId, singleObserverWaveRelayRadioByRadioNo);
-    }
+//    /**
+//     * Resets User Id of Radio info and notifies (broadcasts update to) other devices
+//     *
+//     * @param radioId
+//     */
+//    private void
+//    (long radioId) {
+//
+//        SingleObserver<WaveRelayRadioModel> singleObserverWaveRelayRadioByRadioNo =
+//                new SingleObserver<WaveRelayRadioModel>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//                        // add it to a CompositeDisposable
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(WaveRelayRadioModel waveRelayRadioModel) {
+//                        if (waveRelayRadioModel != null) {
+//
+//                            Timber.i("onSuccess singleObserverWaveRelayRadioByRadioNo, resetWrRadioUserIDAndBroadcastUpdate. waveRelayRadioModel: %s", waveRelayRadioModel);
+//
+//                            saveAndBroadcastRadioInfo(waveRelayRadioModel,
+//                                    null, StringUtil.INVALID_STRING);
+//
+//                        } else {
+//
+//
+//                            Timber.i("onSuccess singleObserverWaveRelayRadioByRadioNo, resetWrRadioUserIDAndBroadcastUpdate. waveRelayRadioModel is null");
+//
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//
+//                        Timber.e("onError singleObserverWaveRelayRadioByRadioNo,resetWrRadioUserIDAndBroadcastUpdate. Error Msg: %s ", e.toString());
+//
+//                    }
+//                };
+//
+//        mWaveRelayRadioViewModel.queryRadioByRadioId(radioId, singleObserverWaveRelayRadioByRadioNo);
+//    }
 
     /**
      * Updates/resets user information with access token and broadcast updated model to other devices
      */
-    private void saveAndBroadcastUserInfo(UserModel userModel, String accessToken) {
-        userModel.setAccessToken(accessToken);
+    private void saveAndBroadcastUserInfo(UserModel userModel) {
+        userModel.setAccessToken(StringUtil.EMPTY_STRING);
+        userModel.setPhoneToRadioConnectionStatus(ERadioConnectionStatus.DISCONNECTED.toString());
+        userModel.setRadioToNetworkConnectionStatus(ERadioConnectionStatus.DISCONNECTED.toString());
+        userModel.setRadioFullConnectionStatus(ERadioConnectionStatus.OFFLINE.toString());
+        userModel.setLastKnownConnectionDateTime(StringUtil.INVALID_STRING);
+        userModel.setMissingHeartBeatCount(Integer.valueOf(StringUtil.INVALID_STRING));
 
         mUserViewModel.updateUser(userModel);
 
@@ -598,7 +688,10 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
         JeroMQBroadcastOperation.broadcastDataUpdateOverSocket(userModel);
 
         SharedPreferenceUtil.setSharedPreference(SharedPreferenceConstants.ACCESS_TOKEN,
-                accessToken);
+                StringUtil.EMPTY_STRING);
+
+        SharedPreferenceUtil.setSharedPreference(SharedPreferenceConstants.USER_RADIO_LINK_STATUS,
+                ERadioConnectionStatus.OFFLINE.toString());
     }
 
     /**
@@ -633,7 +726,7 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
 
                     @Override
                     public void onError(Throwable e) {
-                        Timber.e("onError singleObserverUserByUserId, broadcastUserInfoUpdate. Error Msg: %s " , e.toString());
+                        Timber.e("onError singleObserverUserByUserId, broadcastUserInfoUpdate. Error Msg: %s ", e.toString());
                     }
                 };
 
@@ -656,24 +749,18 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                     @Override
                     public void onSuccess(UserModel userModel) {
                         if (userModel != null) {
-
-                            Timber.i("onSuccess singleObserverUserByUserId, resetUserAccessTokenAndBroadcastUpdate. userModel: %s " ,userModel);
-
-
-
-                            saveAndBroadcastUserInfo(userModel, StringUtil.EMPTY_STRING);
+                            Timber.i("onSuccess singleObserverUserByUserId, resetUserAccessTokenAndBroadcastUpdate. userModel: %s ", userModel);
+                            saveAndBroadcastUserInfo(userModel);
 
                         } else {
                             Timber.i("onSuccess singleObserverUserByUserId, resetUserAccessTokenAndBroadcastUpdate. userModel is null");
-
-
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
 
-                        Timber.e("onError singleObserverUserByUserId, resetUserAccessTokenAndBroadcastUpdate. Error Msg: %s" , e.toString());
+                        Timber.e("onError singleObserverUserByUserId, resetUserAccessTokenAndBroadcastUpdate. Error Msg: %s", e.toString());
 
                     }
                 };
@@ -682,137 +769,141 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                 singleObserverUserByUserId);
     }
 
-    /**
-     * RabbitMQ message listener for incoming message when connection is established
-     */
-    private void setupMQListener() {
-        if (mIMQListener == null) {
-            mIMQListener = new IMQListener() {
-                @Override
-                public void onNewMessage(String message) {
-                    Log.w("Debug", message);
-
-                    System.out.println("Received new rabbitMqMessage");
-                    System.out.println("JSONUtil.isJSONValid(message) is " + JSONUtil.isJSONValid(message));
-//                String mqttMessageString = mqttMessage.toString();
-                    boolean isJSON = false;
-
-                    if (JSONUtil.isJSONValid(message)) {
-                        try {
-                            JSONObject mqttMessageJSON = new JSONObject(message);
-                            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplication().getApplicationContext());
-                            SharedPreferences.Editor editor = pref.edit();
-
-                            System.out.println("Received valid mqttMessage");
-
-                            switch (mqttMessageJSON.getString("key")) {
-
-                                case FragmentConstants.KEY_TASK_ADD:
-                                    String totalNumberOfTasksKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER);
-                                    int totalNumberOfTasks = pref.getInt(totalNumberOfTasksKey, 0);
-                                    editor.putInt(totalNumberOfTasksKey, totalNumberOfTasks + 1);
-
-                                    String taskInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.HEADER_TASK).concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(String.valueOf(totalNumberOfTasks));
-
-                                    editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_ID), mqttMessageJSON.getInt("id"));
-                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNER), mqttMessageJSON.getString("assigner"));
-                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE), mqttMessageJSON.getString("assignee"));
-                                    editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE_AVATAR_ID), R.drawable.default_soldier_icon);
-                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_TITLE), mqttMessageJSON.getString("title"));
-                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_DESCRIPTION), mqttMessageJSON.getString("description"));
-                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_STATUS), mqttMessageJSON.getString("status"));
-                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_DATE), mqttMessageJSON.getString("date"));
-
-                                    editor.apply();
-
-                                    TaskFragment taskFragment = (TaskFragment) ((MainStatePagerAdapter)
-                                            mNoSwipeViewPager.getAdapter()).getPageReferenceMap().
-                                            get(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID);
-
-                                    if (taskFragment != null) {
-
-                                        Timber.i("Task: Refresh Data");
-
-//                                        taskFragment.refreshData();
-                                        taskFragment.addItemInRecycler();
-                                    }
-
-                                case FragmentConstants.KEY_SITREP_ADD:
-                                    String totalNumberOfSitRepKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER);
-                                    int totalNumberOfSitRep = pref.getInt(totalNumberOfSitRepKey, 0);
-                                    editor.putInt(totalNumberOfSitRepKey, totalNumberOfSitRep + 1);
-
-                                    System.out.println("main activity totalNumberOfSitRep + 1 is " + (totalNumberOfSitRep + 1));
-
-                                    String sitRepInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.HEADER_SITREP).concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(String.valueOf(totalNumberOfSitRep));
-                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ID), mqttMessageJSON.getInt("id"));
-                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER), mqttMessageJSON.getString("reporter"));
-                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER_AVATAR_ID), R.drawable.default_soldier_icon);
-                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_LOCATION), mqttMessageJSON.getString("location"));
-                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ACTIVITY), mqttMessageJSON.getString("activity"));
-                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_T), mqttMessageJSON.getInt("personnel_t"));
-                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_S), mqttMessageJSON.getInt("personnel_s"));
-                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_D), mqttMessageJSON.getInt("personnel_d"));
-                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_NEXT_COA), mqttMessageJSON.getString("next_coa"));
-                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REQUEST), mqttMessageJSON.getString("request"));
-
-                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
-                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_DATE), mqttMessageJSON.getString("date"));
-
-                                    editor.apply();
-
-                                    SitRepFragment sitRepFragment = (SitRepFragment) ((MainStatePagerAdapter)
-                                            mNoSwipeViewPager.getAdapter()).getPageReferenceMap().
-                                            get(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID);
-
-                                    if (sitRepFragment != null) {
-                                        Timber.i("Sit Rep: Refresh Data");
-
-//                                        sitRepFragment.refreshData();
-                                        sitRepFragment.addItemInRecycler();
-                                    }
-                            }
-
-                            isJSON = true;
-
-                        } catch (JSONException ex) {
-                            Timber.e("JSONException: %s" ,ex);
-
-                        }
-
-                    }
-                }
-            };
-
-            RabbitMQHelper.getInstance().addRabbitListener(mIMQListener);
-        }
-    }
+//    /**
+//     * RabbitMQ message listener for incoming message when connection is established
+//     */
+//    private void setupMQListener() {
+//        if (mIMQListener == null) {
+//            mIMQListener = new IMQListener() {
+//                @Override
+//                public void onNewMessage(String message) {
+//                    Log.w("Debug", message);
+//
+//                    System.out.println("Received new rabbitMqMessage");
+//                    System.out.println("JSONUtil.isJSONValid(message) is " + JSONUtil.isJSONValid(message));
+////                String mqttMessageString = mqttMessage.toString();
+//                    boolean isJSON = false;
+//
+//                    if (JSONUtil.isJSONValid(message)) {
+//                        try {
+//                            JSONObject mqttMessageJSON = new JSONObject(message);
+//                            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplication().getApplicationContext());
+//                            SharedPreferences.Editor editor = pref.edit();
+//
+//                            System.out.println("Received valid mqttMessage");
+//
+//                            switch (mqttMessageJSON.getString("key")) {
+//
+//                                case FragmentConstants.KEY_TASK_ADD:
+//                                    String totalNumberOfTasksKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.TASK_TOTAL_NUMBER);
+//                                    int totalNumberOfTasks = pref.getInt(totalNumberOfTasksKey, 0);
+//                                    editor.putInt(totalNumberOfTasksKey, totalNumberOfTasks + 1);
+//
+//                                    String taskInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.HEADER_TASK).concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(String.valueOf(totalNumberOfTasks));
+//
+//                                    editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_ID), mqttMessageJSON.getInt("id"));
+//                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNER), mqttMessageJSON.getString("assigner"));
+//                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE), mqttMessageJSON.getString("assignee"));
+//                                    editor.putInt(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_ASSIGNEE_AVATAR_ID), R.drawable.default_soldier_icon);
+//                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_TITLE), mqttMessageJSON.getString("title"));
+//                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_DESCRIPTION), mqttMessageJSON.getString("description"));
+//                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_STATUS), mqttMessageJSON.getString("status"));
+//                                    editor.putString(taskInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_TASK_DATE), mqttMessageJSON.getString("date"));
+//
+//                                    editor.apply();
+//
+//                                    TaskFragment taskFragment = (TaskFragment) ((MainStatePagerAdapter)
+//                                            mNoSwipeViewPager.getAdapter()).getPageReferenceMap().
+//                                            get(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID);
+//
+//                                    if (taskFragment != null) {
+//
+//                                        Timber.i("Task: Refresh Data");
+//
+////                                        taskFragment.refreshData();
+//                                        taskFragment.addItemInRecycler();
+//                                    }
+//
+//                                case FragmentConstants.KEY_SITREP_ADD:
+//                                    String totalNumberOfSitRepKey = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SITREP_TOTAL_NUMBER);
+//                                    int totalNumberOfSitRep = pref.getInt(totalNumberOfSitRepKey, 0);
+//                                    editor.putInt(totalNumberOfSitRepKey, totalNumberOfSitRep + 1);
+//
+//                                    System.out.println("main activity totalNumberOfSitRep + 1 is " + (totalNumberOfSitRep + 1));
+//
+//                                    String sitRepInitials = SharedPreferenceConstants.INITIALS.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.HEADER_SITREP).concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(String.valueOf(totalNumberOfSitRep));
+//                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ID), mqttMessageJSON.getInt("id"));
+//                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER), mqttMessageJSON.getString("reporter"));
+//                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REPORTER_AVATAR_ID), R.drawable.default_soldier_icon);
+//                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_LOCATION), mqttMessageJSON.getString("location"));
+//                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_ACTIVITY), mqttMessageJSON.getString("activity"));
+//                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_T), mqttMessageJSON.getInt("personnel_t"));
+//                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_S), mqttMessageJSON.getInt("personnel_s"));
+//                                    editor.putInt(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_PERSONNEL_D), mqttMessageJSON.getInt("personnel_d"));
+//                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_NEXT_COA), mqttMessageJSON.getString("next_coa"));
+//                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_REQUEST), mqttMessageJSON.getString("request"));
+//
+//                                    editor.putString(sitRepInitials.concat(SharedPreferenceConstants.SEPARATOR).
+//                                            concat(SharedPreferenceConstants.SUB_HEADER_SITREP_DATE), mqttMessageJSON.getString("date"));
+//
+//                                    editor.apply();
+//
+//                                    SitRepFragment sitRepFragment = (SitRepFragment) ((MainStatePagerAdapter)
+//                                            mNoSwipeViewPager.getAdapter()).getPageReferenceMap().
+//                                            get(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID);
+//
+//                                    if (sitRepFragment != null) {
+//                                        Timber.i("Sit Rep: Refresh Data");
+//
+////                                        sitRepFragment.refreshData();
+//                                        sitRepFragment.addItemInRecycler();
+//                                    }
+//                            }
+//
+//                            isJSON = true;
+//
+//                        } catch (JSONException ex) {
+//                            Timber.e("JSONException: %s", ex);
+//
+//                        }
+//
+//                    }
+//                }
+//            };
+//
+//            RabbitMQHelper.getInstance().addRabbitListener(mIMQListener);
+//        }
+//    }
 
     // ------------------------------ Get Main Activity UI methods ----------------------------- //
+
+    public View getMainLayout() {
+        return mMainLayout;
+    }
 
     public View getMainSidePanel() {
         return mViewSideMenuPanel;
@@ -831,26 +922,122 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
             mImgRadioLinkStatus.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
                     R.drawable.icon_offline, null));
             mTvRadioLinkStatus.setTextColor(ContextCompat.getColor(this, R.color.dull_red));
+            mTvRadioNumber.setTextColor(ContextCompat.getColor(this, R.color.dull_red));
         } else {
             mImgRadioLinkStatus.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
                     R.drawable.icon_online, null));
             mTvRadioLinkStatus.setTextColor(ContextCompat.getColor(this, R.color.dull_green));
+            mTvRadioNumber.setTextColor(ContextCompat.getColor(this, R.color.dull_green));
         }
 
         mTvRadioLinkStatus.setText(linkStatus);
     }
 
-    public void setBottomPanelLastConnectionDateText(String date) {
-        mTvLastConnectionDate.setText(date);
+//    public void setBottomPanelLastConnectionDateText(String date) {
+//        mTvLastConnectionDate.setText(date);
+//    }
+//
+//    public void setBottomPanelLastConnectionTimeText(String time) {
+//        mTvLastConnectionTime.setText(time);
+//    }
+
+    public void setBottomPanelLastConnectionDateTimeText(String date, String time) {
+        SpannableStringBuilder lastConnectionDateTimeStrBuilder = new SpannableStringBuilder();
+
+        lastConnectionDateTimeStrBuilder.append(getString(R.string.btm_panel_since));
+        lastConnectionDateTimeStrBuilder.append(StringUtil.COLON);
+        lastConnectionDateTimeStrBuilder.append(StringUtil.SPACE);
+
+        // If not null, displays date time in a similar format of 'Online since 10 Mar 2019, 10:00'
+        if (date != null && time != null) {
+            String dateTime = date.concat(StringUtil.COMMA).concat(StringUtil.SPACE).concat(time);
+
+            SpannableString connectedDateTime = new SpannableString(dateTime);
+            connectedDateTime.setSpan(new ForegroundColorSpan(ResourcesCompat.getColor(getResources(),
+                    R.color.primary_highlight_cyan, null)), 0, connectedDateTime.length(), 0);
+            lastConnectionDateTimeStrBuilder.append(connectedDateTime);
+
+        } else { // If null, displays in a similar format of 'Offline since: No records'
+            SpannableString noRecords = new SpannableString(getString(
+                    R.string.map_blueprint_personnel_link_status_no_records));
+            noRecords.setSpan(new ForegroundColorSpan(ResourcesCompat.getColor(getResources(),
+                    R.color.primary_highlight_cyan, null)), 0, noRecords.length(), 0);
+            lastConnectionDateTimeStrBuilder.append(noRecords);
+        }
+
+        mTvLastConnectionDateTime.setText(lastConnectionDateTimeStrBuilder,
+                C2OpenSansBoldTextView.BufferType.SPANNABLE);
     }
 
-    public void setBottomPanelLastConnectionTimeText(String time) {
-        mTvLastConnectionTime.setText(time);
-    }
+//    public void closeWebSocketClient() {
+////        mWaveRelayRadioClient = mWaveRelayRadioAsyncTask.getWaveRelayRadioClient();
+////        if (mWaveRelayRadioClient != null) {
+////            mWaveRelayRadioClient.closeWebSocketClient();
+////        }
+//
+//        WaveRelayRadioClient.closeWebSocketClient();
+//    }
 
-    public void closeWebSocketClient() {
-        if (mWaveRelayRadioClient != null) {
-            mWaveRelayRadioClient.closeWebSocketClient();
+    /**
+     * Refresh Main Activity Bottom Panel UI with updated data of current user model of the following:
+     * 1) Current Date and Time, if last known connection time is unknown
+     * 2) Last known online or offline date and time
+     */
+    private void refreshBottomPanelUI(UserModel currentUserModel) {
+        if (currentUserModel != null) {
+//            // Extracts list of radio connection status from UserModel
+//            List<UserModel> currentUserModelList = mPersonnelLinkStatusUserListItems.stream().
+//                    filter(UserModel -> SharedPreferenceUtil.getCurrentUserCallsignID().
+//                            equalsIgnoreCase(UserModel.getUserId())).collect(Collectors.toList());
+//
+//            // There should only be ONE current user model
+//            if (currentUserModelList.size() == 1) {
+//                UserModel currentUserModel = currentUserModelList.get(0);
+
+//                if (getActivity() instanceof MainActivity) {
+//                    MainActivity mainActivity = ((MainActivity) getActivity());
+
+            // Last known link status datetime
+            String lastKnownLinkStatusDateTime = currentUserModel.getLastKnownConnectionDateTime();
+
+            if (!lastKnownLinkStatusDateTime.equalsIgnoreCase(StringUtil.INVALID_STRING)) {
+//                        if (ERadioConnectionStatus.OFFLINE.toString().
+//                                equalsIgnoreCase(currentUserModel.getRadioFullConnectionStatus())) {
+//                            String lastKnownLinkStatusDateInCustomStrFormat = DateTimeUtil.
+//                                    dateToCustomDateStringFormat(DateTimeUtil.stringToDate(lastKnownLinkStatusDateTime));
+//
+//                            mainActivity.setBottomPanelLastConnectionDateText(lastKnownLinkStatusDateInCustomStrFormat);
+//
+//                        } else {
+//                            String lastKnownLinkStatusTimeInCustomStrFormat = DateTimeUtil.
+//                                    dateToCustomTimeStringFormat(DateTimeUtil.stringToDate(lastKnownLinkStatusDateTime));
+//                            mainActivity.setBottomPanelLastConnectionTimeText(lastKnownLinkStatusTimeInCustomStrFormat);
+//                        }
+
+                String lastKnownLinkStatusDateInCustomStrFormat = DateTimeUtil.
+                        dateToCustomDateStringFormat(DateTimeUtil.stringToDate(lastKnownLinkStatusDateTime));
+
+                String lastKnownLinkStatusTimeInCustomStrFormat = DateTimeUtil.
+                        dateToCustomTimeStringFormat(DateTimeUtil.stringToDate(lastKnownLinkStatusDateTime));
+
+                setBottomPanelLastConnectionDateTimeText(lastKnownLinkStatusDateInCustomStrFormat,
+                        lastKnownLinkStatusTimeInCustomStrFormat);
+
+            } else {
+//                        String currentDateTimeInZoneFormat = DateTimeUtil.getCurrentDateTime();
+//
+//                        String currentDateInCustomStrFormat = DateTimeUtil.dateToCustomDateStringFormat(
+//                                DateTimeUtil.stringToDate(currentDateTimeInZoneFormat));
+//                        String cuurentTimeInCustomStrFormat = DateTimeUtil.dateToCustomTimeStringFormat(
+//                                DateTimeUtil.stringToDate(currentDateTimeInZoneFormat));
+//
+//                        mainActivity.setBottomPanelLastConnectionDateText(currentDateInCustomStrFormat);
+//                        mainActivity.setBottomPanelLastConnectionTimeText(cuurentTimeInCustomStrFormat);
+
+                setBottomPanelLastConnectionDateTimeText(null, null);
+            }
+//                }
+//            }
         }
     }
 
@@ -860,6 +1047,7 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
     private void observerSetup() {
         mUserViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         mWaveRelayRadioViewModel = ViewModelProviders.of(this).get(WaveRelayRadioViewModel.class);
+        mVideoStreamViewModel = ViewModelProviders.of(this).get(VideoStreamViewModel.class);
 
         String currentUserId = SharedPreferenceUtil.getCurrentUserCallsignID();
 
@@ -875,6 +1063,8 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                 } else {
                     setBottomPanelRadioLinkStatus(ERadioConnectionStatus.OFFLINE.toString());
                 }
+
+                refreshBottomPanelUI(userModel);
             }
         });
     }
@@ -936,35 +1126,34 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
 
     // ---------------------------------------- Broadcast Receivers ---------------------------------------- //
 
-    /**
-     * Registers broadcast receiver for indication of successful RabbitMQ connection to
-     * initiate message listener
-     */
-    private void registerRabbitMQBroadcastReceiver() {
-        if (mRabbitMqBroadcastReceiver == null) {
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION);
-
-            Timber.i("registerRabbitMQBroadcastReceiver");
-
-
-            mRabbitMqBroadcastReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
-                        if (RabbitMQHelper.connectionStatus == RabbitMQHelper.RabbitMQConnectionStatus.CONNECTED) {
-
-                            Timber.i("RabbitMQConnectionStatus.CONNECTED");
-
-                            setupMQListener();
-                        }
-                    }
-                }
-            };
-
-            LocalBroadcastManager.getInstance(this).registerReceiver(mRabbitMqBroadcastReceiver, filter);
-        }
-    }
+//    /**
+//     * Registers broadcast receiver for indication of successful RabbitMQ connection to
+//     * initiate message listener
+//     */
+//    private void registerRabbitMQBroadcastReceiver() {
+//        if (mRabbitMqBroadcastReceiver == null) {
+//            IntentFilter filter = new IntentFilter();
+//            filter.addAction(RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION);
+//
+//            Timber.i("registerRabbitMQBroadcastReceiver");
+//
+//            mRabbitMqBroadcastReceiver = new BroadcastReceiver() {
+//                @Override
+//                public void onReceive(Context context, Intent intent) {
+//                    if (RabbitMQHelper.RABBITMQ_CONNECT_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
+//                        if (RabbitMQHelper.connectionStatus == RabbitMQHelper.RabbitMQConnectionStatus.CONNECTED) {
+//
+//                            Timber.i("RabbitMQConnectionStatus.CONNECTED");
+//
+////                            setupMQListener();
+//                        }
+//                    }
+//                }
+//            };
+//
+//            LocalBroadcastManager.getInstance(this).registerReceiver(mRabbitMqBroadcastReceiver, filter);
+//        }
+//    }
 
     /**
      * Registers broadcast receiver for display of respective snackbar Excel notification
@@ -979,19 +1168,19 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (UserSettingsFragment.EXCEL_DATA_PULLED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
-                    SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
                             MainApplication.getAppContext().
                                     getString(R.string.snackbar_settings_pull_from_excel_successful_message));
                 } else if (UserSettingsFragment.EXCEL_DATA_PUSHED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
-                    SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
                             MainApplication.getAppContext().
                                     getString(R.string.snackbar_settings_push_to_excel_successful_message));
                 } else if (UserSettingsFragment.DATA_SYNCED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
-                    SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
                             MainApplication.getAppContext().
                                     getString(R.string.snackbar_settings_sync_up_successful_message));
                 } else if (UserSettingsFragment.LOGGED_OUT_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
-                    SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
                             MainApplication.getAppContext().
                                     getString(R.string.snackbar_settings_logout_successful_message));
                 }
@@ -1014,14 +1203,14 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
             public void onReceive(Context context, Intent intent) {
                 if (WaveRelayRadioClient.WAVE_RELAY_CLIENT_CONNECTED_INTENT_ACTION.
                         equalsIgnoreCase(intent.getAction())) {
-                    SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
                             MainApplication.getAppContext().
                                     getString(R.string.snackbar_wave_relay_client_connected_message));
-                    mWaveRelayRadioClient = mWaveRelayRadioAsyncTask.getWaveRelayRadioClient();
 
                 } else if (WaveRelayRadioClient.WAVE_RELAY_CLIENT_DISCONNECTED_INTENT_ACTION.
                         equalsIgnoreCase(intent.getAction())) {
-                    SnackbarUtil.showCustomInfoSnackbar(mLayoutMain, getSnackbarView(),
+//                    WaveRelayRadioClient.closeWebSocketClientAfterNotification();
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
                             MainApplication.getAppContext().
                                     getString(R.string.snackbar_wave_relay_client_disconnected_message));
                 }
@@ -1158,17 +1347,15 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
 
     /**
      * Request snackbar logout confirmation
-     *
      */
     private void queryConfirmLogout() {
-        SnackbarUtil.showCustomAlertSnackbar(mLayoutMain, getSnackbarView(),
+        SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
                 getString(R.string.snackbar_settings_logout_message),
                 MainActivity.this);
     }
 
     /**
      * Cleans up all resources of child fragments before returning to login activity
-     *
      */
     private void destroyAllBaseChildFragments() {
         if (getViewPagerAdapter() != null) {
@@ -1260,7 +1447,7 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
     @Override
     protected void onStart() {
         super.onStart();
-        registerRabbitMQBroadcastReceiver();
+//        registerRabbitMQBroadcastReceiver();
         registerExcelBroadcastReceiver();
         registerWaveRelayClientBroadcastReceiver();
 //        registerUSBDetectionBroadcastReceiver();
@@ -1291,7 +1478,7 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Timber.i("onDestroy...");
+        Timber.i("onDestroy");
 
         destroyAllBaseChildFragments();
 
@@ -1305,51 +1492,27 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
             mExcelBroadcastReceiver = null;
         }
 
-//        if (mUSBDetectionBroadcastReceiver != null) {
-//            LocalBroadcastManager.getInstance(this).unregisterReceiver(mUSBDetectionBroadcastReceiver);
-//            mUSBDetectionBroadcastReceiver = null;
+        if (mWaveRelayClientBroadcastReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mWaveRelayClientBroadcastReceiver);
+            mWaveRelayClientBroadcastReceiver = null;
+        }
+
+//        // Resets Wave Relay radio info of user
+//        Object userRadioId = SharedPreferenceUtil.getSharedPreference(SharedPreferenceConstants.USER_RADIO_NO,
+//                0);
+//
+//        if (userRadioId != null) {
+//            if (userRadioId instanceof Integer) {
+//                Timber.i("Resetting User Id of radio info...");
+//
+//                resetWrRadioUserIDAndBroadcastUpdate((int) userRadioId);
+//            }
 //        }
 
-        // Resets Wave Relay radio info of user
-        Object userRadioId = SharedPreferenceUtil.getSharedPreference(SharedPreferenceConstants.USER_RADIO_NO,
-                0);
-
-        if (userRadioId != null) {
-            if (userRadioId instanceof Integer) {
-                Timber.i("Resetting User Id of radio info...");
-
-                resetWrRadioUserIDAndBroadcastUpdate((int) userRadioId);
-            }
-        }
+        // Close any radio web sockets
+        WaveRelayRadioClient.closeWebSocketClient();
 
         // Resets access token of user
         resetUserAccessTokenAndBroadcastUpdate();
-
-        // Close any radio web sockets
-        closeWebSocketClient();
-
-//        /* Close service properly, if not already closed.
-//         */
-//        synchronized (MainActivity.class) {
-//            if (NetworkService.mIsServiceRegistered) {
-//
-//                if (getApplication() instanceof MainApplication) {
-//                    stopService(((MainApplication) getApplication()).getNetworkIntent());
-//                    Log.i(TAG, "Stopped network intent service.");
-//
-//                    NetworkService.mIsServiceRegistered = false;
-//                }
-//
-////                stopService(mNetworkIntent);
-////                Log.i(TAG, "Stopped network intent service.");
-////
-////                NetworkService.mIsServiceRegistered = false;
-//            }
-//
-//            JeroMQPublisher.getInstance().stop();
-//            JeroMQSubscriber.getInstance().stop();
-//
-//            Log.i(TAG, "Stopped all JeroMQ connections.");
-//        }
     }
 }

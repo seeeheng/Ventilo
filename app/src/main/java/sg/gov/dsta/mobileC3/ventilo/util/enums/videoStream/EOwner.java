@@ -3,13 +3,13 @@ package sg.gov.dsta.mobileC3.ventilo.util.enums.videoStream;
 import java.util.HashMap;
 
 public enum EOwner {
-    SELF("Self"), OTHERS("Others");
+    OWN("OWN"), OTHERS("Others");
 
     public static HashMap<String, EOwner> ownerMapping = new HashMap<>();
     private final String name;
 
     static {
-        ownerMapping.put(SELF.toString(), SELF);
+        ownerMapping.put(OWN.toString(), OWN);
         ownerMapping.put(OTHERS.toString(), OTHERS);
     }
 

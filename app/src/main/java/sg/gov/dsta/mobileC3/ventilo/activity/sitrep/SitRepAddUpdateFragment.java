@@ -66,6 +66,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.DatabaseTableConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.EIsValid;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
@@ -929,9 +930,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
         if (toUpdate) {
             newSitRepModel = mSitRepModelToUpdate;
+            newSitRepModel.setLastUpdatedDateTime(DateTimeUtil.getCurrentDateTime());
         } else {
             newSitRepModel = new SitRepModel();
             newSitRepModel.setRefId(DatabaseTableConstants.LOCAL_REF_ID);
+            newSitRepModel.setLastUpdatedDateTime(StringUtil.INVALID_STRING);
         }
 
         newSitRepModel.setReporter(userId);
@@ -982,7 +985,10 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         newSitRepModel.setOthers(others);
 
 //        System.out.println("DateTimeFormatter.ISO_ZONED_DATE_TIME.toString() is " + DateTimeFormatter.ISO_ZONED_DATE_TIME.toString());
-        newSitRepModel.setCreatedDateTime(DateTimeUtil.getCurrentTime());
+        newSitRepModel.setCreatedDateTime(DateTimeUtil.getCurrentDateTime());
+
+        // Is Valid (Sit Rep Model's validity - whether it has been deleted or not)
+        newSitRepModel.setIsValid(EIsValid.YES.toString());
 
         return newSitRepModel;
     }
@@ -1032,7 +1038,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 Timber.i("onSuccess singleObserverAddSitRep,addItemToLocalDatabaseAndBroadcast. SitRepId: %d", sitRepId);
 
                 sitRepModel.setRefId(sitRepId);
-                mSitRepViewModel.updateSitRep(sitRepModel);
+//                mSitRepViewModel.updateSitRep(sitRepModel);
 
                 // Store UserSitRepJoin data locally
                 UserSitRepJoinModel newUserSitRepJoinModel = new UserSitRepJoinModel(

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
@@ -30,6 +31,8 @@ public class JeroMQBroadcastOperation {
             JeroMQPublisher.getInstance().sendUserMessage(modelJson, JeroMQPublisher.TOPIC_INSERT);
         } else if (model instanceof WaveRelayRadioModel) {
             JeroMQPublisher.getInstance().sendWaveRelayRadioMessage(modelJson, JeroMQPublisher.TOPIC_INSERT);
+        } else if (model instanceof BFTModel) {
+            JeroMQPublisher.getInstance().sendBFTMessage(modelJson, JeroMQPublisher.TOPIC_INSERT);
         } else if (model instanceof SitRepModel) {
             JeroMQPublisher.getInstance().sendSitRepMessage(modelJson, JeroMQPublisher.TOPIC_INSERT);
         } else if (model instanceof TaskModel) {
@@ -78,4 +81,44 @@ public class JeroMQBroadcastOperation {
             JeroMQPublisher.getInstance().sendTaskMessage(modelJson, JeroMQPublisher.TOPIC_DELETE);
         }
     }
+
+//    /**
+//     * Unicast synchronisation of data to connected device in the network
+//     *
+//     * @param model
+//     */
+//    public static void UnicastDataSyncOverSocket(Object model, String targetPhoneIPAddress) {
+//        Timber.i("UnicastDataSyncOverSocket");
+//
+//        Gson gson = GsonCreator.createGson();
+//        String modelJson = gson.toJson(model);
+//
+//        if (model instanceof SitRepModel) {
+//            JeroMQClientPair.getInstance().sendSitRepMessage(modelJson, JeroMQPublisher.TOPIC_SYNC);
+//        } else if (model instanceof TaskModel) {
+//            JeroMQClientPair.getInstance().sendTaskMessage(modelJson, JeroMQPublisher.TOPIC_SYNC);
+//        }
+//    }
+
+//    /**
+//     * Broadcasts OWN force BFT data to connected devices in the network
+//     *
+//     * @param message
+//     */
+//    public static void broadcastBftOwnForceDataOverSocket(String message) {
+//        Timber.i("broadcastBftOwnForceDataOverSocket");
+//
+//        JeroMQPublisher.getInstance().sendBFTMessage(message, JeroMQParent.TOPIC_OWN_FORCE);
+//    }
+//
+//    /**
+//     * Broadcasts other types BFT data to connected devices in the network
+//     *
+//     * @param message
+//     */
+//    public static void broadcastBftOthersDataOverSocket(String message) {
+//        Timber.i("broadcastBftOthersDataOverSocket");
+//
+//        JeroMQPublisher.getInstance().sendBFTMessage(message, JeroMQParent.TOPIC_OTHERS);
+//    }
 }

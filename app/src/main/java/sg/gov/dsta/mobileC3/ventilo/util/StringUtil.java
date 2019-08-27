@@ -6,10 +6,12 @@ public class StringUtil {
 
     public static final String EMPTY_STRING = "";
     public static final String INVALID_STRING = "-1";
+    public static final String N_A = "---";
     public static final String COLON = ":";
     public static final String COMMA = ",";
     public static final String DOT = ".";
     public static final String SPACE = " ";
+    public static final String QUESTION_MARK = "?";
     public static final String TAB = "\t";
     public static final String OPEN_BRACKET = "(";
     public static final String CLOSE_BRACKET = ")";
@@ -48,6 +50,15 @@ public class StringUtil {
         }
     }
 
+    public static String getLastWord(String text) {
+        int index = text.lastIndexOf(' ');
+        if (index > -1) {                       // Check if there is more than one word
+            return text.substring(index + 1);   // Extract last word
+        } else {
+            return text;                        // Text is the word itself
+        }
+    }
+
     public static String removeFirstWord(String text) {
         int index = text.indexOf(' ');
         if (index > -1) {                       // Check if there is more than one word
@@ -55,6 +66,24 @@ public class StringUtil {
         } else {
             return "";                          // Remaining text is empty after removing first word
         }
+    }
+
+    public static String removeFirstWordForMoreThanOneWord(String text) {
+        int index = text.indexOf(' ');
+        if (index > -1) {                       // Check if there is more than one word
+            return text.substring(index + 1);   // Remove first word
+        } else {
+            return text;                        // Returned text is the original text
+                                                // as there is only one word
+        }
+    }
+
+    public static String getLastChar(String text) {
+        return String.valueOf(text.charAt(text.length() - 1));
+    }
+
+    public static String getStringAfterLastIndexOfChar(String text, String lastIndexOfChar) {
+        return text.substring(text.lastIndexOf(lastIndexOfChar) + 1);
     }
 
     public static String generateRandomString() {

@@ -1,36 +1,36 @@
 package sg.gov.dsta.mobileC3.ventilo.network.jeroMQ;
 
 import android.app.Application;
-import android.util.Log;
 
 import com.google.gson.Gson;
 
+import org.greenrobot.eventbus.EventBus;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMQException;
 
-import java.nio.channels.ClosedChannelException;
 import java.util.List;
 
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.database.DatabaseOperation;
-import sg.gov.dsta.mobileC3.ventilo.model.join.UserSitRepJoinModel;
-import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
+import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
+import sg.gov.dsta.mobileC3.ventilo.model.eventbus.BftEvent;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
+import sg.gov.dsta.mobileC3.ventilo.repository.BFTRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.SitRepRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.TaskRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserRepository;
-import sg.gov.dsta.mobileC3.ventilo.repository.UserSitRepJoinRepository;
-import sg.gov.dsta.mobileC3.ventilo.repository.UserTaskJoinRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
+import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 import sg.gov.dsta.mobileC3.ventilo.util.GsonCreator;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.ValidationUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import timber.log.Timber;
 
 public class JeroMQSubscriberRunnable implements Runnable {
@@ -74,6 +74,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
                 }
             }
         }
+
         Timber.i("Subscriber poller closed.");
     }
 
@@ -81,72 +82,110 @@ public class JeroMQSubscriberRunnable implements Runnable {
         mIsPollerToBeClosed = true;
     }
 
-    private void storeMessageInDatabase(Socket socket) {
+    private synchronized void storeMessageInDatabase(Socket socket) {
         String message = "";
         try {
             message = socket.recvStr();
+
+            Timber.i("Received message: %s", message);
+
+            String messageTopic = StringUtil.getFirstWord(message);
+            String messageContent = StringUtil.removeFirstWord(message);
+            String[] messageTopicParts = messageTopic.split(StringUtil.HYPHEN);
+
+            // For e.g. PREFIX-USER, PREFIX-RADIO, PREFIX-BFT, PREFIX-SITREP, PREFIX-TASK
+            String messageMainTopic = messageTopicParts[0].
+                    concat(StringUtil.HYPHEN).concat(messageTopicParts[1]);
+
+//            String messageTopicAction = "";
+
+            // For e.g. SYNC, INSERT, UPDATE, DELETE
+            // Only BFT message does not have message topic action
+//            if (!messageTopic.equalsIgnoreCase(JeroMQPublisher.TOPIC_PREFIX_BFT)) {
+//                messageTopicAction = messageTopicParts[2];
+//            }
+            String messageTopicAction = messageTopicParts[2];
+
+            switch (messageMainTopic) {
+                case JeroMQPublisher.TOPIC_PREFIX_USER:
+                    storeUserMessage(messageContent, messageTopicAction);
+                    break;
+                case JeroMQPublisher.TOPIC_PREFIX_RADIO:
+                    storeRadioMessage(messageContent, messageTopicAction);
+                    break;
+                case JeroMQPublisher.TOPIC_PREFIX_BFT:
+                    storeBftMessage(messageContent, messageTopicAction);
+//                    updateBftWithMessage(message);
+                    break;
+                case JeroMQPublisher.TOPIC_PREFIX_SITREP:
+                    storeSitRepMessage(messageContent, messageTopicAction);
+                    break;
+                case JeroMQPublisher.TOPIC_PREFIX_TASK:
+                    storeTaskMessage(messageContent, messageTopicAction);
+                    break;
+                default:
+                    break;
+            }
+
+            try {
+                Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE); //milliseconds
+
+            } catch (InterruptedException e) {
+                Timber.i("Sub socket thread interrupted.");
+
+            }
+
         } catch (ZMQException e) {
-            Timber.i("Socket exception - %s" , e);
-            Timber.i("Closing sub socket..");
-
-            socket.close();
-
-            Timber.i("Sub socket closed..");
-
-        }
-
-        String messageTopic = StringUtil.getFirstWord(message);
-        String messageContent = StringUtil.removeFirstWord(message);
-        String[] messageTopicParts = messageTopic.split(StringUtil.HYPHEN);
-
-        // For e.g. PREFIX-USER, PREFIX-RADIO, PREFIX-BFT, PREFIX-SITREP, PREFIX-TASK
-        String messageMainTopic = messageTopicParts[0].
-                concat(StringUtil.HYPHEN).concat(messageTopicParts[1]);
-
-        // For e.g. SYNC, INSERT, UPDATE, DELETE
-        String messageTopicAction = messageTopicParts[2];
-
-        switch (messageMainTopic) {
-            case JeroMQPublisher.TOPIC_PREFIX_USER:
-                storeUserMessage(messageContent, messageTopicAction);
-                break;
-            case JeroMQPublisher.TOPIC_PREFIX_RADIO:
-                storeRadioMessage(messageContent, messageTopicAction);
-                break;
-            case JeroMQPublisher.TOPIC_PREFIX_BFT:
-                storeBFTMessage(messageContent);
-                break;
-            case JeroMQPublisher.TOPIC_PREFIX_SITREP:
-                storeSitRepMessage(messageContent, messageTopicAction);
-                break;
-            case JeroMQPublisher.TOPIC_PREFIX_TASK:
-                storeTaskMessage(messageContent, messageTopicAction);
-                break;
-            default:
-                break;
-        }
-
-
-        Timber.i("Received message: %s" , message);
-        try {
-            Thread.sleep(1000); //milliseconds
-        } catch (InterruptedException e) {
-
-            Timber.i("Sub socket thread interrupted.");
+            Timber.i("Socket exception - %s", e);
+//            Timber.i("Closing sub socket..");
+//
+//            socket.close();
+//
+//            Timber.i("Sub socket closed..");
         }
     }
 
     /**
-     * Store incoming BFT JSON messages from other devices into local database
+     * Sends incoming BFT messages from other devices to listener in Map Ship Blueprint fragment
      *
      * @param jsonMsg
+     * @param messageTopicAction
      */
-    private void storeBFTMessage(String jsonMsg) {
-        Timber.i("storeBFTMessage jsonMsg: %s" ,jsonMsg);
+    private synchronized void storeBftMessage(String jsonMsg, String messageTopicAction) {
+//        Timber.i("updateBftWithMessage bftMsg: %s", bftMsg);
+//
+//        EventBus.getDefault().post(BftEvent.getInstance().setBftMessage(bftMsg));
 
-//        case JeroMQPublisher.TOPIC_PREFIX_BFT_SYNC:
-//        databaseOperation.insertBFTIntoDatabase(sitRepRepo, sitRepModel);
-//        break;
+        Timber.i("storeBftMessage jsonMsg: %s", jsonMsg);
+
+        if (MainApplication.getAppContext() instanceof Application) {
+            DatabaseOperation databaseOperation = new DatabaseOperation();
+            BFTRepository bftRepo = new BFTRepository((Application) MainApplication.getAppContext());
+            Gson gson = GsonCreator.createGson();
+            BFTModel bftModel = gson.fromJson(jsonMsg, BFTModel.class);
+
+            if (!SharedPreferenceUtil.getCurrentUserCallsignID().equalsIgnoreCase(bftModel.getUserId())) {
+                switch (messageTopicAction) {
+                    case JeroMQPublisher.TOPIC_INSERT:
+                        Timber.i("storeUserMessage insert");
+
+                        databaseOperation.insertBftIntoDatabase(bftRepo, bftModel);
+                        break;
+
+//                    case JeroMQPublisher.TOPIC_UPDATE:
+//                        Timber.i("storeUserMessage update");
+//
+//                        databaseOperation.updateUserInDatabase(bftRepo, bftModel);
+//                        break;
+//
+//                    case JeroMQPublisher.TOPIC_DELETE:
+//                        Timber.i("storeUserMessage delete");
+//
+//                        databaseOperation.deleteUserInDatabase(bftRepo, userModel.getUserId());
+//                        break;
+                }
+            }
+        }
     }
 
     /**
@@ -155,8 +194,8 @@ public class JeroMQSubscriberRunnable implements Runnable {
      *
      * @param jsonMsg
      */
-    private void storeRadioMessage(String jsonMsg, String messageTopicAction) {
-        Timber.i("storeRadioMessage jsonMsg: %s" ,jsonMsg);
+    private synchronized void storeRadioMessage(String jsonMsg, String messageTopicAction) {
+        Timber.i("storeRadioMessage jsonMsg: %s", jsonMsg);
 
         if (MainApplication.getAppContext() instanceof Application) {
             DatabaseOperation databaseOperation = new DatabaseOperation();
@@ -167,12 +206,6 @@ public class JeroMQSubscriberRunnable implements Runnable {
                     WaveRelayRadioModel.class);
 
             switch (messageTopicAction) {
-                case JeroMQPublisher.TOPIC_SYNC:
-                    Timber.i("storeRadioMessage sync");
-
-                    handleRadioDataSync(databaseOperation, waveRelayRadioRepository,
-                            waveRelayRadioModel);
-                    break;
                 case JeroMQPublisher.TOPIC_INSERT:
                     Timber.i("storeRadioMessage insert");
                     databaseOperation.insertRadioIntoDatabase(waveRelayRadioRepository,
@@ -180,9 +213,16 @@ public class JeroMQSubscriberRunnable implements Runnable {
                     break;
                 case JeroMQPublisher.TOPIC_UPDATE:
                     Timber.i("storeRadioMessage update");
-                    databaseOperation.updateRadioInDatabase(waveRelayRadioRepository,
-                            waveRelayRadioModel);
+
+                    if (waveRelayRadioModel.getUserId() != null &&
+                            !SharedPreferenceUtil.getCurrentUserCallsignID().
+                                    equalsIgnoreCase(waveRelayRadioModel.getUserId())) {
+                        databaseOperation.updateRadioInDatabase(waveRelayRadioRepository,
+                                waveRelayRadioModel);
+                    }
+
                     break;
+
                 case JeroMQPublisher.TOPIC_DELETE:
                     Timber.i("storeRadioMessage delete");
                     databaseOperation.deleteRadioInDatabase(waveRelayRadioRepository,
@@ -231,7 +271,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
 
             @Override
             public void onError(Throwable e) {
-                Timber.e("onError singleObserverSyncRadio, handleRadioDataSync.Error Msg: %s" , e.toString());
+                Timber.e("onError singleObserverSyncRadio, handleRadioDataSync.Error Msg: %s", e.toString());
 
             }
         };
@@ -245,8 +285,8 @@ public class JeroMQSubscriberRunnable implements Runnable {
      *
      * @param jsonMsg
      */
-    private void storeUserMessage(String jsonMsg, String messageTopicAction) {
-        Timber.i("storeUserMessage jsonMsg: %s" , jsonMsg);
+    private synchronized void storeUserMessage(String jsonMsg, String messageTopicAction) {
+        Timber.i("storeUserMessage jsonMsg: %s", jsonMsg);
 
         if (MainApplication.getAppContext() instanceof Application) {
             DatabaseOperation databaseOperation = new DatabaseOperation();
@@ -254,25 +294,26 @@ public class JeroMQSubscriberRunnable implements Runnable {
             Gson gson = GsonCreator.createGson();
             UserModel userModel = gson.fromJson(jsonMsg, UserModel.class);
 
-            switch (messageTopicAction) {
-                case JeroMQPublisher.TOPIC_SYNC:
-                    Timber.i("storeUserMessage sync");
+            if (!SharedPreferenceUtil.getCurrentUserCallsignID().equalsIgnoreCase(userModel.getUserId())) {
+                switch (messageTopicAction) {
+                    case JeroMQPublisher.TOPIC_INSERT:
+                        Timber.i("storeUserMessage insert");
 
-                    handleUserDataSync(databaseOperation, userRepo, userModel);
-                    break;
-                case JeroMQPublisher.TOPIC_INSERT:
-                    Timber.i("storeUserMessage insert");
-                    databaseOperation.insertUserIntoDatabase(userRepo, userModel);
-                    break;
-                case JeroMQPublisher.TOPIC_UPDATE:
-                    Timber.i("storeUserMessage update");
-                    databaseOperation.updateUserInDatabase(userRepo, userModel);
-                    break;
-                case JeroMQPublisher.TOPIC_DELETE:
-                    Timber.i("storeUserMessage delete");
+                        databaseOperation.insertUserIntoDatabase(userRepo, userModel);
+                        break;
 
-                    databaseOperation.deleteUserInDatabase(userRepo, userModel.getUserId());
-                    break;
+                    case JeroMQPublisher.TOPIC_UPDATE:
+                        Timber.i("storeUserMessage update");
+
+                        databaseOperation.updateUserInDatabase(userRepo, userModel);
+                        break;
+
+                    case JeroMQPublisher.TOPIC_DELETE:
+                        Timber.i("storeUserMessage delete");
+
+                        databaseOperation.deleteUserInDatabase(userRepo, userModel.getUserId());
+                        break;
+                }
             }
         }
     }
@@ -313,7 +354,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
 
             @Override
             public void onError(Throwable e) {
-                Timber.e("onError singleObserverSyncUser, handleUserDataSync. Error Msg: %s" , e.toString());
+                Timber.e("onError singleObserverSyncUser, handleUserDataSync. Error Msg: %s", e.toString());
 
 
             }
@@ -327,9 +368,8 @@ public class JeroMQSubscriberRunnable implements Runnable {
      *
      * @param jsonMsg
      */
-    private void storeSitRepMessage(String jsonMsg, String messageTopicAction) {
-        Timber.i("storeSitRepMessage jsonMsg:%s " , jsonMsg);
-
+    private synchronized void storeSitRepMessage(String jsonMsg, String messageTopicAction) {
+        Timber.i("storeSitRepMessage jsonMsg:%s ", jsonMsg);
 
         if (MainApplication.getAppContext() instanceof Application) {
             DatabaseOperation databaseOperation = new DatabaseOperation();
@@ -338,11 +378,11 @@ public class JeroMQSubscriberRunnable implements Runnable {
             SitRepModel sitRepModel = gson.fromJson(jsonMsg, SitRepModel.class);
 
             switch (messageTopicAction) {
-                case JeroMQPublisher.TOPIC_SYNC:
-
-
-                    handleSitRepDataSync(databaseOperation, sitRepRepo, sitRepModel);
-                    break;
+//                case JeroMQPublisher.TOPIC_SYNC:
+//                    Timber.i("storeSitRepMessage sync");
+//
+//                    handleSitRepDataSync(databaseOperation, sitRepRepo, sitRepModel);
+//                    break;
                 case JeroMQPublisher.TOPIC_INSERT:
                     Timber.i("storeSitRepMessage insert");
 
@@ -356,65 +396,65 @@ public class JeroMQSubscriberRunnable implements Runnable {
                 case JeroMQPublisher.TOPIC_DELETE:
                     Timber.i("storeSitRepMessage delete");
 
-                    databaseOperation.deleteSitRepInDatabase(sitRepRepo, sitRepModel.getRefId());
+                    databaseOperation.deleteSitRepInDatabase(sitRepRepo, sitRepModel.getId());
                     break;
             }
         }
     }
 
-    /**
-     * Handles incoming Sit Rep model for Synchronisation
-     *
-     * @param databaseOperation
-     * @param sitRepRepo
-     * @param sitRepModel
-     */
-    private void handleSitRepDataSync(DatabaseOperation databaseOperation, SitRepRepository sitRepRepo,
-                                      SitRepModel sitRepModel) {
-        /**
-         * Query for Sit Rep (SR) model from database with id of received SR model.
-         *
-         * If model exists in database, result will return a valid SR model
-         * Else, result will return NULL.
-         *
-         * If result returns a valid SR model, update returned SR model with received SR model
-         * Else, insert received SR model into database.
-         */
-        SingleObserver<SitRepModel> singleObserverSyncSitRep = new SingleObserver<SitRepModel>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-            }
-
-            @Override
-            public void onSuccess(SitRepModel matchedSitRepModel) {
-                if (matchedSitRepModel == null) {
-                    Timber.i("Inserting new Sit Rep model from synchronisation...");
-
-                    databaseOperation.insertSitRepIntoDatabase(sitRepRepo, sitRepModel);
-                } else {
-                    Timber.i("Updating Sit Rep model from synchronisation...");
-
-                    databaseOperation.updateSitRepInDatabase(sitRepRepo, sitRepModel);
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Timber.i("onError singleObserverSyncSitRep, syncSitRepInDatabase. Error Msg: %s" , e.toString());
-
-            }
-        };
-
-        databaseOperation.querySitRepByRefIdInDatabase(sitRepRepo, sitRepModel.getId(), singleObserverSyncSitRep);
-    }
+//    /**
+//     * Handles incoming Sit Rep model for Synchronisation
+//     *
+//     * @param databaseOperation
+//     * @param sitRepRepo
+//     * @param sitRepModel
+//     */
+//    private void handleSitRepDataSync(DatabaseOperation databaseOperation, SitRepRepository sitRepRepo,
+//                                      SitRepModel sitRepModel) {
+//        /**
+//         * Query for Sit Rep (SR) model from database with id of received SR model.
+//         *
+//         * If model exists in database, result will return a valid SR model
+//         * Else, result will return NULL.
+//         *
+//         * If result returns a valid SR model, update returned SR model with received SR model
+//         * Else, insert received SR model into database.
+//         */
+//        SingleObserver<SitRepModel> singleObserverSyncSitRep = new SingleObserver<SitRepModel>() {
+//            @Override
+//            public void onSubscribe(Disposable d) {
+//            }
+//
+//            @Override
+//            public void onSuccess(SitRepModel matchedSitRepModel) {
+//                if (matchedSitRepModel == null) {
+//                    Timber.i("Inserting new Sit Rep model from synchronisation...");
+//
+//                    databaseOperation.insertSitRepIntoDatabase(sitRepRepo, sitRepModel);
+//                } else {
+//                    Timber.i("Updating Sit Rep model from synchronisation...");
+//
+//                    databaseOperation.updateSitRepInDatabase(sitRepRepo, sitRepModel);
+//                }
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//                Timber.i("onError singleObserverSyncSitRep, syncSitRepInDatabase. Error Msg: %s" , e.toString());
+//            }
+//        };
+//
+//        databaseOperation.querySitRepByCreatedDateTimeInDatabase(sitRepRepo,
+//                sitRepModel.getCreatedDateTime(), singleObserverSyncSitRep);
+//    }
 
     /**
      * Stores/updates/deletes/synchronises incoming Task JSON messages from other devices into local database
      *
      * @param jsonMsg
      */
-    private void storeTaskMessage(String jsonMsg, String messageTopicAction) {
-        Timber.i("storeTaskMessage jsonMsg: %s" , jsonMsg);
+    private synchronized void storeTaskMessage(String jsonMsg, String messageTopicAction) {
+        Timber.i("storeTaskMessage jsonMsg: %s", jsonMsg);
 
         if (MainApplication.getAppContext() instanceof Application) {
             DatabaseOperation databaseOperation = new DatabaseOperation();
@@ -423,11 +463,11 @@ public class JeroMQSubscriberRunnable implements Runnable {
             TaskModel taskModel = gson.fromJson(jsonMsg, TaskModel.class);
 
             switch (messageTopicAction) {
-                case JeroMQPublisher.TOPIC_SYNC:
-                    Timber.i("storeTaskMessage sync");
-
-                    handleTaskRepDataSync(databaseOperation, taskRepo, taskModel);
-                    break;
+//                case JeroMQPublisher.TOPIC_SYNC:
+//                    Timber.i("storeTaskMessage sync");
+//
+//                    handleTaskRepDataSync(databaseOperation, taskRepo, taskModel);
+//                    break;
                 case JeroMQPublisher.TOPIC_INSERT:
                     Timber.i("storeTaskMessage insert");
 
@@ -441,57 +481,57 @@ public class JeroMQSubscriberRunnable implements Runnable {
                 case JeroMQPublisher.TOPIC_DELETE:
                     Timber.i("storeTaskMessage delete");
 
-                    databaseOperation.deleteTaskInDatabase(taskRepo, taskModel.getRefId());
+                    databaseOperation.deleteTaskInDatabase(taskRepo, taskModel.getId());
                     break;
             }
         }
     }
 
-    /**
-     * Handles incoming Task model for Synchronisation
-     *
-     * @param databaseOperation
-     * @param taskRepo
-     * @param taskModel
-     */
-    private void handleTaskRepDataSync(DatabaseOperation databaseOperation, TaskRepository taskRepo,
-                                       TaskModel taskModel) {
-        /**
-         * Query for Task model from database with id of received Task model.
-         *
-         * If model exists in database, result will return a valid Task model
-         * Else, result will return NULL.
-         *
-         * If result returns a valid SR model, update returned SR model with received SR model
-         * Else, insert received SR model into database.
-         */
-        SingleObserver<TaskModel> singleObserverSyncTask = new SingleObserver<TaskModel>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-            }
-
-            @Override
-            public void onSuccess(TaskModel matchedTaskModel) {
-                if (matchedTaskModel == null) {
-                    Timber.i("Inserting new Task model from synchronisation...");
-
-                    databaseOperation.insertTaskIntoDatabase(taskRepo, taskModel);
-                } else {
-                    Timber.i("Updating Task model from synchronisation...");
-                    databaseOperation.updateTaskInDatabase(taskRepo, taskModel);
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-                Timber.i("onError singleObserverSyncTask, syncTaskInDatabase. Error Msg: %s" , e.toString());
-
-            }
-        };
-
-        databaseOperation.queryTaskByRefIdInDatabase(taskRepo, taskModel.getId(), singleObserverSyncTask);
-    }
+//    /**
+//     * Handles incoming Task model for Synchronisation
+//     *
+//     * @param databaseOperation
+//     * @param taskRepo
+//     * @param taskModel
+//     */
+//    private void handleTaskRepDataSync(DatabaseOperation databaseOperation, TaskRepository taskRepo,
+//                                       TaskModel taskModel) {
+//        /**
+//         * Query for Task model from database with id of received Task model.
+//         *
+//         * If model exists in database, result will return a valid Task model
+//         * Else, result will return NULL.
+//         *
+//         * If result returns a valid SR model, update returned SR model with received SR model
+//         * Else, insert received SR model into database.
+//         */
+//        SingleObserver<TaskModel> singleObserverSyncTask = new SingleObserver<TaskModel>() {
+//            @Override
+//            public void onSubscribe(Disposable d) {
+//            }
+//
+//            @Override
+//            public void onSuccess(TaskModel matchedTaskModel) {
+//                if (matchedTaskModel == null) {
+//                    Timber.i("Inserting new Task model from synchronisation...");
+//
+//                    databaseOperation.insertTaskIntoDatabase(taskRepo, taskModel);
+//                } else {
+//                    Timber.i("Updating Task model from synchronisation...");
+//
+//                    databaseOperation.updateTaskInDatabase(taskRepo, taskModel);
+//                }
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//                Timber.i("onError singleObserverSyncTask, syncTaskInDatabase. Error Msg: %s" , e.toString());
+//            }
+//        };
+//
+//        databaseOperation.queryTaskByCreatedDateTimeInDatabase(taskRepo,
+//                taskModel.getCreatedDateTime(), singleObserverSyncTask);
+//    }
 
     /**
      * Subscribe socket list to all relevant topics
@@ -501,11 +541,12 @@ public class JeroMQSubscriberRunnable implements Runnable {
     private void subscribeTopics(List<Socket> socketList) {
         for (int i = 0; i < mSocketList.size(); i++) {
             Socket socket = socketList.get(i);
-            socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_BFT.getBytes());
-            socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_USER.getBytes());
-            socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_RADIO.getBytes());
-            socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_SITREP.getBytes());
-            socket.subscribe(JeroMQPublisher.TOPIC_PREFIX_TASK.getBytes());
+//            socket.subscribe("".getBytes());
+            socket.subscribe(JeroMQParent.TOPIC_PREFIX_USER.getBytes());
+            socket.subscribe(JeroMQParent.TOPIC_PREFIX_RADIO.getBytes());
+            socket.subscribe(JeroMQParent.TOPIC_PREFIX_BFT.getBytes());
+            socket.subscribe(JeroMQParent.TOPIC_PREFIX_SITREP.getBytes());
+            socket.subscribe(JeroMQParent.TOPIC_PREFIX_TASK.getBytes());
         }
     }
 

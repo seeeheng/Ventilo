@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_sync_with_callsign"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/linear_layout_sync_with_callsign"
+        android:layout_width="@dimen/user_settings_sync_with_callsign_container_width"
+        android:layout_height="@dimen/user_settings_sync_with_callsign_container_height"
+        android:background="@drawable/rounded_corner_dark_grey_background_with_border"
+        android:orientation="vertical"
+        android:padding="@dimen/elements_margin_spacing"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/user_settings_sync_with_callsign_header_height"
+            android:gravity="center_vertical"
+            android:text="@string/sync_with_callsign"
+            android:textColor="@color/primary_white"
+            android:textSize="@dimen/sub_header_text_size" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/thin_line_margin"
+            android:background="@color/divider_line_primary_grey" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/user_settings_sync_with_callsign_recycler_height"
+            android:layout_marginTop="@dimen/elements_small_margin_spacing">
+
+            <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                android:id="@+id/tv_user_settings_sync_with_callsign_no_one"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal"
+                android:visibility="gone"
+                android:text="@string/sync_with_callsign_no_user_available"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_user_settings_sync_with_callsign"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical" />
+
+        </FrameLayout>
+
+        <include
+            android:id="@+id/layout_sync_with_callsign_cancel_img_text_img_btn"
+            layout="@layout/layout_img_text_img_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/elements_margin_spacing"
+            android:foreground="?android:selectableItemBackground" />
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
