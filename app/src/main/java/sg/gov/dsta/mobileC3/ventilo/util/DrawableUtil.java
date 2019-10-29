@@ -108,9 +108,14 @@ public class DrawableUtil {
         return returnedBitmap;
     }
 
+    /**
+     * Convert from byte array to bitmap
+     *
+     * @param bytes
+     * @return
+     */
     public static Bitmap getBitmapFromBytes(byte[] bytes) {
-        Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        return bmp;
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
     }
 
     public static boolean IsValidImage(byte[] bytes) {

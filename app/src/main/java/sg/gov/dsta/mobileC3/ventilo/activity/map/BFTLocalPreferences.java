@@ -1,12 +1,24 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.map;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
+import io.reactivex.SingleObserver;
+import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.model.map.MapModel;
+import sg.gov.dsta.mobileC3.ventilo.repository.MapRepository;
+import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.FileUtil;
+import timber.log.Timber;
 
 public class BFTLocalPreferences {
 
@@ -15,10 +27,14 @@ public class BFTLocalPreferences {
 
     private ArrayList<String> floors = new ArrayList();
     private int currentFloor = 0;
-    private double mapScale = 250; // 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris, however, works on 119.91)
-//    private double mapScale = 300; // 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris, however, works on 119.91)
-    private double onePixelToMetres = (11.82 / 1400 * mapScale / 100); // For Avatar; 0.021 (Avatar); 0.05291 (BW Paris)
-//    private double onePixelToMetres = (41.45 / 2350 * mapScale / 100); // For BW Paris; 0.021 (Avatar); 0.05291 (BW Paris)
+    //    private double mapScale = 44.98599; // 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris)
+    private double mapScale = 250; // 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris), 1cm to 29.52756 (Indoor Range)
+    //    private double mapScale = 300; // 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris), 1cm to 29.52756 (Indoor Range)
+//    private double onePixelToMetres = (82.07 / 3102 * mapScale / 100); // For Indoor Range; 0.021 (Avatar); 0.05291 (BW Paris)
+    private double onePixelToMetres = (11.82 / 1400 * mapScale / 100); // For Avatar; 0.021 (Avatar); 0.05291 (BW Paris); 0.0078125 (Indoor Range)
+//    private double onePixelToMetres = (41.45 / 2350 * mapScale / 100); // For BW Paris; 0.021 (Avatar); 0.05291 (BW Paris); 0.0078125 (Indoor Range)
+
+//    private double onePixelToMetres;
 
     public double getBeaconActivateDistance() {
         return Double.valueOf(this.prefs.getString(context.getResources().getString(R.string.estimoteDist), "null"));
@@ -71,6 +87,12 @@ public class BFTLocalPreferences {
         PreferenceManager.setDefaultValues(context, R.xml.preferences, true);
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
+//        // TODO: Uncomment this after test
+        setGaScale();
+
+        //Ground floor up
+//        floors.add(0, "leaflet-indoor-range.html");
+
 //        //Ground floor up
         floors.add(0, "leaflet-avatar-deck3rd.html");
         floors.add(1, "leaflet-avatar-deck2nd.html");
@@ -121,6 +143,85 @@ public class BFTLocalPreferences {
 
     public String getOverview() {
         return floors.get(floors.size() - 1);
+    }
+
+    private int getReferenceMapHeightInPixel() {
+        File[] mapFiles = FileUtil.getAllFilesInMapBlueprintImagesFolder();
+
+        for (File mapFile : mapFiles) {
+            if (mapFile.isFile()) {
+//                System.out.println("File " + mapFile.getName());
+                Bitmap mapBitmap = FileUtil.getBitmapFromFile(mapFile.getAbsolutePath());
+
+                if (mapBitmap != null && mapBitmap.getWidth() != 0) {
+                    return mapBitmap.getWidth();
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Set one pixel to metres measurement factor based on map blueprint in external folder
+     */
+    public void setOnePixelToMetresFromExternalFolder(float gaScale) {
+
+        int referenceMapHeightInPixel = getReferenceMapHeightInPixel();
+
+        if (referenceMapHeightInPixel != 0) {
+            mapScale = gaScale;
+//            onePixelToMetres = (41.45 / 2350 * mapScale / 100);
+            double referenceMapHeightInCm = DimensionUtil.convertPixelToCm(referenceMapHeightInPixel);
+            onePixelToMetres = (referenceMapHeightInCm / referenceMapHeightInPixel) * mapScale / 100;
+
+        } else {
+            mapScale = 250;
+            onePixelToMetres = (11.82 / 1400 * mapScale / 100);
+
+        }
+    }
+
+    /**
+     * Extract GA scale from the first map model in local database
+     */
+    private void setGaScale() {
+
+        MapRepository mapRepo = new MapRepository((Application) MainApplication.getAppContext());
+
+        // Access Map model to get GA scale of image
+        SingleObserver<List<MapModel>> singleObserverGetAllMaps = new SingleObserver<List<MapModel>>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onSuccess(List<MapModel> mapModelList) {
+
+                Timber.i("onSuccess singleObserverGetAllMaps, setGaScale. mapModelList.size(): %s", mapModelList.size());
+
+                if (mapModelList.size() > 0) {
+
+                    int referenceMapHeightInPixel = getReferenceMapHeightInPixel();
+
+                    if (referenceMapHeightInPixel != 0) {
+                        mapScale = Float.valueOf(mapModelList.get(0).getGaScale());
+//                        onePixelToMetres = (41.45 / 2350 * mapScale / 100);
+                        double referenceMapHeightInCm = DimensionUtil.convertPixelToCm(referenceMapHeightInPixel);
+                        onePixelToMetres = (referenceMapHeightInCm / referenceMapHeightInPixel) * mapScale / 100;
+                    }
+
+                }
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e("onError singleObserverGetAllMaps, setGaScale. Error Msg: %s", e.toString());
+            }
+        };
+
+        mapRepo.getAllMaps(singleObserverGetAllMaps);
     }
 
     public double getMetresFromPixels(double pixels) {

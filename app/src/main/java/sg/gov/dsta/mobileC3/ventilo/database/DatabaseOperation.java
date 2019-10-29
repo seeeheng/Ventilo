@@ -10,6 +10,7 @@ import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserSitRepJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
+import sg.gov.dsta.mobileC3.ventilo.model.map.MapModel;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
@@ -17,6 +18,7 @@ import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.repository.BFTRepository;
+import sg.gov.dsta.mobileC3.ventilo.repository.MapRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.SitRepRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.TaskRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserRepository;
@@ -26,13 +28,34 @@ import sg.gov.dsta.mobileC3.ventilo.repository.VideoStreamRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.DatabaseTableConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.bft.EBftType;
 import timber.log.Timber;
 
 public class DatabaseOperation {
 
     private static final String TAG = DatabaseOperation.class.getSimpleName();
 
-    public DatabaseOperation() {
+    private static volatile DatabaseOperation instance;
+
+    private DatabaseOperation() {
+    }
+
+    /**
+     * Create/get singleton class instance
+     *
+     * @return
+     */
+    public synchronized static DatabaseOperation getInstance() {
+        // Double check locking pattern (check if instance is null twice)
+        if (instance == null) {
+            synchronized (DatabaseOperation.class) {
+                if (instance == null) {
+                    instance = new DatabaseOperation();
+                }
+            }
+        }
+
+        return instance;
     }
 
     /* ---------------------------------------- User ---------------------------------------- */
@@ -43,8 +66,8 @@ public class DatabaseOperation {
      * @param userRepo
      * @param singleObserver
      */
-    public void getAllUsersFromDatabase(UserRepository userRepo,
-                                        SingleObserver<List<UserModel>> singleObserver) {
+    public synchronized void getAllUsersFromDatabase(UserRepository userRepo,
+                                                     SingleObserver<List<UserModel>> singleObserver) {
         userRepo.getAllUsers(singleObserver);
     }
 
@@ -55,8 +78,8 @@ public class DatabaseOperation {
      * @param userId
      * @param singleObserver
      */
-    public void queryUserByUserIdInDatabase(UserRepository userRepo, String userId,
-                                            SingleObserver<UserModel> singleObserver) {
+    public synchronized void queryUserByUserIdInDatabase(UserRepository userRepo, String userId,
+                                                         SingleObserver<UserModel> singleObserver) {
         userRepo.queryUserByUserId(userId, singleObserver);
     }
 
@@ -66,7 +89,7 @@ public class DatabaseOperation {
      * @param userRepo
      * @param userModel
      */
-    public void insertUserIntoDatabase(UserRepository userRepo, UserModel userModel) {
+    public synchronized void insertUserIntoDatabase(UserRepository userRepo, UserModel userModel) {
         userRepo.insertUser(userModel);
     }
 
@@ -76,7 +99,7 @@ public class DatabaseOperation {
      * @param userRepo
      * @param userModel
      */
-    public void updateUserInDatabase(UserRepository userRepo, UserModel userModel) {
+    public synchronized void updateUserInDatabase(UserRepository userRepo, UserModel userModel) {
         userRepo.updateUser(userModel);
     }
 
@@ -86,8 +109,20 @@ public class DatabaseOperation {
      * @param userRepo
      * @param userId
      */
-    public void deleteUserInDatabase(UserRepository userRepo, String userId) {
+    public synchronized void deleteUserInDatabase(UserRepository userRepo, String userId) {
         userRepo.deleteUser(userId);
+    }
+
+    /* ---------------------------------------- Map GA ---------------------------------------- */
+
+    /**
+     * Insertion of Map model into database
+     *
+     * @param mapRepo
+     * @param mapModel
+     */
+    public synchronized void insertMapIntoDatabase(MapRepository mapRepo, MapModel mapModel) {
+        mapRepo.insertMap(mapModel);
     }
 
     /* ---------------------------------------- Radio ---------------------------------------- */
@@ -98,8 +133,8 @@ public class DatabaseOperation {
      * @param waveRelayRadioRepo
      * @param singleObserver
      */
-    public void getAllRadiosFromDatabase(WaveRelayRadioRepository waveRelayRadioRepo,
-                                         SingleObserver<List<WaveRelayRadioModel>> singleObserver) {
+    public synchronized void getAllRadiosFromDatabase(WaveRelayRadioRepository waveRelayRadioRepo,
+                                                      SingleObserver<List<WaveRelayRadioModel>> singleObserver) {
         waveRelayRadioRepo.getAllWaveRelayRadios(singleObserver);
     }
 
@@ -110,8 +145,8 @@ public class DatabaseOperation {
      * @param radioId
      * @param singleObserver
      */
-    public void queryRadioByRadioIdInDatabase(WaveRelayRadioRepository waveRelayRadioRepo, long radioId,
-                                              SingleObserver<WaveRelayRadioModel> singleObserver) {
+    public synchronized void queryRadioByRadioIdInDatabase(WaveRelayRadioRepository waveRelayRadioRepo, long radioId,
+                                                           SingleObserver<WaveRelayRadioModel> singleObserver) {
         waveRelayRadioRepo.queryRadioByRadioId(radioId, singleObserver);
     }
 
@@ -121,8 +156,8 @@ public class DatabaseOperation {
      * @param waveRelayRadioRepo
      * @param waveRelayRadioModel
      */
-    public void insertRadioIntoDatabase(WaveRelayRadioRepository waveRelayRadioRepo,
-                                        WaveRelayRadioModel waveRelayRadioModel) {
+    public synchronized void insertRadioIntoDatabase(WaveRelayRadioRepository waveRelayRadioRepo,
+                                                     WaveRelayRadioModel waveRelayRadioModel) {
         waveRelayRadioRepo.insertWaveRelayRadio(waveRelayRadioModel);
     }
 
@@ -132,8 +167,8 @@ public class DatabaseOperation {
      * @param waveRelayRadioRepo
      * @param waveRelayRadioModel
      */
-    public void updateRadioInDatabase(WaveRelayRadioRepository waveRelayRadioRepo,
-                                      WaveRelayRadioModel waveRelayRadioModel) {
+    public synchronized void updateRadioInDatabase(WaveRelayRadioRepository waveRelayRadioRepo,
+                                                   WaveRelayRadioModel waveRelayRadioModel) {
         waveRelayRadioRepo.updateWaveRelayRadio(waveRelayRadioModel);
     }
 
@@ -143,7 +178,7 @@ public class DatabaseOperation {
      * @param waveRelayRadioRepo
      * @param radioId
      */
-    public void deleteRadioInDatabase(WaveRelayRadioRepository waveRelayRadioRepo, long radioId) {
+    public synchronized void deleteRadioInDatabase(WaveRelayRadioRepository waveRelayRadioRepo, long radioId) {
         waveRelayRadioRepo.deleteWaveRelayRadio(radioId);
     }
 
@@ -157,56 +192,147 @@ public class DatabaseOperation {
      */
     public synchronized void insertBftIntoDatabase(BFTRepository bftRepo, BFTModel bftModel) {
 
-        SingleObserver<BFTModel> singleObserverGetBFT = new SingleObserver<BFTModel>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-            }
+        // If available, there should only be ONE Bft model which has current user Id AND 'Own' or 'Own-Stale' Type.
+        if (EBftType.OWN.toString().equalsIgnoreCase(bftModel.getType()) ||
+                EBftType.OWN_STALE.toString().equalsIgnoreCase(bftModel.getType())) {
 
-            @Override
-            public void onSuccess(BFTModel bftModelToUpdate) {
+            SingleObserver<List<BFTModel>> singleObserverGetBFT = new SingleObserver<List<BFTModel>>() {
+                @Override
+                public void onSubscribe(Disposable d) {
+                }
 
-                Timber.i("onSuccess singleObserverGetBFT, insertBftIntoDatabase. bftModelToUpdate: %s", bftModelToUpdate);
+                @Override
+                public void onSuccess(List<BFTModel> bftModelToUpdateList) {
 
-                // If available, there should only be ONE unique BFT model of searched parameters
-                // (user id, type and created date & time)
-                if (bftModelToUpdate != null) {
-                    bftModelToUpdate.setUserId(bftModel.getUserId());
-                    bftModelToUpdate.setXCoord(bftModel.getXCoord());
-                    bftModelToUpdate.setYCoord(bftModel.getYCoord());
-                    bftModelToUpdate.setAltitude(bftModel.getAltitude());
-                    bftModelToUpdate.setBearing(bftModel.getBearing());
-                    bftModelToUpdate.setAction(bftModel.getAction());
-                    bftModelToUpdate.setType(bftModel.getType());
-                    bftModelToUpdate.setMissingHeartBeatCount(bftModel.getMissingHeartBeatCount());
-                    bftRepo.updateBFT(bftModelToUpdate);
+                    Timber.i("onSuccess singleObserverGetBFT, insertBftIntoDatabase. bftModelToUpdateList.size: %s", bftModelToUpdateList.size());
+
+                    BFTModel bftModelToUpdate = null;
+
+                    if (bftModelToUpdateList.size() == 0) {
+                        Timber.i("Inserting BFTTT");
+                        BFTModel bftModelToInsert = new BFTModel();
+                        bftModelToInsert.setRefId(bftModel.getRefId());
+                        bftModelToInsert.setUserId(bftModel.getUserId());
+                        bftModelToInsert.setXCoord(bftModel.getXCoord());
+                        bftModelToInsert.setYCoord(bftModel.getYCoord());
+                        bftModelToInsert.setAltitude(bftModel.getAltitude());
+                        bftModelToInsert.setBearing(bftModel.getBearing());
+                        bftModelToInsert.setAction(bftModel.getAction());
+                        bftModelToInsert.setType(bftModel.getType());
+                        bftModelToInsert.setCreatedDateTime(bftModel.getCreatedDateTime());
+                        bftModelToInsert.setMissingHeartBeatCount(bftModel.getMissingHeartBeatCount());
+                        bftRepo.insertBFT(bftModelToInsert);
+
+                    }
+
+                    if (bftModelToUpdateList.size() == 1) {
+                        bftModelToUpdate = bftModelToUpdateList.get(0);
+                        Timber.i("Only ONE other BFTTT");
+                    }
+
+                    // Update existing entry in database
+                    if (bftModelToUpdate != null) {
+
+                        if (bftModel.getCreatedDateTime().
+                                compareTo(bftModelToUpdate.getCreatedDateTime()) >= 0) {
+
+                            if (bftModelToUpdate.getRefId() != bftModel.getRefId()) {
+                                bftModelToUpdate.setRefId(bftModel.getRefId());
+                                bftModelToUpdate.setCreatedDateTime(bftModel.getCreatedDateTime());
+                            }
+
+                            Timber.i("Updating BFTTT");
+                            bftModelToUpdate.setXCoord(bftModel.getXCoord());
+                            bftModelToUpdate.setYCoord(bftModel.getYCoord());
+                            bftModelToUpdate.setAltitude(bftModel.getAltitude());
+                            bftModelToUpdate.setBearing(bftModel.getBearing());
+                            bftModelToUpdate.setAction(bftModel.getAction());
+                            bftModelToUpdate.setType(bftModel.getType());
+                            bftModelToUpdate.setMissingHeartBeatCount(bftModel.getMissingHeartBeatCount());
+                            bftRepo.updateBFT(bftModelToUpdate);
+
+                        }
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+
+                    Timber.e("onError singleObserverGetBFT, insertBftIntoDatabase. Error Msg: %s", e.toString());
+
+                    BFTModel bftModelToInsert = new BFTModel();
+                    bftModelToInsert.setRefId(bftModel.getRefId());
+                    bftModelToInsert.setUserId(bftModel.getUserId());
+                    bftModelToInsert.setXCoord(bftModel.getXCoord());
+                    bftModelToInsert.setYCoord(bftModel.getYCoord());
+                    bftModelToInsert.setAltitude(bftModel.getAltitude());
+                    bftModelToInsert.setBearing(bftModel.getBearing());
+                    bftModelToInsert.setAction(bftModel.getAction());
+                    bftModelToInsert.setType(bftModel.getType());
+                    bftModelToInsert.setCreatedDateTime(bftModel.getCreatedDateTime());
+                    bftModelToInsert.setMissingHeartBeatCount(bftModel.getMissingHeartBeatCount());
+                    bftRepo.insertBFT(bftModelToInsert);
 
                 }
-            }
+            };
 
-            @Override
-            public void onError(Throwable e) {
+            bftRepo.queryBFTByUserIdAndOwnType(bftModel.getUserId(), singleObserverGetBFT);
 
-                Timber.e("onError singleObserverGetBFT, insertBftIntoDatabase. Error Msg: %s", e.toString());
+        } else {
 
-                BFTModel bftModelToInsert = new BFTModel();
-                bftModelToInsert.setRefId(bftModel.getRefId());
-                bftModelToInsert.setUserId(bftModel.getUserId());
-                bftModelToInsert.setXCoord(bftModel.getXCoord());
-                bftModelToInsert.setYCoord(bftModel.getYCoord());
-                bftModelToInsert.setAltitude(bftModel.getAltitude());
-                bftModelToInsert.setBearing(bftModel.getBearing());
-                bftModelToInsert.setAction(bftModel.getAction());
-                bftModelToInsert.setType(bftModel.getType());
-                bftModelToInsert.setCreatedDateTime(bftModel.getCreatedDateTime());
-                bftModelToInsert.setMissingHeartBeatCount(bftModel.getMissingHeartBeatCount());
-                bftRepo.insertBFT(bftModelToInsert);
+            SingleObserver<BFTModel> singleObserverGetBFT = new SingleObserver<BFTModel>() {
+                @Override
+                public void onSubscribe(Disposable d) {
+                }
 
-            }
-        };
+                @Override
+                public void onSuccess(BFTModel bftModelToUpdate) {
 
-//            bftRepo.queryBFTByUserIdAndTypeAndCreatedDateTime(bftModel.getUserId(), bftModel.getType(),
-//                    bftModel.getCreatedDateTime(), singleObserverGetBFT);
-        bftRepo.queryBFTByRefId(bftModel.getRefId(), singleObserverGetBFT);
+                    Timber.i("onSuccess singleObserverGetBFT, insertBftIntoDatabase. bftModelToUpdate: %s", bftModelToUpdate);
+
+                    // If available, there should only be ONE unique BFT model of searched parameters
+                    // (user id, type and created date & time)
+                    if (bftModelToUpdate != null) {
+                        bftModelToUpdate.setUserId(bftModel.getUserId());
+                        bftModelToUpdate.setXCoord(bftModel.getXCoord());
+                        bftModelToUpdate.setYCoord(bftModel.getYCoord());
+                        bftModelToUpdate.setAltitude(bftModel.getAltitude());
+                        bftModelToUpdate.setBearing(bftModel.getBearing());
+                        bftModelToUpdate.setAction(bftModel.getAction());
+                        bftModelToUpdate.setType(bftModel.getType());
+                        bftModelToUpdate.setMissingHeartBeatCount(bftModel.getMissingHeartBeatCount());
+                        bftRepo.updateBFT(bftModelToUpdate);
+
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+
+                    Timber.e("onError singleObserverGetBFT, insertBftIntoDatabase. Error Msg: %s", e.toString());
+
+                    BFTModel bftModelToInsert = new BFTModel();
+                    bftModelToInsert.setRefId(bftModel.getRefId());
+                    bftModelToInsert.setUserId(bftModel.getUserId());
+                    bftModelToInsert.setXCoord(bftModel.getXCoord());
+                    bftModelToInsert.setYCoord(bftModel.getYCoord());
+                    bftModelToInsert.setAltitude(bftModel.getAltitude());
+                    bftModelToInsert.setBearing(bftModel.getBearing());
+                    bftModelToInsert.setAction(bftModel.getAction());
+                    bftModelToInsert.setType(bftModel.getType());
+                    bftModelToInsert.setCreatedDateTime(bftModel.getCreatedDateTime());
+                    bftModelToInsert.setMissingHeartBeatCount(bftModel.getMissingHeartBeatCount());
+                    bftRepo.insertBFT(bftModelToInsert);
+
+                }
+            };
+
+            bftRepo.queryBFTByUserIdAndCreatedDateTime(bftModel.getUserId(),
+                    bftModel.getCreatedDateTime(), singleObserverGetBFT);
+        }
+
+
+//        bftRepo.queryBFTByRefId(bftModel.getRefId(), singleObserverGetBFT);
 //        }
     }
 
@@ -216,7 +342,7 @@ public class DatabaseOperation {
      * @param bftRepository
      * @param bftId
      */
-    public void deleteBftInDatabase(BFTRepository bftRepository, long bftId) {
+    public synchronized void deleteBftInDatabase(BFTRepository bftRepository, long bftId) {
         bftRepository.deleteBFT(bftId);
     }
 
@@ -238,8 +364,8 @@ public class DatabaseOperation {
      * @param videoStreamRepo
      * @param singleObserver
      */
-    public void getAllVideoStreamsFromDatabase(VideoStreamRepository videoStreamRepo,
-                                               SingleObserver<List<VideoStreamModel>> singleObserver) {
+    public synchronized void getAllVideoStreamsFromDatabase(VideoStreamRepository videoStreamRepo,
+                                                            SingleObserver<List<VideoStreamModel>> singleObserver) {
         videoStreamRepo.getAllVideoStreams(singleObserver);
     }
 
@@ -249,8 +375,8 @@ public class DatabaseOperation {
      * @param videoStreamRepo
      * @param videoStreamModel
      */
-    public void insertVideoStreamIntoDatabase(VideoStreamRepository videoStreamRepo,
-                                              VideoStreamModel videoStreamModel) {
+    public synchronized void insertVideoStreamIntoDatabase(VideoStreamRepository videoStreamRepo,
+                                                           VideoStreamModel videoStreamModel) {
         videoStreamRepo.insertVideoStream(videoStreamModel);
     }
 
@@ -260,8 +386,8 @@ public class DatabaseOperation {
      * @param videoStreamRepo
      * @param videoStreamModel
      */
-    public void updateVideoStreamInDatabase(VideoStreamRepository videoStreamRepo,
-                                            VideoStreamModel videoStreamModel) {
+    public synchronized void updateVideoStreamInDatabase(VideoStreamRepository videoStreamRepo,
+                                                         VideoStreamModel videoStreamModel) {
         videoStreamRepo.updateVideoStream(videoStreamModel);
     }
 
@@ -271,8 +397,8 @@ public class DatabaseOperation {
      * @param videoStreamRepo
      * @param videoStreamId
      */
-    public void deleteVideoStreamInDatabase(VideoStreamRepository videoStreamRepo,
-                                            long videoStreamId) {
+    public synchronized void deleteVideoStreamInDatabase(VideoStreamRepository videoStreamRepo,
+                                                         long videoStreamId) {
         videoStreamRepo.deleteVideoStream(videoStreamId);
     }
 
@@ -284,8 +410,8 @@ public class DatabaseOperation {
      * @param sitRepRepo
      * @param singleObserver
      */
-    public void getAllSitRepsFromDatabase(SitRepRepository sitRepRepo,
-                                          SingleObserver<List<SitRepModel>> singleObserver) {
+    public synchronized void getAllSitRepsFromDatabase(SitRepRepository sitRepRepo,
+                                                       SingleObserver<List<SitRepModel>> singleObserver) {
         sitRepRepo.getAllSitReps(singleObserver);
     }
 
@@ -296,8 +422,8 @@ public class DatabaseOperation {
      * @param sitRepId
      * @param singleObserver
      */
-    public void querySitRepByRefIdInDatabase(SitRepRepository sitRepRepo, long sitRepId,
-                                             SingleObserver<SitRepModel> singleObserver) {
+    public synchronized void querySitRepByRefIdInDatabase(SitRepRepository sitRepRepo, long sitRepId,
+                                                          SingleObserver<SitRepModel> singleObserver) {
         sitRepRepo.querySitRepByRefId(sitRepId, singleObserver);
     }
 
@@ -308,9 +434,45 @@ public class DatabaseOperation {
      * @param createdDateTime
      * @param singleObserver
      */
-    public void querySitRepByCreatedDateTimeInDatabase(SitRepRepository sitRepRepo, String createdDateTime,
-                                                       SingleObserver<SitRepModel> singleObserver) {
+    public synchronized void querySitRepByCreatedDateTimeInDatabase(SitRepRepository sitRepRepo, String createdDateTime,
+                                                                    SingleObserver<SitRepModel> singleObserver) {
         sitRepRepo.querySitRepByCreatedDateTime(createdDateTime, singleObserver);
+    }
+
+    /**
+     * Checks if there is an existing copy of Sit Rep model
+     *
+     * @param sitRepRepo
+     * @param sitRepModel
+     */
+    public synchronized void queryAndInsertSitRepIntoDatabase(SitRepRepository sitRepRepo, SitRepModel sitRepModel) {
+        // Get sitRepId after adding Sit Rep model into database
+        // Use newly generated sitRepId to create UserSitRepJoin entry in composite table
+        SingleObserver<SitRepModel> singleObserverGetSitRep = new SingleObserver<SitRepModel>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onSuccess(SitRepModel existingSitRepModel) {
+                Timber.i("onSuccess singleObserverGetSitRep, queryAndInsertSitRepIntoDatabase. SitRepId: %d", sitRepModel.getId());
+
+                if (existingSitRepModel != null) {
+                    updateSitRepInDatabase(sitRepRepo, sitRepModel);
+                } else {
+                    insertSitRepIntoDatabase(sitRepRepo, sitRepModel);
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e("onError singleObserverGetSitRep, queryAndInsertSitRepIntoDatabase. Error Msg: %s", e.toString());
+                insertSitRepIntoDatabase(sitRepRepo, sitRepModel);
+
+            }
+        };
+
+        sitRepRepo.querySitRepByCreatedDateTime(sitRepModel.getCreatedDateTime(), singleObserverGetSitRep);
     }
 
     /**
@@ -319,7 +481,7 @@ public class DatabaseOperation {
      * @param sitRepRepo
      * @param sitRepModel
      */
-    public void insertSitRepIntoDatabase(SitRepRepository sitRepRepo, SitRepModel sitRepModel) {
+    public synchronized void insertSitRepIntoDatabase(SitRepRepository sitRepRepo, SitRepModel sitRepModel) {
         // Get sitRepId after adding Sit Rep model into database
         // Use newly generated sitRepId to create UserSitRepJoin entry in composite table
         SingleObserver<Long> singleObserverAddSitRep = new SingleObserver<Long>() {
@@ -329,7 +491,7 @@ public class DatabaseOperation {
 
             @Override
             public void onSuccess(Long sitRepId) {
-                Timber.i("onSuccess singleObserverAddSitRep, insertSitRepIntoDatabase. SitRepId: %d", sitRepId);
+                Timber.i("onSuccess singleObserverAddSitRep, queryAndInsertSitRepIntoDatabase. SitRepId: %d", sitRepId);
 
                 UserSitRepJoinRepository userSitRepJoinRepository = new
                         UserSitRepJoinRepository((Application) MainApplication.getAppContext());
@@ -349,7 +511,7 @@ public class DatabaseOperation {
             @Override
             public void onError(Throwable e) {
 
-                Timber.e("onError singleObserverAddSitRep, insertSitRepIntoDatabase. Error Msg: %s", e.toString());
+                Timber.e("onError singleObserverAddSitRep, queryAndInsertSitRepIntoDatabase. Error Msg: %s", e.toString());
 
             }
         };
@@ -363,7 +525,7 @@ public class DatabaseOperation {
      * @param sitRepRepo
      * @param sitRepModel
      */
-    public void updateSitRepInDatabase(SitRepRepository sitRepRepo, SitRepModel sitRepModel) {
+    public synchronized void updateSitRepInDatabase(SitRepRepository sitRepRepo, SitRepModel sitRepModel) {
         sitRepRepo.updateSitRepByRefId(sitRepModel);
 
         // If RefId is local refId, it means that received sitRepModel is from original creator
@@ -377,9 +539,9 @@ public class DatabaseOperation {
             //
             // Hence, to handle each user recipient, the following is to be done:
             // 1) For CCT - check if received RefId sitRepModel is
-            // the same as a TaskId in his own sit rep list database, and update his own sitRepModel
+            // the same as a Sit Rep Id in his own sit rep list database, and update his own sitRepModel
             // 2) For other Team Leads - received RefId sitRepModel is
-            // the same as a RefId in his own task list database, and update this sitRepModel
+            // the same as a RefId in his own Sit Rep list database, and update this sitRepModel
 
             SingleObserver<List<SitRepModel>> singleObserverGetAllSitReps = new SingleObserver<List<SitRepModel>>() {
                 @Override
@@ -435,7 +597,7 @@ public class DatabaseOperation {
      * @param sitRepRepo
      * @param sitRepId
      */
-    public void deleteSitRepInDatabase(SitRepRepository sitRepRepo, long sitRepId) {
+    public synchronized void deleteSitRepInDatabase(SitRepRepository sitRepRepo, long sitRepId) {
         sitRepRepo.deleteSitRepByRefId(sitRepId);
     }
 
@@ -447,8 +609,8 @@ public class DatabaseOperation {
      * @param taskRepo
      * @param singleObserver
      */
-    public void getAllTasksFromDatabase(TaskRepository taskRepo,
-                                        SingleObserver<List<TaskModel>> singleObserver) {
+    public synchronized void getAllTasksFromDatabase(TaskRepository taskRepo,
+                                                     SingleObserver<List<TaskModel>> singleObserver) {
         taskRepo.getAllTasks(singleObserver);
     }
 
@@ -459,8 +621,8 @@ public class DatabaseOperation {
      * @param taskId
      * @param singleObserver
      */
-    public void queryTaskByRefIdInDatabase(TaskRepository taskRepo, long taskId,
-                                           SingleObserver<TaskModel> singleObserver) {
+    public synchronized void queryTaskByRefIdInDatabase(TaskRepository taskRepo, long taskId,
+                                                        SingleObserver<TaskModel> singleObserver) {
         taskRepo.queryTaskByRefId(taskId, singleObserver);
     }
 
@@ -471,9 +633,44 @@ public class DatabaseOperation {
      * @param createdDateTime
      * @param singleObserver
      */
-    public void queryTaskByCreatedDateTimeInDatabase(TaskRepository taskRepo, String createdDateTime,
-                                                     SingleObserver<TaskModel> singleObserver) {
+    public synchronized void queryTaskByCreatedDateTimeInDatabase(TaskRepository taskRepo, String createdDateTime,
+                                                                  SingleObserver<TaskModel> singleObserver) {
         taskRepo.queryTaskByCreatedDateTime(createdDateTime, singleObserver);
+    }
+
+    /**
+     * Checks if there is an existing copy of Task model
+     *
+     * @param taskRepo
+     * @param taskModel
+     */
+    public synchronized void queryAndInsertTaskIntoDatabase(TaskRepository taskRepo, TaskModel taskModel) {
+
+        SingleObserver<TaskModel> singleObserverGetTask = new SingleObserver<TaskModel>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onSuccess(TaskModel existingTaskModel) {
+                Timber.i("onSuccess singleObserverGetTask, queryAndInsertTaskIntoDatabase. TaskId: %d", existingTaskModel.getId());
+
+                if (existingTaskModel != null) {
+                    updateTaskInDatabase(taskRepo, taskModel);
+                } else {
+                    insertTaskIntoDatabase(taskRepo, taskModel);
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e("onError singleObserverGetTask, queryAndInsertTaskIntoDatabase. Error Msg: %s", e.toString());
+                insertTaskIntoDatabase(taskRepo, taskModel);
+
+            }
+        };
+
+        taskRepo.queryTaskByCreatedDateTime(taskModel.getCreatedDateTime(), singleObserverGetTask);
     }
 
     /**
@@ -482,7 +679,7 @@ public class DatabaseOperation {
      * @param taskRepo
      * @param taskModel
      */
-    public void insertTaskIntoDatabase(TaskRepository taskRepo, TaskModel taskModel) {
+    public synchronized void insertTaskIntoDatabase(TaskRepository taskRepo, TaskModel taskModel) {
         // Get taskId after adding Task model into database
         // Use newly generated taskId to create UserTaskJoin entry in composite table
         SingleObserver<Long> singleObserverAddTask = new SingleObserver<Long>() {
@@ -492,7 +689,7 @@ public class DatabaseOperation {
 
             @Override
             public void onSuccess(Long taskId) {
-                Timber.i("onSuccess singleObserverAddTask, insertTaskIntoDatabase. TaskId: %d", taskId);
+                Timber.i("onSuccess singleObserverAddTask, queryAndInsertTaskIntoDatabase. TaskId: %d", taskId);
 
                 UserTaskJoinRepository userTaskJoinRepository = new
                         UserTaskJoinRepository((Application) MainApplication.getAppContext());
@@ -510,7 +707,7 @@ public class DatabaseOperation {
 
             @Override
             public void onError(Throwable e) {
-                Timber.e("onError singleObserverAddTask, insertTaskIntoDatabase. Error Msg: %s", e.toString());
+                Timber.e("onError singleObserverAddTask, queryAndInsertTaskIntoDatabase. Error Msg: %s", e.toString());
 
             }
         };
@@ -523,7 +720,7 @@ public class DatabaseOperation {
      *
      * @param taskModel
      */
-    public void insertTaskIntoDatabaseAndBroadcast(TaskRepository taskRepo, TaskModel taskModel) {
+    public synchronized void insertTaskIntoDatabaseAndBroadcast(TaskRepository taskRepo, TaskModel taskModel) {
 
         SingleObserver<Long> singleObserverAddTask = new SingleObserver<Long>() {
             @Override
@@ -572,7 +769,7 @@ public class DatabaseOperation {
      * @param taskRepo
      * @param taskModel
      */
-    public void updateTaskInDatabase(TaskRepository taskRepo, TaskModel taskModel) {
+    public synchronized void updateTaskInDatabase(TaskRepository taskRepo, TaskModel taskModel) {
         // If RefId is local refId, it means that received taskModel is from original creator
         // i.e. CCT originally creates a task, and updates his own task info thereafter
         if (taskModel.getRefId() == DatabaseTableConstants.LOCAL_REF_ID) {
@@ -643,7 +840,7 @@ public class DatabaseOperation {
      * @param taskRepo
      * @param taskId
      */
-    public void deleteTaskInDatabase(TaskRepository taskRepo, long taskId) {
+    public synchronized void deleteTaskInDatabase(TaskRepository taskRepo, long taskId) {
         taskRepo.deleteTaskByRefId(taskId);
     }
 }

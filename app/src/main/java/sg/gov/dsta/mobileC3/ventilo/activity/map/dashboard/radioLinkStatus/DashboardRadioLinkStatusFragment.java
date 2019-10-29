@@ -1,5 +1,6 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.radioLinkStatus;
 
+import android.app.Application;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +19,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.reactivex.SingleObserver;
+import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.radiolinkstatus.RadioLinkStatusOfflineRecyclerAdapter;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
+import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
+import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansLightTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
@@ -80,9 +87,43 @@ public class DashboardRadioLinkStatusFragment extends Fragment {
         }
 
         mRecyclerAdapterStatusOffline = new RadioLinkStatusOfflineRecyclerAdapter(getParentFragment().
-                getContext(), mRadioLinkStatusUserListItems);
+                getContext(), mRadioLinkStatusUserListItems, new ArrayList<>());
         mRecyclerViewStatusOffline.setAdapter(mRecyclerAdapterStatusOffline);
         mRecyclerViewStatusOffline.setItemAnimator(new DefaultItemAnimator());
+    }
+
+    /**
+     * Set Wave Relay Radio Info model into recycler adapter
+     */
+    private synchronized void setWaveRelayRadiosInfo() {
+        WaveRelayRadioRepository waveRelayRadioRepository = new
+                WaveRelayRadioRepository((Application) MainApplication.getAppContext());
+
+        // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
+        // asynchronously in the background thread
+        SingleObserver<List<WaveRelayRadioModel>> singleObserverAllWaveRelayRadio = new
+                SingleObserver<List<WaveRelayRadioModel>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        // add it to a CompositeDisposable
+                    }
+
+                    @Override
+                    public void onSuccess(List<WaveRelayRadioModel> waveRelayRadioModelList) {
+                        Timber.i("onSuccess singleObserverAllWaveRelayRadio, setWaveRelayRadiosInfo. waveRelayRadioModel.size(): %d", waveRelayRadioModelList.size());
+
+                        mRecyclerAdapterStatusOffline.setWaveRelayListItems(waveRelayRadioModelList);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Timber.d("onError singleObserverAllWaveRelayRadio, " +
+                                "setWaveRelayRadiosInfo. " +
+                                "Error Msg: " + e.toString());
+                    }
+                };
+
+        waveRelayRadioRepository.getAllWaveRelayRadios(singleObserverAllWaveRelayRadio);
     }
 
     /**
@@ -92,13 +133,13 @@ public class DashboardRadioLinkStatusFragment extends Fragment {
         if (mRadioLinkStatusUserListItems != null) {
             // Extracts list of radio connection status from UserModel
             List<String> radioConnectionStatusList = mRadioLinkStatusUserListItems.stream().map(
-                UserModel -> UserModel.getRadioFullConnectionStatus()).collect(Collectors.toList());
+                    UserModel -> UserModel.getRadioFullConnectionStatus()).collect(Collectors.toList());
 
             // Get count of number of users offline before displaying count
             long noOfUsersOffline = radioConnectionStatusList.stream().filter(status ->
                     status.equalsIgnoreCase(ERadioConnectionStatus.OFFLINE.toString())).count();
 
-            String offlineTotal = String.valueOf(noOfUsersOffline).concat(StringUtil.FORWARD_SLASH).
+            String offlineTotal = String.valueOf(noOfUsersOffline).concat(StringUtil.TRAILING_SLASH).
                     concat(String.valueOf(mRadioLinkStatusUserListItems.size()));
 
             mTvOfflineTotal.setText(offlineTotal);
@@ -132,6 +173,7 @@ public class DashboardRadioLinkStatusFragment extends Fragment {
 
                         if (mRecyclerAdapterStatusOffline != null) {
                             mRecyclerAdapterStatusOffline.setUserListItems(mRadioLinkStatusUserListItems);
+                            setWaveRelayRadiosInfo();
                         }
 
                         refreshUI();
@@ -148,7 +190,6 @@ public class DashboardRadioLinkStatusFragment extends Fragment {
         observerSetup();
 
         if (mRecyclerAdapterStatusOffline != null) {
-
             mRecyclerAdapterStatusOffline.notifyDataSetChanged();
         }
     }

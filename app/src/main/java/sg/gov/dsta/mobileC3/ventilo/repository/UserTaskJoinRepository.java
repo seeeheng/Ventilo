@@ -26,7 +26,7 @@ public class UserTaskJoinRepository {
         mUserTaskJoinDao = db.userTaskDao();
     }
 
-    public void addUserTaskJoin(UserTaskJoinModel userTaskJoinModel) {
+    public synchronized void addUserTaskJoin(UserTaskJoinModel userTaskJoinModel) {
         InsertAsyncTask task = new InsertAsyncTask(mUserTaskJoinDao);
 
         Runnable runnable = new Runnable() {
@@ -39,14 +39,14 @@ public class UserTaskJoinRepository {
         CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
-    public void queryTasksForUser(String userId, SingleObserver<List<TaskModel>> singleObserver) {
+    public synchronized void queryTasksForUser(String userId, SingleObserver<List<TaskModel>> singleObserver) {
         Single<List<TaskModel>> single = mUserTaskJoinDao.queryTasksForUser(userId);
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(singleObserver);
     }
 
-    public void queryUsersForTask(long taskId, SingleObserver<List<UserModel>> singleObserver) {
+    public synchronized void queryUsersForTask(long taskId, SingleObserver<List<UserModel>> singleObserver) {
         Single<List<UserModel>> single = mUserTaskJoinDao.queryUsersForTask(taskId);
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

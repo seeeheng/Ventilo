@@ -8,9 +8,7 @@ import java.util.List;
 
 import io.reactivex.SingleObserver;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
-import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.repository.BFTRepository;
-import sg.gov.dsta.mobileC3.ventilo.repository.VideoStreamRepository;
 
 public class BFTViewModel extends AndroidViewModel {
 
@@ -37,16 +35,19 @@ public class BFTViewModel extends AndroidViewModel {
         repository.queryBFTById(id, singleObserver);
     }
 
-    public void queryBFTByUserIdAndType(String userId, String type,
-                                        SingleObserver<List<BFTModel>> singleObserver) {
-        repository.queryBFTByUserIdAndType(userId, type, singleObserver);
+    public void queryBFTByUserIdAndOwnType(String userId,
+                                           SingleObserver<List<BFTModel>> singleObserver) {
+        repository.queryBFTByUserIdAndOwnType(userId, singleObserver);
     }
 
-    public void queryBFTByUserIdAndTypeAndCreatedDateTime(String userId, String type,
-                                        String createdDateTime,
-                                        SingleObserver<List<BFTModel>> singleObserver) {
-        repository.queryBFTByUserIdAndTypeAndCreatedDateTime(userId, type,
-                createdDateTime, singleObserver);
+//    public void queryBFTByUserIdAndType(String userId, String type,
+//                                        SingleObserver<List<BFTModel>> singleObserver) {
+//        repository.queryBFTByUserIdAndType(userId, type, singleObserver);
+//    }
+
+    public void queryBFTByUserIdAndCreatedDateTime(String userId, String createdDateTime,
+                                        SingleObserver<BFTModel> singleObserver) {
+        repository.queryBFTByUserIdAndCreatedDateTime(userId, createdDateTime, singleObserver);
     }
 
 //

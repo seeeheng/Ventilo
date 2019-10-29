@@ -12,11 +12,14 @@ public class StringUtil {
     public static final String DOT = ".";
     public static final String SPACE = " ";
     public static final String QUESTION_MARK = "?";
+    public static final String SINGLE_QUOTATION = "'";
     public static final String TAB = "\t";
     public static final String OPEN_BRACKET = "(";
     public static final String CLOSE_BRACKET = ")";
     public static final String HYPHEN = "-";
-    public static final String FORWARD_SLASH = "/";
+    public static final String UNDERSCORE = "_";
+    public static final String BACK_ONE_LEVEL_DIRECTORY = "..";
+    public static final String TRAILING_SLASH = "/";
     public static final String BACKWARD_SLASH = "\\";
     public static final String DEFAULT_INT = "0";
 
@@ -34,6 +37,28 @@ public class StringUtil {
         if (stringToStrip != null) {
             String stringToStripReplaced = stringToStrip.replaceAll(regexStringToBeReplaced, COMMA);
             String[] strippedStringArray = stringToStripReplaced.split(StringUtil.COMMA);
+            return strippedStringArray;
+        }
+
+        String[] strippedStringArray = {EMPTY_STRING};
+        return strippedStringArray;
+    }
+
+    public static String[] removeUnderscores(String stringToStrip) {
+
+        if (stringToStrip != null) {
+            String[] strippedStringArray = stringToStrip.split(StringUtil.UNDERSCORE);
+            return strippedStringArray;
+        }
+
+        String[] strippedStringArray = {EMPTY_STRING};
+        return strippedStringArray;
+    }
+
+    public static String[] removeTrailingSlashes(String stringToStrip) {
+
+        if (stringToStrip != null) {
+            String[] strippedStringArray = stringToStrip.split(StringUtil.TRAILING_SLASH);
             return strippedStringArray;
         }
 

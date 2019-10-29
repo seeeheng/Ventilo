@@ -11,6 +11,7 @@ import java.util.List;
 
 import io.reactivex.Single;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.bft.EBftType;
 
 @Dao
 public interface BFTDao {
@@ -39,14 +40,18 @@ public interface BFTDao {
     @Query("SELECT * FROM BFT WHERE refId = :refId")
     Single<BFTModel> getBFTByRefId(long refId);
 
+    @Query("SELECT * FROM BFT WHERE userId = :userId")
+    Single<BFTModel> getBFTByUserId(String userId);
+
+    @Query("SELECT * FROM BFT WHERE userId = :userId AND (type = 'Own' OR type = 'Own-Stale')")
+    Single<List<BFTModel>> getBFTByUserIdAndOwnType(String userId);
+
     @Query("SELECT * FROM BFT WHERE userId = :userId AND type = :type")
     Single<List<BFTModel>> getBFTByUserIdAndType(String userId, String type);
 
-    @Query("SELECT * FROM BFT WHERE userId = :userId AND type = :type " +
-            "AND createdDateTime = :createdDateTime")
-    Single<List<BFTModel>> getBFTByUserIdAndTypeAndCreatedDateTime(String userId,
-                                                                   String type,
-                                                                   String createdDateTime);
+    @Query("SELECT * FROM BFT WHERE userId = :userId AND createdDateTime = :createdDateTime")
+    Single<BFTModel> getBFTByUserIdAndCreatedDateTime(String userId,
+                                                      String createdDateTime);
 
 //    @Query("SELECT * FROM BFT WHERE userId = :userId")
 //    List<BFTModel> getAllBFTsForUser(String userId);

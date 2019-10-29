@@ -97,7 +97,7 @@ public class NetworkService extends IntentService {
 
         JeroMQPublisher.getInstance().start();
         JeroMQSubscriber.getInstance().start();
-        JeroMQServerPair.getInstance().start();
+//        JeroMQServerPair.getInstance().start();
 
         mIsServiceRegistered = false;
         stopSelf();

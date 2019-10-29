@@ -15,7 +15,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +31,7 @@ import sg.gov.dsta.mobileC3.ventilo.helper.SwipeHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.SitRepViewModel;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
-import sg.gov.dsta.mobileC3.ventilo.util.DrawableUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.FileUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
@@ -163,20 +162,35 @@ public class SitRepFragment extends Fragment {
                 if (viewHolder instanceof SitRepViewHolder) {
                         Drawable deleteSwipeActionButtonImageDrawable =
                                 ResourcesCompat.getDrawable(getResources(),
-                                        R.drawable.btn_task_swipe_action_status_delete, null);
+                                        R.drawable.btn_swipe_action_status_delete, null);
 
                         SwipeHelper.UnderlayButton deleteUnderlayButton = new SwipeHelper.UnderlayButton(
                                 "", deleteSwipeActionButtonImageDrawable, null,
                                 new SwipeHelper.UnderlayButtonClickListener() {
                                     @Override
                                     public void onClick(int pos) {
-                                        deleteTask(pos);
+                                        deleteSitRep(pos);
                                     }
                                 }
                         );
 
                         underlayButtons.add(deleteUnderlayButton);
 
+                    Drawable saveSwipeActionButtonImageDrawable =
+                            ResourcesCompat.getDrawable(getResources(),
+                                    R.drawable.btn_swipe_action_status_save, null);
+
+                    SwipeHelper.UnderlayButton saveUnderlayButton = new SwipeHelper.UnderlayButton(
+                            "", saveSwipeActionButtonImageDrawable, null,
+                            new SwipeHelper.UnderlayButtonClickListener() {
+                                @Override
+                                public void onClick(int pos) {
+                                    saveSitRepIntoDesignatedFolder(pos);
+                                }
+                            }
+                    );
+
+                    underlayButtons.add(saveUnderlayButton);
                 }
             }
         };
@@ -188,7 +202,12 @@ public class SitRepFragment extends Fragment {
         sitRepSwipeHelper.attachSwipe();
     }
 
-    private void deleteTask(int position) {
+    private void saveSitRepIntoDesignatedFolder(int position) {
+        SitRepModel sitRepModelAtPos = mRecyclerAdapter.getSitRepModelAtPosition(position);
+        FileUtil.saveSitRepIntoFile(sitRepModelAtPos);
+    }
+
+    private void deleteSitRep(int position) {
         SitRepModel sitRepModelAtPos = mRecyclerAdapter.getSitRepModelAtPosition(position);
         mSitRepViewModel.deleteSitRep(sitRepModelAtPos.getId());
         JeroMQBroadcastOperation.broadcastDataDeletionOverSocket(sitRepModelAtPos);
@@ -307,7 +326,7 @@ public class SitRepFragment extends Fragment {
     }
 
     /**
-     * Obtain all VALID Task Models from database
+     * Obtain all VALID (not deleted) Sit Rep Models from database
      * @param sitRepModelList
      * @return
      */

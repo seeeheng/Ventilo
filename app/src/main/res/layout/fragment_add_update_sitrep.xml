@@ -52,10 +52,49 @@
                 </LinearLayout>
 
                 <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                    android:id="@+id/tv_add_update_sitrep_sitrep_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/elements_margin_spacing"
+                    android:text="@string/sitrep_sitrep_type"
+                    android:textColor="@color/primary_text_grey"
+                    android:textSize="@dimen/text_view_small_text_size" />
+
+                <RadioGroup
+                    android:id="@+id/radio_group_add_update_sitrep_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/radio_btn_add_update_sitrep_type_mission"
+                        android:layout_width="@dimen/img_btn_fixed_width"
+                        android:layout_height="@dimen/img_btn_fixed_height"
+                        android:layout_marginEnd="@dimen/elements_margin_spacing"
+                        android:background="@drawable/radio_button_type_selector"
+                        android:button="@android:color/transparent"
+                        android:gravity="center"
+                        android:text="@string/sitrep_type_mission"
+                        android:textColor="@drawable/radio_button_text_selector"
+                        android:textSize="@dimen/text_view_small_text_size" />
+
+                    <RadioButton
+                        android:id="@+id/radio_btn_add_update_sitrep_type_inspection"
+                        android:layout_width="@dimen/img_btn_fixed_width"
+                        android:layout_height="@dimen/img_btn_fixed_height"
+                        android:background="@drawable/radio_button_type_selector"
+                        android:button="@android:color/transparent"
+                        android:gravity="center"
+                        android:text="@string/sitrep_type_inspection"
+                        android:textColor="@drawable/radio_button_text_selector"
+                        android:textSize="@dimen/text_view_small_text_size" />
+
+                </RadioGroup>
+
+                <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
                     android:id="@+id/tv_add_update_sitrep_picture"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/elements_margin_spacing"
                     android:padding="@dimen/elements_margin_spacing"
                     android:text="@string/sitrep_picture"
                     android:textColor="@color/primary_text_grey"
@@ -115,168 +154,537 @@
                 </FrameLayout>
 
                 <LinearLayout
-                    android:id="@+id/layout_add_update_sitrep_location"
+                    android:id="@+id/layout_sitrep_mission_report"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/elements_margin_spacing"
+                    android:gravity="end"
                     android:orientation="vertical">
 
-                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                        android:id="@+id/tv_add_update_sitrep_location"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="@dimen/elements_margin_spacing"
-                        android:padding="@dimen/elements_margin_spacing"
-                        android:text="@string/sitrep_location"
-                        android:textColor="@color/primary_text_grey"
-                        android:textSize="@dimen/text_view_small_text_size" />
-
-                    <include
-                        android:id="@+id/layout_add_update_sitrep_input_location"
-                        layout="@layout/layout_spinner_edittext_broad"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/layout_add_update_sitrep_activity"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                        android:id="@+id/tv_add_update_sitrep_activity"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="@dimen/elements_margin_spacing"
-                        android:padding="@dimen/elements_margin_spacing"
-                        android:text="@string/sitrep_activity"
-                        android:textColor="@color/primary_text_grey"
-                        android:textSize="@dimen/text_view_small_text_size" />
-
-                    <include
-                        android:id="@+id/layout_add_update_sitrep_input_activity"
-                        layout="@layout/layout_spinner_edittext_broad"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/layout_add_update_sitrep_personnel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/elements_large_margin_spacing"
-                    android:orientation="vertical">
-
-                    <include
-                        android:id="@+id/layout_add_update_sitrep_personnel_T"
-                        layout="@layout/layout_sitrep_personnel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/elements_margin_spacing"
-                        android:layout_marginBottom="@dimen/elements_large_margin_spacing" />
-
-                    <include
-                        android:id="@+id/layout_add_update_sitrep_personnel_S"
-                        layout="@layout/layout_sitrep_personnel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/elements_margin_spacing"
-                        android:layout_marginBottom="@dimen/elements_large_margin_spacing" />
-
-                    <include
-                        android:id="@+id/layout_add_update_sitrep_personnel_D"
-                        layout="@layout/layout_sitrep_personnel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/elements_margin_spacing" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/layout_add_update_sitrep_next_coa"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                        android:id="@+id/tv_add_update_sitrep_next_coa"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="@dimen/elements_margin_spacing"
-                        android:padding="@dimen/elements_margin_spacing"
-                        android:text="@string/sitrep_next_coa"
-                        android:textColor="@color/primary_text_grey"
-                        android:textSize="@dimen/text_view_small_text_size" />
-
-                    <include
-                        android:id="@+id/layout_add_update_sitrep_input_next_coa"
-                        layout="@layout/layout_spinner_edittext_broad"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/layout_add_update_sitrep_request"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                        android:id="@+id/tv_add_update_sitrep_request"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="@dimen/elements_margin_spacing"
-                        android:padding="@dimen/elements_margin_spacing"
-                        android:text="@string/sitrep_request"
-                        android:textColor="@color/primary_text_grey"
-                        android:textSize="@dimen/text_view_small_text_size" />
-
-                    <include
-                        android:id="@+id/layout_add_update_sitrep_input_request"
-                        layout="@layout/layout_spinner_edittext_broad"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/layout_add_update_sitrep_others"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
-                        android:id="@+id/tv_add_update_sitrep_others"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="@dimen/elements_margin_spacing"
-                        android:padding="@dimen/elements_margin_spacing"
-                        android:text="@string/sitrep_others"
-                        android:textColor="@color/primary_text_grey"
-                        android:textSize="@dimen/text_view_small_text_size" />
-
-                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
-                        android:id="@+id/etv_add_update_sitrep_input_others"
-                        style="@style/EditTextView_Main"
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_location"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:hint="@string/sitrep_others_hint"
-                        android:textSize="@dimen/text_view_text_size" />
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_location"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_location"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <include
+                            android:id="@+id/layout_add_update_sitrep_input_location"
+                            layout="@layout/layout_spinner_edittext_broad"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_activity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_activity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_activity"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <include
+                            android:id="@+id/layout_add_update_sitrep_input_activity"
+                            layout="@layout/layout_spinner_edittext_broad"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_personnel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/elements_large_margin_spacing"
+                        android:orientation="vertical">
+
+                        <include
+                            android:id="@+id/layout_add_update_sitrep_personnel_T"
+                            layout="@layout/layout_sitrep_personnel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/elements_margin_spacing"
+                            android:layout_marginBottom="@dimen/elements_large_margin_spacing" />
+
+                        <include
+                            android:id="@+id/layout_add_update_sitrep_personnel_S"
+                            layout="@layout/layout_sitrep_personnel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/elements_margin_spacing"
+                            android:layout_marginBottom="@dimen/elements_large_margin_spacing" />
+
+                        <include
+                            android:id="@+id/layout_add_update_sitrep_personnel_D"
+                            layout="@layout/layout_sitrep_personnel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/elements_margin_spacing" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_next_coa"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_next_coa"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_next_coa"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <include
+                            android:id="@+id/layout_add_update_sitrep_input_next_coa"
+                            layout="@layout/layout_spinner_edittext_broad"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_request"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_request"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_request"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <include
+                            android:id="@+id/layout_add_update_sitrep_input_request"
+                            layout="@layout/layout_spinner_edittext_broad"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_others"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_others"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_others"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
+                            android:id="@+id/etv_add_update_sitrep_input_others"
+                            style="@style/EditTextView_Main"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:hint="@string/sitrep_others_hint"
+                            android:textSize="@dimen/text_view_text_size" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="18dp" />
 
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/layout_sitrep_inspection_report"
                     android:layout_width="match_parent"
-                    android:layout_height="18dp" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/elements_margin_spacing"
+                    android:gravity="end"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_vessel_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_vessel_type"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_vessel_type"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <include
+                            android:id="@+id/layout_add_update_sitrep_input_vessel_type"
+                            layout="@layout/layout_spinner_edittext_broad"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_vessel_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_vessel_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_vessel_name"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <include
+                            android:id="@+id/layout_add_update_sitrep_input_vessel_name"
+                            layout="@layout/layout_spinner_edittext_broad"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_lpoc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_lpoc"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_lpoc"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <include
+                            android:id="@+id/layout_add_update_sitrep_input_lpoc"
+                            layout="@layout/layout_spinner_edittext_broad"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_npoc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_npoc"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_npoc"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <include
+                            android:id="@+id/layout_add_update_sitrep_input_npoc"
+                            layout="@layout/layout_spinner_edittext_broad"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_last_visit_to_sg"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_last_visit_to_sg"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_last_visit_to_sg"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
+                            android:id="@+id/etv_add_update_sitrep_input_last_visit_to_sg"
+                            style="@style/EditTextView_Main"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:hint="@string/sitrep_last_visit_to_sg_hint"
+                            android:textSize="@dimen/text_view_text_size" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_vessel_last_boarded"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_vessel_last_boarded"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_vessel_last_boarded"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
+                            android:id="@+id/etv_add_update_sitrep_input_vessel_last_boarded"
+                            style="@style/EditTextView_Main"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:hint="@string/sitrep_vessel_last_boarded_hint"
+                            android:textSize="@dimen/text_view_text_size" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_cargo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_cargo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_cargo"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <include
+                            android:id="@+id/layout_add_update_sitrep_input_cargo"
+                            layout="@layout/layout_spinner_edittext_broad"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_purpose_of_call"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_purpose_of_call"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_purpose_of_call"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
+                            android:id="@+id/etv_add_update_sitrep_input_purpose_of_call"
+                            style="@style/EditTextView_Main"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:hint="@string/sitrep_purpose_of_call_hint"
+                            android:textSize="@dimen/text_view_text_size" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_duration"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_duration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_duration"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
+                            android:id="@+id/etv_add_update_sitrep_input_duration"
+                            style="@style/EditTextView_Main"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:hint="@string/sitrep_duration_hint"
+                            android:textSize="@dimen/text_view_text_size" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_current_crew"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_current_crew"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_current_crew"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
+                            android:id="@+id/etv_add_update_sitrep_input_current_crew"
+                            style="@style/EditTextView_Main"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:hint="@string/sitrep_current_crew_hint"
+                            android:textSize="@dimen/text_view_text_size" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_current_master"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_current_master"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_current_master"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
+                            android:id="@+id/etv_add_update_sitrep_input_current_master"
+                            style="@style/EditTextView_Main"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:hint="@string/sitrep_current_master_hint"
+                            android:textSize="@dimen/text_view_text_size" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_current_ce"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_current_ce"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_current_ce"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
+                            android:id="@+id/etv_add_update_sitrep_input_current_ce"
+                            style="@style/EditTextView_Main"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:hint="@string/sitrep_current_ce_hint"
+                            android:textSize="@dimen/text_view_text_size" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_add_update_sitrep_queries"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
+                            android:id="@+id/tv_add_update_sitrep_queries"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_margin_spacing"
+                            android:text="@string/sitrep_queries"
+                            android:textColor="@color/primary_text_grey"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
+                            android:id="@+id/etv_add_update_sitrep_input_queries"
+                            style="@style/EditTextView_Main"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:hint="@string/sitrep_queries_hint"
+                            android:textSize="@dimen/text_view_text_size" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
 
             </LinearLayout>
 

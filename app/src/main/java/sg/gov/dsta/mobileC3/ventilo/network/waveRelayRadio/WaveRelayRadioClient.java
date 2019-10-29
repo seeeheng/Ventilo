@@ -21,6 +21,7 @@ import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
 import sg.gov.dsta.mobileC3.ventilo.repository.BFTRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
@@ -50,12 +51,13 @@ public class WaveRelayRadioClient implements WaveRelayRadioJobService.WaveRelayR
 
     private WaveRelayRadioJobService mWaveRelayRadioJobService;
     private static WaveRelayRadioSocketClient mWrWebSocketClient;
-//    private Timer mCheckRadioConnectionTimer;
+    //    private Timer mCheckRadioConnectionTimer;
 //    private static int mLastIncomingMsgCount;
 //    private static int mSameIncomingMsgCount;
 //    private int mCountBeforeReconnection;
     private int mUsbConnectionLostCount;
     private String mSocketUrl;
+    private boolean mIsFirstConnection = true;
 
     public WaveRelayRadioClient(String ownRadioIpAddress) {
         Log.i(TAG, "OWN Radio IP Address: " + ownRadioIpAddress);
@@ -86,7 +88,8 @@ public class WaveRelayRadioClient implements WaveRelayRadioJobService.WaveRelayR
                     Timber.i("Running Wave Relay Connection Check...");
 
                     if ((mWrWebSocketClient == null || !mWrWebSocketClient.isOpen()) &&
-                            isUsbConnected() && isRndisTetheringActive && mSocketUrl != null) {
+//                            isUsbConnected() && isRndisTetheringActive && mSocketUrl != null) {
+                            isRndisTetheringActive && mSocketUrl != null) {
 
 //                        if (mWrWebSocketClient != null && mUsbConnectionLostCount >= 3) {
                         if (mWrWebSocketClient != null) {
@@ -100,6 +103,14 @@ public class WaveRelayRadioClient implements WaveRelayRadioJobService.WaveRelayR
 
                         mWrWebSocketClient.setSocketUsername("factory");
                         mWrWebSocketClient.setSocketPassword("password");
+
+//                        if (mUsbConnectionLostCount >= 3) {
+//                            JeroMQPublisher.getInstance().start();
+//                        }
+
+                        if (!mIsFirstConnection) {
+                            JeroMQPublisher.getInstance().start();
+                        }
 
                         /**
                          * mWrWebSocketClient.connectBlocking() is a blocking connection attempt.
@@ -134,46 +145,54 @@ public class WaveRelayRadioClient implements WaveRelayRadioJobService.WaveRelayR
 //                    }
 
                     if (mWrWebSocketClient != null && mWrWebSocketClient.isOpen()) {
-                        Log.d(TAG, "mWrWebSocketClient.getIncomingMsgCount() is " + mWrWebSocketClient.getIncomingMsgCount());
                         Log.d(TAG, "mWrWebSocketClient.getConnection().getReadyState(): " + mWrWebSocketClient.getConnection().getReadyState());
 
-                        if (!isUsbConnected()) {
-                            mUsbConnectionLostCount++;
-                        } else {
-                            mUsbConnectionLostCount = 0;
+                        if (mIsFirstConnection) {
+                            mIsFirstConnection = false;
+                        }
 
-                            //                        Log.d(TAG, "mWrWebSocketClient.getConnection().isOpen(): " + mWrWebSocketClient.getConnection().isOpen());
+//                        if (!isUsbConnected()) {
+//                            mUsbConnectionLostCount++;
+//                        } else {
+//                            mUsbConnectionLostCount = 0;
+
+                        //                        Log.d(TAG, "mWrWebSocketClient.getConnection().isOpen(): " + mWrWebSocketClient.getConnection().isOpen());
 //                        Log.d(TAG, "mWrWebSocketClient.getConnection().isFlushAndClose(): " + mWrWebSocketClient.getConnection().isFlushAndClose());
 //                        Log.d(TAG, "mWrWebSocketClient.getConnection().isConnecting(): " + mWrWebSocketClient.getConnection().isConnecting());
 
-                            /**
-                             * Actual connection and sending of data takes place here.
-                             * mWrWebSocketClient.get(String var) returns a string of what was sent
-                             * to the socket server (NOT THE RESPONSE FROM THE SERVER)
-                             */
-                            Log.i(TAG, "********************");
+                        /**
+                         * Actual connection and sending of data takes place here.
+                         * mWrWebSocketClient.get(String var) returns a string of what was sent
+                         * to the socket server (NOT THE RESPONSE FROM THE SERVER)
+                         */
+                        Log.i(TAG, "********************");
 
 //                    String[] vars = {"waverelay_name", "waverelay_ip", "ip_flow_list"};
-                            String[] vars = {"waverelay_neighbors_json"};
+                        String[] vars = {"waverelay_neighbors_json"};
 
-                            Log.i(TAG, "mWrWebSocketClient packets received: " + mWrWebSocketClient.get(vars));
-                            Log.i(TAG, "********************");
-                        }
-
-                        if (mWrWebSocketClient != null && mUsbConnectionLostCount >= 2) {
-                            mWrWebSocketClient.updateConnectionIfNeeded(ERadioConnectionStatus.OFFLINE.toString());
-                        }
-
-                        if (mUsbConnectionLostCount >= 3) {
-                            mWrWebSocketClient.close();
-                            mWrWebSocketClient = null;
-                        }
+                        Log.i(TAG, "mWrWebSocketClient packets received: " + mWrWebSocketClient.get(vars));
+                        Log.i(TAG, "********************");
                     }
 
-//                    // Broadcast current user's disconnection to other devices while disconnected from radio
-//                    if (mWrWebSocketClient != null && !mWrWebSocketClient.isOpen()) {
-//                        mWrWebSocketClient.updateConnectionIfNeeded(ERadioConnectionStatus.OFFLINE.toString());
+//                        if (mWrWebSocketClient != null && mUsbConnectionLostCount >= 2) {
+//                            mWrWebSocketClient.updateConnectionIfNeeded(ERadioConnectionStatus.OFFLINE.toString());
+//                        }
+
+//                        if (mUsbConnectionLostCount >= 3) {
+//                            mWrWebSocketClient.close();
+//                            JeroMQPublisher.getInstance().stop();
+//                            mWrWebSocketClient = null;
+//                        }
 //                    }
+
+//                    // Broadcast current user's disconnection to other devices while disconnected from radio
+                    if (mWrWebSocketClient != null && !mWrWebSocketClient.isOpen()) {
+                        mWrWebSocketClient.updateConnectionIfNeeded(ERadioConnectionStatus.OFFLINE.toString());
+
+//                        mWrWebSocketClient.close();
+                        JeroMQPublisher.getInstance().stop();
+                        mWrWebSocketClient = null;
+                    }
 
                 } catch (InterruptedException e) {
                     Log.i(TAG, "wrWebSocketClient InterruptedException: " + e);
@@ -309,6 +328,7 @@ public class WaveRelayRadioClient implements WaveRelayRadioJobService.WaveRelayR
 
                         waveRelayRadioModel.setUserId(null);
                         waveRelayRadioModel.setPhoneIpAddress(StringUtil.INVALID_STRING);
+                        waveRelayRadioModel.setSignalToNoiseRatio(StringUtil.N_A);
                         waveRelayRadioRepository.updateWaveRelayRadio(waveRelayRadioModel);
                     }
                 }

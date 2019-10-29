@@ -14,6 +14,7 @@ import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EAdHocTaskPriority;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EPhaseNo;
@@ -67,43 +68,92 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
         itemViewHolder.getTvTitle().setText(item.getTitle());
 
-        // -------------------- Get Current User Task Status --------------------
-        String[] allTeams = StringUtil.removeCommasAndExtraSpaces(item.getAssignedTo());
+        String[] assignedToStrArray = StringUtil.removeCommasAndExtraSpaces(item.getAssignedTo());
+        String[] statusStrArray = StringUtil.removeCommasAndExtraSpaces(item.getStatus());
 
         String team = "Team ".concat(item.getAssignedTo());
         itemViewHolder.getTvAssignedTo().setText(team);
-
-        String currentUserCallsign = SharedPreferenceUtil.getCurrentUserCallsignID();
-        int currentUserTaskStatusIndex = 0;
-
-        for (int j = 0; j < allTeams.length; j++) {
-            if (allTeams[j].equalsIgnoreCase(currentUserCallsign)) {
-                currentUserTaskStatusIndex = j;
-            }
-        }
-
         itemViewHolder.getTvShortDescription().setText(item.getDescription());
 
-        String[] allStatuses = StringUtil.removeCommasAndExtraSpaces(item.getStatus());
-        String currentUserTaskStatus = allStatuses[currentUserTaskStatusIndex];
+        if (!EAccessRight.CCT.toString().equalsIgnoreCase(
+                SharedPreferenceUtil.getCurrentUserAccessRight())) {
 
-        itemViewHolder.getTvStatus().setText(currentUserTaskStatus);
+            // -------------------- Get Current User Task Status --------------------
+            String currentUserCallsign = SharedPreferenceUtil.getCurrentUserCallsignID();
+            int currentUserTaskStatusIndex = 0;
 
-        if (currentUserTaskStatus.equalsIgnoreCase(EStatus.NEW.toString())) {
-            itemViewHolder.getTvStatus().setTextColor(ContextCompat.getColor(mContext,
-                            R.color.primary_white));
-            itemViewHolder.getCircleImgStatus().
-                    setImageDrawable(mContext.getDrawable(R.drawable.icon_new_unselected));
-        } else if (currentUserTaskStatus.equalsIgnoreCase(EStatus.IN_PROGRESS.toString())) {
-            itemViewHolder.getTvStatus().setTextColor(ContextCompat.getColor(mContext,
-                    R.color.task_status_yellow));
-            itemViewHolder.getCircleImgStatus().
-                    setImageDrawable(mContext.getDrawable(R.drawable.task_in_progress));
-        } else {
-            itemViewHolder.getTvStatus().setTextColor(ContextCompat.getColor(mContext,
-                    R.color.dull_green));
-            itemViewHolder.getCircleImgStatus().
-                    setImageDrawable(mContext.getDrawable(R.drawable.task_completed));
+            for (int j = 0; j < assignedToStrArray.length; j++) {
+                if (assignedToStrArray[j].equalsIgnoreCase(currentUserCallsign)) {
+                    currentUserTaskStatusIndex = j;
+                }
+            }
+
+            String currentUserTaskStatus = statusStrArray[currentUserTaskStatusIndex];
+
+            itemViewHolder.getTvStatus().setText(currentUserTaskStatus);
+
+            if (currentUserTaskStatus.equalsIgnoreCase(EStatus.NEW.toString())) {
+                itemViewHolder.getTvStatus().setTextColor(ContextCompat.getColor(mContext,
+                        R.color.primary_white));
+                itemViewHolder.getCircleImgStatus().
+                        setImageDrawable(mContext.getDrawable(R.drawable.icon_new_unselected));
+            } else if (currentUserTaskStatus.equalsIgnoreCase(EStatus.IN_PROGRESS.toString())) {
+                itemViewHolder.getTvStatus().setTextColor(ContextCompat.getColor(mContext,
+                        R.color.task_status_yellow));
+                itemViewHolder.getCircleImgStatus().
+                        setImageDrawable(mContext.getDrawable(R.drawable.task_in_progress));
+            } else {
+                itemViewHolder.getTvStatus().setTextColor(ContextCompat.getColor(mContext,
+                        R.color.dull_green));
+                itemViewHolder.getCircleImgStatus().
+                        setImageDrawable(mContext.getDrawable(R.drawable.task_completed));
+            }
+
+        } else {    // For CCT, display task status in consideration of all involved Team Leads
+
+            boolean isAllCompleted = true;
+            boolean isAllNew = true;
+
+            // -------------------- Get Final Status and Set Inner Container Statuses --------------------
+            for (int j = 0; j < statusStrArray.length; j++) {
+
+                if (EStatus.NEW.toString().equalsIgnoreCase(statusStrArray[j])) {
+                    isAllCompleted = false;
+
+                } else if (EStatus.IN_PROGRESS.toString().equalsIgnoreCase(statusStrArray[j])) {
+                    isAllCompleted = false;
+                    isAllNew = false;
+
+                } else {
+                    isAllNew = false;
+                }
+
+            }
+
+            // -------------------- Set Final Completion Time and Final Status --------------------
+            if (isAllCompleted) {
+                itemViewHolder.getTvStatus().setTextColor(ContextCompat.getColor(mContext,
+                        R.color.dull_green));
+                itemViewHolder.getCircleImgStatus().
+                        setImageDrawable(mContext.getDrawable(R.drawable.task_completed));
+                itemViewHolder.getTvStatus().setText(mContext.getString(R.string.task_status_completed));
+
+            } else if (isAllNew) {
+                itemViewHolder.getTvStatus().setTextColor(ContextCompat.getColor(mContext,
+                        R.color.primary_white));
+                itemViewHolder.getCircleImgStatus().
+                        setImageDrawable(mContext.getDrawable(R.drawable.icon_new_unselected));
+                itemViewHolder.getTvStatus().setText(mContext.getString(R.string.task_status_new));
+
+            } else {
+                itemViewHolder.getTvStatus().setTextColor(ContextCompat.getColor(mContext,
+                        R.color.task_status_yellow));
+                itemViewHolder.getCircleImgStatus().
+                        setImageDrawable(mContext.getDrawable(R.drawable.task_in_progress));
+                itemViewHolder.getTvStatus().setText(mContext.getString(R.string.task_status_in_progress));
+
+            }
+
         }
 
         // Reported date/time

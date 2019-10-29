@@ -5,7 +5,7 @@ import java.util.HashMap;
 public enum EPhaseNo {
     ONE("One"), TWO("Two"), THREE("Three"), FOUR("Four"), AD_HOC("Ad Hoc");
 
-    public static HashMap<String, EPhaseNo> statusMapping = new HashMap<>();
+    private static HashMap<String, EPhaseNo> statusMapping = new HashMap<>();
     private final String name;
 
     static {

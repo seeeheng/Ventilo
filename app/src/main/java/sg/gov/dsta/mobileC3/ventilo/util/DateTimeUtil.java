@@ -2,6 +2,7 @@ package sg.gov.dsta.mobileC3.ventilo.util;
 
 import android.util.Log;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,9 +21,10 @@ public class DateTimeUtil {
     public static final String TAG = "DateTimeUtil";
     public static final String STANDARD_ISO_8601_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     //    public static final String STANDARD_ISO_8601_DATE_TIME_FORMAT = DateTimeFormatter.ISO_ZONED_DATE_TIME.toString();
-    private static final String CUSTOM_DATE_TIME_FORMAT = "d MMM yyyy, HH:mm";
-    private static final String CUSTOM_DATE_FORMAT = "d MMM yyyy";
+    private static final String CUSTOM_DATE_TIME_FORMAT = "dd MMM yyyy, HH:mm";
+    private static final String CUSTOM_DATE_FORMAT = "dd MMM yyyy";
     private static final String CUSTOM_TIME_FORMAT = "HH:mm";
+    private static final String CUSTOM_DATE_TIME_FILE_FORMAT = "ddMMMyyyy_HHmmss";
 
     public static Date getSpecifiedDateBySecond(int second) {
         return getSpecifiedDate(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH),
@@ -189,6 +191,36 @@ public class DateTimeUtil {
         return date;
     }
 
+    public static Date stringToISO8601Date(String stringToConvert) {
+        Date date = null;
+
+        try {
+            date = new SimpleDateFormat(STANDARD_ISO_8601_DATE_TIME_FORMAT).
+                    parse(stringToConvert);
+
+        } catch (ParseException e) {
+            Log.d(TAG, "stringToConvert is " + stringToConvert + ". Unparseable to Date format.");
+        }
+
+        return date;
+    }
+
+    /**
+     * Add milli-seconds to ZonedDateTime; Returns resulting date
+     *
+     * @param zonedDateTime
+     * @param secondsToAdd
+     * @return
+     */
+    public static String addMilliSecondsToZonedDateTime(String zonedDateTime, int secondsToAdd) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(stringToDate(zonedDateTime));
+        calendar.add(Calendar.MILLISECOND, secondsToAdd);
+
+        return dateToStandardIsoDateTimeStringFormat(calendar.getTime());
+    }
+
+    /** ----- Date To String Format Conversion ----- **/
     public static String dateToStandardIsoDateTimeStringFormat(Date dateToConvert) {
         SimpleDateFormat dateTimeFormat = new SimpleDateFormat(STANDARD_ISO_8601_DATE_TIME_FORMAT);
         return dateTimeFormat.format(dateToConvert);
@@ -206,6 +238,11 @@ public class DateTimeUtil {
 
     public static String dateToCustomTimeStringFormat(Date dateToConvert) {
         SimpleDateFormat dateTimeFormat = new SimpleDateFormat(CUSTOM_TIME_FORMAT);
+        return dateTimeFormat.format(dateToConvert);
+    }
+
+    public static String dateToCustomDateTimeFileStringFormat(Date dateToConvert) {
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat(CUSTOM_DATE_TIME_FILE_FORMAT);
         return dateTimeFormat.format(dateToConvert);
     }
 }

@@ -6,9 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -22,7 +20,6 @@ import android.support.v7.widget.AppCompatImageView;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -30,8 +27,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import org.greenrobot.eventbus.EventBus;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.List;
 
@@ -48,7 +43,6 @@ import sg.gov.dsta.mobileC3.ventilo.activity.timeline.TimelineFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.user.UserSettingsFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.videostream.VideoStreamFragment;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
-import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
@@ -61,13 +55,13 @@ import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
 import sg.gov.dsta.mobileC3.ventilo.network.waveRelayRadio.WaveRelayRadioAsyncTask;
 import sg.gov.dsta.mobileC3.ventilo.network.waveRelayRadio.WaveRelayRadioClient;
+import sg.gov.dsta.mobileC3.ventilo.repository.ExcelSpreadsheetRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.JSONUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.FileUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.videoStream.EOwner;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
@@ -123,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
     private BroadcastReceiver mRabbitMqBroadcastReceiver;
     private BroadcastReceiver mExcelBroadcastReceiver;
     private BroadcastReceiver mWaveRelayClientBroadcastReceiver;
+    private BroadcastReceiver mFileSaveBroadcastReceiver;
 //    private BroadcastReceiver mUSBDetectionBroadcastReceiver;
 
     private IMQListener mIMQListener;
@@ -142,6 +137,9 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
         initSideMenuPanel();
         initBottomPanel();
         initSnackbar();
+
+        // Pull data once from database
+        pullDataFromExcelToDatabase();
 
         MainStatePagerAdapter mainStatePagerAdapter = new MainStatePagerAdapter(
                 getSupportFragmentManager(), getApplication().getApplicationContext());
@@ -535,14 +533,18 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                                                 concat(radioIpAddresses[0]).
                                                 concat(getString(R.string.video_stream_url_names_suffix));
                                     } else {
-                                        videoStreamModel.setName(MainApplication.getAppContext().getResources().
-                                                getString(R.string.video_stream_video_name_camera_radio).
-                                                concat(StringUtil.SPACE).concat(String.valueOf(i + 1)));
 
                                         otherVideoStreamUrl = MainApplication.getAppContext().getResources().
                                                 getString(R.string.video_stream_url_names_prefix).
                                                 concat(radioIpAddresses[i]).
                                                 concat(getString(R.string.video_stream_url_names_suffix));
+
+                                        int ipAddressLastOctet = Integer.valueOf(radioIpAddresses[i].
+                                                substring(radioIpAddresses[i].lastIndexOf(StringUtil.DOT) + 1));
+
+                                        videoStreamModel.setName(MainApplication.getAppContext().getResources().
+                                                getString(R.string.video_stream_video_name_camera_radio).
+                                                concat(StringUtil.SPACE).concat(String.valueOf(ipAddressLastOctet)));
                                     }
 
                                     videoStreamModel.setUrl(otherVideoStreamUrl);
@@ -1042,6 +1044,18 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
     }
 
     /**
+     * Pull data from Excel to local database
+     *
+     */
+    private void pullDataFromExcelToDatabase() {
+        Timber.i("Pulling data from Excel to Database...");
+
+        ExcelSpreadsheetRepository excelSpreadsheetRepository =
+                new ExcelSpreadsheetRepository();
+        excelSpreadsheetRepository.pullDataFromExcelToDatabase();
+    }
+
+    /**
      * Set up observer for live updates on view models and update UI accordingly
      */
     private void observerSetup() {
@@ -1162,7 +1176,11 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
     private void registerExcelBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(UserSettingsFragment.EXCEL_DATA_PULLED_INTENT_ACTION);
+        filter.addAction(UserSettingsFragment.EXCEL_DATA_PULL_FAILED_INTENT_ACTION);
+        filter.addAction(UserSettingsFragment.EXCEL_DATA_SHIP_CONFIG_PULLED_INTENT_ACTION);
+        filter.addAction(UserSettingsFragment.EXCEL_DATA_SHIP_CONFIG_PULL_FAILED_INTENT_ACTION);
         filter.addAction(UserSettingsFragment.EXCEL_DATA_PUSHED_INTENT_ACTION);
+        filter.addAction(UserSettingsFragment.EXCEL_DATA_PUSH_FAILED_INTENT_ACTION);
 
         mExcelBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -1171,10 +1189,26 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
                     SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
                             MainApplication.getAppContext().
                                     getString(R.string.snackbar_settings_pull_from_excel_successful_message));
+                } else if (UserSettingsFragment.EXCEL_DATA_PULL_FAILED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                            MainApplication.getAppContext().
+                                    getString(R.string.snackbar_settings_pull_from_excel_failed_message));
+                } else if (UserSettingsFragment.EXCEL_DATA_SHIP_CONFIG_PULLED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                            MainApplication.getAppContext().
+                                    getString(R.string.snackbar_settings_ship_data_pull_from_excel_successful_message));
+                } else if (UserSettingsFragment.EXCEL_DATA_SHIP_CONFIG_PULL_FAILED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                            MainApplication.getAppContext().
+                                    getString(R.string.snackbar_settings_ship_data_pull_from_excel_failed_message));
                 } else if (UserSettingsFragment.EXCEL_DATA_PUSHED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
                     SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
                             MainApplication.getAppContext().
                                     getString(R.string.snackbar_settings_push_to_excel_successful_message));
+                } else if (UserSettingsFragment.EXCEL_DATA_PUSH_FAILED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                            MainApplication.getAppContext().
+                                    getString(R.string.snackbar_settings_push_from_excel_failed_message));
                 } else if (UserSettingsFragment.DATA_SYNCED_INTENT_ACTION.equalsIgnoreCase(intent.getAction())) {
                     SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
                             MainApplication.getAppContext().
@@ -1218,6 +1252,37 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
         };
 
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mWaveRelayClientBroadcastReceiver, filter);
+    }
+
+    /**
+     * Registers broadcast receiver notification after Sit Rep data into text / image files has been saved successfully
+     */
+    private void registerFileSaveBroadcastReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(FileUtil.FILE_SAVED_SUCCESSFULLY_INTENT_ACTION);
+
+        mFileSaveBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (FileUtil.FILE_SAVED_SUCCESSFULLY_INTENT_ACTION.
+                        equalsIgnoreCase(intent.getAction())) {
+
+                    String directoryPath = intent.getExtras().getString(FileUtil.DIRECTORY_PATH_KEY);
+
+                    String fileSavedMessage = MainApplication.getAppContext().
+                            getString(R.string.snackbar_sitrep_file_saved_successfully).
+                            concat(System.lineSeparator()).concat(System.lineSeparator()).
+                            concat(MainApplication.getAppContext().getString(R.string.directory)).
+                            concat(StringUtil.COLON).concat(directoryPath);
+
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                            fileSavedMessage);
+
+                }
+            }
+        };
+
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mFileSaveBroadcastReceiver, filter);
     }
 
 //    /**
@@ -1450,6 +1515,7 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
 //        registerRabbitMQBroadcastReceiver();
         registerExcelBroadcastReceiver();
         registerWaveRelayClientBroadcastReceiver();
+        registerFileSaveBroadcastReceiver();
 //        registerUSBDetectionBroadcastReceiver();
 
 //        IntentFilter filter = new IntentFilter();
@@ -1497,22 +1563,15 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
             mWaveRelayClientBroadcastReceiver = null;
         }
 
-//        // Resets Wave Relay radio info of user
-//        Object userRadioId = SharedPreferenceUtil.getSharedPreference(SharedPreferenceConstants.USER_RADIO_NO,
-//                0);
-//
-//        if (userRadioId != null) {
-//            if (userRadioId instanceof Integer) {
-//                Timber.i("Resetting User Id of radio info...");
-//
-//                resetWrRadioUserIDAndBroadcastUpdate((int) userRadioId);
-//            }
-//        }
-
-        // Close any radio web sockets
-        WaveRelayRadioClient.closeWebSocketClient();
+        if (mFileSaveBroadcastReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mFileSaveBroadcastReceiver);
+            mFileSaveBroadcastReceiver = null;
+        }
 
         // Resets access token of user
         resetUserAccessTokenAndBroadcastUpdate();
+
+        // Close any radio web sockets
+        WaveRelayRadioClient.closeWebSocketClient();
     }
 }

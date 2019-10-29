@@ -8,8 +8,21 @@ public abstract class JeroMQParent {
     //    private static final Logger LOGGER = LoggerFactory.getLogger(JeroMQParent.class);
     private static final String TAG = JeroMQParent.class.getSimpleName();
 
+    // Time Interval
+    protected static final int MISSING_ZERO_MQ_HEARTBEAT_CONNECTION_THRESHOLD = 3;
+    protected static final int HEARTBEAT_INTERVAL_IN_MILLISEC = 3000;
+    protected static final int HEARTBEAT_TIMEOUT_IN_MILLISEC = 3000;
+    protected static final int HEARTBEAT_TTL_IN_MILLISEC = 3000;
+    protected static final int TCP_KEEP_ALIVE_COUNT = -1;
+    protected static final int TCP_KEEP_ALIVE_IDLE_IN_MILLISEC = 3000;
+    protected static final int TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC = 3000;
+    protected static final int SOCKET_TIMEOUT_IN_MILLISEC = 0;
+    protected static final int POLL_TIMEOUT_IN_MILLISEC = 0;
+
     protected static final int PUB_SUB_PORT = 5556;
     protected static final int PAIR_PORT = 5557;
+
+    // Topics
     protected static final String TOPIC_PREFIX_BFT = "PREFIX-BFT";
     protected static final String TOPIC_PREFIX_USER = "PREFIX-USER";
     protected static final String TOPIC_PREFIX_RADIO = "PREFIX-RADIO";

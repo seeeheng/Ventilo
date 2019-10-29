@@ -82,23 +82,15 @@ public class JeroMQBroadcastOperation {
         }
     }
 
-//    /**
-//     * Unicast synchronisation of data to connected device in the network
-//     *
-//     * @param model
-//     */
-//    public static void UnicastDataSyncOverSocket(Object model, String targetPhoneIPAddress) {
-//        Timber.i("UnicastDataSyncOverSocket");
-//
-//        Gson gson = GsonCreator.createGson();
-//        String modelJson = gson.toJson(model);
-//
-//        if (model instanceof SitRepModel) {
-//            JeroMQClientPair.getInstance().sendSitRepMessage(modelJson, JeroMQPublisher.TOPIC_SYNC);
-//        } else if (model instanceof TaskModel) {
-//            JeroMQClientPair.getInstance().sendTaskMessage(modelJson, JeroMQPublisher.TOPIC_SYNC);
-//        }
-//    }
+    /**
+     * Broadcast synchronisation of data to connected devices in the network
+     *
+     */
+    public static void broadcastDataSyncOverSocket() {
+        Timber.i("broadcastDataSyncOverSocket");
+
+        JeroMQPublisher.getInstance().broadcastSyncData();
+    }
 
 //    /**
 //     * Broadcasts OWN force BFT data to connected devices in the network

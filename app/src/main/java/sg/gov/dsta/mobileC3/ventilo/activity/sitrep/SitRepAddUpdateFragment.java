@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -68,6 +68,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.EIsValid;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.sitRep.EReportType;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import timber.log.Timber;
@@ -75,6 +76,8 @@ import timber.log.Timber;
 public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.SnackbarActionClickListener {
 
     private static final String TAG = SitRepAddUpdateFragment.class.getSimpleName();
+    private static final int RB_SITREP_TYPE_MISSION_ID = R.id.radio_btn_add_update_sitrep_type_mission;
+    private static final int RB_SITREP_TYPE_INSPECTION_ID = R.id.radio_btn_add_update_sitrep_type_inspection;
 
     // View Models
     private UserViewModel mUserViewModel;
@@ -88,8 +91,15 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     private LinearLayout mLinearLayoutBtnSendOrUpdate;
     private C2OpenSansSemiBoldTextView mTvToolbarSendOrUpdate;
 
+    // Task Type
+    private RadioGroup mRgSitRepType;
+
     // Header Title section
     private C2OpenSansSemiBoldTextView mTvCallsignTitle;
+
+    // Linear Layout Groups (For different reports)
+    private LinearLayout mLinearLayoutMission;
+    private LinearLayout mLinearLayoutInspection;
 
     // Picture section
     private AppCompatImageView mImgPhotoGallery;
@@ -100,6 +110,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     private String mImageFileAbsolutePath;
     private Bitmap mCompressedFileBitmap;
 
+    /** -------------------- Mission Report UI -------------------- **/
     // Location section
     private RelativeLayout mLayoutLocationInputOthers;
     private AppCompatImageView mImgLocationInputOthers;
@@ -132,10 +143,139 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     // Others section
     private C2OpenSansRegularEditTextView mEtvOthers;
 
+    /** -------------------- Inspection Report UI -------------------- **/
+
+    // Vessel Type section
+    private RelativeLayout mLayoutVesselTypeInputOthers;
+    private AppCompatImageView mImgVesselTypeInputOthers;
+    private Spinner mSpinnerVesselType;
+    private C2OpenSansRegularEditTextView mEtvVesselTypeOthers;
+
+    // Vessel Name section
+    private RelativeLayout mLayoutVesselNameInputOthers;
+    private AppCompatImageView mImgVesselNameInputOthers;
+    private Spinner mSpinnerVesselName;
+    private C2OpenSansRegularEditTextView mEtvVesselNameOthers;
+
+    // LPOC section
+    private RelativeLayout mLayoutLpocInputOthers;
+    private AppCompatImageView mImgLpocInputOthers;
+    private Spinner mSpinnerLpoc;
+    private C2OpenSansRegularEditTextView mEtvLpocOthers;
+
+    // NPOC section
+    private RelativeLayout mLayoutNpocInputOthers;
+    private AppCompatImageView mImgNpocInputOthers;
+    private Spinner mSpinnerNpoc;
+    private C2OpenSansRegularEditTextView mEtvNpocOthers;
+
+    // Last Visit to SG section
+    private C2OpenSansRegularEditTextView mEtvLastVisitToSg;
+
+    // Vessel Last Boarded section
+    private C2OpenSansRegularEditTextView mEtvVesselLastBoarded;
+
+    // Cargo section
+    private RelativeLayout mLayoutCargoInputOthers;
+    private AppCompatImageView mImgCargoInputOthers;
+
+    private Spinner mSpinnerCargo;
+    private C2OpenSansRegularEditTextView mEtvCargoOthers;
+
+    // Purpose of Call section
+    private C2OpenSansRegularEditTextView mEtvPurposeOfCall;
+
+    // Duration section
+    private C2OpenSansRegularEditTextView mEtvDuration;
+
+    // Current Crew section
+    private C2OpenSansRegularEditTextView mEtvCurrentCrew;
+
+    // Current Master section
+    private C2OpenSansRegularEditTextView mEtvCurrentMaster;
+
+    // Current CE section
+    private C2OpenSansRegularEditTextView mEtvCurrentCe;
+
+    // Queries section
+    private C2OpenSansRegularEditTextView mEtvQueries;
+
     private SitRepModel mSitRepModelToUpdate;
 
     private boolean mIsFragmentVisibleToUser;
     private int mChosenRequestCode;
+
+    // ----- Saved State -----
+    // Mission Sit Rep
+    private static final String LOCATION_INPUT_OTHERS_SELECTION = "Location Input Others Selection";
+    private static final String LOCATION_SPINNER_SELECTED_POS = "Location Spinner Selected Pos";
+    private static final String LOCATION_INPUT_OTHERS_TEXT = "Location Input Others Text";
+    private static final String ACTIVITY_SPINNER_SELECTED_POS = "Activity Spinner Selected Pos";
+    private static final String ACTIVITY_INPUT_OTHERS_SELECTION = "Activity Input Others Selection";
+    private static final String ACTIVITY_INPUT_OTHERS_TEXT = "Activity Input Others Text";
+    private static final String PERSONNEL_T_VALUE = "Personnel T Value";
+    private static final String PERSONNEL_S_VALUE = "Personnel S Value";
+    private static final String PERSONNEL_D_VALUE = "Personnel D Value";
+    private static final String NEXT_COA_INPUT_OTHERS_SELECTION = "Next COA Input Others Selection";
+    private static final String NEXT_COA_SPINNER_SELECTED_POS = "Next COA Spinner Selected Pos";
+    private static final String NEXT_COA_INPUT_OTHERS_TEXT = "Next COA Input Others Text";
+    private static final String REQUEST_INPUT_OTHERS_SELECTION = "Request Input Others Selection";
+    private static final String REQUEST_SPINNER_SELECTED_POS = "Request Spinner Selected Pos";
+    private static final String REQUEST_INPUT_OTHERS_TEXT = "Request Input Others Text";
+
+    private boolean mIsLocationInputOthersSelected;
+    private boolean mIsActivityInputOthersSelected;
+    private int mPersonnelNumberTValue;
+    private int mPersonnelNumberSValue;
+    private int mPersonnelNumberDValue;
+    private boolean mIsNextCoaInputOthersSelected;
+    private boolean mIsRequestInputOthersSelected;
+
+    private String mLocationOthersText;
+    private String mActivityOthersText;
+    private String mNextCoaOthersText;
+    private String mRequestOthersText;
+
+    private int mLocationSpinnerSelectedPos;
+    private int mActivitySpinnerSelectedPos;
+    private int mNextCoaSpinnerSelectedPos;
+    private int mRequestSpinnerSelectedPos;
+
+    // Inspection Sit Rep
+    private static final String VESSEL_TYPE_INPUT_OTHERS_SELECTION = "Vessel Type Input Others Selection";
+    private static final String VESSEL_TYPE_SPINNER_SELECTED_POS = "Vessel Type Spinner Selected Pos";
+    private static final String VESSEL_TYPE_INPUT_OTHERS_TEXT = "Vessel Type Input Others Text";
+    private static final String VESSEL_NAME_INPUT_OTHERS_SELECTION = "Vessel Name Input Others Selection";
+    private static final String VESSEL_NAME_SPINNER_SELECTED_POS = "Vessel Name Spinner Selected Pos";
+    private static final String VESSEL_NAME_INPUT_OTHERS_TEXT = "Vessel Name Input Others Text";
+    private static final String LPOC_INPUT_OTHERS_SELECTION = "LPOC Input Others Selection";
+    private static final String LPOC_SPINNER_SELECTED_POS = "LPOC Spinner Selected Pos";
+    private static final String LPOC_INPUT_OTHERS_TEXT = "LPOC Input Others Text";
+    private static final String NPOC_INPUT_OTHERS_SELECTION = "NPOC Input Others Selection";
+    private static final String NPOC_SPINNER_SELECTED_POS = "NPOC Spinner Selected Pos";
+    private static final String NPOC_INPUT_OTHERS_TEXT = "NPOC Input Others Text";
+    private static final String CARGO_INPUT_OTHERS_SELECTION = "Cargo Input Others Selection";
+    private static final String CARGO_SPINNER_SELECTED_POS = "Cargo Spinner Selected Pos";
+    private static final String CARGO_INPUT_OTHERS_TEXT = "Cargo Input Others Text";
+
+    private boolean mIsVesselTypeInputOthersSelected;
+    private boolean mIsVesselNameInputOthersSelected;
+    private boolean mIsLpocInputOthersSelected;
+    private boolean mIsNpocInputOthersSelected;
+    private boolean mIsCargoInputOthersSelected;
+
+    private String mVesselTypeOthersText;
+    private String mVesselNameOthersText;
+    private String mLpocOthersText;
+    private String mNpocOthersText;
+    private String mCargoOthersText;
+
+    private int mVesselTypeSpinnerSelectedPos;
+    private int mVesselNameSpinnerSelectedPos;
+    private int mLpocSpinnerSelectedPos;
+    private int mNpocSpinnerSelectedPos;
+    private int mCargoSpinnerSelectedPos;
+
 
     @Nullable
     @Override
@@ -151,6 +291,139 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         Log.i(TAG, "Fragment view created.");
 
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // ----- Mission Sit Rep -----
+        outState.putBoolean(LOCATION_INPUT_OTHERS_SELECTION, mIsLocationInputOthersSelected);
+        outState.putBoolean(ACTIVITY_INPUT_OTHERS_SELECTION, mIsActivityInputOthersSelected);
+        outState.putInt(PERSONNEL_T_VALUE, mPersonnelNumberTValue);
+        outState.putInt(PERSONNEL_S_VALUE, mPersonnelNumberSValue);
+        outState.putInt(PERSONNEL_D_VALUE, mPersonnelNumberDValue);
+        outState.putBoolean(NEXT_COA_INPUT_OTHERS_SELECTION, mIsNextCoaInputOthersSelected);
+        outState.putBoolean(REQUEST_INPUT_OTHERS_SELECTION, mIsRequestInputOthersSelected);
+
+        outState.putString(LOCATION_INPUT_OTHERS_TEXT, mEtvLocationOthers.getText().toString());
+        outState.putString(ACTIVITY_INPUT_OTHERS_TEXT, mEtvActivityOthers.getText().toString());
+        outState.putString(NEXT_COA_INPUT_OTHERS_TEXT, mEtvNextCoaOthers.getText().toString());
+        outState.putString(REQUEST_INPUT_OTHERS_TEXT, mEtvRequestOthers.getText().toString());
+
+        outState.putInt(LOCATION_SPINNER_SELECTED_POS, mSpinnerLocation.getSelectedItemPosition());
+        outState.putInt(ACTIVITY_SPINNER_SELECTED_POS, mSpinnerActivity.getSelectedItemPosition());
+        outState.putInt(NEXT_COA_SPINNER_SELECTED_POS, mSpinnerNextCoa.getSelectedItemPosition());
+        outState.putInt(REQUEST_SPINNER_SELECTED_POS, mSpinnerRequest.getSelectedItemPosition());
+
+        // ----- Inspection Sit Rep -----
+        outState.putBoolean(VESSEL_TYPE_INPUT_OTHERS_SELECTION, mIsVesselTypeInputOthersSelected);
+        outState.putBoolean(VESSEL_NAME_INPUT_OTHERS_SELECTION, mIsVesselNameInputOthersSelected);
+        outState.putBoolean(LPOC_INPUT_OTHERS_SELECTION, mIsLpocInputOthersSelected);
+        outState.putBoolean(NPOC_INPUT_OTHERS_SELECTION, mIsNpocInputOthersSelected);
+        outState.putBoolean(CARGO_INPUT_OTHERS_SELECTION, mIsCargoInputOthersSelected);
+
+        outState.putString(VESSEL_TYPE_INPUT_OTHERS_TEXT, mEtvVesselTypeOthers.getText().toString());
+        outState.putString(VESSEL_NAME_INPUT_OTHERS_TEXT, mEtvVesselNameOthers.getText().toString());
+        outState.putString(LPOC_INPUT_OTHERS_TEXT, mEtvLpocOthers.getText().toString());
+        outState.putString(NPOC_INPUT_OTHERS_TEXT, mEtvNpocOthers.getText().toString());
+        outState.putString(CARGO_INPUT_OTHERS_TEXT, mEtvCargoOthers.getText().toString());
+
+        outState.putInt(VESSEL_TYPE_SPINNER_SELECTED_POS, mSpinnerVesselType.getSelectedItemPosition());
+        outState.putInt(VESSEL_NAME_SPINNER_SELECTED_POS, mSpinnerVesselName.getSelectedItemPosition());
+        outState.putInt(LPOC_SPINNER_SELECTED_POS, mSpinnerLpoc.getSelectedItemPosition());
+        outState.putInt(NPOC_SPINNER_SELECTED_POS, mSpinnerNpoc.getSelectedItemPosition());
+        outState.putInt(CARGO_SPINNER_SELECTED_POS, mSpinnerCargo.getSelectedItemPosition());
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+
+            // ----- Mission Sit Rep -----
+            // Location
+            mIsLocationInputOthersSelected = savedInstanceState.getBoolean(LOCATION_INPUT_OTHERS_SELECTION, false);
+
+            mLocationSpinnerSelectedPos = savedInstanceState.getInt(LOCATION_SPINNER_SELECTED_POS, 0);
+
+            mLocationOthersText = savedInstanceState.getString(LOCATION_INPUT_OTHERS_TEXT, StringUtil.EMPTY_STRING);
+
+            // Activity
+            mIsActivityInputOthersSelected = savedInstanceState.getBoolean(ACTIVITY_INPUT_OTHERS_SELECTION, false);
+
+            mActivitySpinnerSelectedPos = savedInstanceState.getInt(ACTIVITY_SPINNER_SELECTED_POS, 0);
+
+            mActivityOthersText = savedInstanceState.getString(ACTIVITY_INPUT_OTHERS_TEXT, StringUtil.EMPTY_STRING);
+
+            // Personnel Number T, S, D
+            mPersonnelNumberTValue = savedInstanceState.getInt(PERSONNEL_T_VALUE, 0);
+            mPersonnelNumberSValue = savedInstanceState.getInt(PERSONNEL_S_VALUE, 0);
+            mPersonnelNumberDValue = savedInstanceState.getInt(PERSONNEL_D_VALUE, 0);
+
+            if (mTvPersonnelNumberT != null) {
+                mTvPersonnelNumberT.setText(String.valueOf(mPersonnelNumberTValue));
+            }
+
+            if (mTvPersonnelNumberS != null) {
+                mTvPersonnelNumberS.setText(String.valueOf(mPersonnelNumberSValue));
+            }
+
+            if (mTvPersonnelNumberD != null) {
+                mTvPersonnelNumberD.setText(String.valueOf(mPersonnelNumberDValue));
+            }
+
+            // Next COA
+            mIsNextCoaInputOthersSelected = savedInstanceState.getBoolean(NEXT_COA_INPUT_OTHERS_SELECTION, false);
+
+            mNextCoaSpinnerSelectedPos = savedInstanceState.getInt(NEXT_COA_SPINNER_SELECTED_POS, 0);
+
+            mNextCoaOthersText = savedInstanceState.getString(NEXT_COA_INPUT_OTHERS_TEXT, StringUtil.EMPTY_STRING);
+
+            // Request
+            mIsRequestInputOthersSelected = savedInstanceState.getBoolean(REQUEST_INPUT_OTHERS_SELECTION, false);
+
+            mRequestSpinnerSelectedPos = savedInstanceState.getInt(REQUEST_SPINNER_SELECTED_POS, 0);
+
+            mRequestOthersText = savedInstanceState.getString(REQUEST_INPUT_OTHERS_TEXT, StringUtil.EMPTY_STRING);
+
+            // ----- Inspection Sit Rep -----
+            // Vessel Type
+            mIsVesselTypeInputOthersSelected = savedInstanceState.getBoolean(VESSEL_TYPE_INPUT_OTHERS_SELECTION, false);
+
+            mVesselTypeSpinnerSelectedPos = savedInstanceState.getInt(VESSEL_TYPE_SPINNER_SELECTED_POS, 0);
+
+            mVesselTypeOthersText = savedInstanceState.getString(VESSEL_TYPE_INPUT_OTHERS_TEXT, StringUtil.EMPTY_STRING);
+
+            // Vessel Name
+            mIsVesselNameInputOthersSelected = savedInstanceState.getBoolean(VESSEL_NAME_INPUT_OTHERS_SELECTION, false);
+
+            mVesselNameSpinnerSelectedPos = savedInstanceState.getInt(VESSEL_NAME_SPINNER_SELECTED_POS, 0);
+
+            mVesselNameOthersText = savedInstanceState.getString(VESSEL_NAME_INPUT_OTHERS_TEXT, StringUtil.EMPTY_STRING);
+
+            // Lpoc
+            mIsLpocInputOthersSelected = savedInstanceState.getBoolean(LPOC_INPUT_OTHERS_SELECTION, false);
+
+            mLpocSpinnerSelectedPos = savedInstanceState.getInt(LPOC_SPINNER_SELECTED_POS, 0);
+
+            mLpocOthersText = savedInstanceState.getString(LPOC_INPUT_OTHERS_TEXT, StringUtil.EMPTY_STRING);
+
+            // Npoc
+            mIsNpocInputOthersSelected = savedInstanceState.getBoolean(NPOC_INPUT_OTHERS_SELECTION, false);
+
+            mNpocSpinnerSelectedPos = savedInstanceState.getInt(NPOC_SPINNER_SELECTED_POS, 0);
+
+            mNpocOthersText = savedInstanceState.getString(NPOC_INPUT_OTHERS_TEXT, StringUtil.EMPTY_STRING);
+
+            // Cargo
+            mIsCargoInputOthersSelected = savedInstanceState.getBoolean(CARGO_INPUT_OTHERS_SELECTION, false);
+
+            mCargoSpinnerSelectedPos = savedInstanceState.getInt(CARGO_SPINNER_SELECTED_POS, 0);
+
+            mCargoOthersText = savedInstanceState.getString(CARGO_INPUT_OTHERS_TEXT, StringUtil.EMPTY_STRING);
+        }
     }
 
     /**
@@ -169,16 +442,20 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
      */
     private void initUI(View rootView) {
         mMainLayout = rootView.findViewById(R.id.layout_add_update_sitrep_fragment);
+        mLinearLayoutMission = rootView.findViewById(R.id.layout_sitrep_mission_report);
+        mLinearLayoutInspection = rootView.findViewById(R.id.layout_sitrep_inspection_report);
 
         initToolbarUI(rootView);
         initCallsignTitleUI(rootView);
+        initSitRepTypeUI(rootView);
         initPicUI(rootView);
-        initLocationUI(rootView);
-        initActivityUI(rootView);
-        initPersonnelUI(rootView);
-        initNextCoaUI(rootView);
-        initRequestUI(rootView);
-        initOthers(rootView);
+        initMissionSitRepUI(rootView);
+        initInspectionSitRepUI(rootView);
+
+        // Choose default 'Mission' for Sit Rep type
+        mLinearLayoutMission.setVisibility(View.VISIBLE);
+        mLinearLayoutInspection.setVisibility(View.GONE);
+        mRgSitRepType.check(RB_SITREP_TYPE_MISSION_ID);
 
 //        initLayouts(rootView);
 //        initSpinners(rootView);
@@ -214,6 +491,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         mTvCallsignTitle.setText(callsignTitleBuilder.toString());
     }
 
+    private void initSitRepTypeUI(View rootView) {
+        mRgSitRepType = rootView.findViewById(R.id.radio_group_add_update_sitrep_type);
+        mRgSitRepType.setOnCheckedChangeListener(onSitRepTypeRadioGroupCheckedChangeListener);
+    }
+
     private void initPicUI(View rootView) {
         mImgPhotoGallery = rootView.findViewById(R.id.img_add_update_sitrep_photo_gallery);
         mImgOpenCamera = rootView.findViewById(R.id.img_add_update_sitrep_open_camera);
@@ -225,6 +507,33 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         mImgOpenCamera.setOnClickListener(onOpenCameraClickListener);
         mImgClose.setOnClickListener(onPictureCloseClickListener);
     }
+
+    private void initMissionSitRepUI(View rootView) {
+        initLocationUI(rootView);
+        initActivityUI(rootView);
+        initPersonnelUI(rootView);
+        initNextCoaUI(rootView);
+        initRequestUI(rootView);
+        initOthers(rootView);
+    }
+
+    private void initInspectionSitRepUI(View rootView) {
+        initVesselTypeUI(rootView);
+        initVesselNameUI(rootView);
+        initLpocUI(rootView);
+        initNpocUI(rootView);
+        initLastVisitToSgUI(rootView);
+        initVesselLastBoardedUI(rootView);
+        initCargoUI(rootView);
+        initPurposeOfCallUI(rootView);
+        initDurationUI(rootView);
+        initCurrentCrewUI(rootView);
+        initCurrentMasterUI(rootView);
+        initCurrentCeUI(rootView);
+        initQueriesUI(rootView);
+    }
+
+    /** -------------------- Sit Rep Mission init UI -------------------- **/
 
     private void initLocationUI(View rootView) {
         initInputLocationUI(rootView);
@@ -288,6 +597,27 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         initInputRequest(rootView);
     }
 
+    /** -------------------- Sit Rep Inspection init UI -------------------- **/
+    private void initVesselTypeUI(View rootView) {
+        initInputVesselTypeUI(rootView);
+    }
+
+    private void initVesselNameUI(View rootView) {
+        initInputVesselNameUI(rootView);
+    }
+
+    private void initLpocUI(View rootView) {
+        initInputLpocUI(rootView);
+    }
+
+    private void initNpocUI(View rootView) {
+        initInputNpocUI(rootView);
+    }
+
+    private void initCargoUI(View rootView) {
+        initInputCargoUI(rootView);
+    }
+
     private View.OnClickListener onBackClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -323,6 +653,26 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             }
         }
     };
+
+    private RadioGroup.OnCheckedChangeListener onSitRepTypeRadioGroupCheckedChangeListener =
+            new RadioGroup.OnCheckedChangeListener() {
+                public void onCheckedChanged(RadioGroup group, int checkedId) {
+                    switch (checkedId) {
+                        case RB_SITREP_TYPE_MISSION_ID:
+                            mLinearLayoutMission.setVisibility(View.VISIBLE);
+                            mLinearLayoutInspection.setVisibility(View.GONE);
+
+                            break;
+                        case RB_SITREP_TYPE_INSPECTION_ID:
+                            mLinearLayoutMission.setVisibility(View.GONE);
+                            mLinearLayoutInspection.setVisibility(View.VISIBLE);
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            };
 
     private View.OnClickListener onPhotoGalleryClickListener = new View.OnClickListener() {
         @Override
@@ -398,6 +748,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         public void onClick(View view) {
             if (mTvPersonnelNumberT.getText() != null && ValidationUtil.isNumberField(mTvPersonnelNumberT.getText().toString())) {
                 int newValue = Integer.valueOf(mTvPersonnelNumberT.getText().toString()) + 1;
+                mPersonnelNumberTValue = newValue;
                 mTvPersonnelNumberT.setText(String.valueOf(newValue));
             }
         }
@@ -409,6 +760,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             if (mTvPersonnelNumberT.getText() != null && ValidationUtil.isNumberField(mTvPersonnelNumberT.getText().toString())
                     && Integer.valueOf(mTvPersonnelNumberT.getText().toString()) > 0) {
                 int newValue = Integer.valueOf(mTvPersonnelNumberT.getText().toString()) - 1;
+                mPersonnelNumberTValue = newValue;
                 mTvPersonnelNumberT.setText(String.valueOf(newValue));
             }
         }
@@ -419,6 +771,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         public void onClick(View view) {
             if (mTvPersonnelNumberS.getText() != null && ValidationUtil.isNumberField(mTvPersonnelNumberS.getText().toString())) {
                 int newValue = Integer.valueOf(mTvPersonnelNumberS.getText().toString()) + 1;
+                mPersonnelNumberSValue = newValue;
                 mTvPersonnelNumberS.setText(String.valueOf(newValue));
             }
         }
@@ -430,6 +783,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             if (mTvPersonnelNumberS.getText() != null && ValidationUtil.isNumberField(mTvPersonnelNumberS.getText().toString())
                     && Integer.valueOf(mTvPersonnelNumberS.getText().toString()) > 0) {
                 int newValue = Integer.valueOf(mTvPersonnelNumberS.getText().toString()) - 1;
+                mPersonnelNumberSValue = newValue;
                 mTvPersonnelNumberS.setText(String.valueOf(newValue));
             }
         }
@@ -440,6 +794,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         public void onClick(View view) {
             if (mTvPersonnelNumberD.getText() != null && ValidationUtil.isNumberField(mTvPersonnelNumberD.getText().toString())) {
                 int newValue = Integer.valueOf(mTvPersonnelNumberD.getText().toString()) + 1;
+                mPersonnelNumberDValue = newValue;
                 mTvPersonnelNumberD.setText(String.valueOf(newValue));
             }
         }
@@ -451,6 +806,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             if (mTvPersonnelNumberD.getText() != null && ValidationUtil.isNumberField(mTvPersonnelNumberD.getText().toString())
                     && Integer.valueOf(mTvPersonnelNumberD.getText().toString()) > 0) {
                 int newValue = Integer.valueOf(mTvPersonnelNumberD.getText().toString()) - 1;
+                mPersonnelNumberDValue = newValue;
                 mTvPersonnelNumberD.setText(String.valueOf(newValue));
             }
         }
@@ -512,9 +868,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         };
     }
 
+    /** -------------------- Mission Report Init UI -------------------- **/
+
     /**
      * Initialise Sit Rep input location UI
-     * <p>
+     *
      * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
      * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
      * blind users with appropriate feedback through Accessibility services. However, in this use case,
@@ -533,9 +891,9 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         // (This means that text contained in the last of such component (in this case, the spinner) will
         // be saved and be used to populate all components on refresh-- For setSaveEnabled(true) )
         // This is required as there are some layouts that use the same id for Spinners and EditTextView
-        mSpinnerLocation.setSaveEnabled(false);
+//        mSpinnerLocation.setSaveEnabled(false);
         mEtvLocationOthers = viewInputLocation.findViewById(R.id.etv_spinner_edittext_others_info);
-        mEtvLocationOthers.setSaveEnabled(false);
+//        mEtvLocationOthers.setSaveEnabled(false);
         mEtvLocationOthers.setOnTouchListener(onViewTouchListener);
 
         String[] locationStringArray = SpinnerItemListDataBank.getInstance().getLocationStrArray();
@@ -543,7 +901,6 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         mLayoutLocationInputOthers.setOnClickListener(onLocationInputOthersClickListener);
 
         mSpinnerLocation.setAdapter(getSpinnerArrayAdapter(locationStringArray));
-        mSpinnerLocation.setOnItemSelectedListener(getLocationSpinnerItemSelectedListener);
 
         mEtvLocationOthers.setHint(MainApplication.getAppContext().
                 getString(R.string.sitrep_location_hint));
@@ -552,31 +909,36 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     private View.OnClickListener onLocationInputOthersClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            view.setSelected(!view.isSelected());
+            mIsLocationInputOthersSelected = !view.isSelected();
+            view.setSelected(mIsLocationInputOthersSelected);
 
             if (view.isSelected()) {
-                setLocationInputOthersSelectedUI(view);
+                setInputOthersSelectedUI(view, mImgLocationInputOthers, mSpinnerLocation, mEtvLocationOthers);
             } else {
-                setLocationInputOthersUnselectedUI(view);
+                setInputOthersUnselectedUI(view, mImgLocationInputOthers, mSpinnerLocation, mEtvLocationOthers);
             }
         }
     };
 
-    private void setLocationInputOthersSelectedUI(View view) {
+    private void setInputOthersSelectedUI(View view, AppCompatImageView inputOthersImageView,
+                                          Spinner spinner, C2OpenSansRegularEditTextView editTextView) {
+
         view.setBackgroundColor(ResourcesCompat.getColor(getResources(),
                 R.color.primary_highlight_cyan, null));
-        mImgLocationInputOthers.setColorFilter(ResourcesCompat.getColor(
+        inputOthersImageView.setColorFilter(ResourcesCompat.getColor(
                 getResources(), R.color.background_main_black, null));
-        mSpinnerLocation.setVisibility(View.GONE);
-        mEtvLocationOthers.setVisibility(View.VISIBLE);
+        spinner.setVisibility(View.GONE);
+        editTextView.setVisibility(View.VISIBLE);
     }
 
-    private void setLocationInputOthersUnselectedUI(View view) {
+    private void setInputOthersUnselectedUI(View view, AppCompatImageView inputOthersImageView,
+                                            Spinner spinner, C2OpenSansRegularEditTextView editTextView) {
+
         view.setBackgroundColor(ResourcesCompat.getColor(getResources(),
                 R.color.background_dark_grey, null));
-        mImgLocationInputOthers.setColorFilter(null);
-        mEtvLocationOthers.setVisibility(View.GONE);
-        mSpinnerLocation.setVisibility(View.VISIBLE);
+        inputOthersImageView.setColorFilter(null);
+        spinner.setVisibility(View.VISIBLE);
+        editTextView.setVisibility(View.GONE);
     }
 
     /**
@@ -597,26 +959,9 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         }
     };
 
-    private AdapterView.OnItemSelectedListener getLocationSpinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            String selectedItemText = (String) parent.getItemAtPosition(position);
-            // If user change the default selection
-            // First item is disable and it is used for hint
-            if (position > 0) {
-                // Notify the selected item text
-            }
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-    };
-
     /**
      * Initialise Sit Rep input activity request UI
-     * <p>
+     *
      * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
      * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
      * blind users with appropriate feedback through Accessibility services. However, in this use case,
@@ -630,9 +975,9 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         mLayoutActivityInputOthers = viewInputActivity.findViewById(R.id.layout_spinner_edittext_input_others_icon);
         mImgActivityInputOthers = viewInputActivity.findViewById(R.id.img_spinner_edittext_input_others_icon);
         mSpinnerActivity = viewInputActivity.findViewById(R.id.spinner_broad);
-        mSpinnerActivity.setSaveEnabled(false);
+//        mSpinnerActivity.setSaveEnabled(false);
         mEtvActivityOthers = viewInputActivity.findViewById(R.id.etv_spinner_edittext_others_info);
-        mEtvActivityOthers.setSaveEnabled(false);
+//        mEtvActivityOthers.setSaveEnabled(false);
         mEtvActivityOthers.setOnTouchListener(onViewTouchListener);
 
         String[] activityStringArray = SpinnerItemListDataBank.getInstance().getActivityStrArray();
@@ -640,7 +985,6 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         mLayoutActivityInputOthers.setOnClickListener(onActivityInputOthersClickListener);
 
         mSpinnerActivity.setAdapter(getSpinnerArrayAdapter(activityStringArray));
-        mSpinnerActivity.setOnItemSelectedListener(getActivitySpinnerItemSelectedListener);
 
         mEtvActivityOthers.setHint(MainApplication.getAppContext().
                 getString(R.string.sitrep_activity_hint));
@@ -649,53 +993,20 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     private View.OnClickListener onActivityInputOthersClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            view.setSelected(!view.isSelected());
+            mIsActivityInputOthersSelected = !view.isSelected();
+            view.setSelected(mIsActivityInputOthersSelected);
 
             if (view.isSelected()) {
-                setActivityInputOthersSelectedUI(view);
+                setInputOthersSelectedUI(view, mImgActivityInputOthers, mSpinnerActivity, mEtvActivityOthers);
             } else {
-                setActivityInputOthersUnselectedUI(view);
+                setInputOthersUnselectedUI(view, mImgActivityInputOthers, mSpinnerActivity, mEtvActivityOthers);
             }
-        }
-    };
-
-    private void setActivityInputOthersSelectedUI(View view) {
-        view.setBackgroundColor(ResourcesCompat.getColor(getResources(),
-                R.color.primary_highlight_cyan, null));
-        mImgActivityInputOthers.setColorFilter(ResourcesCompat.getColor(
-                getResources(), R.color.background_main_black, null));
-        mSpinnerActivity.setVisibility(View.GONE);
-        mEtvActivityOthers.setVisibility(View.VISIBLE);
-    }
-
-    private void setActivityInputOthersUnselectedUI(View view) {
-        view.setBackgroundColor(ResourcesCompat.getColor(getResources(),
-                R.color.background_dark_grey, null));
-        mImgActivityInputOthers.setColorFilter(null);
-        mEtvActivityOthers.setVisibility(View.GONE);
-        mSpinnerActivity.setVisibility(View.VISIBLE);
-    }
-
-    private AdapterView.OnItemSelectedListener getActivitySpinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            String selectedItemText = (String) parent.getItemAtPosition(position);
-            // If user change the default selection
-            // First item is disable and it is used for hint
-            if (position > 0) {
-                // Notify the selected item text
-            }
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
         }
     };
 
     /**
      * Initialise Sit Rep input next course of action UI
-     * <p>
+     *
      * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
      * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
      * blind users with appropriate feedback through Accessibility services. However, in this use case,
@@ -709,9 +1020,9 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         mLayoutNextCoaInputOthers = viewInputNextCoa.findViewById(R.id.layout_spinner_edittext_input_others_icon);
         mImgNextCoaInputOthers = viewInputNextCoa.findViewById(R.id.img_spinner_edittext_input_others_icon);
         mSpinnerNextCoa = viewInputNextCoa.findViewById(R.id.spinner_broad);
-        mSpinnerNextCoa.setSaveEnabled(false);
+//        mSpinnerNextCoa.setSaveEnabled(false);
         mEtvNextCoaOthers = viewInputNextCoa.findViewById(R.id.etv_spinner_edittext_others_info);
-        mEtvNextCoaOthers.setSaveEnabled(false);
+//        mEtvNextCoaOthers.setSaveEnabled(false);
         mEtvNextCoaOthers.setOnTouchListener(onViewTouchListener);
 
         String[] nextCoaStringArray = SpinnerItemListDataBank.getInstance().getNextCoaStrArray();
@@ -719,7 +1030,6 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         mLayoutNextCoaInputOthers.setOnClickListener(onNextCoaInputOthersClickListener);
 
         mSpinnerNextCoa.setAdapter(getSpinnerArrayAdapter(nextCoaStringArray));
-        mSpinnerNextCoa.setOnItemSelectedListener(getNextCoaSpinnerItemSelectedListener);
 
         mEtvNextCoaOthers.setHint(MainApplication.getAppContext().
                 getString(R.string.sitrep_next_coa_hint));
@@ -728,47 +1038,14 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     private View.OnClickListener onNextCoaInputOthersClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            view.setSelected(!view.isSelected());
+            mIsNextCoaInputOthersSelected = !view.isSelected();
+            view.setSelected(mIsNextCoaInputOthersSelected);
 
             if (view.isSelected()) {
-                setNextCoaInputOthersSelectedUI(view);
+                setInputOthersSelectedUI(view, mImgNextCoaInputOthers, mSpinnerNextCoa, mEtvNextCoaOthers);
             } else {
-                setNextCoaInputOthersUnselectedUI(view);
+                setInputOthersUnselectedUI(view, mImgNextCoaInputOthers, mSpinnerNextCoa, mEtvNextCoaOthers);
             }
-        }
-    };
-
-    private void setNextCoaInputOthersSelectedUI(View view) {
-        view.setBackgroundColor(ResourcesCompat.getColor(getResources(),
-                R.color.primary_highlight_cyan, null));
-        mImgNextCoaInputOthers.setColorFilter(ResourcesCompat.getColor(
-                getResources(), R.color.background_main_black, null));
-        mSpinnerNextCoa.setVisibility(View.GONE);
-        mEtvNextCoaOthers.setVisibility(View.VISIBLE);
-    }
-
-    private void setNextCoaInputOthersUnselectedUI(View view) {
-        view.setBackgroundColor(ResourcesCompat.getColor(getResources(),
-                R.color.background_dark_grey, null));
-        mImgNextCoaInputOthers.setColorFilter(null);
-        mEtvNextCoaOthers.setVisibility(View.GONE);
-        mSpinnerNextCoa.setVisibility(View.VISIBLE);
-    }
-
-    private AdapterView.OnItemSelectedListener getNextCoaSpinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            String selectedItemText = (String) parent.getItemAtPosition(position);
-            // If user change the default selection
-            // First item is disable and it is used for hint
-            if (position > 0) {
-                // Notify the selected item text
-            }
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
         }
     };
 
@@ -788,9 +1065,9 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         mLayoutRequestInputOthers = viewInputRequest.findViewById(R.id.layout_spinner_edittext_input_others_icon);
         mImgRequestInputOthers = viewInputRequest.findViewById(R.id.img_spinner_edittext_input_others_icon);
         mSpinnerRequest = viewInputRequest.findViewById(R.id.spinner_broad);
-        mSpinnerRequest.setSaveEnabled(false);
+//        mSpinnerRequest.setSaveEnabled(false);
         mEtvRequestOthers = viewInputRequest.findViewById(R.id.etv_spinner_edittext_others_info);
-        mEtvRequestOthers.setSaveEnabled(false);
+//        mEtvRequestOthers.setSaveEnabled(false);
         mEtvRequestOthers.setOnTouchListener(onViewTouchListener);
 
         mLayoutRequestInputOthers.setOnClickListener(onRequestInputOthersClickListener);
@@ -806,32 +1083,16 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     private View.OnClickListener onRequestInputOthersClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            view.setSelected(!view.isSelected());
+            mIsRequestInputOthersSelected = !view.isSelected();
+            view.setSelected(mIsRequestInputOthersSelected);
 
             if (view.isSelected()) {
-                setRequestInputOthersSelectedUI(view);
+                setInputOthersSelectedUI(view, mImgRequestInputOthers, mSpinnerRequest, mEtvRequestOthers);
             } else {
-                setRequestInputOthersUnselectedUI(view);
+                setInputOthersUnselectedUI(view, mImgRequestInputOthers, mSpinnerRequest, mEtvRequestOthers);
             }
         }
     };
-
-    private void setRequestInputOthersSelectedUI(View view) {
-        view.setBackgroundColor(ResourcesCompat.getColor(getResources(),
-                R.color.primary_highlight_cyan, null));
-        mImgRequestInputOthers.setColorFilter(ResourcesCompat.getColor(
-                getResources(), R.color.background_main_black, null));
-        mSpinnerRequest.setVisibility(View.GONE);
-        mEtvRequestOthers.setVisibility(View.VISIBLE);
-    }
-
-    private void setRequestInputOthersUnselectedUI(View view) {
-        view.setBackgroundColor(ResourcesCompat.getColor(getResources(),
-                R.color.background_dark_grey, null));
-        mImgRequestInputOthers.setColorFilter(null);
-        mEtvRequestOthers.setVisibility(View.GONE);
-        mSpinnerRequest.setVisibility(View.VISIBLE);
-    }
 
     private AdapterView.OnItemSelectedListener getRequestSpinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
         @Override
@@ -855,7 +1116,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
     /**
      * Initialise Sit Rep others UI
-     * <p>
+     *
      * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
      * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
      * blind users with appropriate feedback through Accessibility services. However, in this use case,
@@ -866,8 +1127,371 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     @SuppressLint("ClickableViewAccessibility")
     private void initOthers(View rootView) {
         mEtvOthers = rootView.findViewById(R.id.etv_add_update_sitrep_input_others);
-        mEtvOthers.setSaveEnabled(false);
+//        mEtvOthers.setSaveEnabled(false);
         mEtvOthers.setOnTouchListener(onViewTouchListener);
+    }
+
+    /** -------------------- Inspection Report Init UI -------------------- **/
+
+    /**
+     * Initialise Sit Rep input vessel type UI
+     *
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initInputVesselTypeUI(View rootView) {
+        View viewInputVesselType = rootView.findViewById(R.id.layout_add_update_sitrep_input_vessel_type);
+        mLayoutVesselTypeInputOthers = viewInputVesselType.findViewById(R.id.layout_spinner_edittext_input_others_icon);
+        mImgVesselTypeInputOthers = viewInputVesselType.findViewById(R.id.img_spinner_edittext_input_others_icon);
+        mSpinnerVesselType = viewInputVesselType.findViewById(R.id.spinner_broad);
+//        mSpinnerVesselType.setSaveEnabled(false);
+        mEtvVesselTypeOthers = viewInputVesselType.findViewById(R.id.etv_spinner_edittext_others_info);
+//        mEtvVesselTypeOthers.setSaveEnabled(false);
+        mEtvVesselTypeOthers.setOnTouchListener(onViewTouchListener);
+
+        String[] vesselTypeStringArray = SpinnerItemListDataBank.getInstance().getVesselTypeStrArray();
+
+        mLayoutVesselTypeInputOthers.setOnClickListener(onVesselTypeInputOthersClickListener);
+
+        mSpinnerVesselType.setAdapter(getSpinnerArrayAdapter(vesselTypeStringArray));
+
+        mEtvVesselTypeOthers.setHint(MainApplication.getAppContext().
+                getString(R.string.sitrep_vessel_type_hint));
+    }
+
+    private View.OnClickListener onVesselTypeInputOthersClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mIsVesselTypeInputOthersSelected = !view.isSelected();
+            view.setSelected(mIsVesselTypeInputOthersSelected);
+
+            if (view.isSelected()) {
+                setInputOthersSelectedUI(view, mImgVesselTypeInputOthers, mSpinnerVesselType, mEtvVesselTypeOthers);
+            } else {
+                setInputOthersUnselectedUI(view, mImgVesselTypeInputOthers, mSpinnerVesselType, mEtvVesselTypeOthers);
+            }
+        }
+    };
+
+    /**
+     * Initialise Sit Rep input vessel name UI
+     *
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initInputVesselNameUI(View rootView) {
+        View viewInputVesselName = rootView.findViewById(R.id.layout_add_update_sitrep_input_vessel_name);
+        mLayoutVesselNameInputOthers = viewInputVesselName.findViewById(R.id.layout_spinner_edittext_input_others_icon);
+        mImgVesselNameInputOthers = viewInputVesselName.findViewById(R.id.img_spinner_edittext_input_others_icon);
+        mSpinnerVesselName = viewInputVesselName.findViewById(R.id.spinner_broad);
+//        mSpinnerVesselName.setSaveEnabled(false);
+        mEtvVesselNameOthers = viewInputVesselName.findViewById(R.id.etv_spinner_edittext_others_info);
+//        mEtvVesselNameOthers.setSaveEnabled(false);
+        mEtvVesselNameOthers.setOnTouchListener(onViewTouchListener);
+
+        String[] vesselNameStringArray = SpinnerItemListDataBank.getInstance().getVesselNameStrArray();
+
+        mLayoutVesselNameInputOthers.setOnClickListener(onVesselNameInputOthersClickListener);
+
+        mSpinnerVesselName.setAdapter(getSpinnerArrayAdapter(vesselNameStringArray));
+
+        mEtvVesselNameOthers.setHint(MainApplication.getAppContext().
+                getString(R.string.sitrep_vessel_name_hint));
+    }
+
+    private View.OnClickListener onVesselNameInputOthersClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mIsVesselNameInputOthersSelected = !view.isSelected();
+            view.setSelected(mIsVesselNameInputOthersSelected);
+
+            if (view.isSelected()) {
+                setInputOthersSelectedUI(view, mImgVesselNameInputOthers, mSpinnerVesselName, mEtvVesselNameOthers);
+            } else {
+                setInputOthersUnselectedUI(view, mImgVesselNameInputOthers, mSpinnerVesselName, mEtvVesselNameOthers);
+            }
+        }
+    };
+
+    /**
+     * Initialise Sit Rep input LPOC UI
+     *
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initInputLpocUI(View rootView) {
+        View viewInputLpoc = rootView.findViewById(R.id.layout_add_update_sitrep_input_lpoc);
+        mLayoutLpocInputOthers = viewInputLpoc.findViewById(R.id.layout_spinner_edittext_input_others_icon);
+        mImgLpocInputOthers = viewInputLpoc.findViewById(R.id.img_spinner_edittext_input_others_icon);
+        mSpinnerLpoc = viewInputLpoc.findViewById(R.id.spinner_broad);
+//        mSpinnerLpoc.setSaveEnabled(false);
+        mEtvLpocOthers = viewInputLpoc.findViewById(R.id.etv_spinner_edittext_others_info);
+//        mEtvLpocOthers.setSaveEnabled(false);
+        mEtvLpocOthers.setOnTouchListener(onViewTouchListener);
+
+        String[] lpocStringArray = SpinnerItemListDataBank.getInstance().getLpocStrArray();
+
+        mLayoutLpocInputOthers.setOnClickListener(onLpocInputOthersClickListener);
+
+        mSpinnerLpoc.setAdapter(getSpinnerArrayAdapter(lpocStringArray));
+
+        mEtvLpocOthers.setHint(MainApplication.getAppContext().
+                getString(R.string.sitrep_lpoc_hint));
+    }
+
+    private View.OnClickListener onLpocInputOthersClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mIsLpocInputOthersSelected = !view.isSelected();
+            view.setSelected(mIsLpocInputOthersSelected);
+
+            if (view.isSelected()) {
+                setInputOthersSelectedUI(view, mImgLpocInputOthers, mSpinnerLpoc, mEtvLpocOthers);
+            } else {
+                setInputOthersUnselectedUI(view, mImgLpocInputOthers, mSpinnerLpoc, mEtvLpocOthers);
+            }
+        }
+    };
+
+    /**
+     * Initialise Sit Rep input NPOC UI
+     *
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initInputNpocUI(View rootView) {
+        View viewInputNpoc = rootView.findViewById(R.id.layout_add_update_sitrep_input_npoc);
+        mLayoutNpocInputOthers = viewInputNpoc.findViewById(R.id.layout_spinner_edittext_input_others_icon);
+        mImgNpocInputOthers = viewInputNpoc.findViewById(R.id.img_spinner_edittext_input_others_icon);
+        mSpinnerNpoc = viewInputNpoc.findViewById(R.id.spinner_broad);
+//        mSpinnerNpoc.setSaveEnabled(false);
+        mEtvNpocOthers = viewInputNpoc.findViewById(R.id.etv_spinner_edittext_others_info);
+//        mEtvNpocOthers.setSaveEnabled(false);
+        mEtvNpocOthers.setOnTouchListener(onViewTouchListener);
+
+        String[] npocStringArray = SpinnerItemListDataBank.getInstance().getNpocStrArray();
+
+        mLayoutNpocInputOthers.setOnClickListener(onNpocInputOthersClickListener);
+
+        mSpinnerNpoc.setAdapter(getSpinnerArrayAdapter(npocStringArray));
+
+        mEtvNpocOthers.setHint(MainApplication.getAppContext().
+                getString(R.string.sitrep_npoc_hint));
+    }
+
+    private View.OnClickListener onNpocInputOthersClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mIsNpocInputOthersSelected = !view.isSelected();
+            view.setSelected(mIsNpocInputOthersSelected);
+
+            if (view.isSelected()) {
+                setInputOthersSelectedUI(view, mImgNpocInputOthers, mSpinnerNpoc, mEtvNpocOthers);
+            } else {
+                setInputOthersUnselectedUI(view, mImgNpocInputOthers, mSpinnerNpoc, mEtvNpocOthers);
+            }
+        }
+    };
+
+    /**
+     * Initialise Sit Rep last visit to SG UI
+     *
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initLastVisitToSgUI(View rootView) {
+        mEtvLastVisitToSg = rootView.findViewById(R.id.etv_add_update_sitrep_input_last_visit_to_sg);
+//        mEtvLastVisitToSg.setSaveEnabled(false);
+        mEtvLastVisitToSg.setOnTouchListener(onViewTouchListener);
+    }
+
+    /**
+     * Initialise Sit Rep vessel last boarded UI
+     *
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initVesselLastBoardedUI(View rootView) {
+        mEtvVesselLastBoarded = rootView.findViewById(R.id.etv_add_update_sitrep_input_vessel_last_boarded);
+//        mEtvVesselLastBoarded.setSaveEnabled(false);
+        mEtvVesselLastBoarded.setOnTouchListener(onViewTouchListener);
+    }
+
+    /**
+     * Initialise Sit Rep input cargo UI
+     *
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initInputCargoUI(View rootView) {
+        View viewInputCargo = rootView.findViewById(R.id.layout_add_update_sitrep_input_cargo);
+        mLayoutCargoInputOthers = viewInputCargo.findViewById(R.id.layout_spinner_edittext_input_others_icon);
+        mImgCargoInputOthers = viewInputCargo.findViewById(R.id.img_spinner_edittext_input_others_icon);
+        mSpinnerCargo = viewInputCargo.findViewById(R.id.spinner_broad);
+//        mSpinnerCargo.setSaveEnabled(false);
+        mEtvCargoOthers = viewInputCargo.findViewById(R.id.etv_spinner_edittext_others_info);
+//        mEtvCargoOthers.setSaveEnabled(false);
+        mEtvCargoOthers.setOnTouchListener(onViewTouchListener);
+
+        String[] cargoStringArray = SpinnerItemListDataBank.getInstance().getCargoStrArray();
+
+        mLayoutCargoInputOthers.setOnClickListener(onCargoInputOthersClickListener);
+
+        mSpinnerCargo.setAdapter(getSpinnerArrayAdapter(cargoStringArray));
+
+        mEtvCargoOthers.setHint(MainApplication.getAppContext().
+                getString(R.string.sitrep_cargo_hint));
+    }
+
+    private View.OnClickListener onCargoInputOthersClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mIsCargoInputOthersSelected = !view.isSelected();
+            view.setSelected(mIsCargoInputOthersSelected);
+
+            if (view.isSelected()) {
+                setInputOthersSelectedUI(view, mImgCargoInputOthers, mSpinnerCargo, mEtvCargoOthers);
+            } else {
+                setInputOthersUnselectedUI(view, mImgCargoInputOthers, mSpinnerCargo, mEtvCargoOthers);
+            }
+        }
+    };
+
+    /**
+     * Initialise Sit Rep purpose of call UI
+     *
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initPurposeOfCallUI(View rootView) {
+        mEtvPurposeOfCall = rootView.findViewById(R.id.etv_add_update_sitrep_input_purpose_of_call);
+//        mEtvPurposeOfCall.setSaveEnabled(false);
+        mEtvPurposeOfCall.setOnTouchListener(onViewTouchListener);
+    }
+
+    /**
+     * Initialise Sit Rep duration UI
+     *
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initDurationUI(View rootView) {
+        mEtvDuration = rootView.findViewById(R.id.etv_add_update_sitrep_input_duration);
+//        mEtvDuration.setSaveEnabled(false);
+        mEtvDuration.setOnTouchListener(onViewTouchListener);
+    }
+
+    /**
+     * Initialise Sit Rep current crew UI
+     *
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initCurrentCrewUI(View rootView) {
+        mEtvCurrentCrew = rootView.findViewById(R.id.etv_add_update_sitrep_input_current_crew);
+//        mEtvCurrentCrew.setSaveEnabled(false);
+        mEtvCurrentCrew.setOnTouchListener(onViewTouchListener);
+    }
+
+    /**
+     * Initialise Sit Rep current master UI
+     *
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initCurrentMasterUI(View rootView) {
+        mEtvCurrentMaster = rootView.findViewById(R.id.etv_add_update_sitrep_input_current_master);
+//        mEtvCurrentMaster.setSaveEnabled(false);
+        mEtvCurrentMaster.setOnTouchListener(onViewTouchListener);
+    }
+
+    /**
+     * Initialise Sit Rep current ce UI
+     *
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initCurrentCeUI(View rootView) {
+        mEtvCurrentCe = rootView.findViewById(R.id.etv_add_update_sitrep_input_current_ce);
+//        mEtvCurrentCe.setSaveEnabled(false);
+        mEtvCurrentCe.setOnTouchListener(onViewTouchListener);
+    }
+
+    /**
+     * Initialise Sit Rep queries UI
+     *
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initQueriesUI(View rootView) {
+        mEtvQueries = rootView.findViewById(R.id.etv_add_update_sitrep_input_queries);
+//        mEtvQueries.setSaveEnabled(false);
+        mEtvQueries.setOnTouchListener(onViewTouchListener);
     }
 
     /**
@@ -904,6 +1528,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         if (mFrameLayoutPicture != null && mImgPicture != null) {
             mFrameLayoutPicture.setVisibility(View.GONE);
             mImgPicture.recycle();
+            mCompressedFileBitmap = null;
         }
     }
 
@@ -916,6 +1541,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         if (mFrameLayoutPicture != null && mImgPicture != null) {
             mFrameLayoutPicture.setVisibility(View.VISIBLE);
             mImgPicture.setImage(ImageSource.bitmap(bitmap));
+            mCompressedFileBitmap = bitmap;
         }
     }
 
@@ -935,89 +1561,173 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             newSitRepModel = new SitRepModel();
             newSitRepModel.setRefId(DatabaseTableConstants.LOCAL_REF_ID);
             newSitRepModel.setLastUpdatedDateTime(StringUtil.INVALID_STRING);
+            newSitRepModel.setCreatedDateTime(DateTimeUtil.getCurrentDateTime());
         }
 
         newSitRepModel.setReporter(userId);
+
         byte[] imageByteArray = null;
         if (mCompressedFileBitmap != null) {
             imageByteArray = PhotoCaptureUtil.getByteArrayFromImage(mCompressedFileBitmap, 100);
         }
         newSitRepModel.setSnappedPhoto(imageByteArray);
 
-        String location = "";
-        if (mLayoutLocationInputOthers.isSelected()) {
-            location = mEtvLocationOthers.getText().toString().trim();
-        } else {
-            location = mSpinnerLocation.getSelectedItem().toString();
+
+        if (RB_SITREP_TYPE_MISSION_ID == mRgSitRepType.getCheckedRadioButtonId()) {
+            newSitRepModel.setReportType(EReportType.MISSION.toString());
+
+            String location = "";
+            if (mLayoutLocationInputOthers.isSelected()) {
+                location = mEtvLocationOthers.getText().toString().trim();
+            } else {
+                location = mSpinnerLocation.getSelectedItem().toString();
+            }
+
+            String activity = "";
+            if (mLayoutActivityInputOthers.isSelected()) {
+                activity = mEtvActivityOthers.getText().toString().trim();
+            } else {
+                activity = mSpinnerActivity.getSelectedItem().toString();
+            }
+
+            String nextCoa = "";
+            if (mLayoutNextCoaInputOthers.isSelected()) {
+                nextCoa = mEtvNextCoaOthers.getText().toString().trim();
+            } else {
+                nextCoa = mSpinnerNextCoa.getSelectedItem().toString();
+            }
+
+            String request = "";
+            if (mLayoutRequestInputOthers.isSelected()) {
+                request = mEtvRequestOthers.getText().toString().trim();
+            } else {
+                request = mSpinnerRequest.getSelectedItem().toString();
+            }
+
+            String others = "";
+            others = mEtvOthers.getText().toString().trim();
+
+            // Inspection fields
+            newSitRepModel.setVesselType(StringUtil.EMPTY_STRING);
+            newSitRepModel.setVesselName(StringUtil.EMPTY_STRING);
+            newSitRepModel.setLpoc(StringUtil.EMPTY_STRING);
+            newSitRepModel.setNpoc(StringUtil.EMPTY_STRING);
+            newSitRepModel.setLastVisitToSg(StringUtil.EMPTY_STRING);
+            newSitRepModel.setVesselLastBoarded(StringUtil.EMPTY_STRING);
+            newSitRepModel.setCargo(StringUtil.EMPTY_STRING);
+            newSitRepModel.setPurposeOfCall(StringUtil.EMPTY_STRING);
+            newSitRepModel.setDuration(StringUtil.EMPTY_STRING);
+            newSitRepModel.setCurrentCrew(StringUtil.EMPTY_STRING);
+            newSitRepModel.setCurrentMaster(StringUtil.EMPTY_STRING);
+            newSitRepModel.setCurrentCe(StringUtil.EMPTY_STRING);
+            newSitRepModel.setQueries(StringUtil.EMPTY_STRING);
+
+            // Mission fields
+            newSitRepModel.setLocation(location);
+            newSitRepModel.setActivity(activity);
+            newSitRepModel.setPersonnelT(Integer.valueOf(mTvPersonnelNumberT.getText().toString().trim()));
+            newSitRepModel.setPersonnelS(Integer.valueOf(mTvPersonnelNumberS.getText().toString().trim()));
+            newSitRepModel.setPersonnelD(Integer.valueOf(mTvPersonnelNumberD.getText().toString().trim()));
+            newSitRepModel.setNextCoa(nextCoa);
+            newSitRepModel.setRequest(request);
+            newSitRepModel.setOthers(others);
+
+        } else if (RB_SITREP_TYPE_INSPECTION_ID == mRgSitRepType.getCheckedRadioButtonId()) {
+            newSitRepModel.setReportType(EReportType.INSPECTION.toString());
+
+            String vesselType = "";
+            if (mLayoutVesselTypeInputOthers.isSelected()) {
+                vesselType = mEtvVesselTypeOthers.getText().toString().trim();
+            } else {
+                vesselType = mSpinnerVesselType.getSelectedItem().toString();
+            }
+
+            String vesselName = "";
+            if (mLayoutVesselNameInputOthers.isSelected()) {
+                vesselName = mEtvVesselNameOthers.getText().toString().trim();
+            } else {
+                vesselName = mSpinnerVesselName.getSelectedItem().toString();
+            }
+
+            String lpoc = "";
+            if (mLayoutLpocInputOthers.isSelected()) {
+                lpoc = mEtvLpocOthers.getText().toString().trim();
+            } else {
+                lpoc = mSpinnerLpoc.getSelectedItem().toString();
+            }
+
+            String npoc = "";
+            if (mLayoutNpocInputOthers.isSelected()) {
+                npoc = mEtvNpocOthers.getText().toString().trim();
+            } else {
+                npoc = mSpinnerNpoc.getSelectedItem().toString();
+            }
+
+            String lastVisitToSg = "";
+            lastVisitToSg = mEtvLastVisitToSg.getText().toString().trim();
+
+            String vesselLastBoarded = "";
+            vesselLastBoarded = mEtvVesselLastBoarded.getText().toString().trim();
+
+            String cargo = "";
+            if (mLayoutCargoInputOthers.isSelected()) {
+                cargo = mEtvCargoOthers.getText().toString().trim();
+            } else {
+                cargo = mSpinnerCargo.getSelectedItem().toString();
+            }
+
+            String purposeOfCall = "";
+            purposeOfCall = mEtvPurposeOfCall.getText().toString().trim();
+
+            String duration = "";
+            duration = mEtvDuration.getText().toString().trim();
+
+            String currentCrew = "";
+            currentCrew = mEtvCurrentCrew.getText().toString().trim();
+
+            String currentMaster = "";
+            currentMaster = mEtvCurrentMaster.getText().toString().trim();
+
+            String currentCe = "";
+            currentCe = mEtvCurrentCe.getText().toString().trim();
+
+            String queries = "";
+            queries = mEtvQueries.getText().toString().trim();
+
+            // Inspection fields
+            newSitRepModel.setVesselType(vesselType);
+            newSitRepModel.setVesselName(vesselName);
+            newSitRepModel.setLpoc(lpoc);
+            newSitRepModel.setNpoc(npoc);
+            newSitRepModel.setLastVisitToSg(lastVisitToSg);
+            newSitRepModel.setVesselLastBoarded(vesselLastBoarded);
+            newSitRepModel.setCargo(cargo);
+            newSitRepModel.setPurposeOfCall(purposeOfCall);
+            newSitRepModel.setDuration(duration);
+            newSitRepModel.setCurrentCrew(currentCrew);
+            newSitRepModel.setCurrentMaster(currentMaster);
+            newSitRepModel.setCurrentCe(currentCe);
+            newSitRepModel.setQueries(queries);
+
+            // Mission fields
+            newSitRepModel.setLocation(StringUtil.EMPTY_STRING);
+            newSitRepModel.setActivity(StringUtil.EMPTY_STRING);
+            newSitRepModel.setPersonnelT(0);
+            newSitRepModel.setPersonnelS(0);
+            newSitRepModel.setPersonnelD(0);
+            newSitRepModel.setNextCoa(StringUtil.EMPTY_STRING);
+            newSitRepModel.setRequest(StringUtil.EMPTY_STRING);
+            newSitRepModel.setOthers(StringUtil.EMPTY_STRING);
         }
-
-        String activity = "";
-        if (mLayoutActivityInputOthers.isSelected()) {
-            activity = mEtvActivityOthers.getText().toString().trim();
-        } else {
-            activity = mSpinnerActivity.getSelectedItem().toString();
-        }
-
-        String nextCoa = "";
-        if (mLayoutNextCoaInputOthers.isSelected()) {
-            nextCoa = mEtvNextCoaOthers.getText().toString().trim();
-        } else {
-            nextCoa = mSpinnerNextCoa.getSelectedItem().toString();
-        }
-
-        String request = "";
-        if (mLayoutRequestInputOthers.isSelected()) {
-            request = mEtvRequestOthers.getText().toString().trim();
-        } else {
-            request = mSpinnerRequest.getSelectedItem().toString();
-        }
-
-        String others = "";
-        others = mEtvOthers.getText().toString().trim();
-
-        newSitRepModel.setLocation(location);
-        newSitRepModel.setActivity(activity);
-        newSitRepModel.setPersonnelT(Integer.valueOf(mTvPersonnelNumberT.getText().toString().trim()));
-        newSitRepModel.setPersonnelS(Integer.valueOf(mTvPersonnelNumberS.getText().toString().trim()));
-        newSitRepModel.setPersonnelD(Integer.valueOf(mTvPersonnelNumberD.getText().toString().trim()));
-        newSitRepModel.setNextCoa(nextCoa);
-        newSitRepModel.setRequest(request);
-        newSitRepModel.setOthers(others);
 
 //        System.out.println("DateTimeFormatter.ISO_ZONED_DATE_TIME.toString() is " + DateTimeFormatter.ISO_ZONED_DATE_TIME.toString());
-        newSitRepModel.setCreatedDateTime(DateTimeUtil.getCurrentDateTime());
+//        newSitRepModel.setCreatedDateTime(DateTimeUtil.getCurrentDateTime());
 
         // Is Valid (Sit Rep Model's validity - whether it has been deleted or not)
         newSitRepModel.setIsValid(EIsValid.YES.toString());
 
         return newSitRepModel;
     }
-
-//    /**
-//     * Broadcasts update of data to connected devices in the network
-//     *
-//     * @param sitRepModel
-//     */
-//    private void broadcastDataUpdateOverSocket(SitRepModel sitRepModel) {
-//        // Sit Rep table data
-//        Log.d(TAG, "broadcastDataUpdateOverSocket");
-//        Gson gson = GsonCreator.createGson();
-//        String newSitRepModelJson = gson.toJson(sitRepModel);
-//        JeroMQPublisher.getInstance().sendSitRepMessage(newSitRepModelJson, JeroMQPublisher.TOPIC_UPDATE);
-//    }
-//
-//    /**
-//     * Broadcasts insertion of data to connected devices in the network
-//     *
-//     * @param sitRepModel
-//     */
-//    private void broadcastDataInsertionOverSocket(SitRepModel sitRepModel) {
-//        // Sit Rep table data
-//        Log.d(TAG, "broadcastDataInsertionOverSocket");
-//        Gson gson = GsonCreator.createGson();
-//        String newSitRepModelJson = gson.toJson(sitRepModel);
-//        JeroMQPublisher.getInstance().sendSitRepMessage(newSitRepModelJson, JeroMQPublisher.TOPIC_INSERT);
-//    }
 
     /**
      * Stores Sit Rep data locally and broadcasts to other devices
@@ -1081,100 +1791,310 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         stringBuilder.append(MainApplication.getAppContext().
                 getString(R.string.snackbar_form_incomplete_message));
 
-        // Validate location field
-        if (!mLayoutLocationInputOthers.isSelected()) {
-            if (mSpinnerLocation.getSelectedItemPosition() != 0) {
-                formCompletedCount++;
-            } else {
-                stringBuilder.append(System.lineSeparator());
-                stringBuilder.append(StringUtil.HYPHEN);
-                stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(MainApplication.getAppContext().
-                        getString(R.string.sitrep_location));
-            }
-        } else {
-            if (!TextUtils.isEmpty(mEtvLocationOthers.getText().toString().trim())) {
-                formCompletedCount++;
-            } else {
-                stringBuilder.append(System.lineSeparator());
-                stringBuilder.append(StringUtil.HYPHEN);
-                stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(MainApplication.getAppContext().
-                        getString(R.string.sitrep_location));
-            }
-        }
+        /** -------------------- Sit Rep Mission -------------------- **/
+        if (RB_SITREP_TYPE_MISSION_ID == mRgSitRepType.getCheckedRadioButtonId()) {
 
-        // Validate activity field
-        if (!mLayoutActivityInputOthers.isSelected()) {
-            if (mSpinnerActivity.getSelectedItemPosition() != 0) {
-                formCompletedCount++;
+            // Validate location field
+            if (!mLayoutLocationInputOthers.isSelected()) {
+                if (mSpinnerLocation.getSelectedItemPosition() != 0) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_location));
+                }
             } else {
-                stringBuilder.append(System.lineSeparator());
-                stringBuilder.append(StringUtil.HYPHEN);
-                stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(MainApplication.getAppContext().
-                        getString(R.string.sitrep_activity));
+                if (!TextUtils.isEmpty(mEtvLocationOthers.getText().toString().trim())) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_location));
+                }
             }
-        } else {
-            if (!TextUtils.isEmpty(mEtvActivityOthers.getText().toString().trim())) {
-                formCompletedCount++;
-            } else {
-                stringBuilder.append(System.lineSeparator());
-                stringBuilder.append(StringUtil.HYPHEN);
-                stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(MainApplication.getAppContext().
-                        getString(R.string.sitrep_activity));
-            }
-        }
 
-        // Validate next course of action field
-        if (!mLayoutNextCoaInputOthers.isSelected()) {
-            if (mSpinnerNextCoa.getSelectedItemPosition() != 0) {
-                formCompletedCount++;
+            // Validate activity field
+            if (!mLayoutActivityInputOthers.isSelected()) {
+                if (mSpinnerActivity.getSelectedItemPosition() != 0) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_activity));
+                }
             } else {
-                stringBuilder.append(System.lineSeparator());
-                stringBuilder.append(StringUtil.HYPHEN);
-                stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(MainApplication.getAppContext().
-                        getString(R.string.sitrep_next_coa));
+                if (!TextUtils.isEmpty(mEtvActivityOthers.getText().toString().trim())) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_activity));
+                }
             }
-        } else {
-            if (!TextUtils.isEmpty(mEtvNextCoaOthers.getText().toString().trim())) {
-                formCompletedCount++;
-            } else {
-                stringBuilder.append(System.lineSeparator());
-                stringBuilder.append(StringUtil.HYPHEN);
-                stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(MainApplication.getAppContext().
-                        getString(R.string.sitrep_next_coa));
-            }
-        }
 
-        // Validate request field
-        if (!mLayoutRequestInputOthers.isSelected()) {
-            if (mSpinnerRequest.getSelectedItemPosition() != 0) {
-                formCompletedCount++;
+            // Validate next course of action field
+            if (!mLayoutNextCoaInputOthers.isSelected()) {
+                if (mSpinnerNextCoa.getSelectedItemPosition() != 0) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_next_coa));
+                }
             } else {
-                stringBuilder.append(System.lineSeparator());
-                stringBuilder.append(StringUtil.HYPHEN);
-                stringBuilder.append(StringUtil.SPACE);
-                stringBuilder.append(MainApplication.getAppContext().
-                        getString(R.string.sitrep_request));
+                if (!TextUtils.isEmpty(mEtvNextCoaOthers.getText().toString().trim())) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_next_coa));
+                }
             }
-        } else {
-            if (!TextUtils.isEmpty(mEtvRequestOthers.getText().toString().trim())) {
+
+            // Validate request field
+            if (!mLayoutRequestInputOthers.isSelected()) {
+                if (mSpinnerRequest.getSelectedItemPosition() != 0) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_request));
+                }
+            } else {
+                if (!TextUtils.isEmpty(mEtvRequestOthers.getText().toString().trim())) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_request));
+                }
+            }
+
+        } else if (RB_SITREP_TYPE_INSPECTION_ID == mRgSitRepType.getCheckedRadioButtonId()) {
+
+            // Validate vessel type field
+            if (!mLayoutVesselTypeInputOthers.isSelected()) {
+                if (mSpinnerVesselType.getSelectedItemPosition() != 0) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_vessel_type));
+                }
+            } else {
+                if (!TextUtils.isEmpty(mEtvVesselTypeOthers.getText().toString().trim())) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_vessel_type));
+                }
+            }
+
+            // Validate vessel name field
+            if (!mLayoutVesselNameInputOthers.isSelected()) {
+                if (mSpinnerVesselName.getSelectedItemPosition() != 0) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_vessel_name));
+                }
+            } else {
+                if (!TextUtils.isEmpty(mEtvVesselNameOthers.getText().toString().trim())) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_vessel_name));
+                }
+            }
+
+            // Validate LPOC field
+            if (!mLayoutLpocInputOthers.isSelected()) {
+                if (mSpinnerLpoc.getSelectedItemPosition() != 0) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_lpoc));
+                }
+            } else {
+                if (!TextUtils.isEmpty(mEtvLpocOthers.getText().toString().trim())) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_lpoc));
+                }
+            }
+
+            // Validate NPOC field
+            if (!mLayoutNpocInputOthers.isSelected()) {
+                if (mSpinnerNpoc.getSelectedItemPosition() != 0) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_npoc));
+                }
+            } else {
+                if (!TextUtils.isEmpty(mEtvNpocOthers.getText().toString().trim())) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_npoc));
+                }
+            }
+
+            // Validate last visit to Sg field
+            if (!TextUtils.isEmpty(mEtvLastVisitToSg.getText().toString().trim())) {
                 formCompletedCount++;
             } else {
                 stringBuilder.append(System.lineSeparator());
                 stringBuilder.append(StringUtil.HYPHEN);
                 stringBuilder.append(StringUtil.SPACE);
                 stringBuilder.append(MainApplication.getAppContext().
-                        getString(R.string.sitrep_request));
+                        getString(R.string.sitrep_last_visit_to_sg));
+            }
+
+            // Validate vessel last boarded field
+            if (!TextUtils.isEmpty(mEtvVesselLastBoarded.getText().toString().trim())) {
+                formCompletedCount++;
+            } else {
+                stringBuilder.append(System.lineSeparator());
+                stringBuilder.append(StringUtil.HYPHEN);
+                stringBuilder.append(StringUtil.SPACE);
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_vessel_last_boarded));
+            }
+
+            // Validate cargo field
+            if (!mLayoutCargoInputOthers.isSelected()) {
+                if (mSpinnerCargo.getSelectedItemPosition() != 0) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_cargo));
+                }
+            } else {
+                if (!TextUtils.isEmpty(mEtvCargoOthers.getText().toString().trim())) {
+                    formCompletedCount++;
+                } else {
+                    stringBuilder.append(System.lineSeparator());
+                    stringBuilder.append(StringUtil.HYPHEN);
+                    stringBuilder.append(StringUtil.SPACE);
+                    stringBuilder.append(MainApplication.getAppContext().
+                            getString(R.string.sitrep_cargo));
+                }
+            }
+
+            // Validate purpose of call field
+            if (!TextUtils.isEmpty(mEtvPurposeOfCall.getText().toString().trim())) {
+                formCompletedCount++;
+            } else {
+                stringBuilder.append(System.lineSeparator());
+                stringBuilder.append(StringUtil.HYPHEN);
+                stringBuilder.append(StringUtil.SPACE);
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_purpose_of_call));
+            }
+
+            // Validate duration field
+            if (!TextUtils.isEmpty(mEtvDuration.getText().toString().trim())) {
+                formCompletedCount++;
+            } else {
+                stringBuilder.append(System.lineSeparator());
+                stringBuilder.append(StringUtil.HYPHEN);
+                stringBuilder.append(StringUtil.SPACE);
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_duration));
+            }
+
+            // Validate current crew field
+            if (!TextUtils.isEmpty(mEtvCurrentCrew.getText().toString().trim())) {
+                formCompletedCount++;
+            } else {
+                stringBuilder.append(System.lineSeparator());
+                stringBuilder.append(StringUtil.HYPHEN);
+                stringBuilder.append(StringUtil.SPACE);
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_current_crew));
+            }
+
+            // Validate current master field
+            if (!TextUtils.isEmpty(mEtvCurrentMaster.getText().toString().trim())) {
+                formCompletedCount++;
+            } else {
+                stringBuilder.append(System.lineSeparator());
+                stringBuilder.append(StringUtil.HYPHEN);
+                stringBuilder.append(StringUtil.SPACE);
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_current_master));
+            }
+
+            // Validate current ce field
+            if (!TextUtils.isEmpty(mEtvCurrentCe.getText().toString().trim())) {
+                formCompletedCount++;
+            } else {
+                stringBuilder.append(System.lineSeparator());
+                stringBuilder.append(StringUtil.HYPHEN);
+                stringBuilder.append(StringUtil.SPACE);
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_current_ce));
+            }
+
+            // Validate current queries field
+            if (!TextUtils.isEmpty(mEtvQueries.getText().toString().trim())) {
+                formCompletedCount++;
+            } else {
+                stringBuilder.append(System.lineSeparator());
+                stringBuilder.append(StringUtil.HYPHEN);
+                stringBuilder.append(StringUtil.SPACE);
+                stringBuilder.append(MainApplication.getAppContext().
+                        getString(R.string.sitrep_queries));
             }
         }
 
         // Form is incomplete; show snackbar message to fill required fields
-        if (formCompletedCount != 4) {
+        if ((RB_SITREP_TYPE_MISSION_ID == mRgSitRepType.getCheckedRadioButtonId() && formCompletedCount != 4) ||
+                (RB_SITREP_TYPE_INSPECTION_ID == mRgSitRepType.getCheckedRadioButtonId() && formCompletedCount != 13)) {
             String fieldsToCompleteMessage = stringBuilder.toString().trim();
             if (getSnackbarView() != null) {
                 SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
@@ -1216,84 +2136,216 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                         sitRepModel.getSnappedPhoto()));
             }
 
-            // Display selected location information
-            String[] locationStringArray = SpinnerItemListDataBank.getInstance().getLocationStrArray();
-            String sitRepLocation = sitRepModel.getLocation();
-            boolean isLocationFoundInSpinner = false;
-            for (int i = 0; i < locationStringArray.length; i++) {
-                if (sitRepLocation.equalsIgnoreCase(locationStringArray[i])) {
-                    mSpinnerLocation.setSelection(i);
-                    isLocationFoundInSpinner = true;
-                    break;
+            if (EReportType.MISSION.toString().equalsIgnoreCase(sitRepModel.getReportType())) {
+
+                mRgSitRepType.check(RB_SITREP_TYPE_MISSION_ID);
+
+                // Display selected location information
+                String[] locationStringArray = SpinnerItemListDataBank.getInstance().getLocationStrArray();
+                String sitRepLocation = sitRepModel.getLocation();
+                boolean isLocationFoundInSpinner = false;
+                for (int i = 0; i < locationStringArray.length; i++) {
+                    if (sitRepLocation.equalsIgnoreCase(locationStringArray[i])) {
+                        mSpinnerLocation.setSelection(i);
+                        isLocationFoundInSpinner = true;
+                        break;
+                    }
                 }
-            }
 
-            if (!isLocationFoundInSpinner) {
-                mLayoutLocationInputOthers.setSelected(true);
-                setLocationInputOthersSelectedUI(mLayoutLocationInputOthers);
-                mEtvLocationOthers.setText(sitRepModel.getLocation());
-            }
-
-            // Display selected activity information
-            String[] activityStringArray = SpinnerItemListDataBank.getInstance().getActivityStrArray();
-            String sitRepActivity = sitRepModel.getActivity();
-            boolean isActivityFoundInSpinner = false;
-            for (int i = 0; i < activityStringArray.length; i++) {
-                if (sitRepActivity.equalsIgnoreCase(activityStringArray[i])) {
-                    mSpinnerActivity.setSelection(i);
-                    isActivityFoundInSpinner = true;
-                    break;
+                if (!isLocationFoundInSpinner) {
+                    mLayoutLocationInputOthers.setSelected(true);
+                    setInputOthersSelectedUI(mLayoutLocationInputOthers, mImgLocationInputOthers,
+                            mSpinnerLocation, mEtvLocationOthers);
+                    mEtvLocationOthers.setText(sitRepModel.getLocation());
                 }
-            }
 
-            if (!isActivityFoundInSpinner) {
-                mLayoutActivityInputOthers.setSelected(true);
-                setActivityInputOthersSelectedUI(mLayoutActivityInputOthers);
-                mEtvActivityOthers.setText(sitRepModel.getActivity());
-            }
-
-            // Display selected personnel information
-            mTvPersonnelNumberT.setText(String.valueOf(sitRepModel.getPersonnelT()));
-            mTvPersonnelNumberS.setText(String.valueOf(sitRepModel.getPersonnelS()));
-            mTvPersonnelNumberD.setText(String.valueOf(sitRepModel.getPersonnelD()));
-
-            // Display selected next course of action information
-            String[] nextCoaStringArray = SpinnerItemListDataBank.getInstance().getNextCoaStrArray();
-            String sitRepNextCoa = sitRepModel.getNextCoa();
-            boolean isNextCoaFoundInSpinner = false;
-            for (int i = 0; i < nextCoaStringArray.length; i++) {
-                if (sitRepNextCoa.equalsIgnoreCase(nextCoaStringArray[i])) {
-                    mSpinnerNextCoa.setSelection(i);
-                    isNextCoaFoundInSpinner = true;
-                    break;
+                // Display selected activity information
+                String[] activityStringArray = SpinnerItemListDataBank.getInstance().getActivityStrArray();
+                String sitRepActivity = sitRepModel.getActivity();
+                boolean isActivityFoundInSpinner = false;
+                for (int i = 0; i < activityStringArray.length; i++) {
+                    if (sitRepActivity.equalsIgnoreCase(activityStringArray[i])) {
+                        mSpinnerActivity.setSelection(i);
+                        isActivityFoundInSpinner = true;
+                        break;
+                    }
                 }
-            }
 
-            if (!isNextCoaFoundInSpinner) {
-                mLayoutNextCoaInputOthers.setSelected(true);
-                setNextCoaInputOthersSelectedUI(mLayoutNextCoaInputOthers);
-                mEtvNextCoaOthers.setText(sitRepModel.getNextCoa());
-            }
-
-            // Display selected request information
-            String[] requestStringArray = SpinnerItemListDataBank.getInstance().getRequestStrArray();
-            String sitRepRequest = sitRepModel.getRequest();
-            boolean isRequestFoundInSpinner = false;
-            for (int i = 0; i < requestStringArray.length; i++) {
-                if (sitRepRequest.equalsIgnoreCase(requestStringArray[i])) {
-                    mSpinnerRequest.setSelection(i);
-                    isRequestFoundInSpinner = true;
-                    break;
+                if (!isActivityFoundInSpinner) {
+                    mLayoutActivityInputOthers.setSelected(true);
+                    setInputOthersSelectedUI(mLayoutActivityInputOthers, mImgActivityInputOthers,
+                            mSpinnerActivity, mEtvActivityOthers);
+                    mEtvActivityOthers.setText(sitRepModel.getActivity());
                 }
-            }
 
-            if (!isRequestFoundInSpinner) {
-                mLayoutRequestInputOthers.setSelected(true);
-                setRequestInputOthersSelectedUI(mLayoutRequestInputOthers);
-                mEtvRequestOthers.setText(sitRepModel.getRequest());
-            }
+                // Display selected personnel information
+                mTvPersonnelNumberT.setText(String.valueOf(sitRepModel.getPersonnelT()));
+                mTvPersonnelNumberS.setText(String.valueOf(sitRepModel.getPersonnelS()));
+                mTvPersonnelNumberD.setText(String.valueOf(sitRepModel.getPersonnelD()));
 
-            mEtvOthers.setText(sitRepModel.getOthers());
+                // Display selected next course of action information
+                String[] nextCoaStringArray = SpinnerItemListDataBank.getInstance().getNextCoaStrArray();
+                String sitRepNextCoa = sitRepModel.getNextCoa();
+                boolean isNextCoaFoundInSpinner = false;
+                for (int i = 0; i < nextCoaStringArray.length; i++) {
+                    if (sitRepNextCoa.equalsIgnoreCase(nextCoaStringArray[i])) {
+                        mSpinnerNextCoa.setSelection(i);
+                        isNextCoaFoundInSpinner = true;
+                        break;
+                    }
+                }
+
+                if (!isNextCoaFoundInSpinner) {
+                    mLayoutNextCoaInputOthers.setSelected(true);
+                    setInputOthersSelectedUI(mLayoutNextCoaInputOthers, mImgNextCoaInputOthers,
+                            mSpinnerNextCoa, mEtvNextCoaOthers);
+                    mEtvNextCoaOthers.setText(sitRepModel.getNextCoa());
+                }
+
+                // Display selected request information
+                String[] requestStringArray = SpinnerItemListDataBank.getInstance().getRequestStrArray();
+                String sitRepRequest = sitRepModel.getRequest();
+                boolean isRequestFoundInSpinner = false;
+                for (int i = 0; i < requestStringArray.length; i++) {
+                    if (sitRepRequest.equalsIgnoreCase(requestStringArray[i])) {
+                        mSpinnerRequest.setSelection(i);
+                        isRequestFoundInSpinner = true;
+                        break;
+                    }
+                }
+
+                if (!isRequestFoundInSpinner) {
+                    mLayoutRequestInputOthers.setSelected(true);
+                    setInputOthersSelectedUI(mLayoutRequestInputOthers, mImgRequestInputOthers,
+                            mSpinnerRequest, mEtvRequestOthers);
+                    mEtvRequestOthers.setText(sitRepModel.getRequest());
+                }
+
+                mEtvOthers.setText(sitRepModel.getOthers());
+
+            } else if (EReportType.INSPECTION.toString().equalsIgnoreCase(sitRepModel.getReportType())) {
+
+                mRgSitRepType.check(RB_SITREP_TYPE_INSPECTION_ID);
+
+                // Display selected vessel type information
+                String[] vesselTypeStringArray = SpinnerItemListDataBank.getInstance().getVesselTypeStrArray();
+                String sitRepVesselType = sitRepModel.getVesselType();
+                boolean isVesselTypeFoundInSpinner = false;
+                for (int i = 0; i < vesselTypeStringArray.length; i++) {
+                    if (sitRepVesselType.equalsIgnoreCase(vesselTypeStringArray[i])) {
+                        mSpinnerVesselType.setSelection(i);
+                        isVesselTypeFoundInSpinner = true;
+                        break;
+                    }
+                }
+
+                if (!isVesselTypeFoundInSpinner) {
+                    mLayoutVesselTypeInputOthers.setSelected(true);
+                    setInputOthersSelectedUI(mLayoutVesselTypeInputOthers, mImgVesselTypeInputOthers,
+                            mSpinnerVesselType, mEtvVesselTypeOthers);
+                    mEtvVesselTypeOthers.setText(sitRepModel.getVesselType());
+                }
+
+                // Display selected vessel name information
+                String[] vesselNameStringArray = SpinnerItemListDataBank.getInstance().getVesselNameStrArray();
+                String sitRepVesselName = sitRepModel.getVesselName();
+                boolean isVesselNameFoundInSpinner = false;
+                for (int i = 0; i < vesselNameStringArray.length; i++) {
+                    if (sitRepVesselName.equalsIgnoreCase(vesselNameStringArray[i])) {
+                        mSpinnerVesselName.setSelection(i);
+                        isVesselNameFoundInSpinner = true;
+                        break;
+                    }
+                }
+
+                if (!isVesselNameFoundInSpinner) {
+                    mLayoutVesselNameInputOthers.setSelected(true);
+                    setInputOthersSelectedUI(mLayoutVesselNameInputOthers, mImgVesselNameInputOthers,
+                            mSpinnerVesselName, mEtvVesselNameOthers);
+                    mEtvVesselNameOthers.setText(sitRepModel.getVesselName());
+                }
+
+                // Display selected LPOC information
+                String[] lpocStringArray = SpinnerItemListDataBank.getInstance().getLpocStrArray();
+                String sitRepLpoc = sitRepModel.getLpoc();
+                boolean isLpocFoundInSpinner = false;
+                for (int i = 0; i < lpocStringArray.length; i++) {
+                    if (sitRepLpoc.equalsIgnoreCase(lpocStringArray[i])) {
+                        mSpinnerLpoc.setSelection(i);
+                        isLpocFoundInSpinner = true;
+                        break;
+                    }
+                }
+
+                if (!isLpocFoundInSpinner) {
+                    mLayoutLpocInputOthers.setSelected(true);
+                    setInputOthersSelectedUI(mLayoutLpocInputOthers, mImgLpocInputOthers,
+                            mSpinnerLpoc, mEtvLpocOthers);
+                    mEtvLpocOthers.setText(sitRepModel.getLpoc());
+                }
+
+                // Display selected NPOC information
+                String[] npocStringArray = SpinnerItemListDataBank.getInstance().getNpocStrArray();
+                String sitRepNpoc = sitRepModel.getNpoc();
+                boolean isNpocFoundInSpinner = false;
+                for (int i = 0; i < npocStringArray.length; i++) {
+                    if (sitRepNpoc.equalsIgnoreCase(npocStringArray[i])) {
+                        mSpinnerNpoc.setSelection(i);
+                        isNpocFoundInSpinner = true;
+                        break;
+                    }
+                }
+
+                if (!isNpocFoundInSpinner) {
+                    mLayoutNpocInputOthers.setSelected(true);
+                    setInputOthersSelectedUI(mLayoutNpocInputOthers, mImgNpocInputOthers,
+                            mSpinnerNpoc, mEtvNpocOthers);
+                    mEtvNpocOthers.setText(sitRepModel.getNpoc());
+                }
+
+                // Display selected last visit to Sg information
+                mEtvLastVisitToSg.setText(sitRepModel.getLastVisitToSg());
+
+                // Display selected vessel last boarded information
+                mEtvVesselLastBoarded.setText(sitRepModel.getVesselLastBoarded());
+
+                // Display selected cargo information
+                String[] cargoStringArray = SpinnerItemListDataBank.getInstance().getCargoStrArray();
+                String sitRepCargo = sitRepModel.getCargo();
+                boolean isCargoFoundInSpinner = false;
+                for (int i = 0; i < cargoStringArray.length; i++) {
+                    if (sitRepCargo.equalsIgnoreCase(cargoStringArray[i])) {
+                        mSpinnerCargo.setSelection(i);
+                        isCargoFoundInSpinner = true;
+                        break;
+                    }
+                }
+
+                if (!isCargoFoundInSpinner) {
+                    mLayoutCargoInputOthers.setSelected(true);
+                    setInputOthersSelectedUI(mLayoutCargoInputOthers, mImgCargoInputOthers,
+                            mSpinnerCargo, mEtvCargoOthers);
+                    mEtvCargoOthers.setText(sitRepModel.getCargo());
+                }
+
+                // Display selected purpose of call information
+                mEtvPurposeOfCall.setText(sitRepModel.getPurposeOfCall());
+
+                // Display selected duration information
+                mEtvDuration.setText(sitRepModel.getDuration());
+
+                // Display selected current crew information
+                mEtvCurrentCrew.setText(sitRepModel.getCurrentCrew());
+
+                // Display selected current master information
+                mEtvCurrentMaster.setText(sitRepModel.getCurrentMaster());
+
+                // Display selected current CE information
+                mEtvCurrentCe.setText(sitRepModel.getCurrentCe());
+
+                // Display selected queries information
+                mEtvQueries.setText(sitRepModel.getQueries());
+            }
         }
     }
 
@@ -1403,7 +2455,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     /**
      * Accesses child base fragment of current selected view pager item and remove this fragment
      * from child base fragment's stack.
-     *
+     * <p>
      * Possible Selected View Pager Item: Sit Rep / Video Stream
      * Child Base Fragment: SitRepFragment / VideoStreamFragment
      */
@@ -1420,6 +2472,150 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 mainActivity.popChildFragmentBackStack(
                         MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID);
             }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // 'Mission' Sit Rep
+        if (mLayoutLocationInputOthers != null) {
+            mLayoutLocationInputOthers.setSelected(mIsLocationInputOthersSelected);
+
+            if (mLayoutLocationInputOthers.isSelected()) {
+                setInputOthersSelectedUI(mLayoutLocationInputOthers, mImgLocationInputOthers, mSpinnerLocation, mEtvLocationOthers);
+            } else {
+                setInputOthersUnselectedUI(mLayoutLocationInputOthers, mImgLocationInputOthers, mSpinnerLocation, mEtvLocationOthers);
+            }
+        }
+
+        if (mLayoutActivityInputOthers != null) {
+            mLayoutActivityInputOthers.setSelected(mIsActivityInputOthersSelected);
+
+            if (mLayoutActivityInputOthers.isSelected()) {
+                setInputOthersSelectedUI(mLayoutActivityInputOthers, mImgActivityInputOthers, mSpinnerActivity, mEtvActivityOthers);
+            } else {
+                setInputOthersUnselectedUI(mLayoutActivityInputOthers, mImgActivityInputOthers, mSpinnerActivity, mEtvActivityOthers);
+            }
+        }
+
+        if (mLayoutNextCoaInputOthers != null) {
+            mLayoutNextCoaInputOthers.setSelected(mIsNextCoaInputOthersSelected);
+
+            if (mLayoutNextCoaInputOthers.isSelected()) {
+                setInputOthersSelectedUI(mLayoutNextCoaInputOthers, mImgNextCoaInputOthers, mSpinnerNextCoa, mEtvNextCoaOthers);
+            } else {
+                setInputOthersUnselectedUI(mLayoutNextCoaInputOthers, mImgNextCoaInputOthers, mSpinnerNextCoa, mEtvNextCoaOthers);
+            }
+        }
+
+        if (mLayoutRequestInputOthers != null) {
+            mLayoutRequestInputOthers.setSelected(mIsRequestInputOthersSelected);
+
+            if (mLayoutRequestInputOthers.isSelected()) {
+                setInputOthersSelectedUI(mLayoutRequestInputOthers, mImgRequestInputOthers, mSpinnerRequest, mEtvRequestOthers);
+            } else {
+                setInputOthersUnselectedUI(mLayoutRequestInputOthers, mImgRequestInputOthers, mSpinnerRequest, mEtvRequestOthers);
+            }
+        }
+
+        mSpinnerLocation.setSelection(mLocationSpinnerSelectedPos);
+        mSpinnerActivity.setSelection(mActivitySpinnerSelectedPos);
+        mSpinnerNextCoa.setSelection(mNextCoaSpinnerSelectedPos);
+        mSpinnerRequest.setSelection(mRequestSpinnerSelectedPos);
+
+        if (mLocationOthersText != null) {
+            mEtvLocationOthers.setText(mLocationOthersText);
+        }
+
+        if (mActivityOthersText != null) {
+            mEtvActivityOthers.setText(mActivityOthersText);
+        }
+
+        if (mNextCoaOthersText != null) {
+            mEtvNextCoaOthers.setText(mNextCoaOthersText);
+        }
+
+        if (mRequestOthersText != null) {
+            mEtvRequestOthers.setText(mRequestOthersText);
+        }
+
+        // Inspection Sit Rep
+        if (mLayoutVesselTypeInputOthers != null) {
+            mLayoutVesselTypeInputOthers.setSelected(mIsVesselTypeInputOthersSelected);
+
+            if (mLayoutVesselTypeInputOthers.isSelected()) {
+                setInputOthersSelectedUI(mLayoutVesselTypeInputOthers, mImgVesselTypeInputOthers, mSpinnerVesselType, mEtvVesselTypeOthers);
+            } else {
+                setInputOthersUnselectedUI(mLayoutVesselTypeInputOthers, mImgVesselTypeInputOthers, mSpinnerVesselType, mEtvVesselTypeOthers);
+            }
+        }
+
+        if (mLayoutVesselNameInputOthers != null) {
+            mLayoutVesselNameInputOthers.setSelected(mIsVesselNameInputOthersSelected);
+
+            if (mLayoutVesselNameInputOthers.isSelected()) {
+                setInputOthersSelectedUI(mLayoutVesselNameInputOthers, mImgVesselNameInputOthers, mSpinnerVesselName, mEtvVesselNameOthers);
+            } else {
+                setInputOthersUnselectedUI(mLayoutVesselNameInputOthers, mImgVesselNameInputOthers, mSpinnerVesselName, mEtvVesselNameOthers);
+            }
+        }
+
+        if (mLayoutLpocInputOthers != null) {
+            mLayoutLpocInputOthers.setSelected(mIsLpocInputOthersSelected);
+
+            if (mLayoutLpocInputOthers.isSelected()) {
+                setInputOthersSelectedUI(mLayoutLpocInputOthers, mImgLpocInputOthers, mSpinnerLpoc, mEtvLpocOthers);
+            } else {
+                setInputOthersUnselectedUI(mLayoutLpocInputOthers, mImgLpocInputOthers, mSpinnerLpoc, mEtvLpocOthers);
+            }
+        }
+
+        if (mLayoutNpocInputOthers != null) {
+            mLayoutNpocInputOthers.setSelected(mIsNpocInputOthersSelected);
+
+            if (mLayoutNpocInputOthers.isSelected()) {
+                setInputOthersSelectedUI(mLayoutNpocInputOthers, mImgNpocInputOthers, mSpinnerNpoc, mEtvNpocOthers);
+            } else {
+                setInputOthersUnselectedUI(mLayoutNpocInputOthers, mImgNpocInputOthers, mSpinnerNpoc, mEtvNpocOthers);
+            }
+        }
+
+        if (mLayoutCargoInputOthers != null) {
+            mLayoutCargoInputOthers.setSelected(mIsCargoInputOthersSelected);
+
+            if (mLayoutCargoInputOthers.isSelected()) {
+                setInputOthersSelectedUI(mLayoutCargoInputOthers, mImgCargoInputOthers, mSpinnerCargo, mEtvCargoOthers);
+            } else {
+                setInputOthersUnselectedUI(mLayoutCargoInputOthers, mImgCargoInputOthers, mSpinnerCargo, mEtvCargoOthers);
+            }
+        }
+
+        mSpinnerVesselType.setSelection(mVesselTypeSpinnerSelectedPos);
+        mSpinnerVesselName.setSelection(mVesselNameSpinnerSelectedPos);
+        mSpinnerLpoc.setSelection(mLpocSpinnerSelectedPos);
+        mSpinnerNpoc.setSelection(mNpocSpinnerSelectedPos);
+        mSpinnerCargo.setSelection(mCargoSpinnerSelectedPos);
+
+        if (mVesselTypeOthersText != null) {
+            mEtvVesselTypeOthers.setText(mVesselTypeOthersText);
+        }
+
+        if (mVesselNameOthersText != null) {
+            mEtvVesselNameOthers.setText(mVesselNameOthersText);
+        }
+
+        if (mLpocOthersText != null) {
+            mEtvLpocOthers.setText(mLpocOthersText);
+        }
+
+        if (mNpocOthersText != null) {
+            mEtvNpocOthers.setText(mNpocOthersText);
+        }
+
+        if (mCargoOthersText != null) {
+            mEtvCargoOthers.setText(mCargoOthersText);
         }
     }
 
@@ -1458,6 +2654,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         // Else it is returning a selected
         String fragmentType;
         String defaultValue = FragmentConstants.VALUE_SITREP_ADD;
+//        String defaultValue = StringUtil.EMPTY_STRING;
         Bundle bundle = this.getArguments();
 
         if (bundle != null) {
@@ -1481,14 +2678,23 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
             updateFormData(mSitRepModelToUpdate);
 
-        } else {
-            byte[] selectedImageByteArray = bundle.getByteArray(FragmentConstants.KEY_SITREP_PICTURE);
-            if (selectedImageByteArray != null) {
-                Bitmap selectedImageBitmap = BitmapFactory.decodeByteArray(selectedImageByteArray, 0,
-                        selectedImageByteArray.length);
+        } else if (fragmentType.equalsIgnoreCase(FragmentConstants.VALUE_SITREP_ADD_FROM_VIDEO)) {
+//            byte[] selectedImageByteArray = bundle.getByteArray(FragmentConstants.KEY_SITREP_PICTURE);
+            String selectedImageAbsolutePath = bundle.getString(FragmentConstants.KEY_SITREP_PICTURE, StringUtil.EMPTY_STRING);
 
-                if (selectedImageBitmap != null) {
-                    displaySelectedPictureUI(selectedImageBitmap);
+//            if (selectedImageByteArray != null) {
+//                Bitmap selectedImageBitmap = BitmapFactory.decodeByteArray(selectedImageByteArray, 0,
+//                        selectedImageByteArray.length);
+
+            if (selectedImageAbsolutePath != null) {
+
+                Timber.i("selectedImageAbsolutePath: %s", selectedImageAbsolutePath);
+
+                PhotoCaptureUtil.compressBitmapToFile(selectedImageAbsolutePath);
+                mCompressedFileBitmap = PhotoCaptureUtil.resizeImage(getContext(), selectedImageAbsolutePath);
+
+                if (mCompressedFileBitmap != null) {
+                    displayScaledBitmap(mCompressedFileBitmap);
                 }
             }
         }
@@ -1497,7 +2703,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
     @Override
     public void onSnackbarActionClick() {
         // Store compressed bitmap file into phone memory upon sending/update confirmation
-        Timber.i("mChosenRequestCode: %s" , mChosenRequestCode);
+        Timber.i("mChosenRequestCode: %s", mChosenRequestCode);
 
         if (mCompressedFileBitmap != null && mChosenRequestCode == PhotoCaptureUtil.OPEN_CAMERA_REQUEST_CODE) {
             String compressedFilePathName = PhotoCaptureUtil.storeFileIntoPhoneMemory(mCompressedFileBitmap, 1);
@@ -1549,6 +2755,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             if (resultCode == Activity.RESULT_OK) {
                 mChosenRequestCode = requestCode;
 
+                Timber.i("mImageFileAbsolutePath: %s", mImageFileAbsolutePath);
                 PhotoCaptureUtil.compressBitmapToFile(mImageFileAbsolutePath);
                 mCompressedFileBitmap = PhotoCaptureUtil.resizeImage(getContext(), mImageFileAbsolutePath);
                 displayScaledBitmap(mCompressedFileBitmap);

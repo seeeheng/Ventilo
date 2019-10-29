@@ -24,6 +24,7 @@ import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.SitRepViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.DrawableUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.PhotoCaptureUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView;
@@ -31,6 +32,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.sitRep.EReportType;
 import timber.log.Timber;
 
 public class SitRepDetailFragment extends Fragment {
@@ -47,6 +49,11 @@ public class SitRepDetailFragment extends Fragment {
 
     private SubsamplingScaleImageView mImgCapturedPic;
 
+    // Layout
+    private LinearLayout mLinearLayoutMission;
+    private LinearLayout mLinearLayoutInspection;
+
+    // 'Mission' type Sit Rep
     private C2OpenSansRegularTextView mTvLocation;
     private C2OpenSansRegularTextView mTvActivity;
     private C2OpenSansRegularTextView mTvPersonnelT;
@@ -55,6 +62,21 @@ public class SitRepDetailFragment extends Fragment {
     private C2OpenSansRegularTextView mTvNextCoa;
     private C2OpenSansRegularTextView mTvRequest;
     private C2OpenSansRegularTextView mTvOthers;
+
+    // 'Inspection' type Sit Rep
+    private C2OpenSansRegularTextView mTvVesselType;
+    private C2OpenSansRegularTextView mTvVesselName;
+    private C2OpenSansRegularTextView mTvLpoc;
+    private C2OpenSansRegularTextView mTvNpoc;
+    private C2OpenSansRegularTextView mTvLastVisitToSg;
+    private C2OpenSansRegularTextView mTvVesselLastBoarded;
+    private C2OpenSansRegularTextView mTvCargo;
+    private C2OpenSansRegularTextView mTvPurposeOfCall;
+    private C2OpenSansRegularTextView mTvDuration;
+    private C2OpenSansRegularTextView mTvCurrentCrew;
+    private C2OpenSansRegularTextView mTvCurrentMaster;
+    private C2OpenSansRegularTextView mTvCurrentCe;
+    private C2OpenSansRegularTextView mTvQueries;
 
     private SitRepModel mSitRepModelOnDisplay;
 
@@ -80,6 +102,11 @@ public class SitRepDetailFragment extends Fragment {
 
         mImgCapturedPic = rootView.findViewById(R.id.img_sitrep_detail_picture);
 
+        // Layouts
+        mLinearLayoutMission = rootView.findViewById(R.id.layout_sitrep_details_mission);
+        mLinearLayoutInspection = rootView.findViewById(R.id.layout_sitrep_details_inspection);
+
+        // 'Mission' type Sit Rep
         mTvLocation = rootView.findViewById(R.id.tv_sitrep_detail_location);
         mTvActivity = rootView.findViewById(R.id.tv_sitrep_detail_activity);
         mTvPersonnelT = rootView.findViewById(R.id.tv_sitrep_detail_personnel_t);
@@ -89,7 +116,20 @@ public class SitRepDetailFragment extends Fragment {
         mTvRequest = rootView.findViewById(R.id.tv_sitrep_detail_request);
         mTvOthers = rootView.findViewById(R.id.tv_sitrep_detail_others);
 
-//        SitRepModel sitRepModel = EventBus.getDefault().removeStickyEvent(SitRepModel.class);
+        // 'Inspection' type Sit Rep
+        mTvVesselType = rootView.findViewById(R.id.tv_sitrep_detail_vessel_type);
+        mTvVesselName = rootView.findViewById(R.id.tv_sitrep_detail_vessel_name);
+        mTvLpoc = rootView.findViewById(R.id.tv_sitrep_detail_lpoc);
+        mTvNpoc = rootView.findViewById(R.id.tv_sitrep_detail_npoc);
+        mTvLastVisitToSg = rootView.findViewById(R.id.tv_sitrep_detail_last_visit_to_sg);
+        mTvVesselLastBoarded = rootView.findViewById(R.id.tv_sitrep_detail_vessel_last_boarded);
+        mTvCargo = rootView.findViewById(R.id.tv_sitrep_detail_cargo);
+        mTvPurposeOfCall = rootView.findViewById(R.id.tv_sitrep_detail_purpose_of_call);
+        mTvDuration = rootView.findViewById(R.id.tv_sitrep_detail_duration);
+        mTvCurrentCrew = rootView.findViewById(R.id.tv_sitrep_detail_current_crew);
+        mTvCurrentMaster = rootView.findViewById(R.id.tv_sitrep_detail_current_master);
+        mTvCurrentCe = rootView.findViewById(R.id.tv_sitrep_detail_current_ce);
+        mTvQueries = rootView.findViewById(R.id.tv_sitrep_detail_queries);
 
         SitRepModel sitRepModel = null;
 
@@ -174,49 +214,128 @@ public class SitRepDetailFragment extends Fragment {
             byte[] snappedPhoto = sitRepModel.getSnappedPhoto();
 
             if (snappedPhoto != null) {
-                Bitmap snappedPhotoBitmap = PhotoCaptureUtil.getImageFromByteArray(snappedPhoto);
+                Bitmap snappedPhotoBitmap = DrawableUtil.getBitmapFromBytes(snappedPhoto);
                 mImgCapturedPic.setImage(ImageSource.bitmap(snappedPhotoBitmap));
                 mImgCapturedPic.setVisibility(View.VISIBLE);
+            } else {
+                mImgCapturedPic.recycle();
+                mImgCapturedPic.setVisibility(View.GONE);
             }
 
-            // Location
-            if (sitRepModel.getLocation() != null) {
-                mTvLocation.setText(sitRepModel.getLocation().trim());
-            }
+            if (EReportType.MISSION.toString().equalsIgnoreCase(sitRepModel.getReportType())) {
 
-            // Activity
-            if (sitRepModel.getActivity() != null) {
-                mTvActivity.setText(sitRepModel.getActivity().trim());
-            }
+                mLinearLayoutMission.setVisibility(View.VISIBLE);
+                mLinearLayoutInspection.setVisibility(View.GONE);
 
-            // Personnel T
-            if (sitRepModel.getPersonnelT() != Integer.valueOf(StringUtil.INVALID_STRING)) {
-                mTvPersonnelT.setText(String.valueOf(sitRepModel.getPersonnelT()));
-            }
+                // Location
+                if (sitRepModel.getLocation() != null) {
+                    mTvLocation.setText(sitRepModel.getLocation().trim());
+                }
 
-            // Personnel S
-            if (sitRepModel.getPersonnelS() != Integer.valueOf(StringUtil.INVALID_STRING)) {
-                mTvPersonnelS.setText(String.valueOf(sitRepModel.getPersonnelS()));
-            }
+                // Activity
+                if (sitRepModel.getActivity() != null) {
+                    mTvActivity.setText(sitRepModel.getActivity().trim());
+                }
 
-            // Personnel D
-            if (sitRepModel.getPersonnelD() != Integer.valueOf(StringUtil.INVALID_STRING)) {
-                mTvPersonnelD.setText(String.valueOf(sitRepModel.getPersonnelD()));
-            }
+                // Personnel T
+                if (sitRepModel.getPersonnelT() != Integer.valueOf(StringUtil.INVALID_STRING)) {
+                    mTvPersonnelT.setText(String.valueOf(sitRepModel.getPersonnelT()));
+                }
 
-            // Next course of action
-            if (sitRepModel.getNextCoa() != null) {
-                mTvNextCoa.setText(sitRepModel.getNextCoa().trim());
-            }
+                // Personnel S
+                if (sitRepModel.getPersonnelS() != Integer.valueOf(StringUtil.INVALID_STRING)) {
+                    mTvPersonnelS.setText(String.valueOf(sitRepModel.getPersonnelS()));
+                }
 
-            // Request
-            if (sitRepModel.getRequest() != null) {
-                mTvRequest.setText(sitRepModel.getRequest().trim());
-            }
+                // Personnel D
+                if (sitRepModel.getPersonnelD() != Integer.valueOf(StringUtil.INVALID_STRING)) {
+                    mTvPersonnelD.setText(String.valueOf(sitRepModel.getPersonnelD()));
+                }
 
-            // Others
-            if (sitRepModel.getActivity() != null) {
-                mTvOthers.setText(sitRepModel.getOthers().trim());
+                // Next course of action
+                if (sitRepModel.getNextCoa() != null) {
+                    mTvNextCoa.setText(sitRepModel.getNextCoa().trim());
+                }
+
+                // Request
+                if (sitRepModel.getRequest() != null) {
+                    mTvRequest.setText(sitRepModel.getRequest().trim());
+                }
+
+                // Others
+                if (sitRepModel.getActivity() != null) {
+                    mTvOthers.setText(sitRepModel.getOthers().trim());
+                }
+
+            } else if (EReportType.INSPECTION.toString().equalsIgnoreCase(sitRepModel.getReportType())) {
+
+                mLinearLayoutMission.setVisibility(View.GONE);
+                mLinearLayoutInspection.setVisibility(View.VISIBLE);
+
+                // Vessel Type
+                if (sitRepModel.getVesselType() != null) {
+                    mTvVesselType.setText(sitRepModel.getVesselType().trim());
+                }
+
+                // Vessel Name
+                if (sitRepModel.getVesselName() != null) {
+                    mTvVesselName.setText(sitRepModel.getVesselName().trim());
+                }
+
+                // LPOC
+                if (sitRepModel.getLpoc() != null) {
+                    mTvLpoc.setText(sitRepModel.getLpoc().trim());
+                }
+
+                // NPOC
+                if (sitRepModel.getNpoc() != null) {
+                    mTvNpoc.setText(sitRepModel.getNpoc().trim());
+                }
+
+                // Last Visit to SG
+                if (sitRepModel.getLastVisitToSg() != null) {
+                    mTvLastVisitToSg.setText(sitRepModel.getLastVisitToSg().trim());
+                }
+
+                // Vessel Last Boarded
+                if (sitRepModel.getVesselLastBoarded() != null) {
+                    mTvVesselLastBoarded.setText(sitRepModel.getVesselLastBoarded().trim());
+                }
+
+                // Cargo
+                if (sitRepModel.getCargo() != null) {
+                    mTvCargo.setText(sitRepModel.getCargo().trim());
+                }
+
+                // Purpose of Call
+                if (sitRepModel.getPurposeOfCall() != null) {
+                    mTvPurposeOfCall.setText(sitRepModel.getPurposeOfCall().trim());
+                }
+
+                // Duration
+                if (sitRepModel.getDuration() != null) {
+                    mTvDuration.setText(sitRepModel.getDuration().trim());
+                }
+
+                // Current Crew
+                if (sitRepModel.getCurrentCrew() != null) {
+                    mTvCurrentCrew.setText(sitRepModel.getCurrentCrew().trim());
+                }
+
+                // Current Master
+                if (sitRepModel.getCurrentMaster() != null) {
+                    mTvCurrentMaster.setText(sitRepModel.getCurrentMaster().trim());
+                }
+
+                // Current CE
+                if (sitRepModel.getCurrentCe() != null) {
+                    mTvCurrentCe.setText(sitRepModel.getCurrentCe().trim());
+                }
+
+                // Queries
+                if (sitRepModel.getQueries() != null) {
+                    mTvQueries.setText(sitRepModel.getQueries().trim());
+                }
             }
         }
     }

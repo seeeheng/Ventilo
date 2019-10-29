@@ -8,8 +8,10 @@ public class DatabaseTableConstants {
 
     // Table names
     public static final String TABLE_USER = "User";
-    public static final String TABLE_VIDEO_STREAM = "VideoStream";
-    public static final String TABLE_SIT_REP = "SitRep";
+    public static final String TABLE_MAP_GA = "MapGA";
+//    public static final String TABLE_VIDEO_STREAM = "VideoStream";
+//    public static final String TABLE_SIT_REP = "SitRep";
+    public static final String TABLE_SIT_REP_DROPDOWN_LIST = "SitRepDropdownList";
     public static final String TABLE_TASK = "Task";
 
 

@@ -62,6 +62,7 @@ import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.sitrep.SitRepAddUpdateFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.videostream.VideoStreamControllerView;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
@@ -180,7 +181,7 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
     private void initVideoListOneSpinner(View rootView) {
         mSpinnerOneVideoStreamList = rootView.findViewById(R.id.spinner_dashboard_video_stream_one_selector);
         mVideoStreamNameList = new ArrayList<>();
-        mVideoStreamNameList.add(getParentFragment().getContext().
+        mVideoStreamNameList.add(MainApplication.getAppContext().
                 getString(R.string.video_stream_select_spinner_item));
 
         mSpinnerVideoStreamAdapterOne = getSpinnerArrayAdapter(mVideoStreamNameList);
@@ -213,9 +214,9 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
         mTvStreamOne = rootView.
                 findViewById(R.id.tv_dashboard_stream_one_no_video_selected);
 
-        mVideoStreamControllerViewOne = new VideoStreamControllerView(getParentFragment().getContext(),
+        mVideoStreamControllerViewOne = new VideoStreamControllerView(MainApplication.getAppContext(),
                 false);
-        mMediaPlayerOne = ExoPlayerFactory.newSimpleInstance(getParentFragment().getContext());
+        mMediaPlayerOne = ExoPlayerFactory.newSimpleInstance(MainApplication.getAppContext());
         mMediaPlayerOne.setVideoTextureView(mSurfaceViewOne);
 
         VideoStreamControllerView.MediaPlayerControl videoStreamPlayerInterface =
@@ -343,14 +344,14 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
 
                 if (mSpinnerOneSelectedPos == position) {
                     img.setColorFilter(ResourcesCompat.getColor(
-                            getParentFragment().getContext().getResources(),
+                            MainApplication.getAppContext().getResources(),
                             R.color.primary_highlight_cyan, null));
                     tv.setTextColor(ResourcesCompat.getColor(getParentFragment().
                                     getContext().getResources(),
                             R.color.primary_highlight_cyan, null));
                 } else {
                     img.setColorFilter(ResourcesCompat.getColor(
-                            getParentFragment().getContext().getResources(),
+                            MainApplication.getAppContext().getResources(),
                             R.color.primary_white, null));
                     tv.setTextColor(ResourcesCompat.getColor(getParentFragment().
                                     getContext().getResources(),
@@ -359,7 +360,7 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
 
                 if (position == 0) {
                     // Set the hint text color gray
-                    tv.setTextColor(ResourcesCompat.getColor(getParentFragment().getContext().getResources(),
+                    tv.setTextColor(ResourcesCompat.getColor(MainApplication.getAppContext().getResources(),
                             R.color.primary_text_hint_dark_grey, null));
                 } else if (position == 1 && EOwner.OWN.toString().
                         equalsIgnoreCase(mVideoStreamModelList.get(0).getOwner())) {
@@ -416,11 +417,11 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
 
                     if (imagePath != null && getSnackbarView() != null) {
                         StringBuilder screenshotStringBuilder = new StringBuilder();
-                        screenshotStringBuilder.append(getParentFragment().getContext().
+                        screenshotStringBuilder.append(MainApplication.getAppContext().
                                 getString(R.string.snackbar_screenshot_taken_message));
                         screenshotStringBuilder.append(System.lineSeparator());
                         screenshotStringBuilder.append(System.lineSeparator());
-                        screenshotStringBuilder.append(getParentFragment().getContext().
+                        screenshotStringBuilder.append(MainApplication.getAppContext().
                                 getString(R.string.snackbar_screenshot_create_sitrep_message));
 
                         SnackbarUtil.showCustomAlertSnackbar(mConstraintLayoutMain, getSnackbarView(),
@@ -479,11 +480,11 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
      */
     private void setVideoStreamDefaultScreen(View linearLayout, View constraintLayout) {
 
-        mConstraintLayoutMain.setPadding((int) getParentFragment().getContext().getResources().
+        mConstraintLayoutMain.setPadding((int) MainApplication.getAppContext().getResources().
                         getDimension(R.dimen.elements_large_margin_spacing),
-                (int) getParentFragment().getContext().getResources().
+                (int) MainApplication.getAppContext().getResources().
                         getDimension(R.dimen.elements_margin_spacing),
-                (int) getParentFragment().getContext().getResources().
+                (int) MainApplication.getAppContext().getResources().
                         getDimension(R.dimen.elements_large_margin_spacing),0);
 
         setVideoStreamDefaultLayout(linearLayout, constraintLayout);
@@ -620,7 +621,7 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
         DimensionUtil.setDimensions(view,
                 DimensionUtil.getScreenWidth(),
                 DimensionUtil.getScreenHeightWithoutNavAndStatusBar(),
-                new LinearLayout(getParentFragment().getContext()));
+                new LinearLayout(MainApplication.getAppContext()));
 
         DimensionUtil.setPaddings(view, 0, 0, 0, 0);
         DimensionUtil.setMargins(view, 0, 0, 0, 0);
@@ -650,18 +651,18 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
             } else {
                 DimensionUtil.setDimensions(parentFragment.getHorizontalSVDashboardFragments(),
                         LinearLayout.LayoutParams.WRAP_CONTENT,
-                        0, 335, new LinearLayout(getParentFragment().getContext()));
+                        0, 335, new LinearLayout(MainApplication.getAppContext()));
 
                 DimensionUtil.setDimensions(parentFragment.getVideoStreamFragment(),
-                        (int) getParentFragment().getContext().getResources().
+                        (int) MainApplication.getAppContext().getResources().
                                 getDimension(R.dimen.dashboard_video_stream_main_container_width),
                         LinearLayout.LayoutParams.MATCH_PARENT,
-                        new LinearLayout(getParentFragment().getContext()));
+                        new LinearLayout(MainApplication.getAppContext()));
 
                 DimensionUtil.setDimensions(parentFragment.getLinearLayoutDashboardFragments(),
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.MATCH_PARENT,
-                        new LinearLayout(getParentFragment().getContext()));
+                        new LinearLayout(MainApplication.getAppContext()));
             }
         }
     }
@@ -695,17 +696,17 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
         DimensionUtil.setDimensions(linearLayout,
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                new LinearLayout(getParentFragment().getContext()));
+                new LinearLayout(MainApplication.getAppContext()));
 
         DimensionUtil.setMargins(linearLayout,0, 0, 0,
-                (int) getParentFragment().getContext().getResources().
+                (int) MainApplication.getAppContext().getResources().
                         getDimension(R.dimen.elements_margin_spacing));
 
         DimensionUtil.setDimensions(constraintLayout,
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                (int) getParentFragment().getContext().getResources().
+                (int) MainApplication.getAppContext().getResources().
                         getDimension(R.dimen.dashboard_video_stream_texture_view_height),
-                new LinearLayout(getParentFragment().getContext()));
+                new LinearLayout(MainApplication.getAppContext()));
     }
 
     private void getUrlStreamFromName(String videoName, int spinnerId) {
@@ -808,8 +809,8 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
         DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
         // Produces DataSource instances through which media data is loaded.
-        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getParentFragment().getContext(),
-                Util.getUserAgent(getParentFragment().getContext(), getParentFragment().getContext().
+        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(MainApplication.getAppContext(),
+                Util.getUserAgent(MainApplication.getAppContext(), MainApplication.getAppContext().
                         getString(R.string.app_name)), bandwidthMeter);
 
         String extension = media.substring(media.lastIndexOf(StringUtil.DOT) + 1);
@@ -884,17 +885,17 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
                     case Player.STATE_ENDED:
                         // Activate the force enable
                         tvStream.setVisibility(View.VISIBLE);
-                        tvStream.setText(getParentFragment().getContext().
+                        tvStream.setText(MainApplication.getAppContext().
                                 getString(R.string.video_stream_stream_ended));
                         break;
                     case Player.STATE_IDLE:
                         tvStream.setVisibility(View.VISIBLE);
-                        tvStream.setText(getParentFragment().getContext().
+                        tvStream.setText(MainApplication.getAppContext().
                                 getString(R.string.video_stream_no_video_selected));
                         progressBar.setVisibility(View.GONE);
 
                         if (tvStream == mTvStreamOne && mSpinnerOneSelectedPos != 0) {
-                            tvStream.setText(getParentFragment().getContext().
+                            tvStream.setText(MainApplication.getAppContext().
                                     getString(R.string.video_stream_unable_to_load));
                         }
 
@@ -941,7 +942,7 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
      */
     private void initMediaPlayers() {
         if (mSurfaceViewOne != null && mMediaPlayerOne == null) {
-            mMediaPlayerOne = ExoPlayerFactory.newSimpleInstance(getParentFragment().getContext());
+            mMediaPlayerOne = ExoPlayerFactory.newSimpleInstance(MainApplication.getAppContext());
             mMediaPlayerOne.setVideoTextureView(mSurfaceViewOne);
         }
 
@@ -1054,7 +1055,7 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
                 currentVideoStreamNameList.clear();
             }
 
-            currentVideoStreamNameList.add(getParentFragment().getContext().
+            currentVideoStreamNameList.add(MainApplication.getAppContext().
                     getString(R.string.video_stream_select_spinner_item));
             currentVideoStreamNameList.addAll(newVideoStreamNameList);
 
@@ -1124,7 +1125,7 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
             // Add back 'Camera-Radio' label after sorting in ascending order
             for (int i = 0; i < otherVideoStreamModelList.size(); i++) {
                 VideoStreamModel otherVideoStreamModel = otherVideoStreamModelList.get(i);
-                String radioNameWithRadioLabel = getParentFragment().getContext().
+                String radioNameWithRadioLabel = MainApplication.getAppContext().
                         getString(R.string.video_stream_video_name_camera_radio).
                         concat(StringUtil.SPACE).concat(otherVideoStreamModel.getName());
                 otherVideoStreamModel.setName(radioNameWithRadioLabel);
@@ -1156,7 +1157,7 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
             mUserViewModel = ViewModelProviders.of(getParentFragment()).get(UserViewModel.class);
             mVideoStreamViewModel = ViewModelProviders.of(getParentFragment()).get(VideoStreamViewModel.class);
 
-            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getParentFragment().getContext());
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainApplication.getAppContext());
             String userId = sharedPrefs.getString(SharedPreferenceConstants.USER_ID,
                     SharedPreferenceConstants.DEFAULT_STRING);
 
@@ -1190,7 +1191,7 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
                                 mSpinnerOneSelectedPos = 0;
                                 mSpinnerOneVideoStreamList.setSelection(0);
                                 stopPlayerOne(true);
-                                mTvStreamOne.setText(getParentFragment().getContext().
+                                mTvStreamOne.setText(MainApplication.getAppContext().
                                         getString(R.string.video_stream_no_video_selected));
                             }
                         }

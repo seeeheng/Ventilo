@@ -34,7 +34,7 @@ public class TaskRepository {
      *
      * @return
      */
-    public LiveData<List<TaskModel>> getAllTasksLiveData() {
+    public synchronized LiveData<List<TaskModel>> getAllTasksLiveData() {
         return mAllTasksLiveData;
     }
 
@@ -44,7 +44,7 @@ public class TaskRepository {
      *
      * @param singleObserver
      */
-    public void getAllTasks(SingleObserver singleObserver) {
+    public synchronized void getAllTasks(SingleObserver singleObserver) {
         QueryAllTasksAsyncTask task = new
                 QueryAllTasksAsyncTask(mTaskDao, singleObserver);
 
@@ -77,7 +77,7 @@ public class TaskRepository {
      * @param taskId
      * @param singleObserver
      */
-    public void queryTaskByRefId(long taskId, SingleObserver<TaskModel> singleObserver) {
+    public synchronized void queryTaskByRefId(long taskId, SingleObserver<TaskModel> singleObserver) {
         Single<TaskModel> single = mTaskDao.queryTaskByRefId(taskId);
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -90,7 +90,7 @@ public class TaskRepository {
      * @param createdDateTime
      * @param singleObserver
      */
-    public void queryTaskByCreatedDateTime(String createdDateTime, SingleObserver<TaskModel> singleObserver) {
+    public synchronized void queryTaskByCreatedDateTime(String createdDateTime, SingleObserver<TaskModel> singleObserver) {
         Single<TaskModel> single = mTaskDao.queryTaskByCreatedDateTime(createdDateTime);
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -102,7 +102,7 @@ public class TaskRepository {
      * @param taskModel
      * @param singleObserver
      */
-    public void insertTaskWithObserver(TaskModel taskModel, SingleObserver singleObserver) {
+    public synchronized void insertTaskWithObserver(TaskModel taskModel, SingleObserver singleObserver) {
         InsertWithObserverAsyncTask task = new InsertWithObserverAsyncTask(mTaskDao, singleObserver);
 
         Runnable runnable = new Runnable() {
@@ -119,7 +119,7 @@ public class TaskRepository {
      * Insert Task model into local database
      * @param taskModel
      */
-    public void insertTask(TaskModel taskModel) {
+    public synchronized void insertTask(TaskModel taskModel) {
         InsertAsyncTask task = new InsertAsyncTask(mTaskDao);
 
         Runnable runnable = new Runnable() {
@@ -136,7 +136,7 @@ public class TaskRepository {
      * Update Task model by Id with Id in local database
      * @param taskModel
      */
-    public void updateTask(TaskModel taskModel) {
+    public synchronized void updateTask(TaskModel taskModel) {
         UpdateAsyncTask task = new UpdateAsyncTask(mTaskDao);
 
         Runnable runnable = new Runnable() {
@@ -153,7 +153,7 @@ public class TaskRepository {
      * Update Task model by Ref Id with Id in local database
      * @param taskModel
      */
-    public void updateTaskByRefId(TaskModel taskModel) {
+    public synchronized void updateTaskByRefId(TaskModel taskModel) {
         UpdateByRefIdAsyncTask task = new UpdateByRefIdAsyncTask(mTaskDao);
 
         Runnable runnable = new Runnable() {
@@ -170,7 +170,7 @@ public class TaskRepository {
      * Delete Task model by Id with Id from local database
      * @param taskId
      */
-    public void deleteTask(long taskId) {
+    public synchronized void deleteTask(long taskId) {
         DeleteAsyncTask task = new DeleteAsyncTask(mTaskDao);
 
         Runnable runnable = new Runnable() {
@@ -187,7 +187,7 @@ public class TaskRepository {
      * Delete Task model by Ref Id with Id from local database
      * @param taskId
      */
-    public void deleteTaskByRefId(long taskId) {
+    public synchronized void deleteTaskByRefId(long taskId) {
         DeleteByRefIdAsyncTask task = new DeleteByRefIdAsyncTask(mTaskDao);
 
         Runnable runnable = new Runnable() {

@@ -18,7 +18,7 @@ import timber.log.Timber;
 public class CustomThreadPoolManager {
 
     private static final int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
-    private static final int KEEP_ALIVE_TIME = 5;
+    private static final int KEEP_ALIVE_TIME = 0;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
     private static final CustomThreadPoolManager INSTANCE = new CustomThreadPoolManager();
 

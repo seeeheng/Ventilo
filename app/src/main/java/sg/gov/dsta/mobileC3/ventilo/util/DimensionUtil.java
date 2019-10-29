@@ -2,6 +2,7 @@ package sg.gov.dsta.mobileC3.ventilo.util;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -12,6 +13,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 public class DimensionUtil {
+
+    public static final int AVERAGE_HUMAN_HEIGHT_IN_CM = 170;
 
     public static int getScreenWidth() {
 //        DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -44,8 +47,17 @@ public class DimensionUtil {
                 Resources.getSystem().getDisplayMetrics()) + 0.5f);
     }
 
+//    public static int convertCmToPixel(float cm) {
+//        return  (int) (pixel / Resources.getSystem().getDisplayMetrics().density + 0.5f);
+//    }
+
     public static int convertPixelToDps(float pixel) {
         return  (int) (pixel / Resources.getSystem().getDisplayMetrics().density + 0.5f);
+    }
+
+    public static double convertPixelToCm(float pixel) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, pixel,
+                Resources.getSystem().getDisplayMetrics()) / 100;
     }
 
     public static void setDimensions(View view, int width, int height, int weight, ViewGroup viewGroup) {

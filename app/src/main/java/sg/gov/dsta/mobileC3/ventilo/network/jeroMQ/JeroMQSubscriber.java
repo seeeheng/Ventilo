@@ -5,6 +5,7 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Socket;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,10 @@ public class JeroMQSubscriber extends JeroMQParent implements JeroMQSubscriberRu
 //        super(Executors.newSingleThreadExecutor());
         super(CustomThreadPoolManager.getInstance());
         mZContext = new ZContext();
+        mZContext.setLinger(0);
+        mZContext.setRcvHWM(0);
+        mZContext.setSndHWM(0);
+
         mClientSubEndpointList = new ArrayList<>();
         mSocketList = new ArrayList<>();
     }
@@ -125,23 +130,42 @@ public class JeroMQSubscriber extends JeroMQParent implements JeroMQSubscriberRu
         Timber.i("Creating and connecting SUB socket...");
 
         PowerManagerUtil.acquirePartialWakeLock();
+//        int socketIdentityCount = 0;
+
 
         for (int i = 0; i < mClientSubEndpointList.size(); i++) {
+
+            String endpoint = mClientSubEndpointList.get(i);
+
+            int socketIdentityCount = Integer.valueOf(endpoint.
+                    substring(endpoint.lastIndexOf(StringUtil.DOT) + 1,
+                    endpoint.lastIndexOf(StringUtil.COLON)));
+
+            Timber.i("socketIdentityCount: %s", socketIdentityCount);
+
             Socket socket = mZContext.createSocket(SocketType.SUB);
 //            socket.setHWM(5000);
+            BigInteger identity = BigInteger.valueOf(socketIdentityCount);
+            socket.setIdentity(identity.toByteArray());
+//            socketIdentityCount++;
+
             socket.setMaxMsgSize(-1);
+            socket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+            socket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
+            socket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
             socket.setLinger(0);
+            socket.setRcvHWM(0);
+            socket.setSndHWM(0);
+            socket.setImmediate(true);
+            socket.setTCPKeepAlive(1);
+            socket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
+            socket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
+            socket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
+//            socket.setTCPKeepAliveInterval()
+            socket.setSendTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+            socket.setReceiveTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
             socket.connect(mClientSubEndpointList.get(i));
-//                    boolean isConnected;
-//                    isConnected = socket.connect(mClientSubEndpointList.get(i));
-//                    if (BuildConfig.DEBUG && !(isConnected)) { throw new AssertionError(); }
-//            socket.bind(mClientSubEndpointList.get(i));
-//            socket.setLinger(-1);
-//                    try {
-//                        Thread.sleep(1000);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
+
             mSocketList.add(socket);
         }
 
@@ -153,25 +177,59 @@ public class JeroMQSubscriber extends JeroMQParent implements JeroMQSubscriberRu
             items.register(mSocketList.get(i), ZMQ.Poller.POLLIN);
         }
 
-        mJeroMQSubscriberRunnable = new JeroMQSubscriberRunnable(mSocketList, items,
-                JeroMQSubscriber.this);
-//                Thread JeroMQSubscriberThread = new Thread(mJeroMQSubscriberRunnable);
-//                JeroMQSubscriberThread.start();
+        mJeroMQSubscriberRunnable = new JeroMQSubscriberRunnable(mZContext,
+                mSocketList, items,JeroMQSubscriber.this);
 
         mCustomThreadPoolManager.addRunnable(mJeroMQSubscriberRunnable);
 
-//                for (int i = 0; i < mSocketList.size(); i++) {
-////                    final String currentAddress = CLIENT_SUB_IP_ADDRESSES.get(i);
-////                    socket.connect(currentAddress);
-////                    socket.setLinger(-1);
-//
-//                    Runnable runnable = new JeroMQSubscriberRunnable(mSocketList.get(i));
-//                    Thread JeroMQSubscriberThread = new Thread(runnable);
-//                    JeroMQSubscriberThread.start();
-//                }
-
         PowerManagerUtil.releasePartialWakeLock();
     }
+
+//    /**
+//     * Send synchronise request message
+//     */
+//    public synchronized void sendSyncReqMessage() {
+//
+//        PowerManagerUtil.acquirePartialWakeLock();
+//
+//        mCustomThreadPoolManager.addRunnable(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                Timber.i( "Publishing %s, message: %s", TOPIC_SYNC, SYNC_DATA);
+//
+//                for (int i = 0; i < mSocketList.size(); i++) {
+//                    Socket socket = mSocketList.get(i);
+//                    socket.setMaxMsgSize(-1);
+//                    socket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+//                    socket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
+//                    socket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
+//                    socket.setLinger(0);
+//                    socket.setRcvHWM(0);
+//                    socket.setSndHWM(0);
+//                    socket.setImmediate(true);
+//                    socket.setTCPKeepAlive(1);
+//                    socket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
+//                    socket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
+//                    socket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
+//                    socket.setSendTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+//                    socket.setReceiveTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+//                    socket.send(SYNC_DATA);
+//                }
+//
+//                Timber.i( "Sync messages sent");
+//
+//                try {
+//                    Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
+//                } catch (InterruptedException e) {
+//                    Timber.i("Interrupted while sleeping: %s" , e);
+//                    return;
+//                }
+//            }
+//        });
+//
+//        PowerManagerUtil.releasePartialWakeLock();
+//    }
 
     /**
      * Disconnect sockets when thread is closed
@@ -187,68 +245,30 @@ public class JeroMQSubscriber extends JeroMQParent implements JeroMQSubscriberRu
 
     @Override
     public void closeSockets() {
-        if (mZContext != null) {
-            for (int i = 0; i < mSocketList.size(); i++) {
-                Socket socket = mSocketList.get(i);
-
-                if (mClientSubEndpointList != null &&
-                        mClientSubEndpointList.get(i) != null) {
-                    socket.disconnect(mClientSubEndpointList.get(i));
-                    Timber.i("Client SUB socket disconnected %d", i);
-
-                    socket.close();
-                    Timber.i("Client SUB socket closed %d", i);
-                }
-
-                mZContext.destroySocket(socket);
-                Timber.i("Client SUB socket destroyed %d", i);
-            }
-        }
-
-        if (mZContext != null && !mZContext.isClosed()) {
-            Timber.i("Destroying ZContext.");
-
-            mZContext.destroy();
-
-            Timber.i("ZContext destroyed.");
-        }
-    }
-
-//    private static class CloseSocketAsyncTask extends AsyncTask<String, Void, Void> {
-//
-//        private ZContext mZContext;
-//        private List<Socket> mSocketList;
-//        private List<String> mClientSubEndpointList;
-//
-//        CloseSocketAsyncTask(ZContext zContext, List<Socket> socketList,
-//                             List<String> clientSubEndpointList) {
-//            mZContext = zContext;
-//            mSocketList = socketList;
-//            mClientSubEndpointList = clientSubEndpointList;
-//        }
-//
-//        @Override
-//        protected Void doInBackground(final String... param) {
+//        if (mZContext != null) {
 //            for (int i = 0; i < mSocketList.size(); i++) {
-//                mZContext.destroySocket(mSocketList.get(i));
-////                mSocketList.get(i).disconnect(mClientSubEndpointList.get(i));
-////                mSocketList.get(i).close();
+//                Socket socket = mSocketList.get(i);
+//
+//                if (mClientSubEndpointList != null &&
+//                        mClientSubEndpointList.get(i) != null) {
+//                    socket.disconnect(mClientSubEndpointList.get(i));
+//                    Timber.i("Client SUB socket disconnected %d", i);
+//
+//                    socket.close();
+//                    Timber.i("Client SUB socket closed %d", i);
+//                }
+//
+//                mZContext.destroySocket(socket);
+//                Timber.i("Client SUB socket destroyed %d", i);
 //            }
-//            Log.i(TAG, "Client sub sockets closed.");
-//
-//            if (mZContext != null) {
-//                Log.i(TAG, "Destroying ZContext.");
-//                mZContext.destroy();
-//                Log.i(TAG, "ZContext destroyed.");
-//
-////                List<Socket> socketList = mZContext.getSockets();
-//////                for (int i = 0; i < mZContext.getSockets().size(); i++) {
-//////                    socketList.get(i).disconnect(mClientSubEndpointList.get(i));
-//////                    socketList.get(i).close();
-//////                }
-//            }
-//
-//            return null;
 //        }
-//    }
+//
+//        if (mZContext != null && !mZContext.isClosed()) {
+//            Timber.i("Destroying ZContext.");
+//
+//            mZContext.destroy();
+//
+//            Timber.i("ZContext destroyed.");
+//        }
+    }
 }

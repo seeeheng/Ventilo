@@ -141,7 +141,6 @@ public class TaskExpandableListAdapter extends BaseExpandableListAdapter {
         C2OpenSansRegularTextView tvHeaderTitle = convertView.
                 findViewById(R.id.tv_expandable_list_row_header_text);
 
-        System.out.println("mSelectedChildTaskName is " + mSelectedChildTaskName);
         if (StringUtil.EMPTY_STRING.equalsIgnoreCase(mSelectedChildTaskName)) {
             tvHeaderTitle.setText(headerTitle);
             tvHeaderTitle.setTextColor(ContextCompat.getColor(mContext, R.color.primary_text_hint_dark_grey));

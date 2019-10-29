@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.persistentsystems.socketclient.WrWebSocketClient;
@@ -18,13 +17,15 @@ import org.json.JSONTokener;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
-import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
@@ -35,7 +36,6 @@ import sg.gov.dsta.mobileC3.ventilo.repository.BFTRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.network.NetworkUtil;
@@ -51,11 +51,12 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
             "Wave Relay Radio Client Connected";
     public static final String WAVE_RELAY_CLIENT_DISCONNECTED_INTENT_ACTION =
             "Wave Relay Radio Client Disconnected";
-    private static final int MISSING_HEARTBEAT_CONNECTION_THRESHOLD = 3;
+    public static final int MISSING_HEARTBEAT_CONNECTION_THRESHOLD = 3;
+    private static final int SYNC_DATA_INTERVAL = 3;
 //    private static final int INCOMING_MSG_INTERVAL = 3;
 
-    private int mIncomingMsgCount = 0;
-    private boolean mIsConnected;
+//    private int mIncomingMsgCount = 0;
+    private static int mSyncDataCount = 3;
 
     /**
      * Basic constructor. See (@link com.persistentsystems.socketclient.WrWebSocketClient#WrWebSocketClient(URI, Draft))
@@ -89,7 +90,7 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
      */
     @Override
     public void onMessage(String message) {
-        mIncomingMsgCount++;
+//        mIncomingMsgCount++;
         Log.i(TAG, "Received: " + message + System.lineSeparator());
 
 //        if (mIncomingMsgCount >= INCOMING_MSG_INTERVAL) {
@@ -100,7 +101,9 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
 //        String newSitRepModelJson = gson.toJson(sitRepModel);
 
         String connectionStatus = ERadioConnectionStatus.OFFLINE.toString();
-        List<String> neighbourRadioIPAddressList = new ArrayList<>();
+        Map<String, String> neighbourRadioIPAddressToSnrMap = new HashMap<>();
+//        List<String> neighbourRadioIPAddressList = new ArrayList<>();
+//        List<String> signalToNoiseRatioList = new ArrayList<>();
         JSONTokener tokener = new JSONTokener(message);
 
         try {
@@ -155,9 +158,13 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
 
                             if (jsonObject.has("ip")) {
                                 String radioIPAddress = jsonObject.get("ip").toString();
+                                String snr = jsonObject.get("snr").toString();
                                 Log.i(TAG, "Neighbour's IP [" + i + "]: " + radioIPAddress);
+                                Log.i(TAG, "SNR [" + i + "]: " + snr);
 
-                                neighbourRadioIPAddressList.add(radioIPAddress);
+                                neighbourRadioIPAddressToSnrMap.put(radioIPAddress, snr);
+//                                neighbourRadioIPAddressList.add(radioIPAddress);
+//                                signalToNoiseRatioList.add(snr);
                             }
                         }
 
@@ -179,14 +186,26 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
         // to the network.
         // Broadcast own radio connection status and self-created BFT models
         // to other devices
-        if (WaveRelayRadioClient.isUsbConnected()) {
+        boolean isRndisTetheringActive = NetworkUtil.
+                isRndisTetheringActive(MainApplication.getAppContext());
+
+//        if (WaveRelayRadioClient.isUsbConnected() && isRndisTetheringActive) {
+        if (isRndisTetheringActive) {
             broadcastOwnRadioConnectionStatus();
             broadcastOwnUserBFTModel();
-            updateWaveRelayDatabaseOfOtherUserIds(neighbourRadioIPAddressList);
+//            updateWaveRelayDatabaseOfOtherUserIds(neighbourRadioIPAddressList);
+            updateWaveRelayDatabaseOfOtherUserIds(neighbourRadioIPAddressToSnrMap);
             updateConnectionIfNeeded(connectionStatus);
-            syncWithCallsign();
+
+            if (mSyncDataCount >= SYNC_DATA_INTERVAL) {
+//                syncWithCallsign();
+                Timber.i("Synchronising data over the network...");
+                JeroMQBroadcastOperation.broadcastDataSyncOverSocket();
+                mSyncDataCount = 0;
+            }
         }
 
+        mSyncDataCount++;
 //        if (WaveRelayRadioClient.isUsbConnected()) {
 //            updateWaveRelayDatabaseOfOtherUserIds(neighbourRadioIPAddressList);
 //            updateConnectionIfNeeded(connectionStatus);
@@ -219,10 +238,6 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
     @Override
     public void onError(Exception ex) {
         Log.i(TAG, "Socket error: " + ex);
-    }
-
-    protected int getIncomingMsgCount() {
-        return mIncomingMsgCount;
     }
 
     /**
@@ -314,10 +329,20 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
                             "UserId: " + waveRelayRadioModel.getUserId());
 
                     if (!SharedPreferenceUtil.getCurrentUserCallsignID().
-                            equalsIgnoreCase(waveRelayRadioModel.getUserId()) && !isConnected) {
+                            equalsIgnoreCase(waveRelayRadioModel.getUserId())) {
 
-                        waveRelayRadioModel.setUserId(null);
-                        waveRelayRadioModel.setPhoneIpAddress(StringUtil.INVALID_STRING);
+                        if (!isConnected) {
+                            waveRelayRadioModel.setUserId(null);
+                            waveRelayRadioModel.setPhoneIpAddress(StringUtil.INVALID_STRING);
+                            waveRelayRadioModel.setSignalToNoiseRatio(StringUtil.N_A);
+
+                        } else {
+                            waveRelayRadioModel.setUserId(SharedPreferenceUtil.getCurrentUserCallsignID());
+                            waveRelayRadioModel.setPhoneIpAddress(NetworkUtil.
+                                    getOwnIPAddressThroughWiFiOrEthernet(true));
+
+                        }
+
                         waveRelayRadioRepository.updateWaveRelayRadio(waveRelayRadioModel);
                     }
 
@@ -362,6 +387,7 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
 
                         waveRelayRadioModel.setUserId(null);
                         waveRelayRadioModel.setPhoneIpAddress(StringUtil.INVALID_STRING);
+                        waveRelayRadioModel.setSignalToNoiseRatio(StringUtil.N_A);
                         waveRelayRadioRepository.updateWaveRelayRadio(waveRelayRadioModel);
 
                         JeroMQBroadcastOperation.broadcastDataUpdateOverSocket(waveRelayRadioModel);
@@ -490,6 +516,7 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
                     userModel.setPhoneToRadioConnectionStatus(ERadioConnectionStatus.CONNECTED.toString());
                     userModel.setRadioToNetworkConnectionStatus(ERadioConnectionStatus.CONNECTED.toString());
                     userModel.setRadioFullConnectionStatus(ERadioConnectionStatus.ONLINE.toString());
+//                    userModel.setMissingHeartBeatCount(0);
 
                     // For own device, simply reset missing heart beat to 0
                     if (SharedPreferenceUtil.getCurrentUserCallsignID().
@@ -550,12 +577,82 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
         userRepository.queryUserByUserId(userId, singleObserverUser);
     }
 
-    /**
-     * Updates Wave Relay database table of connected users and remove User Ids those who are not connected
-     * excluding current user (as this method is called with neighbours' IP addresses as input argument).
-     * Radio IP address list contains those who are connected to the network
-     */
-    private synchronized void updateWaveRelayDatabaseOfOtherUserIds(List<String> connectedRadioIpAddressList) {
+//    /**
+//     * Updates Wave Relay database table of connected users and remove User Ids those who are not connected
+//     * excluding current user (as this method is called with neighbours' IP addresses as input argument).
+//     * Radio IP address list contains those who are connected to the network
+//     */
+//    private synchronized void updateWaveRelayDatabaseOfOtherUserIds(List<String> connectedRadioIpAddressList) {
+//        WaveRelayRadioRepository waveRelayRadioRepository = new
+//                WaveRelayRadioRepository((Application) MainApplication.getAppContext());
+//
+//        // Creates an observer (serving as a callback) to retrieve data from SqLite Room database
+//        // asynchronously in the background thread
+//        SingleObserver<List<WaveRelayRadioModel>> singleObserverAllWaveRelayRadio = new
+//                SingleObserver<List<WaveRelayRadioModel>>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//                        // add it to a CompositeDisposable
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(List<WaveRelayRadioModel> waveRelayRadioModelList) {
+//                        Timber.i("onSuccess singleObserverAllWaveRelayRadio, updateWaveRelayDatabaseOfOtherUserIds. waveRelayRadioModel.size(): %d", waveRelayRadioModelList.size());
+//
+//                        // Obtain all Wave Relay models which are CONNECTED from database
+//                        List<WaveRelayRadioModel> waveRelayConnectedRadioModelList = waveRelayRadioModelList.stream().
+//                                filter(waveRelayRadioModel -> connectedRadioIpAddressList.contains(
+//                                        waveRelayRadioModel.getRadioIpAddress())).collect(Collectors.toList());
+//
+//                        for (int i = 0; i < waveRelayConnectedRadioModelList.size(); i++) {
+//                            WaveRelayRadioModel waveRelayRadioModel = waveRelayConnectedRadioModelList.get(i);
+////                            queryAndUpdateUserOfRadioIPAddress(waveRelayRadioModel.getRadioIpAddress(),
+////                                    true);
+//
+//                            String userId = waveRelayRadioModel.getUserId();
+//                            if (userId != null) {
+//                                updateAndBroadcastUserRadioConnectionStatus(userId, true);
+////                                updateVideoStreamUrlOfUser(String.valueOf(waveRelayRadioModel.getRadioId()),
+////                                        waveRelayRadioModel.getRadioIpAddress());
+//                            }
+//                        }
+//
+//                        // Obtain all Wave Relay models which are NOT CONNECTED from database
+//                        List<WaveRelayRadioModel> waveRelayNotConnectedRadioModelList = waveRelayRadioModelList.stream().
+//                                filter(waveRelayRadioModel -> !connectedRadioIpAddressList.contains(
+//                                        waveRelayRadioModel.getRadioIpAddress())).collect(Collectors.toList());
+//
+//                        // Reset to NULL of user ids which are NOT CONNECTED to the network
+//                        for (int i = 0; i < waveRelayNotConnectedRadioModelList.size(); i++) {
+//                            WaveRelayRadioModel waveRelayRadioModel = waveRelayNotConnectedRadioModelList.get(i);
+//
+//                            // Set user connection to offline in User Table, if user was previously online
+//                            String userId = waveRelayRadioModel.getUserId();
+//                            if (userId != null && !userId.equalsIgnoreCase(SharedPreferenceUtil.
+//                                    getCurrentUserCallsignID())) {
+//
+//                                updateAndBroadcastUserRadioConnectionStatus(userId, false);
+//                                waveRelayRadioModel.setUserId(null);
+//                                waveRelayRadioRepository.updateWaveRelayRadio(waveRelayRadioModel);
+//                            }
+//
+////                            queryAndUpdateUserOfRadioIPAddress(waveRelayRadioModel.getRadioIpAddress(),
+////                                    false);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        Log.d(TAG, "onError singleObserverAllWaveRelayRadio, " +
+//                                "updateWaveRelayDatabaseOfOtherUserIds. " +
+//                                "Error Msg: " + e.toString());
+//                    }
+//                };
+//
+//        waveRelayRadioRepository.getAllWaveRelayRadios(singleObserverAllWaveRelayRadio);
+//    }
+
+    private synchronized void updateWaveRelayDatabaseOfOtherUserIds(Map<String, String> neighbourRadioIPAddressToSnrMap) {
         WaveRelayRadioRepository waveRelayRadioRepository = new
                 WaveRelayRadioRepository((Application) MainApplication.getAppContext());
 
@@ -572,9 +669,11 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
                     public void onSuccess(List<WaveRelayRadioModel> waveRelayRadioModelList) {
                         Timber.i("onSuccess singleObserverAllWaveRelayRadio, updateWaveRelayDatabaseOfOtherUserIds. waveRelayRadioModel.size(): %d", waveRelayRadioModelList.size());
 
+                        Set<String> connectedRadioIpAddressSet = neighbourRadioIPAddressToSnrMap.keySet();
+
                         // Obtain all Wave Relay models which are CONNECTED from database
                         List<WaveRelayRadioModel> waveRelayConnectedRadioModelList = waveRelayRadioModelList.stream().
-                                filter(waveRelayRadioModel -> connectedRadioIpAddressList.contains(
+                                filter(waveRelayRadioModel -> connectedRadioIpAddressSet.contains(
                                         waveRelayRadioModel.getRadioIpAddress())).collect(Collectors.toList());
 
                         for (int i = 0; i < waveRelayConnectedRadioModelList.size(); i++) {
@@ -584,34 +683,41 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
 
                             String userId = waveRelayRadioModel.getUserId();
                             if (userId != null) {
-                                updateAndBroadcastUserRadioConnectionStatus(userId, true);
+
+                                String currentRadioSnr = neighbourRadioIPAddressToSnrMap.
+                                        get(waveRelayRadioModel.getRadioIpAddress());
+
+                                waveRelayRadioModel.setSignalToNoiseRatio(currentRadioSnr);
+                                waveRelayRadioRepository.updateWaveRelayRadio(waveRelayRadioModel);
+
+//                                updateAndBroadcastUserRadioConnectionStatus(userId, true);
 //                                updateVideoStreamUrlOfUser(String.valueOf(waveRelayRadioModel.getRadioId()),
 //                                        waveRelayRadioModel.getRadioIpAddress());
                             }
                         }
 
-                        // Obtain all Wave Relay models which are NOT CONNECTED from database
-                        List<WaveRelayRadioModel> waveRelayNotConnectedRadioModelList = waveRelayRadioModelList.stream().
-                                filter(waveRelayRadioModel -> !connectedRadioIpAddressList.contains(
-                                        waveRelayRadioModel.getRadioIpAddress())).collect(Collectors.toList());
-
-                        // Reset to NULL of user ids which are NOT CONNECTED to the network
-                        for (int i = 0; i < waveRelayNotConnectedRadioModelList.size(); i++) {
-                            WaveRelayRadioModel waveRelayRadioModel = waveRelayNotConnectedRadioModelList.get(i);
-
-                            // Set user connection to offline in User Table, if user was previously online
-                            String userId = waveRelayRadioModel.getUserId();
-                            if (userId != null && !userId.equalsIgnoreCase(SharedPreferenceUtil.
-                                    getCurrentUserCallsignID())) {
-
-                                updateAndBroadcastUserRadioConnectionStatus(userId, false);
-                                waveRelayRadioModel.setUserId(null);
-                                waveRelayRadioRepository.updateWaveRelayRadio(waveRelayRadioModel);
-                            }
-
-//                            queryAndUpdateUserOfRadioIPAddress(waveRelayRadioModel.getRadioIpAddress(),
-//                                    false);
-                        }
+//                        // Obtain all Wave Relay models which are NOT CONNECTED from database
+//                        List<WaveRelayRadioModel> waveRelayNotConnectedRadioModelList = waveRelayRadioModelList.stream().
+//                                filter(waveRelayRadioModel -> !connectedRadioIpAddressSet.contains(
+//                                        waveRelayRadioModel.getRadioIpAddress())).collect(Collectors.toList());
+//
+//                        // Reset to NULL of user ids which are NOT CONNECTED to the network
+//                        for (int i = 0; i < waveRelayNotConnectedRadioModelList.size(); i++) {
+//                            WaveRelayRadioModel waveRelayRadioModel = waveRelayNotConnectedRadioModelList.get(i);
+//
+//                            // Set user connection to offline in User Table, if user was previously online
+//                            String userId = waveRelayRadioModel.getUserId();
+//                            if (userId != null && !userId.equalsIgnoreCase(SharedPreferenceUtil.
+//                                    getCurrentUserCallsignID())) {
+//
+//                                updateAndBroadcastUserRadioConnectionStatus(userId, false);
+//                                waveRelayRadioModel.setUserId(null);
+//                                waveRelayRadioRepository.updateWaveRelayRadio(waveRelayRadioModel);
+//                            }
+//
+////                            queryAndUpdateUserOfRadioIPAddress(waveRelayRadioModel.getRadioIpAddress(),
+////                                    false);
+//                        }
                     }
 
                     @Override
@@ -624,6 +730,7 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
 
         waveRelayRadioRepository.getAllWaveRelayRadios(singleObserverAllWaveRelayRadio);
     }
+
 
     /**
      * Updates radio connection status of specific user in local database
@@ -754,7 +861,9 @@ public class WaveRelayRadioSocketClient extends WrWebSocketClient {
                              * 2) Start process of creating and connected socket of target address
                              * 3) Send message
                              */
-                            if (userId != null) {
+                            if (userId != null &&
+                                    !SharedPreferenceUtil.getCurrentUserCallsignID().equalsIgnoreCase(userId)) {
+
                                 Timber.i("Synchronising data with %s over the network...", userId);
 
                                 targetPhoneIPAddress = waveRelayRadioModel.getPhoneIpAddress();

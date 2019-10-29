@@ -3,6 +3,7 @@ package sg.gov.dsta.mobileC3.ventilo.activity.login;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -34,6 +35,7 @@ import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.WaveRelayRadioViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.FileUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.ProgressBarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
@@ -70,6 +72,31 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // TODO: Delete this test
+//        System.out.println("pixelToCm: " + DimensionUtil.convertPixelToCm(8241));
+//        AssetManager assetManager = getAssets();
+//        Bitmap bitmap = FileUtil.getBitmapFromFile("file:///android_asset/ship/DECK2.png");
+
+////        System.out.println("assetManager: " + assetManager..toString());
+//        try {
+//
+//            InputStream is = assetManager.open("ship/DECK2.png");
+//            Bitmap bitmap = FileUtil.getBitmapFromInputStream(is);
+//            System.out.println("bitmap density: " + bitmap.getDensity());
+//            System.out.println("bitmap height (cm): " + FileUtil.getWidthInCmOfImageFile(bitmap));
+//
+////            String[] files = assetManager..list("ship");
+////            for (String file : files) {
+////                System.out.println("file: " + file);
+////            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+
+//        FileUtil.createHtmlFilesFromImagesUsingAssetsTemplate();
+//        FileUtil.transferAllFilesInAssetsSubFolderToExternalFolder();
 
         resetSharedPref();
 //        setUpDummyUser();

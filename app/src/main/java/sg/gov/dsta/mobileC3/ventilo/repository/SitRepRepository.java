@@ -44,7 +44,7 @@ public class SitRepRepository {
      *
      * @param singleObserver
      */
-    public void getAllSitReps(SingleObserver singleObserver) {
+    public synchronized void getAllSitReps(SingleObserver singleObserver) {
         QueryAllSitRepsAsyncTask task = new
                 QueryAllSitRepsAsyncTask(mSitRepDao, singleObserver);
 
@@ -77,7 +77,7 @@ public class SitRepRepository {
      * @param sitRepId
      * @param singleObserver
      */
-    public void querySitRepByRefId(long sitRepId, SingleObserver<SitRepModel> singleObserver) {
+    public synchronized void querySitRepByRefId(long sitRepId, SingleObserver<SitRepModel> singleObserver) {
         Single<SitRepModel> single = mSitRepDao.querySitRepByRefId(sitRepId);
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -90,7 +90,7 @@ public class SitRepRepository {
      * @param createdDateTime
      * @param singleObserver
      */
-    public void querySitRepByCreatedDateTime(String createdDateTime, SingleObserver<SitRepModel> singleObserver) {
+    public synchronized void querySitRepByCreatedDateTime(String createdDateTime, SingleObserver<SitRepModel> singleObserver) {
         Single<SitRepModel> single = mSitRepDao.querySitRepByCreatedDateTime(createdDateTime);
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -102,7 +102,7 @@ public class SitRepRepository {
      * @param sitRepModel
      * @param singleObserver
      */
-    public void insertSitRepWithObserver(SitRepModel sitRepModel, SingleObserver singleObserver) {
+    public synchronized void insertSitRepWithObserver(SitRepModel sitRepModel, SingleObserver singleObserver) {
         InsertWithObserverAsyncTask task = new InsertWithObserverAsyncTask(mSitRepDao, singleObserver);
 
         Runnable runnable = new Runnable() {
@@ -120,7 +120,7 @@ public class SitRepRepository {
      *
      * @param sitRepModel
      */
-    public void insertSitRep(SitRepModel sitRepModel) {
+    public synchronized void insertSitRep(SitRepModel sitRepModel) {
         InsertAsyncTask task = new InsertAsyncTask(mSitRepDao);
 
         Runnable runnable = new Runnable() {
@@ -140,7 +140,7 @@ public class SitRepRepository {
      *
      * @param sitRepModel
      */
-    public void updateSitRep(SitRepModel sitRepModel) {
+    public synchronized void updateSitRep(SitRepModel sitRepModel) {
         UpdateAsyncTask task = new UpdateAsyncTask(mSitRepDao);
 
         Runnable runnable = new Runnable() {
@@ -158,7 +158,7 @@ public class SitRepRepository {
      *
      * @param sitRepModel
      */
-    public void updateSitRepByRefId(SitRepModel sitRepModel) {
+    public synchronized void updateSitRepByRefId(SitRepModel sitRepModel) {
         UpdateByRefIdAsyncTask task = new UpdateByRefIdAsyncTask(mSitRepDao);
 
         Runnable runnable = new Runnable() {
@@ -176,7 +176,7 @@ public class SitRepRepository {
      *
      * @param sitRepId
      */
-    public void deleteSitRep(long sitRepId) {
+    public synchronized void deleteSitRep(long sitRepId) {
         DeleteAsyncTask task = new DeleteAsyncTask(mSitRepDao);
 
         Runnable runnable = new Runnable() {
@@ -194,7 +194,7 @@ public class SitRepRepository {
      *
      * @param sitRepId
      */
-    public void deleteSitRepByRefId(long sitRepId) {
+    public synchronized void deleteSitRepByRefId(long sitRepId) {
         DeleteByRefIdAsyncTask task = new DeleteByRefIdAsyncTask(mSitRepDao);
 
         Runnable runnable = new Runnable() {

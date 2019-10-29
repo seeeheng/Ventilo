@@ -21,16 +21,19 @@ public class WaveRelayRadioModel {
     private String userId;
     private String radioIpAddress;
     private String phoneIpAddress;
+    private String signalToNoiseRatio;
 
     // --- GETTER ---
     public int getRadioId() { return radioId; }
     public String getUserId() { return userId; }
     public String getRadioIpAddress() { return radioIpAddress; }
     public String getPhoneIpAddress() { return phoneIpAddress; }
+    public String getSignalToNoiseRatio() { return signalToNoiseRatio; }
 
     // --- SETTER ---
     public void setRadioId(int radioId) { this.radioId = radioId; }
     public void setUserId(String userId) { this.userId = userId; }
     public void setRadioIpAddress(String radioIpAddress) { this.radioIpAddress = radioIpAddress; }
     public void setPhoneIpAddress(String phoneIpAddress) { this.phoneIpAddress = phoneIpAddress; }
+    public void setSignalToNoiseRatio(String signalToNoiseRatio) { this.signalToNoiseRatio = signalToNoiseRatio; }
 }

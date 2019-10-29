@@ -6,12 +6,13 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.google.gson.Gson;
 
+import org.zeromq.SocketType;
+import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMQException;
 
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.SingleObserver;
@@ -23,6 +24,7 @@ import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.repository.SitRepRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.TaskRepository;
 import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
+import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.GsonCreator;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.EIsValid;
@@ -35,42 +37,161 @@ public class JeroMQClientPairRunnable implements Runnable {
     public static final String DATA_SYNC_SUCCESSFUL_INTENT_ACTION = "Data Sync Successful";
     public static final String DATA_SYNC_FAILED_INTENT_ACTION = "Data Sync Failed";
 
-    private List<Socket> mSocketList;
+    private List<Integer> mSocketMissingHeartbeatList;
+    private List<String> mSocketReceivedHeartbeatTimeList;
+    private ZContext mZContext;
     private ZMQ.Poller mPoller;
     private boolean mIsPollerToBeClosed;
     private CloseSocketsListener mCloseSocketsListener;
 
-    protected JeroMQClientPairRunnable(List<Socket> socketList, ZMQ.Poller poller,
+    protected JeroMQClientPairRunnable(ZContext zContext, ZMQ.Poller poller,
                                        CloseSocketsListener closeSocketsListener) {
-        mSocketList = socketList;
+        mZContext = zContext;
+        mZContext.setLinger(0);
+        mZContext.setRcvHWM(0);
+        mZContext.setSndHWM(0);
+
         mPoller = poller;
         mCloseSocketsListener = closeSocketsListener;
+
+        mSocketMissingHeartbeatList = new ArrayList<>();
+        mSocketReceivedHeartbeatTimeList = new ArrayList<>();
+
+        for (int i = 0; i < mPoller.getSize(); i++) {
+            mSocketMissingHeartbeatList.add(0);
+            mSocketReceivedHeartbeatTimeList.add(DateTimeUtil.getCurrentDateTime());
+        }
     }
 
     @Override
     public void run() {
+//        subscribeTopics(mPoller);
+
         Timber.i("JeroMQClientPairRunnable running in progress..");
 //        subscribeTopics(mSocketList);
 
-        while (!Thread.currentThread().interrupted()) {
-            Timber.i("Listening for messages...");
+        while (!Thread.currentThread().isInterrupted()) {
 
             if (mIsPollerToBeClosed && mPoller != null) {
                 mPoller.close();
 
-                if (mCloseSocketsListener != null) {
-                    mCloseSocketsListener.closeSockets();
-                }
+//                if (mCloseSocketsListener != null) {
+//                    mCloseSocketsListener.closeSockets();
+//                }
+
+                closeSockets(mPoller);
 
                 break;
             }
 
-            mPoller.poll();
+            if (mPoller != null) {
 
-            for (int i = 0; i < mSocketList.size(); i++) {
-                if (mPoller.pollin(i)) {
-                    storeMessageInDatabase(mSocketList.get(i));
-//                    Timber.i("Received message: %s", message);
+                mPoller.poll(JeroMQParent.POLL_TIMEOUT_IN_MILLISEC);
+
+                for (int i = 0; i < mPoller.getSize(); i++) {
+//
+//                    if (mPoller.pollin(i)) {
+//                        storeMessageInDatabase(mPoller.getItem(i).getSocket());
+//                    }
+
+//                    Timber.i("Looking into poller item %d...", i);
+
+                    Socket currentSocket = mPoller.getSocket(i);
+
+                    if (mPoller.pollin(i)) {
+                        storeMessageInDatabase(currentSocket);
+                        mSocketMissingHeartbeatList.set(i, 0);
+                        mSocketReceivedHeartbeatTimeList.set(i, DateTimeUtil.getCurrentDateTime());
+
+                    } else {    // If socket is unreadable, the following sequence will take place:
+                        // 1) Check if last heartbeat time with added interval (2 seconds) exceeds current time
+                        // 2) If it does not exceed, ignore. Else, do the following:
+                        //      a) Check if number of missing heartbeat for socket exceeds threshold
+                        //      b) If it does not exceed, increment corresponding missing heartbeat by 1.
+                        //         And set last heartbeat time to current time.
+                        //         Else, close current socket, recreate and connect a new one. Unregister the old one
+                        //         from the poller and register the new one. Reset missing heartbeat and last heartbeat
+                        //         time.
+
+                        if (currentSocket != null) {
+
+                            String heartBeatIntervalCurrentTime = DateTimeUtil.
+                                    addMilliSecondsToZonedDateTime(mSocketReceivedHeartbeatTimeList.get(i),
+                                            JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+
+//                            Timber.i("DateTimeUtil.getCurrentDateTime(): %s...", DateTimeUtil.getCurrentDateTime());
+//                            Timber.i("heartBeatIntervalCurrentTime: %s...", heartBeatIntervalCurrentTime);
+//                            Timber.i("DateTimeUtil.getCurrentDateTime().compareTo(heartBeatIntervalCurrentTime): %s...",
+//                                    DateTimeUtil.getCurrentDateTime().
+//                                            compareTo(heartBeatIntervalCurrentTime));
+
+                            int currentSocketMissingHeartbeat = mSocketMissingHeartbeatList.get(i);
+                            String lastEndpoint = currentSocket.getLastEndpoint();
+
+                            if (DateTimeUtil.getCurrentDateTime().
+                                    compareTo(heartBeatIntervalCurrentTime) > 0) {
+
+                                if (currentSocketMissingHeartbeat >= JeroMQParent.
+                                        MISSING_ZERO_MQ_HEARTBEAT_CONNECTION_THRESHOLD) {
+
+                                    Timber.i("Disconnecting from endpoint: %s...", lastEndpoint);
+
+                                    // Unregister and disconnect/destroy current socket
+                                    mPoller.unregister(currentSocket);
+                                    mZContext.destroySocket(currentSocket);
+
+                                    Timber.i("Reconnecting with endpoint: %s...", lastEndpoint);
+
+                                    // Create new socket
+                                    Socket socket = mZContext.createSocket(SocketType.SUB);
+                                    socket.setMaxMsgSize(-1);
+                                    socket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+                                    socket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
+                                    socket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
+                                    socket.setLinger(0);
+                                    socket.setRcvHWM(0);
+                                    socket.setSndHWM(0);
+                                    socket.setImmediate(true);
+                                    socket.setTCPKeepAlive(1);
+                                    socket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
+                                    socket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
+                                    socket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
+                                    socket.setSendTimeOut(JeroMQParent.SOCKET_TIMEOUT_IN_MILLISEC);
+                                    socket.setReceiveTimeOut(JeroMQParent.SOCKET_TIMEOUT_IN_MILLISEC);
+                                    socket.connect(lastEndpoint);
+
+//                                subscribeTopicsForSocket(socket);
+
+                                    // Set socket list with newly created one
+//                            mSocketList.set(i, socket);
+                                    mPoller.register(socket, ZMQ.Poller.POLLIN);
+
+                                    // Reset socket heartbeat to 0
+                                    mSocketMissingHeartbeatList.set(i, 0);
+
+                                } else {
+
+                                    currentSocketMissingHeartbeat++;
+                                    Timber.i("Current missing heartbeat of %s: %s...",
+                                            lastEndpoint, currentSocketMissingHeartbeat);
+
+                                    mSocketMissingHeartbeatList.set(i, currentSocketMissingHeartbeat);
+
+                                }
+
+                                mSocketReceivedHeartbeatTimeList.set(i, DateTimeUtil.getCurrentDateTime());
+
+                                Timber.i("Socket Endpoint (%s)'s missing heartbeat: %d",
+                                        lastEndpoint, currentSocketMissingHeartbeat);
+                            }
+
+                        }
+
+//                        else {
+//                            Timber.i("currentSocket is null");
+//
+//                        }
+                    }
                 }
             }
         }
@@ -82,46 +203,72 @@ public class JeroMQClientPairRunnable implements Runnable {
         mIsPollerToBeClosed = true;
     }
 
-    private void storeMessageInDatabase(Socket socket) {
+    protected void addPollerItem(Socket socket) {
+        if (mPoller != null) {
+            mPoller.register(socket, ZMQ.Poller.POLLIN);
+            mSocketMissingHeartbeatList.add(0);
+            mSocketReceivedHeartbeatTimeList.add(DateTimeUtil.getCurrentDateTime());
+        }
+    }
+
+    private synchronized void storeMessageInDatabase(Socket socket) {
         Intent broadcastIntent = new Intent();
         String message = "";
 
         try {
+
+            socket.setMaxMsgSize(-1);
+            socket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+            socket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
+            socket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
+            socket.setLinger(0);
+            socket.setRcvHWM(0);
+            socket.setSndHWM(0);
+            socket.setImmediate(true);
+            socket.setTCPKeepAlive(1);
+            socket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
+            socket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
+            socket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
+            socket.setSendTimeOut(JeroMQParent.SOCKET_TIMEOUT_IN_MILLISEC);
+            socket.setReceiveTimeOut(JeroMQParent.SOCKET_TIMEOUT_IN_MILLISEC);
+
             message = socket.recvStr();
 
-            Timber.i("Received message: %s", message);
+            if (message != null) {
+                Timber.i("Received message: %s", message);
 
-            String messageTopic = StringUtil.getFirstWord(message);
-            String messageContent = StringUtil.removeFirstWord(message);
-            String[] messageTopicParts = messageTopic.split(StringUtil.HYPHEN);
+                String messageTopic = StringUtil.getFirstWord(message);
+                String messageContent = StringUtil.removeFirstWord(message);
+                String[] messageTopicParts = messageTopic.split(StringUtil.HYPHEN);
 
-            // For e.g. PREFIX-USER, PREFIX-RADIO, PREFIX-BFT, PREFIX-SITREP, PREFIX-TASK
-            String messageMainTopic = messageTopicParts[0].
-                    concat(StringUtil.HYPHEN).concat(messageTopicParts[1]);
+                // For e.g. PREFIX-USER, PREFIX-RADIO, PREFIX-BFT, PREFIX-SITREP, PREFIX-TASK
+                String messageMainTopic = messageTopicParts[0].
+                        concat(StringUtil.HYPHEN).concat(messageTopicParts[1]);
 
-            String messageTopicAction = "";
+                String messageTopicAction = "";
 
-            // For e.g. SYNC
-            messageTopicAction = messageTopicParts[2];
+                // For e.g. SYNC
+                messageTopicAction = messageTopicParts[2];
 
-            switch (messageMainTopic) {
-                case JeroMQPublisher.TOPIC_PREFIX_SITREP:
-                    storeSitRepMessage(messageContent, messageTopicAction);
-                    break;
-                case JeroMQPublisher.TOPIC_PREFIX_TASK:
-                    storeTaskMessage(messageContent, messageTopicAction);
-                    break;
-                default:
-                    break;
-            }
+                switch (messageMainTopic) {
+                    case JeroMQPublisher.TOPIC_PREFIX_SITREP:
+                        storeSitRepMessage(messageContent, messageTopicAction);
+                        break;
+                    case JeroMQPublisher.TOPIC_PREFIX_TASK:
+                        storeTaskMessage(messageContent, messageTopicAction);
+                        break;
+                    default:
+                        break;
+                }
 
-            broadcastIntent.setAction(DATA_SYNC_SUCCESSFUL_INTENT_ACTION);
-            LocalBroadcastManager.getInstance(MainApplication.getAppContext()).sendBroadcast(broadcastIntent);
+                broadcastIntent.setAction(DATA_SYNC_SUCCESSFUL_INTENT_ACTION);
+                LocalBroadcastManager.getInstance(MainApplication.getAppContext()).sendBroadcast(broadcastIntent);
 
-            try {
-                Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE); // milliseconds
-            } catch (InterruptedException e) {
-                Timber.i("Client pair socket thread interrupted.");
+                try {
+                    Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE); // milliseconds
+                } catch (InterruptedException e) {
+                    Timber.i("Client pair socket thread interrupted.");
+                }
             }
 
         } catch (ZMQException e) {
@@ -146,7 +293,6 @@ public class JeroMQClientPairRunnable implements Runnable {
         Timber.i("storeSitRepMessage jsonMsg: %s ", jsonMsg);
 
         if (MainApplication.getAppContext() instanceof Application) {
-            DatabaseOperation databaseOperation = new DatabaseOperation();
             SitRepRepository sitRepRepo = new SitRepRepository((Application) MainApplication.getAppContext());
             Gson gson = GsonCreator.createGson();
             SitRepModel sitRepModel = gson.fromJson(jsonMsg, SitRepModel.class);
@@ -155,7 +301,7 @@ public class JeroMQClientPairRunnable implements Runnable {
                 case JeroMQPublisher.TOPIC_SYNC:
                     Timber.i("storeSitRepMessage sync");
 
-                    handleSitRepDataSync(databaseOperation, sitRepRepo, sitRepModel);
+                    handleSitRepDataSync(sitRepRepo, sitRepModel);
                     break;
             }
         }
@@ -164,19 +310,19 @@ public class JeroMQClientPairRunnable implements Runnable {
     /**
      * Create new Sit Rep model and insert into database
      *
-     * @param databaseOperation
      * @param sitRepRepo
      * @param sitRepModel
      * @return
      */
-    private void insertNewSitRepModelForSync(DatabaseOperation databaseOperation,
-                                             SitRepRepository sitRepRepo,
+    private void insertNewSitRepModelForSync(SitRepRepository sitRepRepo,
                                              SitRepModel sitRepModel) {
 
         SitRepModel newSitRepModel = new SitRepModel();
         newSitRepModel.setRefId(sitRepModel.getRefId());
         newSitRepModel.setReporter(sitRepModel.getReporter());
         newSitRepModel.setSnappedPhoto(sitRepModel.getSnappedPhoto());
+        newSitRepModel.setReportType(sitRepModel.getReportType());
+
         newSitRepModel.setLocation(sitRepModel.getLocation());
         newSitRepModel.setActivity(sitRepModel.getActivity());
         newSitRepModel.setPersonnelT(sitRepModel.getPersonnelT());
@@ -185,11 +331,26 @@ public class JeroMQClientPairRunnable implements Runnable {
         newSitRepModel.setNextCoa(sitRepModel.getNextCoa());
         newSitRepModel.setRequest(sitRepModel.getRequest());
         newSitRepModel.setOthers(sitRepModel.getOthers());
+
+        newSitRepModel.setVesselType(sitRepModel.getVesselType());
+        newSitRepModel.setVesselName(sitRepModel.getVesselName());
+        newSitRepModel.setLpoc(sitRepModel.getLpoc());
+        newSitRepModel.setNpoc(sitRepModel.getNpoc());
+        newSitRepModel.setLastVisitToSg(sitRepModel.getLastVisitToSg());
+        newSitRepModel.setVesselLastBoarded(sitRepModel.getVesselLastBoarded());
+        newSitRepModel.setCargo(sitRepModel.getCargo());
+        newSitRepModel.setPurposeOfCall(sitRepModel.getPurposeOfCall());
+        newSitRepModel.setDuration(sitRepModel.getDuration());
+        newSitRepModel.setCurrentCrew(sitRepModel.getCurrentCrew());
+        newSitRepModel.setCurrentMaster(sitRepModel.getCurrentMaster());
+        newSitRepModel.setCurrentCe(sitRepModel.getCurrentCe());
+        newSitRepModel.setQueries(sitRepModel.getQueries());
+
         newSitRepModel.setCreatedDateTime(sitRepModel.getCreatedDateTime());
         newSitRepModel.setLastUpdatedDateTime(sitRepModel.getLastUpdatedDateTime());
         newSitRepModel.setIsValid(sitRepModel.getIsValid());
 
-        databaseOperation.insertSitRepIntoDatabase(sitRepRepo, newSitRepModel);
+        DatabaseOperation.getInstance().queryAndInsertSitRepIntoDatabase(sitRepRepo, newSitRepModel);
 
     }
 
@@ -218,6 +379,8 @@ public class JeroMQClientPairRunnable implements Runnable {
 
                 currentMatchedSitRepModel.setReporter(newSitRepModel.getReporter());
                 currentMatchedSitRepModel.setSnappedPhoto(newSitRepModel.getSnappedPhoto());
+                currentMatchedSitRepModel.setReportType(newSitRepModel.getReportType());
+
                 currentMatchedSitRepModel.setLocation(newSitRepModel.getLocation());
                 currentMatchedSitRepModel.setActivity(newSitRepModel.getActivity());
                 currentMatchedSitRepModel.setPersonnelT(newSitRepModel.getPersonnelT());
@@ -226,7 +389,24 @@ public class JeroMQClientPairRunnable implements Runnable {
                 currentMatchedSitRepModel.setNextCoa(newSitRepModel.getNextCoa());
                 currentMatchedSitRepModel.setRequest(newSitRepModel.getRequest());
                 currentMatchedSitRepModel.setOthers(newSitRepModel.getOthers());
+
+                currentMatchedSitRepModel.setVesselType(newSitRepModel.getVesselType());
+                currentMatchedSitRepModel.setVesselName(newSitRepModel.getVesselName());
+                currentMatchedSitRepModel.setLpoc(newSitRepModel.getLpoc());
+                currentMatchedSitRepModel.setNpoc(newSitRepModel.getNpoc());
+                currentMatchedSitRepModel.setLastVisitToSg(newSitRepModel.getLastVisitToSg());
+                currentMatchedSitRepModel.setVesselLastBoarded(newSitRepModel.getVesselLastBoarded());
+                currentMatchedSitRepModel.setCargo(newSitRepModel.getCargo());
+                currentMatchedSitRepModel.setPurposeOfCall(newSitRepModel.getPurposeOfCall());
+                currentMatchedSitRepModel.setDuration(newSitRepModel.getDuration());
+                currentMatchedSitRepModel.setCurrentCrew(newSitRepModel.getCurrentCrew());
+                currentMatchedSitRepModel.setCurrentMaster(newSitRepModel.getCurrentMaster());
+                currentMatchedSitRepModel.setCurrentCe(newSitRepModel.getCurrentCe());
+                currentMatchedSitRepModel.setQueries(newSitRepModel.getQueries());
+
                 currentMatchedSitRepModel.setLastUpdatedDateTime(newSitRepModel.getLastUpdatedDateTime());
+                currentMatchedSitRepModel.setCreatedDateTime(newSitRepModel.getCreatedDateTime());
+                currentMatchedSitRepModel.setIsValid(newSitRepModel.getIsValid());
 
             }
         }
@@ -237,11 +417,10 @@ public class JeroMQClientPairRunnable implements Runnable {
     /**
      * Handles incoming Sit Rep model for Synchronisation
      *
-     * @param databaseOperation
      * @param sitRepRepo
      * @param sitRepModel
      */
-    private void handleSitRepDataSync(DatabaseOperation databaseOperation, SitRepRepository sitRepRepo,
+    private void handleSitRepDataSync(SitRepRepository sitRepRepo,
                                       SitRepModel sitRepModel) {
         /**
          * Query for Sit Rep (SR) model from database with id of received SR model.
@@ -262,13 +441,13 @@ public class JeroMQClientPairRunnable implements Runnable {
                 if (matchedSitRepModel == null) {
                     Timber.i("Inserting new Sit Rep model from synchronisation...");
 
-                    insertNewSitRepModelForSync(databaseOperation, sitRepRepo, sitRepModel);
+                    insertNewSitRepModelForSync(sitRepRepo, sitRepModel);
 
                 } else {
                     Timber.i("Updating Sit Rep model from synchronisation...");
 
                     SitRepModel sitRepModelToSync = compareSitRepModelModelForSync(matchedSitRepModel, sitRepModel);
-                    databaseOperation.updateSitRepInDatabase(sitRepRepo, sitRepModel);
+                    DatabaseOperation.getInstance().updateSitRepInDatabase(sitRepRepo, sitRepModelToSync);
 
                 }
             }
@@ -278,11 +457,11 @@ public class JeroMQClientPairRunnable implements Runnable {
                 Timber.i("onError singleObserverSyncSitRep, syncSitRepInDatabase. Error Msg: %s", e.toString());
                 Timber.i("Inserting new Sit Rep model from synchronisation...");
 
-                insertNewSitRepModelForSync(databaseOperation, sitRepRepo, sitRepModel);
+                insertNewSitRepModelForSync(sitRepRepo, sitRepModel);
             }
         };
 
-        databaseOperation.querySitRepByCreatedDateTimeInDatabase(sitRepRepo,
+        DatabaseOperation.getInstance().querySitRepByCreatedDateTimeInDatabase(sitRepRepo,
                 sitRepModel.getCreatedDateTime(), singleObserverSyncSitRep);
     }
 
@@ -295,7 +474,6 @@ public class JeroMQClientPairRunnable implements Runnable {
         Timber.i("storeTaskMessage jsonMsg: %s", jsonMsg);
 
         if (MainApplication.getAppContext() instanceof Application) {
-            DatabaseOperation databaseOperation = new DatabaseOperation();
             TaskRepository taskRepo = new TaskRepository((Application) MainApplication.getAppContext());
             Gson gson = GsonCreator.createGson();
             TaskModel taskModel = gson.fromJson(jsonMsg, TaskModel.class);
@@ -304,12 +482,12 @@ public class JeroMQClientPairRunnable implements Runnable {
                 case JeroMQPublisher.TOPIC_SYNC:
                     Timber.i("storeTaskMessage sync");
 
-                    handleTaskDataSync(databaseOperation, taskRepo, taskModel);
+                    handleTaskDataSync(taskRepo, taskModel);
                     break;
 //                case JeroMQPublisher.TOPIC_INSERT:
 //                    Timber.i("storeTaskMessage insert");
 //
-//                    databaseOperation.insertTaskIntoDatabase(taskRepo, taskModel);
+//                    databaseOperation.queryAndInsertTaskIntoDatabase(taskRepo, taskModel);
 //                    break;
 //                case JeroMQPublisher.TOPIC_UPDATE:
 //                    Timber.i("storeTaskMessage update");
@@ -328,13 +506,11 @@ public class JeroMQClientPairRunnable implements Runnable {
     /**
      * Create new Task model and insert into database
      *
-     * @param databaseOperation
      * @param taskRepo
      * @param taskModel
      * @return
      */
-    private void insertNewTaskModelForSync(DatabaseOperation databaseOperation,
-                                           TaskRepository taskRepo,
+    private void insertNewTaskModelForSync(TaskRepository taskRepo,
                                            TaskModel taskModel) {
 
         TaskModel newTaskModel = new TaskModel();
@@ -352,7 +528,7 @@ public class JeroMQClientPairRunnable implements Runnable {
         newTaskModel.setLastUpdatedMainDateTime(taskModel.getLastUpdatedMainDateTime());
         newTaskModel.setIsValid(taskModel.getIsValid());
 
-        databaseOperation.insertTaskIntoDatabase(taskRepo, newTaskModel);
+        DatabaseOperation.getInstance().queryAndInsertTaskIntoDatabase(taskRepo, newTaskModel);
 
     }
 
@@ -447,11 +623,10 @@ public class JeroMQClientPairRunnable implements Runnable {
     /**
      * Handles incoming Task model for Synchronisation
      *
-     * @param databaseOperation
      * @param taskRepo
      * @param taskModel
      */
-    private void handleTaskDataSync(DatabaseOperation databaseOperation, TaskRepository taskRepo,
+    private void handleTaskDataSync(TaskRepository taskRepo,
                                     TaskModel taskModel) {
         /**
          * Query for Task model from database with id of received Task model.
@@ -472,13 +647,13 @@ public class JeroMQClientPairRunnable implements Runnable {
                 if (matchedTaskModel == null) {
                     Timber.i("Inserting new Task model from synchronisation...");
 
-                    insertNewTaskModelForSync(databaseOperation, taskRepo, taskModel);
+                    insertNewTaskModelForSync(taskRepo, taskModel);
 
                 } else {
                     Timber.i("Updating Task model from synchronisation...");
 
                     TaskModel taskModelToSync = compareTaskModelForSync(matchedTaskModel, taskModel);
-                    databaseOperation.updateTaskInDatabase(taskRepo, taskModelToSync);
+                    DatabaseOperation.getInstance().updateTaskInDatabase(taskRepo, taskModelToSync);
 
                 }
             }
@@ -488,24 +663,62 @@ public class JeroMQClientPairRunnable implements Runnable {
                 Timber.i("onError singleObserverSyncTask, syncTaskInDatabase. Error Msg: %s", e.toString());
                 Timber.i("Inserting new Task model from synchronisation...");
 
-                insertNewTaskModelForSync(databaseOperation, taskRepo, taskModel);
+                insertNewTaskModelForSync(taskRepo, taskModel);
             }
         };
 
-        databaseOperation.queryTaskByCreatedDateTimeInDatabase(taskRepo,
+        DatabaseOperation.getInstance().queryTaskByCreatedDateTimeInDatabase(taskRepo,
                 taskModel.getCreatedDateTime(), singleObserverSyncTask);
     }
 
-    /**
-     * Subscribe socket list to all relevant topics
-     *
-     * @param socketList
-     */
-    private void subscribeTopics(List<Socket> socketList) {
-        for (int i = 0; i < mSocketList.size(); i++) {
-            Socket socket = socketList.get(i);
-            socket.subscribe(JeroMQParent.TOPIC_PREFIX_SITREP.getBytes());
-            socket.subscribe(JeroMQParent.TOPIC_PREFIX_TASK.getBytes());
+//    /**
+//     * Subscribe socket list from poller to all relevant topics
+//     *
+//     * @param poller
+//     */
+//    private void subscribeTopics(ZMQ.Poller poller) {
+//        for (int i = 0; i < poller.getSize(); i++) {
+//            Socket socket = poller.getItem(i).getSocket();
+//            subscribeTopicsForSocket(socket);
+//        }
+//    }
+//
+//    /**
+//     * Subscribe socket to all relevant topics
+//     *
+//     * @param socket
+//     */
+//    private void subscribeTopicsForSocket(Socket socket) {
+////        socket.subscribe("".getBytes());
+//        socket.subscribe(JeroMQParent.TOPIC_PREFIX_SITREP.getBytes());
+//        socket.subscribe(JeroMQParent.TOPIC_PREFIX_TASK.getBytes());
+//    }
+
+    private void closeSockets(ZMQ.Poller poller) {
+        if (mZContext != null) {
+//            for (int i = 0; i < poller.getSize(); i++) {
+//                Socket socket = poller.getItem(i).getSocket();
+//
+////                if (mClientSubEndpointList != null &&
+////                        mClientSubEndpointList.get(i) != null) {
+//                socket.disconnect(poller.getItem(i).getSocket().getLastEndpoint());
+//                Timber.i("Client SUB socket disconnected %d", i);
+//
+//                socket.close();
+//                Timber.i("Client SUB socket closed %d", i);
+////                }
+//
+//                mZContext.destroySocket(socket);
+//                Timber.i("Client SUB socket destroyed %d", i);
+//            }
+        }
+
+        if (mZContext != null && !mZContext.isClosed()) {
+            Timber.i("Destroying ZContext.");
+
+            mZContext.destroy();
+
+            Timber.i("ZContext destroyed.");
         }
     }
 

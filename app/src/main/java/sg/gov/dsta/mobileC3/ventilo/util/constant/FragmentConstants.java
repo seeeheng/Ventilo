@@ -27,6 +27,7 @@ public class FragmentConstants {
 //    public static final String KEY_SITREP_NEXT_COA = "Sit Rep Next Course of Action";
 //    public static final String KEY_SITREP_REQUEST = "Sit Rep Request";
     public static final String VALUE_SITREP_ADD = "Add Sit Rep";
+    public static final String VALUE_SITREP_ADD_FROM_VIDEO = "Add Sit Rep From Video";
     public static final String VALUE_SITREP_UPDATE = "Update Sit Rep";
 
     // Video Stream

@@ -28,15 +28,15 @@ public class VideoStreamRepository {
         mVideoStreamDao = db.videoStreamDao();
     }
 
-    public LiveData<List<VideoStreamModel>> getAllVideoStreamsLiveDataForUser(String userId) {
+    public synchronized LiveData<List<VideoStreamModel>> getAllVideoStreamsLiveDataForUser(String userId) {
         return mVideoStreamDao.getAllVideoStreamsLiveDataForUser(userId);
     }
 
-    public LiveData<List<String>> getAllVideoStreamNamesLiveDataForUser(String userId) {
+    public synchronized LiveData<List<String>> getAllVideoStreamNamesLiveDataForUser(String userId) {
         return mVideoStreamDao.getAllVideoStreamNamesLiveDataForUser(userId);
     }
 
-    public void getAllVideoStreams(SingleObserver singleObserver) {
+    public synchronized void getAllVideoStreams(SingleObserver singleObserver) {
         QueryAllVideoStreamsAsyncTask task = new
                 QueryAllVideoStreamsAsyncTask(mVideoStreamDao, singleObserver);
 
@@ -50,7 +50,7 @@ public class VideoStreamRepository {
         CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
-    public void getAllVideoStreamsLiveDataForUser(
+    public synchronized void getAllVideoStreamsLiveDataForUser(
             String userId, SingleObserver singleObserver) {
         QueryAllVideoStreamsForUserAsyncTask task = new
                 QueryAllVideoStreamsForUserAsyncTask(mVideoStreamDao, singleObserver);
@@ -65,7 +65,7 @@ public class VideoStreamRepository {
         CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
-    public void getVideoStreamUrlForUserByName(
+    public synchronized void getVideoStreamUrlForUserByName(
             String userId, String videoName, SingleObserver singleObserver) {
         String[] paramsForGetUrl = {userId, videoName};
         QueryVideoStreamForUserByNameAsyncTask task = new
@@ -81,7 +81,7 @@ public class VideoStreamRepository {
         CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
-    public void insertVideoStreamWithObserver(VideoStreamModel videoStreamModel,
+    public synchronized void insertVideoStreamWithObserver(VideoStreamModel videoStreamModel,
                                               SingleObserver singleObserver) {
         InsertWithObserverAsyncTask task = new InsertWithObserverAsyncTask(mVideoStreamDao, singleObserver);
 
@@ -95,7 +95,7 @@ public class VideoStreamRepository {
         CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
-    public void insertVideoStream(VideoStreamModel videoStreamModel) {
+    public synchronized void insertVideoStream(VideoStreamModel videoStreamModel) {
         InsertAsyncTask task = new InsertAsyncTask(mVideoStreamDao);
 
         Runnable runnable = new Runnable() {
@@ -108,7 +108,7 @@ public class VideoStreamRepository {
         CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
-    public void updateVideoStream(VideoStreamModel videoStreamModel) {
+    public synchronized void updateVideoStream(VideoStreamModel videoStreamModel) {
         UpdateAsyncTask task = new UpdateAsyncTask(mVideoStreamDao);
 
         Runnable runnable = new Runnable() {
@@ -121,7 +121,7 @@ public class VideoStreamRepository {
         CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
-    public void deleteVideoStream(long videoStreamId) {
+    public synchronized void deleteVideoStream(long videoStreamId) {
         DeleteAsyncTask task = new DeleteAsyncTask(mVideoStreamDao);
 
         Runnable runnable = new Runnable() {

@@ -17,11 +17,13 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.SitRepViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.EIsValid;
 import timber.log.Timber;
 
 public class DashboardSitRepPersonnelStatusFragment extends Fragment {
@@ -111,6 +113,21 @@ public class DashboardSitRepPersonnelStatusFragment extends Fragment {
     }
 
     /**
+     * Obtain all VALID (not deleted) Sit Rep Models from database
+     * @param sitRepModelList
+     * @return
+     */
+    private List<SitRepModel> getAllValidSitRepListFromDatabase(List<SitRepModel> sitRepModelList) {
+
+        List<SitRepModel> validSitRepModelList = sitRepModelList.stream().
+                filter(sitRepModel -> EIsValid.YES.toString().
+                        equalsIgnoreCase(sitRepModel.getIsValid())).
+                collect(Collectors.toList());
+
+        return validSitRepModelList;
+    }
+
+    /**
      * Set up observer for live updates on view models and update UI accordingly
      */
     private void observerSetup() {
@@ -124,24 +141,27 @@ public class DashboardSitRepPersonnelStatusFragment extends Fragment {
                 @Override
                 public void onChanged(@Nullable List<SitRepModel> sitRepModelList) {
 
-                    Timber.i("New Live Data, sitRepModelList: %s", sitRepModelList);
-
                     synchronized (mSitRepListItems) {
-                        if (mSitRepListItems == null) {
-                            mSitRepListItems = new ArrayList<>();
-                        } else {
-                            mSitRepListItems.clear();
-                        }
 
                         if (sitRepModelList != null) {
-                            mSitRepListItems.addAll(sitRepModelList);
-                        }
+                            sitRepModelList = getAllValidSitRepListFromDatabase(sitRepModelList);
 
-                        if (mRecyclerAdapter != null) {
-                            mRecyclerAdapter.setSitRepListItems(mSitRepListItems);
-                        }
+                            if (mSitRepListItems == null) {
+                                mSitRepListItems = new ArrayList<>();
+                            } else {
+                                mSitRepListItems.clear();
+                            }
 
-                        refreshUI();
+                            if (sitRepModelList != null) {
+                                mSitRepListItems.addAll(sitRepModelList);
+                            }
+
+                            if (mRecyclerAdapter != null) {
+                                mRecyclerAdapter.setSitRepListItems(mSitRepListItems);
+                            }
+
+                            refreshUI();
+                        }
                     }
                 }
             });

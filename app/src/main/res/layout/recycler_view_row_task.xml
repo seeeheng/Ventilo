@@ -31,7 +31,7 @@
                     android:layout_width="@dimen/task_recycler_row_swipe_action_icon_width"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
-                    app:srcCompat="@drawable/btn_task_swipe_action_status_delete" />
+                    app:srcCompat="@drawable/btn_swipe_action_status_delete" />
 
             </RelativeLayout>
 

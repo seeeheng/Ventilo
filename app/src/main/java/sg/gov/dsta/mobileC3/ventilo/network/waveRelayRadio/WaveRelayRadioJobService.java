@@ -16,8 +16,8 @@ import timber.log.Timber;
 public class WaveRelayRadioJobService extends JobService {
 
     private static final int WAVE_RELAY_RADIO_JOB_ID = 1;
-    private static final int CHECK_RADIO_CONNECTION_INTERVAL_IN_MILLISEC = 5000;
-    private static final int CHECK_RADIO_CONNECTION_FLEX_INTERVAL_IN_MILLISEC = 4000;
+    private static final int CHECK_RADIO_CONNECTION_INTERVAL_IN_MILLISEC = 3000;
+    private static final int CHECK_RADIO_CONNECTION_FLEX_INTERVAL_IN_MILLISEC = 2000;
 
     private static volatile WaveRelayRadioJobService instance;
     private static JobScheduler mScheduler;

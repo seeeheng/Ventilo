@@ -30,11 +30,11 @@ public class UserRepository {
         mAllUsersLiveData = mUserDao.getAllUsersLiveData();
     }
 
-    public LiveData<List<UserModel>> getAllUsersLiveData() {
+    public synchronized LiveData<List<UserModel>> getAllUsersLiveData() {
         return mAllUsersLiveData;
     }
 
-    public LiveData<UserModel> getCurrentUserLiveData(String userId) {
+    public synchronized LiveData<UserModel> getCurrentUserLiveData(String userId) {
         return mUserDao.getCurrentUserLiveData(userId);
     }
 
@@ -43,7 +43,7 @@ public class UserRepository {
      *
      * @param singleObserver
      */
-    public void getAllUsers(SingleObserver singleObserver) {
+    public synchronized void getAllUsers(SingleObserver singleObserver) {
         QueryAllUsersAsyncTask task = new
                 QueryAllUsersAsyncTask(mUserDao, singleObserver);
 
@@ -57,21 +57,21 @@ public class UserRepository {
         CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
-    public void queryUserByAccessToken(String accessToken, SingleObserver<UserModel> singleObserver) {
+    public synchronized void queryUserByAccessToken(String accessToken, SingleObserver<UserModel> singleObserver) {
         Single<UserModel> single = mUserDao.getUserByAccessToken(accessToken);
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(singleObserver);
     }
 
-    public void queryUserByUserId(String userId, SingleObserver<UserModel> singleObserver) {
+    public synchronized void queryUserByUserId(String userId, SingleObserver<UserModel> singleObserver) {
         Single<UserModel> single = mUserDao.getUserByUserId(userId);
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(singleObserver);
     }
 
-    public void insertUser(UserModel userModel) {
+    public synchronized void insertUser(UserModel userModel) {
         InsertAsyncTask task = new InsertAsyncTask(mUserDao);
 
         Runnable runnable = new Runnable() {
@@ -84,7 +84,7 @@ public class UserRepository {
         CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
-    public void updateUser(UserModel userModel) {
+    public synchronized void updateUser(UserModel userModel) {
         UpdateAsyncTask task = new UpdateAsyncTask(mUserDao);
 
         Runnable runnable = new Runnable() {
@@ -97,7 +97,7 @@ public class UserRepository {
         CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
-    public void deleteUser(String userId) {
+    public synchronized void deleteUser(String userId) {
         DeleteAsyncTask task = new DeleteAsyncTask(mUserDao);
 
         Runnable runnable = new Runnable() {

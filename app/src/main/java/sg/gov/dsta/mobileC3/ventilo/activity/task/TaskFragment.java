@@ -351,7 +351,7 @@ public class TaskFragment extends Fragment {
                     } else { // CCT will only be able to delete tasks
                         Drawable deleteSwipeActionButtonImageDrawable =
                                 ResourcesCompat.getDrawable(getResources(),
-                                        R.drawable.btn_task_swipe_action_status_delete, null);
+                                        R.drawable.btn_swipe_action_status_delete, null);
 
                         SwipeHelper.UnderlayButton deleteUnderlayButton = new SwipeHelper.UnderlayButton(
                                 "", deleteSwipeActionButtonImageDrawable, null,
@@ -748,15 +748,13 @@ public class TaskFragment extends Fragment {
     }
 
     /**
-     * Obtain all VALID Task Models from database
+     * Obtain all VALID (not deleted) Task Models from database
      * @param taskModelList
      * @return
      */
     private List<TaskModel> getAllValidTaskListFromDatabase(List<TaskModel> taskModelList) {
 
-        List<TaskModel> validTaskModelList = new ArrayList<>();
-
-        validTaskModelList = taskModelList.stream().
+        List<TaskModel> validTaskModelList = taskModelList.stream().
                 filter(taskModel -> EIsValid.YES.toString().
                         equalsIgnoreCase(taskModel.getIsValid())).
                 collect(Collectors.toList());

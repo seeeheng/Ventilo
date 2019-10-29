@@ -11,6 +11,7 @@ import java.util.List;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.sitRep.EReportType;
 
 public class SitRepRecyclerAdapter extends RecyclerView.Adapter<SitRepViewHolder> {
 
@@ -40,9 +41,18 @@ public class SitRepRecyclerAdapter extends RecyclerView.Adapter<SitRepViewHolder
         sitRepTitleBuilder.append(item.getReporter());
         sitRepTitleBuilder.append(" SITREP");
         itemViewHolder.getTvHeaderTitle().setText(sitRepTitleBuilder.toString().trim());
-        itemViewHolder.getTvLocation().setText(item.getLocation());
-        itemViewHolder.getTvRequest().setText(item.getRequest());
-        itemViewHolder.getTvTeam().setText(item.getReporter());
+
+        if (EReportType.MISSION.toString().equalsIgnoreCase(item.getReportType())) {
+            itemViewHolder.getTvLocation().setText(item.getLocation());
+            itemViewHolder.getTvRequest().setText(item.getRequest());
+            itemViewHolder.getTvTeam().setText(item.getReporter());
+
+        } else if (EReportType.INSPECTION.toString().equalsIgnoreCase(item.getReportType())) {
+            itemViewHolder.getTvLocation().setText(item.getLpoc());
+            itemViewHolder.getTvRequest().setText(item.getQueries());
+            itemViewHolder.getTvTeam().setText(item.getReporter());
+
+        }
 
         itemViewHolder.getTvScheduledTime().setText(DateTimeUtil.getTimeDifference(
                 DateTimeUtil.stringToDate(item.getCreatedDateTime())));

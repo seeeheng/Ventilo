@@ -456,25 +456,4 @@ public class PhotoCaptureUtil {
         return BitmapFactory.decodeByteArray(image, 0, image.length);
     }
 
-    /**
-     * Get Bit map from file filePath
-     * @param filePath
-     * @return
-     */
-    public Bitmap getBitmapFromFile(String filePath) {
-        try {
-            Bitmap bitmap = null;
-            File f = new File(filePath);
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-
-            bitmap = BitmapFactory.decodeStream(new FileInputStream(f), null, options);
-            return bitmap;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
 }

@@ -1,12 +1,25 @@
 package sg.gov.dsta.mobileC3.ventilo.network.jeroMQ;
 
+import android.app.Application;
+
+import com.google.gson.Gson;
+
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ.Socket;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.SingleObserver;
+import io.reactivex.disposables.Disposable;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
+import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
+import sg.gov.dsta.mobileC3.ventilo.repository.SitRepRepository;
+import sg.gov.dsta.mobileC3.ventilo.repository.TaskRepository;
 import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
+import sg.gov.dsta.mobileC3.ventilo.util.GsonCreator;
 import sg.gov.dsta.mobileC3.ventilo.util.PowerManagerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.network.NetworkUtil;
@@ -40,6 +53,8 @@ public class JeroMQPublisher extends JeroMQParent {
 
     private List<String> mServerSubEndpointList;
     private List<Socket> mSocketList;
+
+    private static volatile boolean isSocketStarted;
 
     //  Prepare our context and sockets
 //    public static void subscribeToMessages() {
@@ -88,7 +103,7 @@ public class JeroMQPublisher extends JeroMQParent {
      *
      * @return
      */
-    public static JeroMQPublisher getInstance() {
+    public synchronized static JeroMQPublisher getInstance() {
         // Double check locking pattern (check if instance is null twice)
         if (instance == null) {
             synchronized (JeroMQPublisher.class) {
@@ -122,28 +137,48 @@ public class JeroMQPublisher extends JeroMQParent {
      * Processes messages based on topics
      */
     @Override
-    protected void startProcess() {
-        Timber.i("Start server pub sockets connection");
-        Timber.i("OWN IP address is: %s" , NetworkUtil.getOwnIPAddressThroughWiFiOrEthernet(true));
+    protected synchronized void startProcess() {
 
-        mZContext = new ZContext();
-        mPubSocket = mZContext.createSocket(SocketType.PUB);
-        mPubSocket.setMaxMsgSize(-1);
+        if (!isSocketStarted) {
+            Timber.i("Start server pub sockets connection");
+            Timber.i("OWN IP address is: %s", NetworkUtil.getOwnIPAddressThroughWiFiOrEthernet(true));
+
+            mZContext = new ZContext();
+            mZContext.setLinger(0);
+            mZContext.setRcvHWM(0);
+            mZContext.setSndHWM(0);
+
+            mPubSocket = mZContext.createSocket(SocketType.PUB);
+            mPubSocket.setMaxMsgSize(-1);
+            mPubSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+            mPubSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
+            mPubSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
 //        mPubSocket.setMsgAllocationHeapThreshold(1024 * 1024);
 //        mPubSocket.setSendBufferSize(1024 * 1024);
-        mPubSocket.setLinger(0);
+            mPubSocket.setLinger(0);
+            mPubSocket.setRcvHWM(0);
+            mPubSocket.setSndHWM(0);
+            mPubSocket.setImmediate(true);
+            mPubSocket.setTCPKeepAlive(1);
+            mPubSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
+            mPubSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
+            mPubSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
+            mPubSocket.setSendTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+            mPubSocket.setReceiveTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
 //        mPubSocket.connect(SERVER_PUB_IP_ADDRESS);
-        mPubSocket.bind(SERVER_PUB_IP_ADDRESS);
-        Timber.i("Server pub sockets connected");
+            mPubSocket.bind(SERVER_PUB_IP_ADDRESS);
+            Timber.i("Server pub sockets connected");
 
-   }
+            isSocketStarted = true;
+        }
+    }
 
     /**
      * Broadcasts User JSON message to all relevant devices for data storage
      *
      * @param message
      */
-    public void sendUserMessage(String message, String actionPrefix) {
+    public synchronized void sendUserMessage(String message, String actionPrefix) {
         String topicPrefix = getActionPrefix(TOPIC_PREFIX_USER, actionPrefix);
 
         if (StringUtil.EMPTY_STRING.equalsIgnoreCase(topicPrefix)) {
@@ -157,23 +192,40 @@ public class JeroMQPublisher extends JeroMQParent {
         mCustomThreadPoolManager.addRunnable(new Runnable() {
             @Override
             public void run() {
-                StringBuilder userMessageToSend = new StringBuilder();
-                userMessageToSend.append(topicPrefix);
-                userMessageToSend.append(StringUtil.SPACE);
-                userMessageToSend.append(message);
 
-                Timber.i("Publishing User %s" , actionPrefix) ;
-                Timber.i( "message: %s" , userMessageToSend);
+                if (mPubSocket != null) {
+                    StringBuilder userMessageToSend = new StringBuilder();
+                    userMessageToSend.append(topicPrefix);
+                    userMessageToSend.append(StringUtil.SPACE);
+                    userMessageToSend.append(message);
 
-                mPubSocket.send(userMessageToSend.toString());
+                    Timber.i("Publishing User %s", actionPrefix);
+                    Timber.i("message: %s", userMessageToSend);
 
-                Timber.i( "User %s" , actionPrefix);
+                    mPubSocket.setMaxMsgSize(-1);
+                    mPubSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+                    mPubSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
+                    mPubSocket.setLinger(0);
+                    mPubSocket.setRcvHWM(0);
+                    mPubSocket.setSndHWM(0);
+                    mPubSocket.setImmediate(true);
+                    mPubSocket.setTCPKeepAlive(1);
+                    mPubSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
+                    mPubSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
+                    mPubSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
+                    mPubSocket.setSendTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.setReceiveTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.send(userMessageToSend.toString());
 
-                try {
-                    Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
-                } catch (InterruptedException e) {
-                    Timber.e( "Interrupted while sleeping: " + e);
-                    return;
+                    Timber.i("User %s", actionPrefix);
+
+                    try {
+                        Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
+                    } catch (InterruptedException e) {
+                        Timber.e("Interrupted while sleeping: " + e);
+                        return;
+                    }
                 }
             }
         });
@@ -186,32 +238,49 @@ public class JeroMQPublisher extends JeroMQParent {
      *
      * @param message
      */
-    public void sendWaveRelayRadioMessage(String message, String actionPrefix) {
+    public synchronized void sendWaveRelayRadioMessage(String message, String actionPrefix) {
 
         String topicPrefix = getActionPrefix(TOPIC_PREFIX_RADIO, actionPrefix);
 
-        Timber.i( "Publishing WaveRelay Radio");
+        Timber.i("Publishing WaveRelay Radio");
 
         PowerManagerUtil.acquirePartialWakeLock();
 
         mCustomThreadPoolManager.addRunnable(new Runnable() {
             @Override
             public void run() {
-                StringBuilder radioMessageToSend = new StringBuilder();
-                radioMessageToSend.append(topicPrefix);
-                radioMessageToSend.append(StringUtil.SPACE);
-                radioMessageToSend.append(message);
-                Timber.i( "Publishing WaveRelay Radio %s" , actionPrefix );
-                Timber.i( "Publishing WaveRelay Radio message %s" , message );
 
-                mPubSocket.send(radioMessageToSend.toString());
-                Timber.i( "WaveRelay Radio message sent %s" , actionPrefix );
+                if (mPubSocket != null) {
+                    StringBuilder radioMessageToSend = new StringBuilder();
+                    radioMessageToSend.append(topicPrefix);
+                    radioMessageToSend.append(StringUtil.SPACE);
+                    radioMessageToSend.append(message);
+                    Timber.i("Publishing WaveRelay Radio %s", actionPrefix);
+                    Timber.i("Publishing WaveRelay Radio message %s", message);
 
-                try {
-                    Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
-                } catch (InterruptedException e) {
-                    Timber.e( "Interrupted while sleeping: %s" , e);
-                    return;
+                    mPubSocket.setMaxMsgSize(-1);
+                    mPubSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+                    mPubSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
+                    mPubSocket.setLinger(0);
+                    mPubSocket.setRcvHWM(0);
+                    mPubSocket.setSndHWM(0);
+                    mPubSocket.setImmediate(true);
+                    mPubSocket.setTCPKeepAlive(1);
+                    mPubSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
+                    mPubSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
+                    mPubSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
+                    mPubSocket.setSendTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.setReceiveTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.send(radioMessageToSend.toString());
+                    Timber.i("WaveRelay Radio message sent %s", actionPrefix);
+
+                    try {
+                        Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
+                    } catch (InterruptedException e) {
+                        Timber.e("Interrupted while sleeping: %s", e);
+                        return;
+                    }
                 }
             }
         });
@@ -224,7 +293,7 @@ public class JeroMQPublisher extends JeroMQParent {
      *
      * @param message
      */
-    public void sendBFTMessage(String message, String actionPrefix) {
+    public synchronized void sendBFTMessage(String message, String actionPrefix) {
 //        for (int i = 0; i < ADDRESSES.size(); i++) {
 //            final String currentAddress = ADDRESSES.get(i);
 
@@ -241,22 +310,38 @@ public class JeroMQPublisher extends JeroMQParent {
             public void run() {
 //                    LOGGER.info("Creating and binding PUB socket with address={}", currentAddress);
 
-                StringBuilder bftMessageToSend = new StringBuilder();
-                bftMessageToSend.append(topicPrefix);
-                bftMessageToSend.append(" ");
-                bftMessageToSend.append(message);
+                if (mPubSocket != null) {
+                    StringBuilder bftMessageToSend = new StringBuilder();
+                    bftMessageToSend.append(topicPrefix);
+                    bftMessageToSend.append(" ");
+                    bftMessageToSend.append(message);
 
-                Timber.i("Publishing BFT message: %s" , message );
+                    Timber.i("Publishing BFT message: %s", message);
 
-                mPubSocket.send(bftMessageToSend.toString());
+                    mPubSocket.setMaxMsgSize(-1);
+                    mPubSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+                    mPubSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
+                    mPubSocket.setLinger(0);
+                    mPubSocket.setRcvHWM(0);
+                    mPubSocket.setSndHWM(0);
+                    mPubSocket.setImmediate(true);
+                    mPubSocket.setTCPKeepAlive(1);
+                    mPubSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
+                    mPubSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
+                    mPubSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
+                    mPubSocket.setSendTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.setReceiveTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.send(bftMessageToSend.toString());
 
-                Timber.i("BFT message sent");
+                    Timber.i("BFT message sent");
 
-                try {
-                    Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
-                } catch (InterruptedException e) {
-                    Timber.e("Interrupted while sleeping:  %s" , e);
-                    return;
+                    try {
+                        Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
+                    } catch (InterruptedException e) {
+                        Timber.e("Interrupted while sleeping:  %s", e);
+                        return;
+                    }
                 }
             }
         });
@@ -270,36 +355,52 @@ public class JeroMQPublisher extends JeroMQParent {
      *
      * @param message
      */
-    public void sendSitRepMessage(String message, String actionPrefix) {
+    public synchronized void sendSitRepMessage(String message, String actionPrefix) {
 //        for (int i = 0; i < ADDRESSES.size(); i++) {
 //            final String currentAddress = ADDRESSES.get(i);
 
         String topicPrefix = getActionPrefix(TOPIC_PREFIX_SITREP, actionPrefix);
 
-        Timber.i( "Publishing SitRep");
+        Timber.i("Publishing SitRep");
 
         PowerManagerUtil.acquirePartialWakeLock();
 
         mCustomThreadPoolManager.addRunnable(new Runnable() {
             @Override
             public void run() {
+                if (mPubSocket != null) {
 //                    LOGGER.info("Creating and binding PUB socket with address={}", currentAddress);
-                StringBuilder sitRepMessageToSend = new StringBuilder();
-                sitRepMessageToSend.append(topicPrefix);
-                sitRepMessageToSend.append(StringUtil.SPACE);
-                sitRepMessageToSend.append(message);
+                    StringBuilder sitRepMessageToSend = new StringBuilder();
+                    sitRepMessageToSend.append(topicPrefix);
+                    sitRepMessageToSend.append(StringUtil.SPACE);
+                    sitRepMessageToSend.append(message);
 
-                Timber.i( "Publishing SitRep %s %s" , actionPrefix , message );
+                    Timber.i("Publishing SitRep %s %s", actionPrefix, message);
 
-                mPubSocket.send(sitRepMessageToSend.toString());
+                    mPubSocket.setMaxMsgSize(-1);
+                    mPubSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+                    mPubSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
+                    mPubSocket.setLinger(0);
+                    mPubSocket.setRcvHWM(0);
+                    mPubSocket.setSndHWM(0);
+                    mPubSocket.setImmediate(true);
+                    mPubSocket.setTCPKeepAlive(1);
+                    mPubSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
+                    mPubSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
+                    mPubSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
+                    mPubSocket.setSendTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.setReceiveTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.send(sitRepMessageToSend.toString());
 
-                Timber.i( "SitRep message sent %s" , actionPrefix );
+                    Timber.i("SitRep message sent %s", actionPrefix);
 
-                try {
-                    Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
-                } catch (InterruptedException e) {
-                    Timber.e( "Interrupted while sleeping: %s" , e);
-                    return;
+                    try {
+                        Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
+                    } catch (InterruptedException e) {
+                        Timber.e("Interrupted while sleeping: %s", e);
+                        return;
+                    }
                 }
             }
         });
@@ -313,7 +414,7 @@ public class JeroMQPublisher extends JeroMQParent {
      *
      * @param message
      */
-    public void sendTaskMessage(String message, String actionPrefix) {
+    public synchronized void sendTaskMessage(String message, String actionPrefix) {
 //        for (int i = 0; i < ADDRESSES.size(); i++) {
 //            System.out.println("sendTaskMessage two");
 //            LOGGER.info(" in sendTaskMessage {}", message);
@@ -328,26 +429,186 @@ public class JeroMQPublisher extends JeroMQParent {
             public void run() {
 //                    LOGGER.info("Creating and binding PUB socket with address={}", currentAddress);
 
-                StringBuilder taskMessageToSend = new StringBuilder();
-                taskMessageToSend.append(topicPrefix);
-                taskMessageToSend.append(StringUtil.SPACE);
-                taskMessageToSend.append(message);
+                if (mPubSocket != null) {
+                    StringBuilder taskMessageToSend = new StringBuilder();
+                    taskMessageToSend.append(topicPrefix);
+                    taskMessageToSend.append(StringUtil.SPACE);
+                    taskMessageToSend.append(message);
 
-                Timber.i( "Publishing Task %s  , messge: %s" , actionPrefix, taskMessageToSend );
+                    Timber.i("Publishing Task %s  , messge: %s", actionPrefix, taskMessageToSend);
 
-                mPubSocket.send(taskMessageToSend.toString());
-                Timber.i( "Task message sent %s" , actionPrefix );
+                    mPubSocket.setMaxMsgSize(-1);
+                    mPubSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+                    mPubSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
+                    mPubSocket.setLinger(0);
+                    mPubSocket.setRcvHWM(0);
+                    mPubSocket.setSndHWM(0);
+                    mPubSocket.setImmediate(true);
+                    mPubSocket.setTCPKeepAlive(1);
+                    mPubSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
+                    mPubSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
+                    mPubSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
+                    mPubSocket.setSendTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.setReceiveTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.send(taskMessageToSend.toString());
+                    Timber.i("Task message sent %s", actionPrefix);
 
-                try {
-                    Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
-                } catch (InterruptedException e) {
-                    Timber.i("Interrupted while sleeping: %s" , e);
-                    return;
+                    try {
+                        Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
+                    } catch (InterruptedException e) {
+                        Timber.i("Interrupted while sleeping: %s", e);
+                        return;
+                    }
                 }
             }
         });
 
         PowerManagerUtil.releasePartialWakeLock();
+    }
+
+//    /**
+//     * Send synchronise request message
+//     */
+//    public synchronized void sendSyncReqMessage() {
+//
+//        PowerManagerUtil.acquirePartialWakeLock();
+//
+//        mCustomThreadPoolManager.addRunnable(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                Timber.i( "Publishing %s, message: %s" , TOPIC_SYNC, SYNC_DATA);
+//
+//                mPubSocket.setMaxMsgSize(-1);
+//                mPubSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+//                mPubSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
+//                mPubSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
+//                mPubSocket.setLinger(0);
+//                mPubSocket.setRcvHWM(0);
+//                mPubSocket.setSndHWM(0);
+//                mPubSocket.setImmediate(true);
+//                mPubSocket.setTCPKeepAlive(1);
+//                mPubSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
+//                mPubSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
+//                mPubSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
+//                mPubSocket.setSendTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+//                mPubSocket.setReceiveTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+//                mPubSocket.send(SYNC_DATA);
+//
+//                Timber.i( "Sync message sent");
+//
+//                try {
+//                    Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
+//                } catch (InterruptedException e) {
+//                    Timber.i("Interrupted while sleeping: %s" , e);
+//                    return;
+//                }
+//            }
+//        });
+//
+//        PowerManagerUtil.releasePartialWakeLock();
+//    }
+
+    public synchronized void broadcastSyncData() {
+        broadcastSitRepForSync();
+        broadcastTaskForSync();
+    }
+
+    /**
+     * Synchronise Sit Rep with other users over the network
+     */
+    private synchronized void broadcastSitRepForSync() {
+        Timber.i("Synchronising Sit Rep data...");
+
+        SitRepRepository sitRepRepo = new SitRepRepository((Application) MainApplication.getAppContext());
+
+        SingleObserver<List<SitRepModel>> singleObserverGetAllSitReps = new SingleObserver<List<SitRepModel>>() {
+
+            @Override
+            public void onSubscribe(Disposable d) {
+                // add it to a CompositeDisposable
+            }
+
+            @Override
+            public void onSuccess(List<SitRepModel> sitRepModelList) {
+                Timber.i("onSuccess singleObserverGetAllSitReps, broadcastSitRepForSync. sitRepModelList.size(): %d",
+                        sitRepModelList.size());
+
+                List<String> modelJsonList = new ArrayList<>();
+
+                for (int i = 0; i < sitRepModelList.size(); i++) {
+                    Gson gson = GsonCreator.createGson();
+                    String modelJson = gson.toJson(sitRepModelList.get(i));
+
+                    modelJsonList.add(modelJson);
+
+                    Timber.i("Sending SitRep message: %s", modelJson);
+                }
+
+//                sendSitRepMessageList(serverPairSocket, modelJsonList, JeroMQPublisher.TOPIC_SYNC);
+                for (int i = 0; i < modelJsonList.size(); i++) {
+                    String message = modelJsonList.get(i);
+                    sendSitRepMessage(message, JeroMQPublisher.TOPIC_SYNC);
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+                Timber.e("onError singleObserverGetAllSitReps, broadcastSitRepForSync. Error Msg: %s ", e.toString());
+            }
+        };
+
+        sitRepRepo.getAllSitReps(singleObserverGetAllSitReps);
+    }
+
+    /**
+     * Synchronise Task with other users over the network
+     */
+    private synchronized void broadcastTaskForSync() {
+        Timber.i("Synchronising Task data...");
+
+        TaskRepository taskRepo = new TaskRepository((Application) MainApplication.getAppContext());
+
+        SingleObserver<List<TaskModel>> singleObserverGetAllTasks = new SingleObserver<List<TaskModel>>() {
+
+            @Override
+            public void onSubscribe(Disposable d) {
+                // add it to a CompositeDisposable
+            }
+
+            @Override
+            public void onSuccess(List<TaskModel> taskModelList) {
+                Timber.i("onSuccess singleObserverGetAllTasks, broadcastTaskForSync. taskModelList.size(): %d",
+                        taskModelList.size());
+
+                List<String> modelJsonList = new ArrayList<>();
+
+                for (int i = 0; i < taskModelList.size(); i++) {
+                    Gson gson = GsonCreator.createGson();
+                    String modelJson = gson.toJson(taskModelList.get(i));
+
+                    modelJsonList.add(modelJson);
+
+                    Timber.i("Sending Task message: %s", modelJson);
+                }
+
+                for (int i = 0; i < modelJsonList.size(); i++) {
+                    String message = modelJsonList.get(i);
+                    sendTaskMessage(message, JeroMQPublisher.TOPIC_SYNC);
+                }
+//                sendTaskMessageList(serverPairSocket, modelJsonList, JeroMQPublisher.TOPIC_SYNC);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+                Timber.e("onError singleObserverGetAllTasks, broadcastTaskForSync. Error Msg: %s ", e.toString());
+            }
+        };
+
+        taskRepo.getAllTasks(singleObserverGetAllTasks);
     }
 
     /**
@@ -367,106 +628,40 @@ public class JeroMQPublisher extends JeroMQParent {
         return topicPrefix.toString();
     }
 
-//    /**
-//     * Broadcasts UserSitRepJoin JSON message to all relevant devices for data storage
-//     *
-//     * @param message
-//     */
-//    public void sendUserSitRepJoinMessage(String message) {
-////        for (int i = 0; i < ADDRESSES.size(); i++) {
-////            System.out.println("sendTaskMessage two");
-////            LOGGER.info(" in sendTaskMessage {}", message);
-////            final String currentAddress = ADDRESSES.get(i);
-//
-//        mExecutorService.submit(new Runnable() {
-//            @Override
-//            public void run() {
-////                    LOGGER.info("Creating and binding PUB socket with address={}", currentAddress);
-//
-//                StringBuilder userSitRepJoinMessageToSend = new StringBuilder();
-//                userSitRepJoinMessageToSend.append(TOPIC_PREFIX_USER_SITREP_JOIN);
-//                userSitRepJoinMessageToSend.append(" ");
-//                userSitRepJoinMessageToSend.append(message);
-//
-//                Log.i(TAG, "Publishing UserSitRepJoin message: " + userSitRepJoinMessageToSend + "...");
-//
-//                mSocket.send(userSitRepJoinMessageToSend.toString());
-//
-//                Log.i(TAG, "UserSitRepJoin message sent");
-//                try {
-//                    Thread.sleep(1000);
-//                } catch (InterruptedException e) {
-//                    Log.e(TAG, "Interrupted while sleeping: " + e);
-//                    return;
-//                }
-//            }
-//        });
-//    }
-//
-//    /**
-//     * Broadcasts UserTaskJoin JSON message to all relevant devices for data storage
-//     *
-//     * @param message
-//     */
-//    public void sendUserTaskJoinMessage(String message) {
-////        for (int i = 0; i < ADDRESSES.size(); i++) {
-////            System.out.println("sendTaskMessage two");
-////            LOGGER.info(" in sendTaskMessage {}", message);
-////            final String currentAddress = ADDRESSES.get(i);
-//
-//        mExecutorService.submit(new Runnable() {
-//            @Override
-//            public void run() {
-////                    LOGGER.info("Creating and binding PUB socket with address={}", currentAddress);
-//
-//                StringBuilder userTaskJoinMessageToSend = new StringBuilder();
-//                userTaskJoinMessageToSend.append(TOPIC_PREFIX_USER_TASK_JOIN);
-//                userTaskJoinMessageToSend.append(" ");
-//                userTaskJoinMessageToSend.append(message);
-//
-//                Log.i(TAG, "Publishing UserTaskJoin message: " + userTaskJoinMessageToSend + "...");
-//
-//                mSocket.send(userTaskJoinMessageToSend.toString());
-//
-//                Log.i(TAG, "UserTaskJoin message sent");
-//                try {
-//                    Thread.sleep(1000);
-//                } catch (InterruptedException e) {
-//                    Log.e(TAG, "Interrupted while sleeping: " + e);
-//                    return;
-//                }
-//            }
-//        });
-//    }
-
     /**
      * Disconnect sockets when thread is closed
      */
     @Override
-    public void stop() {
+    public synchronized void stop() {
         super.stop();
 
 //        CloseSocketAsyncTask task = new CloseSocketAsyncTask(mZContext, mPubSocket);
 //        task.execute();
 
-        if (mPubSocket != null) {
-            mPubSocket.unbind(SERVER_PUB_IP_ADDRESS);
-            Timber.i("Server pub socket unbound.");
+        if (isSocketStarted) {
+//            if (mPubSocket != null) {
+//                mPubSocket.unbind(SERVER_PUB_IP_ADDRESS);
+//                Timber.i("Server pub socket unbound.");
+//
+//                mPubSocket.close();
+//                Timber.i("Server pub socket closed.");
+//
+//                if (mZContext != null) {
+//                    mZContext.destroySocket(mPubSocket);
+//                    Timber.i("Server pub socket destroyed.");
+//                }
+//
+//            }
 
-            mPubSocket.close();
-            Timber.i("Server pub socket closed.");
+            if (mZContext != null && !mZContext.isClosed()) {
+                Timber.i("Destroying ZContext.");
 
-            if (mZContext != null) {
-                mZContext.destroySocket(mPubSocket);
-                Timber.i("Server pub socket destroyed.");
+                mZContext.destroy();
+                Timber.i("ZContext destroyed.");
             }
-        }
 
-        if (mZContext != null && !mZContext.isClosed()) {
-            Timber.i("Destroying ZContext.");
-
-            mZContext.destroy();
-            Timber.i("ZContext destroyed.");
+            mPubSocket = null;
+            isSocketStarted = false;
         }
     }
 }

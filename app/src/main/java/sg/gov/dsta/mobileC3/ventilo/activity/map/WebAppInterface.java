@@ -55,7 +55,7 @@ public class WebAppInterface {
         Log.d(TAG, "2.manualLocationUpdateinPixels: " + Double.parseDouble(xyz[0]) + "," + Double.parseDouble(xyz[1]));
         Log.d(TAG, "3.manualLocationUpdateinPixels: " + pref.getMetresFromPixels(Double.parseDouble(xyz[0])) + "," + pref.getMetresFromPixels(Double.parseDouble(xyz[1])));
 
-        tracker.setManualLocation(new Coords(0, 0, Double.parseDouble(xyz[2]), 0, 0, 0, 0, pref.getMetresFromPixels(Double.parseDouble(xyz[0])), pref.getMetresFromPixels(Double.parseDouble(xyz[1])), null));
+        tracker.setManualLocation(new Coords(0, 0, Double.parseDouble(xyz[2]), 90, 0, 0, 0, pref.getMetresFromPixels(Double.parseDouble(xyz[0])), pref.getMetresFromPixels(Double.parseDouble(xyz[1])), null));
 
         mIsLocationInitialised = true;
     }
@@ -159,10 +159,9 @@ public class WebAppInterface {
     @JavascriptInterface
     public void deleteMarker(String bftId) {
         Timber.i("Deleting bftId: %d", Long.valueOf(bftId));
-        DatabaseOperation databaseOperation = new DatabaseOperation();
         BFTRepository bftRepository = new BFTRepository((Application)
                 MainApplication.getAppContext());
-        databaseOperation.deleteBftInDatabase(bftRepository, Long.valueOf(bftId));
+        DatabaseOperation.getInstance().deleteBftInDatabase(bftRepository, Long.valueOf(bftId));
     }
 
     /**
@@ -214,16 +213,6 @@ public class WebAppInterface {
 
                 bftModel.setRefId(bftId);
                 bFTRepository.updateBFT(bftModel);
-
-                String currentTimeToDisplay = DateTimeUtil.dateToCustomTimeStringFormat(
-                        DateTimeUtil.stringToDate(bftModel.getCreatedDateTime()));
-
-                String currentCoordMsg = bftModel.getRefId() + "," + bftModel.getXCoord() +
-                        "," + bftModel.getYCoord() + "," + bftModel.getAltitude() +
-                        "," + bftModel.getBearing() + "," + bftModel.getUserId() +
-                        "," + bftModel.getType() + "," + currentTimeToDisplay;
-
-                MapShipBlueprintFragment.androidToJsCreateObjectAtLocation(currentCoordMsg);
             }
 
             @Override

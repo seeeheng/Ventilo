@@ -32,7 +32,7 @@ public class WaveRelayRadioRepository {
      *
      * @param singleObserver
      */
-    public void getAllWaveRelayRadios(SingleObserver singleObserver) {
+    public synchronized void getAllWaveRelayRadios(SingleObserver singleObserver) {
         QueryAllWaveRelayRadiosAsyncTask task = new
                 QueryAllWaveRelayRadiosAsyncTask(mWaveRelayRadioDao, singleObserver);
 
@@ -52,7 +52,7 @@ public class WaveRelayRadioRepository {
      * @param radioId
      * @param singleObserver
      */
-    public void queryRadioByRadioId(long radioId, SingleObserver<WaveRelayRadioModel> singleObserver) {
+    public synchronized void queryRadioByRadioId(long radioId, SingleObserver<WaveRelayRadioModel> singleObserver) {
         Single<WaveRelayRadioModel> single = mWaveRelayRadioDao.getRadioByRadioId(radioId);
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -65,7 +65,7 @@ public class WaveRelayRadioRepository {
      * @param userId
      * @param singleObserver
      */
-    public void queryRadioByUserId(String userId, SingleObserver<WaveRelayRadioModel> singleObserver) {
+    public synchronized void queryRadioByUserId(String userId, SingleObserver<WaveRelayRadioModel> singleObserver) {
         Single<WaveRelayRadioModel> single = mWaveRelayRadioDao.getRadioByUserId(userId);
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -78,7 +78,7 @@ public class WaveRelayRadioRepository {
      * @param radioIPAddress
      * @param singleObserver
      */
-    public void queryRadioByRadioIPAddress(String radioIPAddress, SingleObserver<WaveRelayRadioModel> singleObserver) {
+    public synchronized void queryRadioByRadioIPAddress(String radioIPAddress, SingleObserver<WaveRelayRadioModel> singleObserver) {
         Single<WaveRelayRadioModel> single = mWaveRelayRadioDao.getRadioByRadioIPAddress(radioIPAddress);
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -90,7 +90,7 @@ public class WaveRelayRadioRepository {
      *
      * @param waveRelayRadioModel
      */
-    public void insertWaveRelayRadio(WaveRelayRadioModel waveRelayRadioModel) {
+    public synchronized void insertWaveRelayRadio(WaveRelayRadioModel waveRelayRadioModel) {
         InsertAsyncTask task = new InsertAsyncTask(mWaveRelayRadioDao);
 
         Runnable runnable = new Runnable() {
@@ -108,7 +108,7 @@ public class WaveRelayRadioRepository {
      *
      * @param waveRelayRadioModel
      */
-    public void updateWaveRelayRadio(WaveRelayRadioModel waveRelayRadioModel) {
+    public synchronized void updateWaveRelayRadio(WaveRelayRadioModel waveRelayRadioModel) {
         UpdateAsyncTask task = new UpdateAsyncTask(mWaveRelayRadioDao);
 
         Runnable runnable = new Runnable() {
@@ -126,7 +126,7 @@ public class WaveRelayRadioRepository {
      *
      * @param radioId
      */
-    public void deleteWaveRelayRadio(long radioId) {
+    public synchronized void deleteWaveRelayRadio(long radioId) {
         DeleteAsyncTask task = new DeleteAsyncTask(mWaveRelayRadioDao);
 
         Runnable runnable = new Runnable() {

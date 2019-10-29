@@ -26,7 +26,7 @@ public class UserSitRepJoinRepository {
         mUserSitRepJoinDao = db.userSitRepDao();
     }
 
-    public void addUserSitRepJoin(UserSitRepJoinModel userSitRepJoinModel) {
+    public synchronized void addUserSitRepJoin(UserSitRepJoinModel userSitRepJoinModel) {
         InsertAsyncTask task = new InsertAsyncTask(mUserSitRepJoinDao);
 
         Runnable runnable = new Runnable() {
@@ -39,14 +39,14 @@ public class UserSitRepJoinRepository {
         CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
-    public void querySitRepsForUser(String userId, SingleObserver<List<SitRepModel>> singleObserver) {
+    public synchronized void querySitRepsForUser(String userId, SingleObserver<List<SitRepModel>> singleObserver) {
         Single<List<SitRepModel>> single = mUserSitRepJoinDao.querySitRepsForUser(userId);
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(singleObserver);
     }
 
-    public void queryUsersForSitRep(long sitRepId, SingleObserver<List<UserModel>> singleObserver) {
+    public synchronized void queryUsersForSitRep(long sitRepId, SingleObserver<List<UserModel>> singleObserver) {
         Single<List<UserModel>> single = mUserSitRepJoinDao.queryUsersForSitRep(sitRepId);
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

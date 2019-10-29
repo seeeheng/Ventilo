@@ -19,11 +19,9 @@ public class JeroMQClientPair extends JeroMQParent implements JeroMQClientPairRu
 
     private static volatile JeroMQClientPair instance;
 
-    private List<String> mClientPairEndpointList;
-    private List<Socket> mSocketList;
-
     private ZContext mZContext;
     private JeroMQClientPairRunnable mJeroMQClientPairRunnable;
+    private ZMQ.Poller mPoller;
 //    private Socket mSubSocket;
 
     private String mTargetPhoneIPAddress;
@@ -34,8 +32,11 @@ public class JeroMQClientPair extends JeroMQParent implements JeroMQClientPairRu
     private JeroMQClientPair() {
         super(CustomThreadPoolManager.getInstance());
         mZContext = new ZContext();
-        mClientPairEndpointList = new ArrayList<>();
-        mSocketList = new ArrayList<>();
+        mZContext.setLinger(0);
+        mZContext.setRcvHWM(0);
+        mZContext.setSndHWM(0);
+
+        mPoller = mZContext.createPoller(10);
     }
 
     /**
@@ -49,6 +50,7 @@ public class JeroMQClientPair extends JeroMQParent implements JeroMQClientPairRu
             synchronized (JeroMQClientPair.class) {
                 if (instance == null) {
                     instance = new JeroMQClientPair();
+
                 } else {
                     instance.initCustomThreadPoolManagerService();
                 }
@@ -62,9 +64,10 @@ public class JeroMQClientPair extends JeroMQParent implements JeroMQClientPairRu
 
     /**
      * Set target phone IP address to unicast message
+     *
      * @param targetPhoneIPAddress
      */
-    public void setTargetPhoneIPAddress(String targetPhoneIPAddress) {
+    public synchronized void setTargetPhoneIPAddress(String targetPhoneIPAddress) {
         Timber.i("Target Phone IP Address: %s ", targetPhoneIPAddress);
         mTargetPhoneIPAddress = targetPhoneIPAddress;
     }
@@ -72,21 +75,42 @@ public class JeroMQClientPair extends JeroMQParent implements JeroMQClientPairRu
     /**
      * Send synchronise request message
      */
-    public void sendSyncReqMessage() {
+    public synchronized void sendSyncReqMessage() {
 
-        if (mTargetPhoneIPAddress != null) {
+        if (mTargetPhoneIPAddress != null && mPoller != null) {
             Socket socket = null;
 
-            for (int i = 0; i < mSocketList.size(); i++) {
-                Timber.i("Socket list, Socket (%d) last endpoint: %s",
-                        i,  mSocketList.get(i).getLastEndpoint());
+            for (int i = 0; i < mPoller.getSize(); i++) {
 
-                String endpoint = "tcp://";
-                endpoint = endpoint.concat(mTargetPhoneIPAddress).concat(StringUtil.COLON);
-                endpoint = endpoint.concat(String.valueOf(PAIR_PORT));
+                if (mPoller.getItem(i) != null) {
 
-                if (endpoint.equalsIgnoreCase(mSocketList.get(i).getLastEndpoint())) {
-                    socket = mSocketList.get(i);
+                    socket = mPoller.getItem(i).getSocket();
+
+                    Timber.i("Poller list, Poller item (%d) last endpoint: %s",
+                            i, socket.getLastEndpoint());
+
+                    String endpoint = "tcp://";
+                    endpoint = endpoint.concat(mTargetPhoneIPAddress).concat(StringUtil.COLON);
+                    endpoint = endpoint.concat(String.valueOf(PAIR_PORT));
+
+                    if (endpoint.equalsIgnoreCase(socket.getLastEndpoint())) {
+                        socket.setMaxMsgSize(-1);
+                        socket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+                        socket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
+                        socket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
+                        socket.setLinger(0);
+                        socket.setRcvHWM(0);
+                        socket.setSndHWM(0);
+                        socket.setImmediate(true);
+                        socket.setTCPKeepAlive(1);
+                        socket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
+                        socket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
+                        socket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
+                        socket.setSendTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                        socket.setReceiveTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+
+                        break;
+                    }
                 }
             }
 
@@ -103,7 +127,7 @@ public class JeroMQClientPair extends JeroMQParent implements JeroMQClientPairRu
      * Topics are defined as the first word of each incoming message
      */
     @Override
-    protected void startProcess() {
+    protected synchronized void startProcess() {
 
         if (mTargetPhoneIPAddress != null) {
             boolean isTargetEndpointFound = false;
@@ -114,8 +138,10 @@ public class JeroMQClientPair extends JeroMQParent implements JeroMQClientPairRu
 
             Timber.i("Endpoint %s ", endpoint);
 
-            for (int i = 0; i < mClientPairEndpointList.size(); i++) {
-                if (endpoint.equalsIgnoreCase(mClientPairEndpointList.get(i))) {
+            for (int i = 0; i < mPoller.getSize(); i++) {
+
+                if (mPoller.getItem(i) != null && endpoint.
+                        equalsIgnoreCase(mPoller.getSocket(i).getLastEndpoint())) {
                     isTargetEndpointFound = true;
                 }
             }
@@ -123,38 +149,48 @@ public class JeroMQClientPair extends JeroMQParent implements JeroMQClientPairRu
             if (!isTargetEndpointFound) {
                 Timber.i("Start new client pair socket connection");
 
-                mClientPairEndpointList.add(endpoint);
-
                 Timber.i("Creating and connecting client pair socket...");
 
                 PowerManagerUtil.acquirePartialWakeLock();
 
-                for (int i = 0; i < mClientPairEndpointList.size(); i++) {
-                    Socket socket = mZContext.createSocket(SocketType.PAIR);
-//            socket.setHWM(5000);
-                    socket.setMaxMsgSize(-1);
-                    socket.setLinger(0);
-                    socket.connect(mClientPairEndpointList.get(i));
-                    mSocketList.add(socket);
-                }
+                Socket socket = mZContext.createSocket(SocketType.PAIR);
+                socket.setMaxMsgSize(-1);
+                socket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+                socket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
+                socket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
+                socket.setLinger(0);
+                socket.setRcvHWM(0);
+                socket.setSndHWM(0);
+                socket.setImmediate(true);
+                socket.setTCPKeepAlive(1);
+                socket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
+                socket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
+                socket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
+                socket.setSendTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                socket.setReceiveTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                socket.connect(endpoint);
 
                 Timber.i("Client pair socket connected");
 
-                //  Initialize poll set
-                ZMQ.Poller items = mZContext.createPoller(mSocketList.size());
-                for (int i = 0; i < mSocketList.size(); i++) {
-                    items.register(mSocketList.get(i), ZMQ.Poller.POLLIN);
+                if (mJeroMQClientPairRunnable == null) {
+                    Timber.i("Creating new client pair runnable...");
+                    mPoller.register(socket, ZMQ.Poller.POLLIN);
+                    mJeroMQClientPairRunnable = new JeroMQClientPairRunnable(mZContext,
+                            mPoller, JeroMQClientPair.this);
+
+                    mCustomThreadPoolManager.addRunnable(mJeroMQClientPairRunnable);
+
+                } else {
+                    Timber.i("Client pair runnable exists, adding socket to poller...");
+                    mJeroMQClientPairRunnable.addPollerItem(socket);
+
                 }
-
-                mJeroMQClientPairRunnable = new JeroMQClientPairRunnable(mSocketList, items,
-                        JeroMQClientPair.this);
-
-                mCustomThreadPoolManager.addRunnable(mJeroMQClientPairRunnable);
 
                 PowerManagerUtil.releasePartialWakeLock();
 
             } else {
                 Timber.i("Client pair socket connection has already been established.");
+
             }
         }
     }
@@ -173,22 +209,22 @@ public class JeroMQClientPair extends JeroMQParent implements JeroMQClientPairRu
 
     @Override
     public void closeSockets() {
-        if (mZContext != null) {
-            for (int i = 0; i < mSocketList.size(); i++) {
-                Socket socket = mSocketList.get(i);
-
-                if (mClientPairEndpointList != null &&
-                        mClientPairEndpointList.get(i) != null) {
-                    socket.disconnect(mClientPairEndpointList.get(i));
-                    Timber.i("Client pair socket disconnected %d", i);
-
-                    socket.close();
-                    Timber.i("Client pair socket closed %d", i);
-                }
-
-                mZContext.destroySocket(socket);
-                Timber.i("Client pair socket destroyed %d", i);
-            }
+        if (mZContext != null && mPoller != null) {
+//            for (int i = 0; i < mPoller.getSize(); i++) {
+//                Socket socket = mPoller.getItem(i).getSocket();
+//                String socketEndpoint = socket.getLastEndpoint();
+//
+//                if (socketEndpoint != null) {
+//                    socket.disconnect(socketEndpoint);
+//                    Timber.i("Client pair socket disconnected %d", i);
+//
+//                    socket.close();
+//                    Timber.i("Client pair socket closed %d", i);
+//                }
+//
+//                mZContext.destroySocket(socket);
+//                Timber.i("Client pair socket destroyed %d", i);
+//            }
         }
 
         if (mZContext != null && !mZContext.isClosed()) {

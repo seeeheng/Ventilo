@@ -39,7 +39,7 @@ function loadLeaflet(imageoverlay, lowerleftx, lowerlefty, upperrightx, upperrig
 }
 
 var hazardIcon = L.icon({
-    iconUrl: 'icon_hazard.png',
+    iconUrl: '../js/icon_hazard.png',
     iconSize:     [20, 20], // size of the icon
     iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
     popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
@@ -47,7 +47,7 @@ var hazardIcon = L.icon({
 });
 
 var hazardStaleIcon = L.icon({
-    iconUrl: 'icon_hazard_stale.png',
+    iconUrl: '../js/icon_hazard_stale.png',
     iconSize:     [20, 20], // size of the icon
     iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
     popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
@@ -55,7 +55,7 @@ var hazardStaleIcon = L.icon({
 });
 
 var deceasedIcon = L.icon({
-    iconUrl: 'icon_deceased.png',
+    iconUrl: '../js/icon_deceased.png',
     iconSize:     [20, 20], // size of the icon
     iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
     popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
@@ -63,7 +63,7 @@ var deceasedIcon = L.icon({
 });
 
 var deceasedStaleIcon = L.icon({
-    iconUrl: 'icon_deceased_stale.png',
+    iconUrl: '../js/icon_deceased_stale.png',
     iconSize:     [20, 20], // size of the icon
     iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
     popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
@@ -71,7 +71,7 @@ var deceasedStaleIcon = L.icon({
 });
 
 var ownWalkingIcon = L.icon({
-    iconUrl: 'icon_own_online_direction.png',
+    iconUrl: '../js/icon_own_online_direction.png',
 
 //    iconSize:     [30, 30], // size of the icon
 //    iconAnchor:   [15, 29], // point of the icon which will correspond to marker's location
@@ -90,7 +90,7 @@ var ownWalkingIcon = L.icon({
 });
 
 var ownStandingIcon = L.icon({
-    iconUrl: 'icon_own_online.png',
+    iconUrl: '../js/icon_own_online.png',
     iconSize:     [20, 20], // size of the icon
     iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
     popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
@@ -98,7 +98,7 @@ var ownStandingIcon = L.icon({
 });
 
 var ownNavigatingIcon = L.icon({
-    iconUrl: 'icon_own_online_direction.png',
+    iconUrl: '../js/icon_own_online_direction.png',
 
     iconSize:     [30, 30], // size of the icon
     iconAnchor:   [15, 15], // point of the icon which will correspond to marker's location
@@ -112,7 +112,7 @@ var ownNavigatingIcon = L.icon({
 });
 
 var allyStandingIcon = L.icon({
-    iconUrl: 'icon_ally.png',
+    iconUrl: '../js/icon_ally.png',
     iconSize:     [20, 20], // size of the icon
     iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
     popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
@@ -120,7 +120,7 @@ var allyStandingIcon = L.icon({
 });
 
 var allyStandingStaleIcon = L.icon({
-    iconUrl: 'icon_own_stale.png',
+    iconUrl: '../js/icon_own_stale.png',
     iconSize:     [20, 20], // size of the icon
     iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
     popupAnchor:  [-6, -50], // point from which the popup should open relative to the iconAnchor
@@ -128,7 +128,7 @@ var allyStandingStaleIcon = L.icon({
 });
 
 var allyNavigatingIcon = L.icon({
-    iconUrl: 'icon_ally_direction.png',
+    iconUrl: '../js/icon_ally_direction.png',
     iconSize:     [30, 30], // size of the icon
     iconAnchor:   [15, 15], // point of the icon which will correspond to marker's location
 //    popupAnchor:  [-10, -76], // point from which the popup should open relative to the iconAnchor
@@ -136,7 +136,7 @@ var allyNavigatingIcon = L.icon({
 });
 
 var allyNavigatingStaleIcon = L.icon({
-    iconUrl: 'icon_own_direction_stale.png',
+    iconUrl: '../js/icon_own_direction_stale.png',
     iconSize:     [30, 30], // size of the icon
     iconAnchor:   [15, 15], // point of the icon which will correspond to marker's location
 //    popupAnchor:  [-10, -76], // point from which the popup should open relative to the iconAnchor

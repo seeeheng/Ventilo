@@ -2,6 +2,7 @@ package sg.gov.dsta.mobileC3.ventilo.activity.videostream;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -66,7 +67,8 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -253,6 +255,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 
     // Screenshot
     Bitmap mBitmapTakenScreenshot;
+    String mScreenshotImageAbsolutePath;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -375,9 +378,9 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         mTvStreamOne = mLayoutVideoStreamContainerOne.
                 findViewById(R.id.tv_stream_no_video_selected);
 
-        mVideoStreamControllerViewOne = new VideoStreamControllerView(getContext(), false);
+        mVideoStreamControllerViewOne = new VideoStreamControllerView(MainApplication.getAppContext(), false);
         mVideoStreamControllerViewOne.setMediaPlayer(videoStreamPlayerOneInterface);
-        mMediaPlayerOne = ExoPlayerFactory.newSimpleInstance(getContext());
+        mMediaPlayerOne = ExoPlayerFactory.newSimpleInstance(MainApplication.getAppContext());
         mMediaPlayerOne.setVideoTextureView(mSurfaceViewOne);
         Player.EventListener playerListener = getPlayerEventListener(mTvStreamOne,
                 progressBar);
@@ -435,8 +438,8 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         mTvStreamTwo = mLayoutVideoStreamContainerTwo.
                 findViewById(R.id.tv_stream_no_video_selected);
 
-        mVideoStreamControllerViewTwo = new VideoStreamControllerView(getContext(), false);
-        mMediaPlayerTwo = ExoPlayerFactory.newSimpleInstance(getContext());
+        mVideoStreamControllerViewTwo = new VideoStreamControllerView(MainApplication.getAppContext(), false);
+        mMediaPlayerTwo = ExoPlayerFactory.newSimpleInstance(MainApplication.getAppContext());
         mMediaPlayerTwo.setVideoTextureView(mSurfaceViewTwo);
 
         VideoStreamControllerView.MediaPlayerControl videoStreamPlayerInterface =
@@ -500,8 +503,8 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         mTvStreamThree = mLayoutVideoStreamContainerThree.
                 findViewById(R.id.tv_stream_no_video_selected);
 
-        mVideoStreamControllerViewThree = new VideoStreamControllerView(getContext(), false);
-        mMediaPlayerThree = ExoPlayerFactory.newSimpleInstance(getContext());
+        mVideoStreamControllerViewThree = new VideoStreamControllerView(MainApplication.getAppContext(), false);
+        mMediaPlayerThree = ExoPlayerFactory.newSimpleInstance(MainApplication.getAppContext());
         mMediaPlayerThree.setVideoTextureView(mSurfaceViewThree);
 
         VideoStreamControllerView.MediaPlayerControl videoStreamPlayerInterface =
@@ -565,8 +568,8 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         mTvStreamFour = mLayoutVideoStreamContainerFour.
                 findViewById(R.id.tv_stream_no_video_selected);
 
-        mVideoStreamControllerViewFour = new VideoStreamControllerView(getContext(), false);
-        mMediaPlayerFour = ExoPlayerFactory.newSimpleInstance(getContext());
+        mVideoStreamControllerViewFour = new VideoStreamControllerView(MainApplication.getAppContext(), false);
+        mMediaPlayerFour = ExoPlayerFactory.newSimpleInstance(MainApplication.getAppContext());
         mMediaPlayerFour.setVideoTextureView(mSurfaceViewFour);
 
         VideoStreamControllerView.MediaPlayerControl videoStreamPlayerInterface =
@@ -630,8 +633,8 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         mTvStreamFive = mLayoutVideoStreamContainerFive.
                 findViewById(R.id.tv_stream_no_video_selected);
 
-        mVideoStreamControllerViewFive = new VideoStreamControllerView(getContext(), false);
-        mMediaPlayerFive = ExoPlayerFactory.newSimpleInstance(getContext());
+        mVideoStreamControllerViewFive = new VideoStreamControllerView(MainApplication.getAppContext(), false);
+        mMediaPlayerFive = ExoPlayerFactory.newSimpleInstance(MainApplication.getAppContext());
         mMediaPlayerFive.setVideoTextureView(mSurfaceViewFive);
 
         VideoStreamControllerView.MediaPlayerControl videoStreamPlayerInterface =
@@ -695,8 +698,8 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         mTvStreamSix = mLayoutVideoStreamContainerSix.
                 findViewById(R.id.tv_stream_no_video_selected);
 
-        mVideoStreamControllerViewSix = new VideoStreamControllerView(getContext(), false);
-        mMediaPlayerSix = ExoPlayerFactory.newSimpleInstance(getContext());
+        mVideoStreamControllerViewSix = new VideoStreamControllerView(MainApplication.getAppContext(), false);
+        mMediaPlayerSix = ExoPlayerFactory.newSimpleInstance(MainApplication.getAppContext());
         mMediaPlayerSix.setVideoTextureView(mSurfaceViewSix);
 
         VideoStreamControllerView.MediaPlayerControl videoStreamPlayerInterface =
@@ -911,7 +914,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 //            mMediaPlayerOne = ExoPlayerFactory.newSimpleInstance(getContext(),
 //                    new DefaultRenderersFactory(getActivity()), trackSelector, loadControl);
 
-            mMediaPlayerOne = ExoPlayerFactory.newSimpleInstance(getContext());
+            mMediaPlayerOne = ExoPlayerFactory.newSimpleInstance(MainApplication.getAppContext());
 //            ExoPlayerFactory.newSimpleInstance(
 //                    /* context= */ this, new DefaultRenderersFactory(getContext()), videoTrackSelectionFactory, null);
             mMediaPlayerOne.setVideoTextureView(mSurfaceViewOne);
@@ -919,27 +922,27 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         }
 
         if (mSurfaceViewTwo != null && mMediaPlayerTwo == null) {
-            mMediaPlayerTwo = ExoPlayerFactory.newSimpleInstance(getContext());
+            mMediaPlayerTwo = ExoPlayerFactory.newSimpleInstance(MainApplication.getAppContext());
             mMediaPlayerTwo.setVideoTextureView(mSurfaceViewTwo);
         }
 
         if (mSurfaceViewThree != null && mMediaPlayerThree == null) {
-            mMediaPlayerThree = ExoPlayerFactory.newSimpleInstance(getContext());
+            mMediaPlayerThree = ExoPlayerFactory.newSimpleInstance(MainApplication.getAppContext());
             mMediaPlayerThree.setVideoTextureView(mSurfaceViewThree);
         }
 
         if (mSurfaceViewFour != null && mMediaPlayerFour == null) {
-            mMediaPlayerFour = ExoPlayerFactory.newSimpleInstance(getContext());
+            mMediaPlayerFour = ExoPlayerFactory.newSimpleInstance(MainApplication.getAppContext());
             mMediaPlayerFour.setVideoTextureView(mSurfaceViewFour);
         }
 
         if (mSurfaceViewFive != null && mMediaPlayerFive == null) {
-            mMediaPlayerFive = ExoPlayerFactory.newSimpleInstance(getContext());
+            mMediaPlayerFive = ExoPlayerFactory.newSimpleInstance(MainApplication.getAppContext());
             mMediaPlayerFive.setVideoTextureView(mSurfaceViewFive);
         }
 
         if (mSurfaceViewSix != null && mMediaPlayerSix == null) {
-            mMediaPlayerSix = ExoPlayerFactory.newSimpleInstance(getContext());
+            mMediaPlayerSix = ExoPlayerFactory.newSimpleInstance(MainApplication.getAppContext());
             mMediaPlayerSix.setVideoTextureView(mSurfaceViewSix);
         }
     }
@@ -977,11 +980,18 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                     mBitmapTakenScreenshot = mSurfaceViewOne.getBitmap();
 
                     if (mBitmapTakenScreenshot != null) {
-                        String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
-                                mBitmapTakenScreenshot, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
-                    System.out.println("imagePath is " + imagePath);
+//                        String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
+//                                mBitmapTakenScreenshot, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
 
-                        if (imagePath != null && getSnackbarView() != null) {
+                        mScreenshotImageAbsolutePath = PhotoCaptureUtil.storeFileIntoPhoneMemory(mBitmapTakenScreenshot, 1);
+
+                        if (mScreenshotImageAbsolutePath != null && getSnackbarView() != null) {
+
+                            File compressedBitmapFile = new File(mScreenshotImageAbsolutePath);
+
+                            // This refreshes the photo Gallery app in Android to display the updated list
+                            getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(compressedBitmapFile)));
+
                             StringBuilder screenshotStringBuilder = new StringBuilder();
                             screenshotStringBuilder.append(MainApplication.getAppContext().
                                     getString(R.string.snackbar_screenshot_taken_message));
@@ -1086,11 +1096,18 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 mBitmapTakenScreenshot = textureView.getBitmap();
 
                 if (mBitmapTakenScreenshot != null) {
-                    String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
-                            mBitmapTakenScreenshot, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
-                System.out.println("imagePath is " + imagePath);
+//                    String imagePath = PhotoCaptureUtil.insertImage(getActivity().getContentResolver(),
+//                            mBitmapTakenScreenshot, "Video_Streaming_Screenshot.jpg", "VLC screenshot");
 
-                    if (imagePath != null && getSnackbarView() != null) {
+                    mScreenshotImageAbsolutePath = PhotoCaptureUtil.storeFileIntoPhoneMemory(mBitmapTakenScreenshot, 1);
+
+                    if (mScreenshotImageAbsolutePath != null && getSnackbarView() != null) {
+
+                        File compressedBitmapFile = new File(mScreenshotImageAbsolutePath);
+
+                        // This refreshes the photo Gallery app in Android to display the updated list
+                        getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(compressedBitmapFile)));
+
                         StringBuilder screenshotStringBuilder = new StringBuilder();
                         screenshotStringBuilder.append(MainApplication.getAppContext().
                                 getString(R.string.snackbar_screenshot_taken_message));
@@ -1355,7 +1372,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 99,
-                new LinearLayout(getContext()));
+                new LinearLayout(MainApplication.getAppContext()));
 
         DimensionUtil.setMargins(linearLayout,
                 (int) getResources().getDimension(R.dimen.elements_margin_spacing),
@@ -1364,12 +1381,12 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         DimensionUtil.setDimensions(parentConstraintLayout,
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                new LinearLayout(getContext()));
+                new LinearLayout(MainApplication.getAppContext()));
 
         DimensionUtil.setDimensions(childConstraintLayout,
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 (int) getResources().getDimension(R.dimen.video_stream_single_texture_view_height),
-                new LinearLayout(getContext()));
+                new LinearLayout(MainApplication.getAppContext()));
 
 //        ConstraintSet constraintSet = new ConstraintSet();
 //        constraintSet.clone(constraintLayout);
@@ -1401,7 +1418,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 
         DimensionUtil.setDimensions(linearLayout,
                 0, LinearLayout.LayoutParams.WRAP_CONTENT,
-                33, new LinearLayout(getContext()));
+                33, new LinearLayout(MainApplication.getAppContext()));
 
         DimensionUtil.setMargins(linearLayout,
                 (int) getResources().getDimension(R.dimen.elements_margin_spacing),
@@ -1410,12 +1427,12 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         DimensionUtil.setDimensions(parentConstraintLayout,
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                new LinearLayout(getContext()));
+                new LinearLayout(MainApplication.getAppContext()));
 
         DimensionUtil.setDimensions(childConstraintLayout,
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 (int) getResources().getDimension(R.dimen.video_stream_six_texture_view_height),
-                new LinearLayout(getContext()));
+                new LinearLayout(MainApplication.getAppContext()));
     }
 
     /**
@@ -1444,7 +1461,7 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         DimensionUtil.setDimensions(view,
                 DimensionUtil.getScreenWidth(),
                 DimensionUtil.getScreenHeightWithoutNavAndStatusBar(),
-                new LinearLayout(getContext()));
+                new LinearLayout(MainApplication.getAppContext()));
 
         DimensionUtil.setMargins(view, 0, 0, 0, 0);
     }
@@ -1684,8 +1701,8 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         // Measures bandwidth during playback. Can be null if not required.
         DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         // Produces DataSource instances through which media data is loaded.
-        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(),
-                Util.getUserAgent(getContext(), MainApplication.getAppContext().
+        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(MainApplication.getAppContext(),
+                Util.getUserAgent(MainApplication.getAppContext(), MainApplication.getAppContext().
                         getString(R.string.app_name)), bandwidthMeter);
 
 //        DataSource.Factory dataSourceFactory = new DefaultHttpDataSourceFactory("exoplayer-codelab");
@@ -2247,15 +2264,18 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
 
     @Override
     public void onSnackbarActionClick() {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        mBitmapTakenScreenshot.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] takenScreenshotByteArray = stream.toByteArray();
+//        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//        mBitmapTakenScreenshot.compress(Bitmap.CompressFormat.PNG, 100, stream);
+//        byte[] takenScreenshotByteArray = stream.toByteArray();
 
         Fragment sitRepAddUpdateFragment = new SitRepAddUpdateFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString(FragmentConstants.KEY_SITREP, FragmentConstants.VALUE_SITREP_ADD);
-        bundle.putByteArray(FragmentConstants.KEY_SITREP_PICTURE, takenScreenshotByteArray);
-        sitRepAddUpdateFragment.setArguments(bundle);
+
+        if (mScreenshotImageAbsolutePath != null) {
+            Bundle bundle = new Bundle();
+            bundle.putString(FragmentConstants.KEY_SITREP, FragmentConstants.VALUE_SITREP_ADD_FROM_VIDEO);
+            bundle.putString(FragmentConstants.KEY_SITREP_PICTURE, mScreenshotImageAbsolutePath);
+            sitRepAddUpdateFragment.setArguments(bundle);
+        }
 
         navigateToFragment(sitRepAddUpdateFragment);
     }

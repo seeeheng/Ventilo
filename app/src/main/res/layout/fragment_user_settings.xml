@@ -197,26 +197,26 @@
 
     </ScrollView>
 
-    <FrameLayout
-        android:id="@+id/view_user_settings_transparent_bg"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/secondary_main_grey_half_opacity" />
+    <!--<FrameLayout-->
+        <!--android:id="@+id/view_user_settings_transparent_bg"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="@color/secondary_main_grey_half_opacity" />-->
 
-    <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <!--<android.support.constraint.ConstraintLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
 
-        <include
-            android:id="@+id/layout_user_settings_sync_with_callsign"
-            layout="@layout/layout_user_settings_sync_with_callsign"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        <!--<include-->
+            <!--android:id="@+id/layout_user_settings_sync_with_callsign"-->
+            <!--layout="@layout/layout_user_settings_sync_with_callsign"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--app:layout_constraintBottom_toBottomOf="parent"-->
+            <!--app:layout_constraintEnd_toEndOf="parent"-->
+            <!--app:layout_constraintStart_toStartOf="parent"-->
+            <!--app:layout_constraintTop_toTopOf="parent" />-->
 
-    </android.support.constraint.ConstraintLayout>
+    <!--</android.support.constraint.ConstraintLayout>-->
 
 </FrameLayout>

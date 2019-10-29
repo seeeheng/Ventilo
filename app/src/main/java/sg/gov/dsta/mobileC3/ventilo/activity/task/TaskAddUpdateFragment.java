@@ -104,6 +104,20 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
     private TaskModel mTaskModelToUpdate;
 
+    private static final String TASK_PHASE_EXPANDABLE_LIST_SELECTED_STRING = "Task Phase Expandable List Selected String";
+    private static final String TASK_PRIORITY_EXPANDABLE_LIST_SELECTED_STRING = "Task Priority Expandable List Selected String";
+    private static final String TASK_NAME_INPUT_OTHERS_SELECTION = "Task Name Input Others Selection";
+    private static final String TASK_NAME_EXPANDABLE_LIST_SELECTED_STRING = "Task Name Expandable List Selected String";
+    private static final String TASK_NAME_INPUT_OTHERS_TEXT = "Task Name Input Others Text";
+
+    private boolean mIsTaskNameInputOthersSelected;
+
+    private String mTaskNameOthersText;
+
+    private String mTaskPriorityExpandableListSelectedString;
+    private String mTaskPhaseExpandableListSelectedString;
+    private String mTaskNameExpandableListSelectedString;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -114,6 +128,37 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
         Timber.i("Fragment view created.");
 
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(TASK_NAME_INPUT_OTHERS_SELECTION, mIsTaskNameInputOthersSelected);
+
+        outState.putString(TASK_PRIORITY_EXPANDABLE_LIST_SELECTED_STRING, mTaskPriorityExpandableListAdapter.getSelectedChildTaskName());
+        outState.putString(TASK_PHASE_EXPANDABLE_LIST_SELECTED_STRING, mTaskPhaseExpandableListAdapter.getSelectedChildTaskName());
+        outState.putString(TASK_NAME_EXPANDABLE_LIST_SELECTED_STRING, mTaskNameExpandableListAdapter.getSelectedChildTaskName());
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            // Task Priority
+            mTaskPriorityExpandableListSelectedString = savedInstanceState.getString(TASK_PRIORITY_EXPANDABLE_LIST_SELECTED_STRING, StringUtil.EMPTY_STRING);
+
+            // Task Phase
+            mTaskPhaseExpandableListSelectedString = savedInstanceState.getString(TASK_PHASE_EXPANDABLE_LIST_SELECTED_STRING, StringUtil.EMPTY_STRING);
+
+            // Task Name
+            mIsTaskNameInputOthersSelected = savedInstanceState.getBoolean(TASK_NAME_INPUT_OTHERS_SELECTION, false);
+
+            mTaskNameExpandableListSelectedString = savedInstanceState.getString(TASK_NAME_EXPANDABLE_LIST_SELECTED_STRING, StringUtil.EMPTY_STRING);
+
+            mTaskNameOthersText = savedInstanceState.getString(TASK_NAME_INPUT_OTHERS_TEXT, StringUtil.EMPTY_STRING);
+        }
     }
 
     /**
@@ -256,6 +301,10 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                     }
                 }
 
+                if (mTaskPhaseExpandableListSelectedString != null) {
+                    mTaskPhaseExpandableListAdapter.setSelectedChildItemValue(mTaskPhaseExpandableListSelectedString);
+                }
+
 //                if (taskPhaseList.size() == 0) {
 ////                    mTaskPhaseExpandableListAdapter.setGroupTitle(
 ////                            getString(R.string.task_select_task_phase_no_option));
@@ -344,7 +393,7 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
         mTaskPhaseExpandableListView.setOnGroupExpandListener(onTaskPhaseListGroupExpandListener);
         mTaskPhaseExpandableListView.setOnGroupCollapseListener(onTaskPhaseListGroupCollapseListener);
 
-        // Choose default 'Planned' for Task Type
+        // Choose default 'Planned' for Task type
         mLayoutInputTaskPriority.setVisibility(View.GONE);
         mLayoutInputTaskPhase.setVisibility(View.VISIBLE);
         mRgTaskType.check(RB_TASK_TYPE_PLANNED_ID);
@@ -361,7 +410,7 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
 
         mTaskNameExpandableListView = layoutInputTaskName.
                 findViewById(R.id.listview_expandable_listview_edittext);
-        mTaskNameExpandableListView.setSaveEnabled(false);
+//        mTaskNameExpandableListView.setSaveEnabled(false);
 
         mTaskNameExpandableListView.setOnChildClickListener(onTaskNameListChildClickListener);
         mTaskNameExpandableListView.setOnGroupExpandListener(onTaskNameListGroupExpandListener);
@@ -404,7 +453,7 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                 R.id.img_expandable_listview_edittext_input_others_icon);
         mEtvTaskNameOthers = layoutInputTaskName.findViewById(
                 R.id.etv_expandable_listview_edittext_others_info);
-        mEtvTaskNameOthers.setSaveEnabled(false);
+//        mEtvTaskNameOthers.setSaveEnabled(false);
 
         mLayoutTaskNameInputOthers.setOnClickListener(onTaskNameInputOthersClickListener);
         mEtvTaskNameOthers.setHint(getString(R.string.task_task_name_hint));
@@ -526,7 +575,8 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
     private View.OnClickListener onTaskNameInputOthersClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            view.setSelected(!view.isSelected());
+            mIsTaskNameInputOthersSelected = !view.isSelected();
+            view.setSelected(mIsTaskNameInputOthersSelected);
 
             if (view.isSelected()) {
                 setTaskNameInputOthersSelectedUI(view);
@@ -896,7 +946,7 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
     @SuppressLint("ClickableViewAccessibility")
     private void initTaskDescriptionUI(View rootView) {
         mEtvTaskDescription = rootView.findViewById(R.id.etv_add_update_task_description_info);
-        mEtvTaskDescription.setSaveEnabled(false);
+//        mEtvTaskDescription.setSaveEnabled(false);
         mEtvTaskDescription.setOnTouchListener(onViewTouchListener);
     }
 
@@ -1571,6 +1621,30 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
     public void onSnackbarActionClick() {
 //        performActionClick();
         checkNetworkLinkStatusOfRelevantParties();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (mLayoutTaskNameInputOthers != null) {
+            mLayoutTaskNameInputOthers.setSelected(mIsTaskNameInputOthersSelected);
+
+            if (mLayoutTaskNameInputOthers.isSelected()) {
+                setTaskNameInputOthersSelectedUI(mLayoutTaskNameInputOthers);
+            } else {
+                setTaskNameInputOthersUnselectedUI(mLayoutTaskNameInputOthers);
+            }
+        }
+
+        if (mTaskNameExpandableListSelectedString != null) {
+            mTaskNameExpandableListAdapter.setSelectedChildItemValue(mTaskNameExpandableListSelectedString);
+        }
+
+        if (mTaskPriorityExpandableListSelectedString != null) {
+            mTaskPriorityExpandableListAdapter.setSelectedChildItemValue(mTaskPriorityExpandableListSelectedString);
+        }
+
     }
 
 //    @Override

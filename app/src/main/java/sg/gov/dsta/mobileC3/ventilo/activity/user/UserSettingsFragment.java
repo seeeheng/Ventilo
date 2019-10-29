@@ -58,12 +58,15 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     private static final String TAG = UserSettingsFragment.class.getSimpleName();
     public static final int SNACKBAR_PULL_FROM_EXCEL_ID = 0;
     public static final int SNACKBAR_PUSH_TO_EXCEL_ID = 1;
-    public static final int SNACKBAR_SYNC_UP_ID = 2;
-    public static final int SNACKBAR_LOGOUT_ID = 3;
+    public static final int SNACKBAR_LOGOUT_ID = 2;
 
     // Intent Filters
     public static final String EXCEL_DATA_PULLED_INTENT_ACTION = "Excel Data Pulled Successfully";
+    public static final String EXCEL_DATA_PULL_FAILED_INTENT_ACTION = "Excel Data Pulled Failed";
+    public static final String EXCEL_DATA_SHIP_CONFIG_PULLED_INTENT_ACTION = "Ship Config Excel Data Pulled Successfully";
+    public static final String EXCEL_DATA_SHIP_CONFIG_PULL_FAILED_INTENT_ACTION = "Ship Config Excel Data Pulled Failed";
     public static final String EXCEL_DATA_PUSHED_INTENT_ACTION = "Excel Data Pushed Successfully";
+    public static final String EXCEL_DATA_PUSH_FAILED_INTENT_ACTION = "Excel Data Pushed Failed";
     public static final String DATA_SYNCED_INTENT_ACTION = "Data Synced Successfully.";
     public static final String LOGGED_OUT_INTENT_ACTION = "Logged Out Successfully";
 
@@ -97,8 +100,7 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
      * 0 - Save Settings,
      * 1 - Pull from Excel,
      * 2 - Push to Excel,
-     * 3 - Sync Up,
-     * 4 - Logout
+     * 3 - Logout
      */
     private int mSnackbarOption;
     private UserModel mCurrentUserModel;
@@ -126,7 +128,6 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         initAllCallsignTeamProfileUI(rootView);
         initCurrentUserCallsignTeamProfileUI(inflater, rootView);
         initImageButtons(rootView);
-        initSyncWithCallsign(rootView);
     }
 
     private void initAllCallsignTeamProfileUI(View rootView) {
@@ -314,21 +315,25 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
      */
     private void initImageButtons(View rootView) {
 
-        // Only allow CCT to push and pull data from Excel
+        // Only allow CCT to push data to Excel
+        // Both CCT and Team Leads are permitted to pull data from Excel
         mImgLayoutPullFromExcel = rootView.findViewById(R.id.layout_pull_from_excel_text_img_btn);
         mImgLayoutPushToExcel = rootView.findViewById(R.id.layout_push_to_excel_img_text_img_btn);
+        View imgLayoutSyncUp = rootView.findViewById(R.id.layout_sync_img_text_img_btn);
+        imgLayoutSyncUp.setVisibility(View.GONE);
+        mImgLayoutPullFromExcel.setVisibility(View.GONE);
 
         if (!EAccessRight.CCT.toString().equalsIgnoreCase(
                 SharedPreferenceUtil.getCurrentUserAccessRight())) {
-            mImgLayoutPullFromExcel.setVisibility(View.GONE);
+
             mImgLayoutPushToExcel.setVisibility(View.GONE);
 
         } else {
-            initPullFromExcelUI();
             initPushToExcelUI();
+
         }
 
-        initSyncUpUI(rootView);
+        initPullFromExcelUI();
         initLogoutUI(rootView);
     }
 
@@ -373,28 +378,6 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
     }
 
     /**
-     * Initialise Sync Up button UI
-     *
-     * @param rootView
-     */
-    private void initSyncUpUI(View rootView) {
-        View imgLayoutSyncUp = rootView.findViewById(R.id.layout_sync_img_text_img_btn);
-        LinearLayout layoutSyncUp = imgLayoutSyncUp.findViewById(R.id.layout_main_img_text_img_btn);
-        C2OpenSansSemiBoldTextView tvPullSyncUp = imgLayoutSyncUp.findViewById(R.id.tv_text_img_btn);
-        AppCompatImageView imgPullSyncUp = imgLayoutSyncUp.findViewById(R.id.img_pic_img_btn);
-        layoutSyncUp.setBackground(ResourcesCompat.getDrawable(getResources(),
-                R.drawable.img_btn_background_cyan_border, null));
-        tvPullSyncUp.setText(getString(R.string.btn_sync_up));
-        tvPullSyncUp.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_highlight_cyan, null));
-        imgPullSyncUp.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
-                R.drawable.icon_sync, null));
-        imgPullSyncUp.setColorFilter(ContextCompat.getColor(getContext(), R.color.primary_highlight_cyan),
-                PorterDuff.Mode.SRC_ATOP);
-
-        imgLayoutSyncUp.setOnClickListener(onSyncUpClickListener);
-    }
-
-    /**
      * Initialise Logout button UI
      *
      * @param rootView
@@ -414,101 +397,6 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                 PorterDuff.Mode.SRC_ATOP);
 
         imgLayoutLogout.setOnClickListener(onLogoutClickListener);
-    }
-
-    /**
-     * Initialise sync with callsign UI
-     *
-     * @param rootView
-     */
-    private void initSyncWithCallsign(View rootView) {
-        mFrameLayoutTransparentBg = rootView.findViewById(R.id.view_user_settings_transparent_bg);
-        mFrameLayoutTransparentBg.setVisibility(View.GONE);
-        mFrameLayoutTransparentBg.setOnClickListener(onTransparentBgClickListener);
-
-        mViewSyncWithCallsign = rootView.findViewById(R.id.layout_user_settings_sync_with_callsign);
-        mViewSyncWithCallsign.setVisibility(View.GONE);
-        mViewSyncWithCallsign.setOnClickListener(onSyncWithCallsignClickListener);
-
-        mTvSyncWithCallsignNoOne = mViewSyncWithCallsign.findViewById(R.id.tv_user_settings_sync_with_callsign_no_one);
-
-        RecyclerView recyclerViewSyncWithCallsign = rootView.findViewById(R.id.recycler_user_settings_sync_with_callsign);
-        recyclerViewSyncWithCallsign.setHasFixedSize(false);
-
-        RecyclerView.LayoutManager recyclerLayoutManagerSyncWithCallsign = new LinearLayoutManager(getActivity());
-        recyclerViewSyncWithCallsign.setLayoutManager(recyclerLayoutManagerSyncWithCallsign);
-
-        recyclerViewSyncWithCallsign.addOnItemTouchListener(new
-                UserSettingsSyncWithCallsignRecyclerItemTouchListener(getContext(), recyclerViewSyncWithCallsign,
-                new UserSettingsSyncWithCallsignRecyclerItemTouchListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-//                navigateToSitRepDetailFragment(mSitRepListItems.get(position));
-                if (getSnackbarView() != null) {
-                    mSnackbarOption = SNACKBAR_SYNC_UP_ID;
-                    mSelectedUserIdForSync = mSyncWithCallsignUserModelList.get(position).getUserId();
-
-                    String syncUpMessage = getString(R.string.snackbar_settings_sync_with_message).
-                            concat(StringUtil.SPACE).concat(mSelectedUserIdForSync).concat(StringUtil.QUESTION_MARK).
-                            concat(getString(R.string.snackbar_settings_data_overridden_message));
-
-                    SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
-                            syncUpMessage, UserSettingsFragment.this);
-                }
-            }
-
-            @Override
-            public void onLongItemClick(View view, int position) {
-            }
-
-            @Override
-            public void onSwipeLeft(View view, int position) {
-            }
-
-            @Override
-            public void onSwipeRight(View view, int position) {
-            }
-
-        }));
-
-        if (mSyncWithCallsignUserModelList == null) {
-            mSyncWithCallsignUserModelList = new ArrayList<>();
-        }
-
-        mRecyclerAdapterSyncWithCallsign = new UserSettingsSyncWithCallsignRecyclerAdapter(
-                getContext(), mSyncWithCallsignUserModelList);
-        recyclerViewSyncWithCallsign.setAdapter(mRecyclerAdapterSyncWithCallsign);
-        recyclerViewSyncWithCallsign.setItemAnimator(new DefaultItemAnimator());
-
-        initSyncWithCallsignCancelButtonUI(mViewSyncWithCallsign);
-    }
-
-    /**
-     * Initialise Sync With Callsign Cancel Button UI
-     * @param rootView
-     */
-    private void initSyncWithCallsignCancelButtonUI(View rootView) {
-        View viewSyncWithCallsignCancelButton = rootView.
-                findViewById(R.id.layout_sync_with_callsign_cancel_img_text_img_btn);
-        viewSyncWithCallsignCancelButton.setOnClickListener(onSyncWithCallsignCancelClickListener);
-
-        LinearLayout layoutSyncWithCallsignCancel = viewSyncWithCallsignCancelButton.
-                findViewById(R.id.layout_main_img_text_img_btn);
-        C2OpenSansSemiBoldTextView tvSyncWithCallsignCancel = viewSyncWithCallsignCancelButton.
-                findViewById(R.id.tv_text_img_btn);
-        AppCompatImageView imgSyncWithCallsignCancelIcon = viewSyncWithCallsignCancelButton.
-                findViewById(R.id.img_pic_img_btn);
-
-        layoutSyncWithCallsignCancel.setBackground(ResourcesCompat.getDrawable(getResources(),
-                R.drawable.img_btn_background_hint_grey_border, null));
-        tvSyncWithCallsignCancel.setTextColor(ContextCompat.getColor(getContext(),
-                R.color.primary_text_hint_dark_grey));
-        imgSyncWithCallsignCancelIcon.setColorFilter(ContextCompat.getColor(getContext(),
-                R.color.primary_text_hint_dark_grey), PorterDuff.Mode.SRC_ATOP);
-
-        tvSyncWithCallsignCancel.setText(getString(R.string.sync_with_callsign_cancel));
-        imgSyncWithCallsignCancelIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
-                R.drawable.icon_cancel, null));
     }
 
     private View.OnClickListener onEditOrSaveTeamProfileClickListener = new View.OnClickListener() {
@@ -610,20 +498,6 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         }
     };
 
-    private View.OnClickListener onSyncUpClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            showOrHideSyncWithCallsignOptions(true);
-
-//            if (getSnackbarView() != null) {
-//                mSnackbarOption = SNACKBAR_SYNC_UP_ID;
-//                SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
-//                        getString(R.string.snackbar_settings_sync_up_message),
-//                        UserSettingsFragment.this);
-//            }
-        }
-    };
-
     private View.OnClickListener onLogoutClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -633,29 +507,6 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                         getString(R.string.snackbar_settings_logout_message),
                         UserSettingsFragment.this);
             }
-        }
-    };
-
-    private View.OnClickListener onTransparentBgClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            mFrameLayoutTransparentBg.setVisibility(View.GONE);
-            mViewSyncWithCallsign.setVisibility(View.GONE);
-        }
-    };
-
-    private View.OnClickListener onSyncWithCallsignClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            // Do nothing; OnClickListener required to obtain focus from other onClick listeners
-        }
-    };
-
-    private View.OnClickListener onSyncWithCallsignCancelClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            mFrameLayoutTransparentBg.setVisibility(View.GONE);
-            mViewSyncWithCallsign.setVisibility(View.GONE);
         }
     };
 
@@ -686,179 +537,6 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         ExcelSpreadsheetRepository excelSpreadsheetRepository =
                 new ExcelSpreadsheetRepository();
         excelSpreadsheetRepository.pushDataToExcelFromDatabase();
-    }
-
-    /**
-     * Show or Hide Sync with Callsign layout UI for synchronisation
-     *
-     * @param isVisible
-     */
-    private void showOrHideSyncWithCallsignOptions(boolean isVisible) {
-
-        if (isVisible) {
-            mViewSyncWithCallsign.setVisibility(View.VISIBLE);
-            mFrameLayoutTransparentBg.setVisibility(View.VISIBLE);
-
-//            if (getActivity() instanceof MainActivity) {
-//                MainActivity mainActivity = (MainActivity) getActivity();
-
-//                Blurry.with(MainApplication.getAppContext())
-//                        .radius(10)
-//                        .sampling(8)
-//                        .color(ResourcesCompat.getColor(getResources(),
-//                                R.color.primary_text_hint_dark_grey, null))
-//                        .async()
-//                        .animate(50)
-//                        .onto((ViewGroup) mFrameLayoutTransparentBg);
-//            }
-
-        } else {
-            mViewSyncWithCallsign.setVisibility(View.GONE);
-            mFrameLayoutTransparentBg.setVisibility(View.GONE);
-
-//            if (getActivity() instanceof MainActivity) {
-//                MainActivity mainActivity = (MainActivity) getActivity();
-
-//                Blurry.with(MainApplication.getAppContext())
-//                        .radius(100)
-//                        .sampling(8)
-//                        .color(ResourcesCompat.getColor(getResources(),
-//                                R.color.primary_text_hint_dark_grey, null))
-//                        .async()
-//                        .animate(500)
-//                        .onto((ViewGroup) mFrameLayoutTransparentBg);
-//            }
-        }
-    }
-//    /**
-//     * Synchronise Sit Rep with CCT over the network
-//     */
-//    private void broadcastSitRepForSync() {
-//        Timber.i("Synchronising Sit Rep data...");
-//
-//        SingleObserver<List<SitRepModel>> singleObserverGetAllSitReps = new SingleObserver<List<SitRepModel>>() {
-//            @Override
-//            public void onSubscribe(Disposable d) {
-//                // add it to a CompositeDisposable
-//            }
-//
-//            @Override
-//            public void onSuccess(List<SitRepModel> sitRepModelList) {
-//                Timber.i("onSuccess singleObserverGetAllSitReps, broadcastSitRepForSync. sitRepModelList.size(): %d",
-//                        sitRepModelList.size());
-//
-//                for (int i = 0; i < sitRepModelList.size(); i++) {
-//                    JeroMQBroadcastOperation.UnicastDataSyncOverSocket(sitRepModelList.get(i));
-//                }
-//            }
-//
-//            @Override
-//            public void onError(Throwable e) {
-//                Timber.e("onError singleObserverGetAllSitReps, broadcastSitRepForSync. Error Msg: %s ", e.toString());
-//            }
-//        };
-//
-//        mSitRepViewModel.getAllSitReps(singleObserverGetAllSitReps);
-//    }
-//
-//    /**
-//     * Synchronise Task with CCT over the network
-//     */
-//    private void broadcastTaskForSync() {
-//        Timber.i("Synchronising Task data...");
-//
-//        SingleObserver<List<TaskModel>> singleObserverGetAllTasks = new SingleObserver<List<TaskModel>>() {
-//            @Override
-//            public void onSubscribe(Disposable d) {
-//                // add it to a CompositeDisposable
-//            }
-//
-//            @Override
-//            public void onSuccess(List<TaskModel> taskModelList) {
-//                Timber.i("onSuccess singleObserverGetAllTasks, broadcastTaskForSync. taskModelList.size(): %d",
-//                        taskModelList.size());
-//
-//                for (int i = 0; i < taskModelList.size(); i++) {
-//                    JeroMQBroadcastOperation.UnicastDataSyncOverSocket(taskModelList.get(i));
-//                }
-//            }
-//
-//            @Override
-//            public void onError(Throwable e) {
-//                Timber.e("onError singleObserverGetAllTasks, broadcastTaskForSync. Error Msg: %s ", e.toString());
-//            }
-//        };
-//
-//        mTaskViewModel.getAllTasks(singleObserverGetAllTasks);
-//    }
-
-    /**
-     * Sends a synchronisation request message to CCT
-     */
-    private void syncWithCallsign() {
-        mFrameLayoutTransparentBg.setVisibility(View.GONE);
-        mViewSyncWithCallsign.setVisibility(View.GONE);
-
-        SingleObserver<List<WaveRelayRadioModel>> singleObserverGetAllWaveRelayRadios =
-                new SingleObserver<List<WaveRelayRadioModel>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        // add it to a CompositeDisposable
-                    }
-
-                    @Override
-                    public void onSuccess(List<WaveRelayRadioModel> waveRelayRadioModelList) {
-                        Timber.i("onSuccess singleObserverGetAllWaveRelayRadios, syncWithCallsign. waveRelayRadioModelList.size(): %d",
-                                waveRelayRadioModelList.size());
-
-                        boolean isUserConnected = false;
-                        String targetPhoneIPAddress;
-
-                        for (int i = 0; i < waveRelayRadioModelList.size(); i++) {
-                            WaveRelayRadioModel waveRelayRadioModel = waveRelayRadioModelList.get(i);
-                            String userId = waveRelayRadioModel.getUserId();
-
-                            /**
-                             * Request socket has to be executed in this order:
-                             * 1) Set target phone ip address
-                             * 2) Start process of creating and connected socket of target address
-                             * 3) Send message
-                             */
-                            if (mSelectedUserIdForSync.equalsIgnoreCase(userId)) {
-                                Timber.i("Synchronising data with %s over the network...", mSelectedUserIdForSync);
-
-                                isUserConnected = true;
-                                targetPhoneIPAddress = waveRelayRadioModel.getPhoneIpAddress();
-                                JeroMQClientPair.getInstance().setTargetPhoneIPAddress(targetPhoneIPAddress);
-                                JeroMQClientPair.getInstance().start();
-                                JeroMQClientPair.getInstance().sendSyncReqMessage();
-
-                                // Sends a snackbar notification that sync request has been sent
-                                if (getSnackbarView() != null) {
-                                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
-                                            getString(R.string.snackbar_settings_sync_up_request_sent_message));
-                                }
-                            }
-                        }
-
-                        if (!isUserConnected) {
-                            if (getSnackbarView() != null) {
-                                String userLostConnectionMsg = mSelectedUserIdForSync.concat(StringUtil.SPACE).
-                                        concat(getString(R.string.snackbar_send_error_user_not_connected_message));
-
-                                SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
-                                        userLostConnectionMsg);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Timber.e("onError singleObserverGetAllWaveRelayRadios, syncWithCallsign. Error Msg: %s ", e.toString());
-                    }
-                };
-
-        mWaveRelayRadioViewModel.getAllWaveRelayRadios(singleObserverGetAllWaveRelayRadios);
     }
 
     /**
@@ -970,49 +648,49 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         LocalBroadcastManager.getInstance(MainApplication.getAppContext()).registerReceiver(mDataSyncBroadcastReceiver, filter);
     }
 
-    /**
-     * Refresh Sync with Callsign UI with updated live data
-     * @param userModelList
-     */
-    private void refreshSyncWithCallsignUI(List<UserModel> userModelList) {
-
-        if (mSyncWithCallsignUserModelList == null) {
-            mSyncWithCallsignUserModelList = new ArrayList<>();
-        } else {
-            mSyncWithCallsignUserModelList.clear();
-        }
-
-        // Obtain User model of CCTs who are ONLINE from database
-        List<UserModel> cctUserOnlineModelList = userModelList.stream().
-                filter(userModel -> EAccessRight.CCT.toString().
-                        equalsIgnoreCase(userModel.getRole()) &&
-                        !SharedPreferenceUtil.getCurrentUserCallsignID().
-                                equalsIgnoreCase(userModel.getUserId()) &&
-                        userModel.getRadioFullConnectionStatus().
-                                equalsIgnoreCase(ERadioConnectionStatus.ONLINE.toString())).
-                collect(Collectors.toList());
-
-        // Obtain User model of Team Leads who are ONLINE from database
-        List<UserModel> teamLeadUserOnlineModelList = userModelList.stream().
-                filter(userModel -> EAccessRight.TEAM_LEAD.toString().
-                        equalsIgnoreCase(userModel.getRole()) &&
-                                !SharedPreferenceUtil.getCurrentUserCallsignID().
-                                        equalsIgnoreCase(userModel.getUserId()) &&
-                        userModel.getRadioFullConnectionStatus().
-                                equalsIgnoreCase(ERadioConnectionStatus.ONLINE.toString())).
-                collect(Collectors.toList());
-
-        mSyncWithCallsignUserModelList.addAll(cctUserOnlineModelList);
-        mSyncWithCallsignUserModelList.addAll(teamLeadUserOnlineModelList);
-
-        mRecyclerAdapterSyncWithCallsign.setUserListItems(mSyncWithCallsignUserModelList);
-
-        if (mSyncWithCallsignUserModelList.size() == 0) {
-            mTvSyncWithCallsignNoOne.setVisibility(View.VISIBLE);
-        } else {
-            mTvSyncWithCallsignNoOne.setVisibility(View.GONE);
-        }
-    }
+//    /**
+//     * Refresh Sync with Callsign UI with updated live data
+//     * @param userModelList
+//     */
+//    private void refreshSyncWithCallsignUI(List<UserModel> userModelList) {
+//
+//        if (mSyncWithCallsignUserModelList == null) {
+//            mSyncWithCallsignUserModelList = new ArrayList<>();
+//        } else {
+//            mSyncWithCallsignUserModelList.clear();
+//        }
+//
+//        // Obtain User model of CCTs who are ONLINE from database
+//        List<UserModel> cctUserOnlineModelList = userModelList.stream().
+//                filter(userModel -> EAccessRight.CCT.toString().
+//                        equalsIgnoreCase(userModel.getRole()) &&
+//                        !SharedPreferenceUtil.getCurrentUserCallsignID().
+//                                equalsIgnoreCase(userModel.getUserId()) &&
+//                        userModel.getRadioFullConnectionStatus().
+//                                equalsIgnoreCase(ERadioConnectionStatus.ONLINE.toString())).
+//                collect(Collectors.toList());
+//
+//        // Obtain User model of Team Leads who are ONLINE from database
+//        List<UserModel> teamLeadUserOnlineModelList = userModelList.stream().
+//                filter(userModel -> EAccessRight.TEAM_LEAD.toString().
+//                        equalsIgnoreCase(userModel.getRole()) &&
+//                                !SharedPreferenceUtil.getCurrentUserCallsignID().
+//                                        equalsIgnoreCase(userModel.getUserId()) &&
+//                        userModel.getRadioFullConnectionStatus().
+//                                equalsIgnoreCase(ERadioConnectionStatus.ONLINE.toString())).
+//                collect(Collectors.toList());
+//
+//        mSyncWithCallsignUserModelList.addAll(cctUserOnlineModelList);
+//        mSyncWithCallsignUserModelList.addAll(teamLeadUserOnlineModelList);
+//
+//        mRecyclerAdapterSyncWithCallsign.setUserListItems(mSyncWithCallsignUserModelList);
+//
+//        if (mSyncWithCallsignUserModelList.size() == 0) {
+//            mTvSyncWithCallsignNoOne.setVisibility(View.VISIBLE);
+//        } else {
+//            mTvSyncWithCallsignNoOne.setVisibility(View.GONE);
+//        }
+//    }
 
     /**
      * Set up observer for live updates on view models and update UI accordingly
@@ -1031,7 +709,7 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
 
                 mRecyclerAdapter.setUserListItems(userModelList);
 
-                refreshSyncWithCallsignUI(userModelList);
+//                refreshSyncWithCallsignUI(userModelList);
             }
         });
     }
@@ -1097,9 +775,9 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                 pushToExcelFromDatabase();
                 break;
 
-            case SNACKBAR_SYNC_UP_ID: // Sync Up with selected user
-                syncWithCallsign();
-                break;
+//            case SNACKBAR_SYNC_UP_ID: // Sync Up with selected user
+//                syncWithCallsign();
+//                break;
 
             case SNACKBAR_LOGOUT_ID: // Logout
                 if (getActivity() instanceof MainActivity) {

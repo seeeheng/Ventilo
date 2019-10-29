@@ -19,11 +19,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.TaskViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.EIsValid;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EAdHocTaskPriority;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EPhaseNo;
 import timber.log.Timber;
@@ -298,11 +300,17 @@ public class TimelineFragment extends Fragment {
                     }
 
                     if (taskModelList != null) {
-                        List<TaskModel> timelinePlannedListItems = getTimelinePlannedListItems(taskModelList);
+                        List<TaskModel> validTaskModelList = taskModelList.stream().
+                                filter(taskModel -> EIsValid.YES.toString().
+                                        equalsIgnoreCase(taskModel.getIsValid())).
+                                collect(Collectors.toList());
+
+                        List<TaskModel> timelinePlannedListItems = getTimelinePlannedListItems(validTaskModelList);
                         mTimelinePhaseListItems.addAll(timelinePlannedListItems);
 
-                        List<TaskModel> timelineAdHocListItems = getTimelineAdHocListItems(taskModelList);
+                        List<TaskModel> timelineAdHocListItems = getTimelineAdHocListItems(validTaskModelList);
                         mTimelineAdHocListItems.addAll(timelineAdHocListItems);
+
                     }
 
                     if (mRecyclerAdapterPlanned != null) {

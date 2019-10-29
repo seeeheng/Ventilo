@@ -11,6 +11,7 @@ import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
+import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
@@ -18,12 +19,15 @@ import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionS
 public class RadioLinkStatusOfflineRecyclerAdapter extends RecyclerView.Adapter<RadioLinkStatusOfflineViewHolder> {
 
     List<UserModel> mUserListItems;
+    List<WaveRelayRadioModel> mWaveRelayRadioListItems;
 
     private Context mContext;
 
-    public RadioLinkStatusOfflineRecyclerAdapter(Context context, List<UserModel> userListItems) {
+    public RadioLinkStatusOfflineRecyclerAdapter(Context context, List<UserModel> userListItems,
+                                                 List<WaveRelayRadioModel> waveRelayRadioListItems) {
         this.mContext = context;
         mUserListItems = userListItems;
+        mWaveRelayRadioListItems = waveRelayRadioListItems;
     }
 
     @Override
@@ -75,13 +79,35 @@ public class RadioLinkStatusOfflineRecyclerAdapter extends RecyclerView.Adapter<
             }
         }
 
+        String snr = StringUtil.N_A;
+
+        for (int j = 0; j < mWaveRelayRadioListItems.size(); j++) {
+            WaveRelayRadioModel waveRelayRadioModel = mWaveRelayRadioListItems.get(j);
+            String userId = waveRelayRadioModel.getUserId();
+
+            if (userModel.getUserId().equalsIgnoreCase(userId)) {
+                snr = waveRelayRadioModel.getSignalToNoiseRatio();
+            }
+        }
+
+        String snrDisplayString = mContext.getString(
+                R.string.radio_link_snr).concat(StringUtil.COLON).
+                concat(StringUtil.SPACE).concat(snr);
+
         // Team
         itemViewHolder.getTvTeam().setText(userModel.getUserId());
+        itemViewHolder.getTvSnr().setText(snrDisplayString);
         itemViewHolder.getTvLastConnectedTime().setText(connectionStatusMessageStrBuilder.toString().trim());
+
     }
 
     public void setUserListItems(List<UserModel> userListItems) {
         mUserListItems = userListItems;
+        notifyDataSetChanged();
+    }
+
+    public void setWaveRelayListItems(List<WaveRelayRadioModel> waveRelayRadioListItems) {
+        mWaveRelayRadioListItems = waveRelayRadioListItems;
         notifyDataSetChanged();
     }
 

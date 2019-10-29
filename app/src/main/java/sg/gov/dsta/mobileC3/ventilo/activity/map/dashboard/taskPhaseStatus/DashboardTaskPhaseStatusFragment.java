@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
@@ -25,6 +26,7 @@ import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.TaskViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.EIsValid;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EPhaseNo;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.task.EStatus;
 import timber.log.Timber;
@@ -133,6 +135,7 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
                 teamPhaseTaskModelListItems.add(taskModelList.get(i));
             }
         }
+
         Timber.i("onSuccess singleObserverForAllUsers, refreshUI. teamPhaseTaskModelListItems before sorting: %s ", teamPhaseTaskModelListItems);
 
 
@@ -253,6 +256,21 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
     }
 
     /**
+     * Obtain all VALID (not deleted) Task Models from database
+     * @param taskModelList
+     * @return
+     */
+    private List<TaskModel> getAllValidTaskListFromDatabase(List<TaskModel> taskModelList) {
+
+        List<TaskModel> validTaskModelList = taskModelList.stream().
+                filter(taskModel -> EIsValid.YES.toString().
+                        equalsIgnoreCase(taskModel.getIsValid())).
+                collect(Collectors.toList());
+
+        return validTaskModelList;
+    }
+
+    /**
      * Set up observer for live updates on view models and update UI accordingly
      */
     private void observerSetup() {
@@ -267,15 +285,12 @@ public class DashboardTaskPhaseStatusFragment extends Fragment {
             mTaskViewModel.getAllTasksLiveData().observe(getParentFragment(), new Observer<List<TaskModel>>() {
                 @Override
                 public void onChanged(@Nullable List<TaskModel> taskModelList) {
-//                if (mTaskListItems == null) {
-//                    mTaskListItems = new ArrayList<>();
-//                } else {
-//                    mTaskListItems.clear();
-//                }
 
-                    Log.d(TAG, "taskModelList: " + taskModelList);
+                    Timber.d("taskModelList: " + taskModelList);
 
                     if (taskModelList != null) {
+                        taskModelList = getAllValidTaskListFromDatabase(taskModelList);
+
                         refreshUI(taskModelList);
                     }
                 }
