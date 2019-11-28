@@ -1,7 +1,7 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.radiolinkstatus;
 
-import android.support.v7.widget.AppCompatImageView;
-import android.support.v7.widget.RecyclerView;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
 import lombok.Data;
@@ -9,7 +9,6 @@ import lombok.EqualsAndHashCode;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansLightTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 
 @Data

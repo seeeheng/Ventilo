@@ -1,7 +1,7 @@
 package sg.gov.dsta.mobileC3.ventilo.model.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
+import androidx.lifecycle.AndroidViewModel;
 
 import java.util.List;
 

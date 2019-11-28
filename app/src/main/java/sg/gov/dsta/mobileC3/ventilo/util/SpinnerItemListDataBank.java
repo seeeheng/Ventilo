@@ -1,6 +1,7 @@
 package sg.gov.dsta.mobileC3.ventilo.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import lombok.Data;
@@ -40,6 +41,10 @@ public class SpinnerItemListDataBank {
     private String[] blueprintFloorHtmlLinkStrArray;
     private boolean isLocalBlueprintDirectory;
 
+    // Map Blueprint Test Log (motion label)
+    private List<String> motionLabelList;
+    private String[] motionLabelStrArray;
+
     private SpinnerItemListDataBank() {
 
         // Task
@@ -77,6 +82,11 @@ public class SpinnerItemListDataBank {
         // Map Blueprint
         populateBlueprintFloors();
         populateBlueprintFloorHtmlLinks();
+
+        // Map Blueprint Test Log
+        motionLabelList = new ArrayList<>();
+
+        populateMotionLabels();
     }
 
     public static SpinnerItemListDataBank getInstance() {
@@ -229,5 +239,21 @@ public class SpinnerItemListDataBank {
 
         }
 
+    }
+
+    /** -------------------- Map Blueprint Motion Label -------------------- **/
+    private void populateMotionLabels() {
+        motionLabelStrArray = MainApplication.getAppContext().getResources().
+                getStringArray(R.array.map_blueprint_test_log_motion_label_items);
+
+        List<String> motionLabelStrList = new ArrayList<>(Arrays.asList(motionLabelStrArray));
+        motionLabelList.addAll(motionLabelStrList);
+    }
+
+    public void addItemToMotionLabelList(String motionLabel) {
+        if (motionLabelList != null) {
+            motionLabelList.add(motionLabel);
+            motionLabelStrArray = motionLabelList.toArray(new String[0]);
+        }
     }
 }

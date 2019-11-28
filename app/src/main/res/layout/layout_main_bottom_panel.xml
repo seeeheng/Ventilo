@@ -48,7 +48,7 @@
                 android:textColor="@color/primary_white"
                 android:textSize="@dimen/text_view_small_text_size" />
 
-            <android.support.v7.widget.AppCompatImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/img_bottom_panel_radio_link_status_icon"
                 android:layout_width="@dimen/bottom_panel_radio_link_status_icon_width"
                 android:layout_height="@dimen/bottom_panel_radio_link_status_icon_height"
@@ -107,7 +107,7 @@
                 android:background="@drawable/circle_img_icon_user_background"
                 android:gravity="center">
 
-                <android.support.v7.widget.AppCompatImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/img_bottom_panel_user_icon"
                     android:layout_width="@dimen/bottom_panel_user_callsign_icon_width"
                     android:layout_height="@dimen/bottom_panel_user_callsign_icon_height"
@@ -139,7 +139,7 @@
             android:paddingStart="@dimen/elements_small_margin_spacing"
             android:paddingEnd="@dimen/elements_small_margin_spacing">
 
-            <android.support.v7.widget.AppCompatImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/img_bottom_panel_settings_icon"
                 android:layout_width="@dimen/bottom_panel_settings_component_width"
                 android:layout_height="@dimen/bottom_panel_settings_component_height"

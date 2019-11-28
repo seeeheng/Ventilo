@@ -2,7 +2,7 @@ package sg.gov.dsta.mobileC3.ventilo.network.waveRelayRadio;
 
 import android.app.Application;
 import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -16,7 +16,6 @@ import org.json.JSONTokener;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;

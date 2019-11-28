@@ -142,8 +142,8 @@
         <item>198.18.2.67</item>
         <item>198.18.2.68</item>
         <item>198.18.2.69</item>
-        <item>198.18.5.10</item>
-        <item>169.254.180.48</item>
+        <!--<item>198.18.5.10</item>-->
+        <!--<item>169.254.180.48</item>-->
         <!--<item>192.168.1.2</item>-->
         <!--<item>192.168.1.3</item>-->
         <!--<item>192.168.1.4</item>-->
@@ -227,8 +227,30 @@
         <!--<item>leaflet-bw-paris-a-deck.html</item>-->
         <!--<item>leaflet-bw-paris-tank-top.html</item>-->
     </string-array>
+
+    <string-array name="map_blueprint_test_log_motion_label_items">
+        <item>-- Select Motion Label --</item>
+        <item>Walk Forward</item>
+        <item>Walk Backward</item>
+        <item>Rigid Forward</item>
+        <item>Rigid Backward</item>
+    </string-array>
+
+    <string name="map_blueprint_test_log_create_file">Create File</string>
+    <string name="map_blueprint_test_log_append_header">Append Header</string>
+    <string name="map_blueprint_test_log_select_motion_label">-- Select Motion Label --</string>
+    <string name="map_blueprint_test_log_hint">Enter test log header label</string>
+    <string name="map_blueprint_test_log_new_file_created">[New Test Log File Created]</string>
+    <string name="snackbar_map_blueprint_motion_label_not_selected">
+        Please select a motion label to be saved</string>
     <string name="snackbar_map_blueprint_init_location_message">
         Initialise your location via long press on the map</string>
+    <string name="snackbar_map_blueprint_new_test_log_header_saved_message">
+        New test log header has been saved</string>
+    <string name="snackbar_map_blueprint_new_test_log_file_saved_message">
+        New test log file has been saved</string>
+    <string name="snackbar_map_blueprint_no_test_log_header_message">
+        Please enter a test log header to be saved into binary logs before commencing motion test</string>
 
     <string name="map_blueprint_hazard_type">Hazard</string>
     <string name="map_blueprint_deceased_type">Deceased</string>

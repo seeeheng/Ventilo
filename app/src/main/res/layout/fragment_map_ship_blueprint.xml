@@ -41,39 +41,6 @@
                         android:gravity="center_vertical"
                         android:spinnerMode="dropdown" />
 
-                    <!--<RelativeLayout-->
-                    <!--android:id="@+id/layout_deck_switch"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:gravity="end">-->
-
-                    <!--<android.support.v7.widget.AppCompatImageView-->
-                    <!--android:id="@+id/img_ship_blueprint_upButton"-->
-                    <!--android:layout_width="@dimen/map_blueprint_btn_width"-->
-                    <!--android:layout_height="@dimen/map_blueprint_btn_height"-->
-                    <!--android:background="?android:selectableItemBackground"-->
-                    <!--app:srcCompat="@drawable/btn_map_toggle_up" />-->
-
-                    <!--<android.support.v7.widget.AppCompatImageView-->
-                    <!--android:id="@+id/img_ship_blueprint_zeroButton"-->
-                    <!--android:layout_width="@dimen/map_blueprint_btn_width"-->
-                    <!--android:layout_height="@dimen/map_blueprint_btn_height"-->
-                    <!--android:layout_below="@+id/img_ship_blueprint_upButton"-->
-                    <!--android:layout_marginTop="@dimen/elements_margin_spacing"-->
-                    <!--android:background="?android:selectableItemBackground"-->
-                    <!--app:srcCompat="@drawable/btn_map_gps" />-->
-
-                    <!--<android.support.v7.widget.AppCompatImageView-->
-                    <!--android:id="@+id/img_ship_blueprint_downButton"-->
-                    <!--android:layout_width="@dimen/map_blueprint_btn_width"-->
-                    <!--android:layout_height="@dimen/map_blueprint_btn_height"-->
-                    <!--android:layout_below="@+id/img_ship_blueprint_zeroButton"-->
-                    <!--android:layout_marginTop="@dimen/elements_margin_spacing"-->
-                    <!--android:background="?android:selectableItemBackground"-->
-                    <!--app:srcCompat="@drawable/btn_map_toggle_down" />-->
-
-                    <!--</RelativeLayout>-->
-
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -92,6 +59,93 @@
                             android:layout_toEndOf="@+id/layout_map_ship_blueprint_hazard_icon" />
 
                     </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/elements_margin_spacing">
+
+                        <!--                        <include-->
+                        <!--                            android:id="@+id/layout_map_ship_blueprint_stop_motion_dna_icon"-->
+                        <!--                            layout="@layout/layout_rounded_img_with_img_btn"-->
+                        <!--                            android:layout_width="wrap_content"-->
+                        <!--                            android:layout_height="wrap_content"-->
+                        <!--                            android:layout_marginStart="@dimen/elements_margin_spacing"-->
+                        <!--                            android:layout_toEndOf="@+id/etv_map_ship_blueprint_test_log"-->
+                        <!--                            android:visibility="gone" />-->
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btn_map_ship_blueprint_new_test_log"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/btn_type_selector"
+                            android:button="@android:color/transparent"
+                            android:gravity="center"
+                            android:padding="@dimen/elements_small_margin_spacing"
+                            android:text="@string/map_blueprint_test_log_create_file"
+                            android:textAllCaps="false"
+                            android:textColor="@drawable/btn_text_selector"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btn_map_ship_blueprint_append_test_log"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/elements_margin_spacing"
+                            android:layout_toEndOf="@+id/btn_map_ship_blueprint_new_test_log"
+                            android:background="@drawable/btn_type_selector"
+                            android:button="@android:color/transparent"
+                            android:gravity="center"
+                            android:padding="@dimen/elements_small_margin_spacing"
+                            android:text="@string/map_blueprint_test_log_append_header"
+                            android:textAllCaps="false"
+                            android:textColor="@drawable/btn_text_selector"
+                            android:textSize="@dimen/text_view_small_text_size" />
+
+                        <!--                        <include-->
+                        <!--                            android:id="@+id/layout_map_ship_blueprint_append_test_log_icon"-->
+                        <!--                            layout="@layout/layout_rounded_img_with_img_btn"-->
+                        <!--                            android:layout_width="wrap_content"-->
+                        <!--                            android:layout_height="wrap_content"-->
+                        <!--                            android:layout_marginStart="@dimen/elements_margin_spacing"-->
+                        <!--                            android:visibility="gone" />-->
+
+                        <!--                        <include-->
+                        <!--                            android:id="@+id/layout_map_ship_blueprint_new_test_log_icon"-->
+                        <!--                            layout="@layout/layout_rounded_img_with_img_btn"-->
+                        <!--                            android:layout_width="wrap_content"-->
+                        <!--                            android:layout_height="wrap_content"-->
+                        <!--                            android:layout_marginStart="@dimen/elements_margin_spacing"-->
+                        <!--                            android:layout_toEndOf="@+id/layout_map_ship_blueprint_append_test_log_icon"-->
+                        <!--                            android:visibility="gone" />-->
+
+                        <include
+                            android:id="@+id/layout_map_ship_blueprint_test_log_toggle_icon"
+                            layout="@layout/layout_rounded_img_with_img_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/elements_margin_spacing"
+                            android:layout_toEndOf="@+id/btn_map_ship_blueprint_append_test_log" />
+
+                    </RelativeLayout>
+
+                    <include
+                        android:id="@+id/layout_map_ship_blueprint_input_test_log"
+                        layout="@layout/layout_spinner_edittext_broad"
+                        android:layout_width="@dimen/input_others_layout_width"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/elements_margin_spacing"
+                        android:visibility="gone" />
+
+                    <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView
+                        android:id="@+id/etv_map_ship_blueprint_test_log"
+                        style="@style/EditTextView_Main"
+                        android:layout_width="@dimen/edit_text_view_width_long"
+                        android:layout_marginTop="@dimen/elements_margin_spacing"
+                        android:gravity="end"
+                        android:minHeight="@dimen/edit_text_view_min_height"
+                        android:textSize="@dimen/hint_text_size"
+                        android:visibility="gone" />
 
                 </LinearLayout>
 
@@ -114,7 +168,8 @@
                         android:id="@+id/tv_map_blueprint_textBearing"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/elements_margin_spacing"
+                        android:layout_above="@+id/tv_map_blueprint_textAction"
+                        android:layout_marginBottom="@dimen/thin_line_margin"
                         android:text="@string/map_blueprint_loading_bearing"
                         android:textColor="@color/primary_white"
                         android:textSize="@dimen/text_view_text_size" />
@@ -123,7 +178,6 @@
                         android:id="@+id/tv_map_blueprint_textAction"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
                         android:layout_marginBottom="@dimen/elements_margin_spacing"
                         android:text="@string/map_blueprint_loading_status"
                         android:textColor="@color/primary_white"
@@ -206,12 +260,12 @@
 
     </LinearLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_map_ship_blueprint_personnel_link_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/elements_margin_spacing"
         android:layout_marginStart="@dimen/elements_margin_spacing"
+        android:layout_marginTop="@dimen/elements_margin_spacing"
         android:gravity="start">
 
         <include
@@ -222,7 +276,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/img_ship_blueprint_triangle"
             android:layout_width="@dimen/timeline_outer_icon_width"
             android:layout_height="@dimen/timeline_outer_icon_height"
@@ -231,7 +285,7 @@
             app:layout_constraintTop_toBottomOf="@+id/layout_map_ship_blueprint_personnel_link_status_icon"
             app:srcCompat="@drawable/icon_triangle_pointed_up" />
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_ship_blueprint_personnel_status_link"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/map_blueprint_recycler_personnel_link_status_height_for_CCT"
@@ -260,6 +314,6 @@
         <!--android:background="?android:selectableItemBackground"-->
         <!--app:srcCompat="@drawable/btn_world_map" />-->
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

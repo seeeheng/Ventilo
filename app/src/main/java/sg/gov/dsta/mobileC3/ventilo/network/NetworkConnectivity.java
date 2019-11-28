@@ -1,6 +1,6 @@
 package sg.gov.dsta.mobileC3.ventilo.network;
 
-import android.arch.lifecycle.LiveData;
+import androidx.lifecycle.LiveData;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -9,7 +9,6 @@ import android.net.NetworkRequest.Builder;
 import android.os.Build;
 
 import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
-import lombok.val;
 
 public class NetworkConnectivity extends LiveData {
 

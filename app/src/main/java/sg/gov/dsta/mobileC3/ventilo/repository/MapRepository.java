@@ -1,7 +1,7 @@
 package sg.gov.dsta.mobileC3.ventilo.repository;
 
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
+import androidx.lifecycle.LiveData;
 import android.os.AsyncTask;
 
 import java.util.ArrayList;
@@ -13,10 +13,8 @@ import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import sg.gov.dsta.mobileC3.ventilo.database.DAO.MapDao;
-import sg.gov.dsta.mobileC3.ventilo.database.DAO.UserDao;
 import sg.gov.dsta.mobileC3.ventilo.database.VentiloDatabase;
 import sg.gov.dsta.mobileC3.ventilo.model.map.MapModel;
-import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 
 public class MapRepository {

@@ -1,9 +1,6 @@
 package sg.gov.dsta.mobileC3.ventilo.helper;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -11,12 +8,10 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
-import android.util.TypedValue;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
+
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
 
 public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {

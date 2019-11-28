@@ -1,7 +1,7 @@
 package sg.gov.dsta.mobileC3.ventilo.model.task;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 import android.text.TextUtils;
 
 import java.util.Comparator;

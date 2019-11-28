@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -45,7 +45,7 @@
                         android:gravity="center"
                         android:visibility="gone">
 
-                        <android.support.v7.widget.AppCompatImageView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/img_recycler_timeline_header_ad_hoc_high_priority"
                             android:layout_width="@dimen/ad_hoc_priority_icon_width"
                             android:layout_height="@dimen/ad_hoc_priority_icon_height"
@@ -133,6 +133,6 @@
 
         </FrameLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>

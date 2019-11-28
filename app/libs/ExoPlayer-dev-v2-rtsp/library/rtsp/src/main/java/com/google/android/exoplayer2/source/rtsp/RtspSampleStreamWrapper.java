@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.source.rtsp;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;

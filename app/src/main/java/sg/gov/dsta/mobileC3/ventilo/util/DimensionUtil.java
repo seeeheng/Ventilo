@@ -1,10 +1,6 @@
 package sg.gov.dsta.mobileC3.ventilo.util;
 
-import android.app.Activity;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.support.annotation.Nullable;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;

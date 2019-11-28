@@ -1,9 +1,8 @@
 package sg.gov.dsta.mobileC3.ventilo.util;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -12,7 +11,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 
 public class ProgressBarUtil {

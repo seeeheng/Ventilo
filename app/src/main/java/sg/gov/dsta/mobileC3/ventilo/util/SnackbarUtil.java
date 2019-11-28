@@ -2,14 +2,14 @@ package sg.gov.dsta.mobileC3.ventilo.util;
 
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.widget.AppCompatImageView;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.appcompat.widget.AppCompatImageView;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
@@ -61,7 +61,7 @@ public class SnackbarUtil {
         layoutSnackbar.setBackgroundColor(Color.TRANSPARENT);
 
         // Hide the default text
-        TextView textView = layoutSnackbar.findViewById(android.support.design.R.id.snackbar_text);
+        TextView textView = layoutSnackbar.findViewById(com.google.android.material.R.id.snackbar_text);
         textView.setVisibility(View.INVISIBLE);
 
         // Remove default view

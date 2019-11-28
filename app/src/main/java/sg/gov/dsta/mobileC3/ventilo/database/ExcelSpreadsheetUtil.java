@@ -324,6 +324,7 @@ public class ExcelSpreadsheetUtil {
                     while (rowIterator.hasNext()) {
                         contentRow = rowIterator.next();
 
+                        Timber.i("Checking User table...");
                         UserModel userModel = createUserModelFromDataRow(headerRow, contentRow, totalNoOfHeaderDataColumn);
 
                         if (userModel != null) {
@@ -674,10 +675,10 @@ public class ExcelSpreadsheetUtil {
 
 //                String floorAltitudeInCm = String.valueOf(DimensionUtil.
 //                        convertPixelToCm(Float.valueOf(floorAltitudeInPixel)));
-                Double floorAltitudeInCm = DimensionUtil.
-                        convertPixelToCm(Float.valueOf(floorAltitudeInPixel));
-                Double onePixelToMetres = (floorAltitudeInCm / Double.valueOf(pixelWidth)) * Double.valueOf(gaScale) / 100;
-                String floorAltitudeInMetres = String.valueOf(floorAltitudeInCm * onePixelToMetres);
+//                Double floorAltitudeInCm = DimensionUtil.
+//                        convertPixelToCm(Float.valueOf(floorAltitudeInPixel));
+//                Double onePixelToMetres = (floorAltitudeInCm / Double.valueOf(floorAltitudeInPixel)) * Double.valueOf(gaScale) / 100;
+//                String floorAltitudeInMetres = String.valueOf(floorAltitudeInCm * onePixelToMetres);
 
                 String lowerLeftXInCm = String.valueOf(DimensionUtil.
                         convertPixelToCm(Float.valueOf(lowerLeftXInPixel)));
@@ -696,7 +697,7 @@ public class ExcelSpreadsheetUtil {
 //                String upperRightXInMetres = String.valueOf(Float.valueOf(upperRightX) / 100);
 //                String upperRightYInMetres = String.valueOf(Float.valueOf(upperRightY) / 100);
 
-                mapModel.setFloorAltitudeInCm(floorAltitudeInMetres);
+                mapModel.setFloorAltitudeInCm(floorAltitudeInPixel);
                 mapModel.setPixelWidth(pixelWidth);
                 mapModel.setLowerLeftX(lowerLeftXInCm);
                 mapModel.setLowerLeftY(lowerLeftYInCm);

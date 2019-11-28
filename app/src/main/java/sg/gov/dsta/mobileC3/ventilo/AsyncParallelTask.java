@@ -2,7 +2,7 @@ package sg.gov.dsta.mobileC3.ventilo;
 
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 public class AsyncParallelTask {
 

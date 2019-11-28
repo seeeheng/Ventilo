@@ -1,8 +1,8 @@
 package sg.gov.dsta.mobileC3.ventilo.util.log;
 
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import org.slf4j.Logger;

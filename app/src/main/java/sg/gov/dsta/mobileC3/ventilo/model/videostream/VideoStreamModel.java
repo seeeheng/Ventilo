@@ -1,10 +1,9 @@
 package sg.gov.dsta.mobileC3.ventilo.model.videostream;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.PrimaryKey;
-import android.graphics.drawable.Drawable;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.PrimaryKey;
 
 import lombok.Data;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;

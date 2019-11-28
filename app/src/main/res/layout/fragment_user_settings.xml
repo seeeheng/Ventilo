@@ -58,7 +58,7 @@
 
                     </LinearLayout>
 
-                    <android.support.v7.widget.RecyclerView
+                    <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recycler_user_settings_callsign_team_profile"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -139,7 +139,7 @@
                         android:layout_marginStart="@dimen/elements_large_margin_spacing"
                         android:gravity="center_vertical">
 
-                        <android.support.v7.widget.AppCompatImageView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/img_user_settings_team_profile_edit_save"
                             android:layout_width="@dimen/user_settings_icon_btn_width"
                             android:layout_height="@dimen/user_settings_icon_btn_height"

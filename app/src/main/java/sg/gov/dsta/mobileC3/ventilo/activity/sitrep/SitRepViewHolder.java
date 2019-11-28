@@ -1,14 +1,12 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.sitrep;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView;
-import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansItalicBlackTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 
 @Data

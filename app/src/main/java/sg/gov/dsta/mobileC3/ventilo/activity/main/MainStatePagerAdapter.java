@@ -1,17 +1,14 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.main;
 
 import android.content.Context;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.util.SparseArrayCompat;
-import android.util.SparseArray;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
-import java.util.HashMap;
+import android.util.SparseArray;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 //import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
-import sg.gov.dsta.mobileC3.ventilo.activity.map.MapFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.radiolinkstatus.RadioLinkStatusFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.sitrep.SitRepFragment;

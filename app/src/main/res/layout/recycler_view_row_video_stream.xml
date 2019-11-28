@@ -8,7 +8,7 @@
     android:layout_marginBottom="@dimen/minor_margin"
     android:gravity="center_vertical">
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/img_video_stream_delete"
         android:layout_width="@dimen/side_menu_icon_width"
         android:layout_height="@dimen/side_menu_icon_height"
@@ -44,7 +44,7 @@
         android:layout_marginStart="@dimen/elements_margin_spacing"
         android:gravity="center_vertical">
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/img_video_stream_edit_save"
             android:layout_width="@dimen/video_stream_btn_width"
             android:layout_height="@dimen/video_stream_btn_height"

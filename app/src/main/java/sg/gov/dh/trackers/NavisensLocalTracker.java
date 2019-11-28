@@ -12,6 +12,12 @@ import java.util.Map;
 
 import sg.gov.dh.utils.Coords;
 
+import static com.navisens.motiondnaapi.MotionDna.ErrorCode.ERROR_AUTHENTICATION_FAILED;
+import static com.navisens.motiondnaapi.MotionDna.ErrorCode.ERROR_PERMISSIONS;
+import static com.navisens.motiondnaapi.MotionDna.ErrorCode.ERROR_SDK_EXPIRED;
+import static com.navisens.motiondnaapi.MotionDna.ErrorCode.ERROR_SENSOR_MISSING;
+import static com.navisens.motiondnaapi.MotionDna.ErrorCode.ERROR_SENSOR_TIMING;
+
 /**
  * The NAVISENS implementation of the Tracker Interface and NAVISENS's own API interface<br>
  * Note that this requires 'com.navisens:motiondnaapi:1.4.2' as dependancy in Gradle script.
@@ -200,7 +206,6 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
      */
     public NavisensLocalTracker(Activity context){
 
-
         Log.d(TAG,"Initialising Navisens Integrator");
         this.listener = null;
         this.context=context;
@@ -331,6 +336,46 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
     {
         Coords coord = new Coords(0.0, 0.0, this.currentZ, this.currentBearing, 0,0, 0, this.currentX, this.currentY, "");
         return coord;
+    }
+
+    /**
+     * Starts new motion DNA and creates new binary log file
+     *
+     */
+    public void startMotionDnaAndCreateNewTestLogFile() {
+        motionDnaApp = null;
+        motionDnaApp = new MotionDnaApplication(this);
+
+        motionDnaApp.runMotionDna(DEVELOPER_KEY);
+        motionDnaApp.setCallbackUpdateRateInMs(UPDATERATE_MS);
+        motionDnaApp.setPowerMode(MotionDna.PowerConsumptionMode.PERFORMANCE);
+        motionDnaApp.resetLocalEstimation();
+        motionDnaApp.resetLocalHeading();
+        motionDnaApp.setBinaryFileLoggingEnabled(true);
+
+        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_SENSOR_TIMING,
+                "Error: Sensor Timing");
+        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_AUTHENTICATION_FAILED,
+                "Error: Authentication Failed");
+        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_SENSOR_MISSING,
+                "Error: Sensor Missing");
+        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_SDK_EXPIRED,
+                "Error: SDK Expired");
+        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_WRONG_FLOOR_INPUT,
+                "Error: Wrong Floor Input");
+        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_PERMISSIONS,
+                "Error: Permissions");
+    }
+
+    /**
+     * Appends test log header to existing motion DNA binary log file
+     *
+     * @param logHeader
+     */
+    public void appendHeaderToExistingTestLogFile(String logHeader) {
+        if (motionDnaApp != null) {
+            motionDnaApp.log(logHeader);
+        }
     }
 
 }

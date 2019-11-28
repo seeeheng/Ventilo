@@ -3,13 +3,12 @@ package sg.gov.dsta.mobileC3.ventilo.network;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
-import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQServerPair;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQSubscriber;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
 //import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQ;

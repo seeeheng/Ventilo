@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -24,7 +24,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
-import java.net.SocketException;
 
 /** A UDP {@link DataSource}. */
 public class UdpDataSource extends BaseDataSource {

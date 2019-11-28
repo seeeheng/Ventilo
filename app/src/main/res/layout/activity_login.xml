@@ -15,13 +15,13 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/app_logo_top"
             android:layout_width="@dimen/login_img_logo_icon_width"
             android:layout_height="@dimen/login_img_logo_icon_height"
             android:src="@drawable/icon_login_img_logo" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/app_logo_bottom"
             android:layout_width="@dimen/login_text_logo_icon_width"
             android:layout_height="@dimen/login_text_logo_icon_height"
@@ -124,7 +124,7 @@
                 android:gravity="center"
                 android:spinnerMode="dropdown" />
 
-            <android.support.v7.widget.AppCompatImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/img_login_btn_login"
                 android:layout_width="@dimen/login_btn_width"
                 android:layout_height="@dimen/login_btn_height"

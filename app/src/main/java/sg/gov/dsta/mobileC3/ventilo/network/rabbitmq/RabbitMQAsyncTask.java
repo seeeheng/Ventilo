@@ -2,7 +2,7 @@ package sg.gov.dsta.mobileC3.ventilo.network.rabbitmq;
 
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;

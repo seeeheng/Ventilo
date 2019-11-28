@@ -5,7 +5,7 @@
     android:layout_height="@dimen/timeline_task_status_row_inner_container_height"
     android:orientation="horizontal">
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/img_timeline_task_status_icon"
         android:layout_width="@dimen/timeline_container_status_icon_width"
         android:layout_height="@dimen/timeline_container_status_icon_height"

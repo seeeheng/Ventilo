@@ -15,7 +15,7 @@
         android:textColor="@color/primary_text_grey"
         android:textSize="@dimen/text_view_small_text_size" />
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/img_add_new_item_category"
         android:layout_width="@dimen/add_new_item_background_icon_width"
         android:layout_height="@dimen/add_new_item_background_icon_height"

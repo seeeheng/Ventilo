@@ -38,7 +38,7 @@
         android:layout_marginTop="@dimen/elements_large_margin_spacing"
         android:background="@drawable/circle_grey_background">
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/img_timeline_line_status_icon"
             android:layout_width="@dimen/timeline_outer_icon_width"
             android:layout_height="@dimen/timeline_outer_icon_height"
@@ -49,7 +49,7 @@
 
     <!--</FrameLayout>-->
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/timeline_triangle"
         android:layout_width="@dimen/timeline_outer_icon_width"
         android:layout_height="@dimen/timeline_outer_icon_height"

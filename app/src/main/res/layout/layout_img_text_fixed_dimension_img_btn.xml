@@ -16,7 +16,7 @@
         android:textColor="@color/primary_text_hint_dark_grey"
         android:textSize="@dimen/text_view_text_size" />
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/img_img_text_fixed_dimension_pic_img_btn"
         android:layout_width="@dimen/img_btn_icon_width"
         android:layout_height="@dimen/img_btn_icon_height"

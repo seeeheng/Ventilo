@@ -1215,7 +1215,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
     }
 
     private void closeSockets(ZMQ.Poller poller) {
-        if (mZContext != null) {
+//        if (mZContext != null) {
 //            for (int i = 0; i < poller.getSize(); i++) {
 //                Socket socket = poller.getItem(i).getSocket();
 //
@@ -1231,7 +1231,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
 //                mZContext.destroySocket(socket);
 //                Timber.i("Client SUB socket destroyed %d", i);
 //            }
-        }
+//        }
 
         if (mZContext != null && !mZContext.isClosed()) {
             Timber.i("Destroying ZContext.");

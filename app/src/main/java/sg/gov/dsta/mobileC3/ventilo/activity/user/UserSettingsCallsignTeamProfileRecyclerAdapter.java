@@ -1,7 +1,7 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.user;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,11 +9,8 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
-import sg.gov.dsta.mobileC3.ventilo.activity.videostream.VideoStreamDeleteOrSaveViewHolder;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
-import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 
 public class UserSettingsCallsignTeamProfileRecyclerAdapter extends RecyclerView.Adapter<UserSettingsCallsignTeamProfileViewHolder> {
 

@@ -1,10 +1,8 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.videostream;
 
-import android.arch.lifecycle.ViewModelProviders;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;

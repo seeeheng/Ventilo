@@ -1,7 +1,5 @@
 package sg.gov.dsta.mobileC3.ventilo.util.constant;
 
-import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import java.util.ArrayList;

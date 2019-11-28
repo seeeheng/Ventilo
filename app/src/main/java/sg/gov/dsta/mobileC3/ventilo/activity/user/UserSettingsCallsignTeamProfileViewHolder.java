@@ -1,6 +1,6 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.user;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
 import lombok.Data;

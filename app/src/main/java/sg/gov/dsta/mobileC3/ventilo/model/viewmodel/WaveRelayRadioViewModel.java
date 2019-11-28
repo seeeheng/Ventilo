@@ -1,10 +1,9 @@
 package sg.gov.dsta.mobileC3.ventilo.model.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
+import androidx.lifecycle.AndroidViewModel;
 
 import io.reactivex.SingleObserver;
-import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
 

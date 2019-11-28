@@ -2,8 +2,8 @@ package sg.gov.dsta.mobileC3.ventilo.util.component;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.widget.AppCompatEditText;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.appcompat.widget.AppCompatEditText;
 import android.util.AttributeSet;
 
 import sg.gov.dsta.mobileC3.ventilo.R;

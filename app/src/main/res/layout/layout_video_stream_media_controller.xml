@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/video_stream_media_controller_toolbar_height">
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/img_media_controller_btn_screenshot"
             android:layout_width="@dimen/video_stream_media_controller_toolbar_btn_width"
             android:layout_height="@dimen/video_stream_media_controller_toolbar_btn_height"
@@ -20,7 +20,7 @@
             android:background="?android:attr/selectableItemBackground"
             app:srcCompat="@drawable/btn_screenshot" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/img_media_controller_btn_fullscreen"
             android:layout_width="@dimen/video_stream_media_controller_toolbar_btn_width"
             android:layout_height="@dimen/video_stream_media_controller_toolbar_btn_height"
@@ -100,7 +100,7 @@
         <!--<ImageButton android:id="@+id/img_media_controller_btn_rew"-->
         <!--style="@android:style/MediaButton.Rew" />-->
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/img_media_controller_btn_pause_play"
             android:layout_width="@dimen/video_stream_media_controller_btn_play_width"
             android:layout_height="@dimen/video_stream_media_controller_btn_play_height"

@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.activity.map.BFTLocalPreferences;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.map.MapModel;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
@@ -623,18 +624,25 @@ public class FileUtil {
             htmlString = FileUtils.readFileToString(htmlLeafletFile);
 
             String gaScale = mapModel.getGaScale(); // 300
-//            String lowestHeight = mapModel.getFloorAltitudeInCm(); // String.valueOf((-1.45 * 300 * 142 / 105) / 100)
-//            String highestHeight = String.valueOf(Float.valueOf(mapModel.getFloorAltitudeInCm()) +
-//                    DimensionUtil.AVERAGE_HUMAN_HEIGHT_IN_CM);
 
-//            String averageHeightInMetres = String.valueOf(Float.valueOf(mapModel.getFloorAltitudeInCm()) / 100);
-            String averageHeightInMetres = mapModel.getFloorAltitudeInCm();
 
 //            Bitmap bitmap = FileUtil.getBitmapFromFile(mapImageFile.getAbsolutePath());
             String pxWidth = mapModel.getPixelWidth(); // String.valueOf(bitmap.getWidth());
 //            String pxCmWidth = "41.45";
             String pxCmWidth = String.valueOf(DimensionUtil.
                     convertPixelToCm(Float.valueOf(pxWidth)));
+
+
+            //            String lowestHeight = mapModel.getFloorAltitudeInCm(); // String.valueOf((-1.45 * 300 * 142 / 105) / 100)
+//            String highestHeight = String.valueOf(Float.valueOf(mapModel.getFloorAltitudeInCm()) +
+//                    DimensionUtil.AVERAGE_HUMAN_HEIGHT_IN_CM);
+
+//            String averageHeightInMetres = String.valueOf(Float.valueOf(mapModel.getFloorAltitudeInCm()) / 100);
+            String averageHeightInMetres = String.valueOf(BFTLocalPreferences.getMetresFromPixels(Double.valueOf(mapModel.getFloorAltitudeInCm())));
+//            String floorAltitudeInCm = mapModel.getFloorAltitudeInCm();
+//            Double onePixelToMetres = (Double.valueOf(floorAltitudeInCm) / Double.valueOf(pxWidth)) * Double.valueOf(gaScale) / 100;
+//            String averageHeightInMetres = String.valueOf(Double.valueOf(floorAltitudeInCm) * onePixelToMetres);
+
 
             String imageOverlayFilePath = StringUtil.SINGLE_QUOTATION.concat(StringUtil.BACK_ONE_LEVEL_DIRECTORY).
                     concat(StringUtil.TRAILING_SLASH).concat(LEVEL_2_SUB_DIRECTORY_MAP_IMAGES).

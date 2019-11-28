@@ -111,14 +111,14 @@
                         android:orientation="horizontal"
                         android:padding="@dimen/elements_margin_spacing">
 
-                        <android.support.v7.widget.AppCompatImageView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/img_add_update_sitrep_photo_gallery"
                             android:layout_width="@dimen/sitrep_picture_icon_width"
                             android:layout_height="@dimen/sitrep_picture_icon_height"
                             android:layout_marginEnd="@dimen/elements_margin_spacing"
                             app:srcCompat="@drawable/btn_photo_gallery" />
 
-                        <android.support.v7.widget.AppCompatImageView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/img_add_update_sitrep_open_camera"
                             android:layout_width="@dimen/sitrep_picture_icon_width"
                             android:layout_height="@dimen/sitrep_picture_icon_height"
@@ -142,7 +142,7 @@
                         android:layout_height="@dimen/sitrep_picture_height"
                         android:layout_margin="@dimen/thin_line_margin" />
 
-                    <android.support.v7.widget.AppCompatImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/img_add_update_sitrep_picture_close"
                         android:layout_width="@dimen/sitrep_btn_close_icon_width"
                         android:layout_height="@dimen/sitrep_btn_close_icon_height"

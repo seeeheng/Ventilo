@@ -2,11 +2,10 @@ package sg.gov.dsta.mobileC3.ventilo.repository;
 
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.io.File;
 
-import sg.gov.dsta.mobileC3.ventilo.AsyncParallelTask;
 import sg.gov.dsta.mobileC3.ventilo.activity.user.UserSettingsFragment;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.database.ExcelSpreadsheetUtil;
@@ -67,12 +66,12 @@ public class ExcelSpreadsheetRepository {
             }
 
             // For BFT data
-            shipConfigExcelFile = ExcelSpreadsheetUtil.getExcelFile(ExcelSpreadsheetUtil.EXCEL_FILE_SHIP_CONFIG_RELATIVE_PATH, false);
-//            ExcelSpreadsheetUtil.readXlsWorkBookDataAndStoreIntoDatabase(excelFile);
-
-            if (shipConfigExcelFile != null) {
-                ExcelSpreadsheetUtil.readXlsxWorkBookDataAndStoreIntoDatabase(shipConfigExcelFile);
-            }
+//            shipConfigExcelFile = ExcelSpreadsheetUtil.getExcelFile(ExcelSpreadsheetUtil.EXCEL_FILE_SHIP_CONFIG_RELATIVE_PATH, false);
+////            ExcelSpreadsheetUtil.readXlsWorkBookDataAndStoreIntoDatabase(excelFile);
+//
+//            if (shipConfigExcelFile != null) {
+//                ExcelSpreadsheetUtil.readXlsxWorkBookDataAndStoreIntoDatabase(shipConfigExcelFile);
+//            }
 
             return null;
         }
@@ -90,14 +89,14 @@ public class ExcelSpreadsheetRepository {
 
             }
 
-            if (shipConfigExcelFile != null) {
-                notifyShipConfigExcelDataPulledBroadcastIntent();
-                Timber.i(TAG, "Excel file - Ship Config data stored into database");
-
-            } else {
-                notifyShipConfigExcelDataPullFailedBroadcastIntent();
-
-            }
+//            if (shipConfigExcelFile != null) {
+//                notifyShipConfigExcelDataPulledBroadcastIntent();
+//                Timber.i(TAG, "Excel file - Ship Config data stored into database");
+//
+//            } else {
+//                notifyShipConfigExcelDataPullFailedBroadcastIntent();
+//
+//            }
         }
     }
 

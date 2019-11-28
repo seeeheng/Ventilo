@@ -1,15 +1,14 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.login;
 
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
@@ -35,7 +34,6 @@ import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.WaveRelayRadioViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
-import sg.gov.dsta.mobileC3.ventilo.util.FileUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.ProgressBarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;

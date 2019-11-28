@@ -59,14 +59,14 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <android.support.v7.widget.AppCompatImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/img_personnel_add"
                     android:layout_width="@dimen/sitrep_personnel_content_btn_width"
                     android:layout_height="@dimen/sitrep_personnel_content_btn_height"
                     app:srcCompat="@drawable/btn_personnel_add"
                     android:layout_marginBottom="@dimen/elements_margin_spacing"/>
 
-                <android.support.v7.widget.AppCompatImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/img_personnel_reduce"
                     android:layout_width="@dimen/sitrep_personnel_content_btn_width"
                     android:layout_height="@dimen/sitrep_personnel_content_btn_height"

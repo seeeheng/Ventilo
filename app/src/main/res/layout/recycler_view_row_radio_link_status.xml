@@ -7,7 +7,7 @@
     android:layout_margin="@dimen/elements_margin_spacing"
     android:gravity="center_vertical">
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/img_radio_link_status_row_icon"
         android:layout_width="@dimen/status_link_recycler_status_icon_width"
         android:layout_height="@dimen/status_link_recycler_status_icon_height"

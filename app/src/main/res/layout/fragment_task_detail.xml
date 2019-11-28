@@ -55,7 +55,7 @@
                     android:layout_height="@dimen/detail_line_information_height"
                     android:layout_marginBottom="@dimen/elements_small_margin_spacing">
 
-                    <android.support.v7.widget.AppCompatImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="@dimen/detail_row_icon_width"
                         android:layout_height="@dimen/detail_row_icon_height"
                         android:layout_gravity="center_vertical"
@@ -77,7 +77,7 @@
                     android:layout_height="@dimen/detail_line_information_height"
                     android:layout_marginBottom="@dimen/elements_small_margin_spacing">
 
-                    <android.support.v7.widget.AppCompatImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="@dimen/detail_row_icon_width"
                         android:layout_height="@dimen/detail_row_icon_height"
                         android:layout_gravity="center_vertical"

@@ -16,16 +16,13 @@
 package com.google.android.exoplayer2.source;
 
 import android.os.Handler;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayList;
-
-import static com.google.android.exoplayer2.C.TCP;
 
 /**
  * Base {@link MediaSource} implementation to handle parallel reuse and to keep a list of {@link

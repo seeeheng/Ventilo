@@ -1,26 +1,35 @@
 package sg.gov.dsta.mobileC3.ventilo.activity.map;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
+
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+
 import android.content.res.AssetFileDescriptor;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v7.widget.AppCompatImageView;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
@@ -38,10 +47,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nutiteq.components.Color;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -68,7 +73,6 @@ import sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.videoStream.Dashboard
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
-import sg.gov.dsta.mobileC3.ventilo.model.eventbus.BftEvent;
 import sg.gov.dsta.mobileC3.ventilo.model.map.MapModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.BFTViewModel;
@@ -77,7 +81,6 @@ import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQ;
-import sg.gov.dsta.mobileC3.ventilo.repository.ExcelSpreadsheetRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
@@ -85,6 +88,7 @@ import sg.gov.dsta.mobileC3.ventilo.util.FileUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SpinnerItemListDataBank;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.bft.EBftType;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
@@ -114,7 +118,7 @@ public class MapShipBlueprintFragment extends Fragment {
     private FrameLayout mMainLayout;
     private FrameLayout mFrameLayoutBlueprint;
     private LinearLayout mLinearLayoutDashboardFragments;
-    private static WebView myWebView;
+    private WebView mWebView;
     private View mMiddleDivider;
     private View mBottomDivider;
 
@@ -145,10 +149,27 @@ public class MapShipBlueprintFragment extends Fragment {
     private List<UserModel> mPersonnelLinkStatusUserListItems;
 
     // Killed In Action (KIA)/Hazard and Deceased UI
-    private static RelativeLayout mRelativeLayoutHazardImgBtn;
+    private RelativeLayout mRelativeLayoutHazardImgBtn;
     private AppCompatImageView mImgHazardIcon;
-    private static RelativeLayout mRelativeLayoutDeceasedImgBtn;
+    private RelativeLayout mRelativeLayoutDeceasedImgBtn;
     private AppCompatImageView mImgDeceasedIcon;
+    private static String mSelectedIconType;
+
+    // Test Logs UI
+    private RelativeLayout mRelativeLayoutTestLogToggleImgBtn;
+    private AppCompatImageView mImgTestLogToggleIcon;
+    private AppCompatButton mBtnNewTestLog;
+    private AppCompatButton mBtnAppendTestLog;
+
+    private View mViewTestLogInput;
+    private AppCompatImageView mImgTestLogInputOthers;
+
+    private RelativeLayout mLayoutTestLogInputOthers;
+    private Spinner mSpinnerTestLog;
+    private ArrayAdapter<String> mSpinnerTestLogAdapter;
+    private C2OpenSansRegularEditTextView mEtvTestLogOthers;
+
+    private C2OpenSansRegularEditTextView mEtvTestLogHistory;
 
     //Somehow need to think of a way to make these 2 variables eternal
     double currentHeight = 0.0;
@@ -217,10 +238,10 @@ public class MapShipBlueprintFragment extends Fragment {
 
         initPersonnelLinkStatusUI(rootView);
 
-//        if (myWebView != null) {
-//            myWebView.evaluateJavascript("javascript: disconnectRabbitMQ()", null);
+//        if (mWebView != null) {
+//            mWebView.evaluateJavascript("javascript: disconnectRabbitMQ()", null);
 //        }
-        myWebView = rootView.findViewById(R.id.webview_bft);
+        mWebView = rootView.findViewById(R.id.webview_bft);
 
         mVideoStreamFragment = rootView.
                 findViewById(R.id.fragment_dashboard_video_stream);
@@ -273,6 +294,7 @@ public class MapShipBlueprintFragment extends Fragment {
         mTextAction = rootView.findViewById(R.id.tv_map_blueprint_textAction);
 
         initSideButtons(rootView);
+        initTestLogButtons(rootView);
         initFloorSpinner(rootView);
 
 //        final ImageView imgSetting = rootMapShipBlueprintView.findViewById(R.id.img_btn_ship_blueprint_setting);
@@ -327,7 +349,7 @@ public class MapShipBlueprintFragment extends Fragment {
     }
 
     private void initWebviewSettings() {
-        WebSettings webSettings = myWebView.getSettings();
+        WebSettings webSettings = mWebView.getSettings();
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
         webSettings.setJavaScriptEnabled(true);
@@ -335,7 +357,7 @@ public class MapShipBlueprintFragment extends Fragment {
         webSettings.setAllowContentAccess(true);
         webSettings.setAllowFileAccessFromFileURLs(true);
         webSettings.setAllowUniversalAccessFromFileURLs(true);
-        myWebView.setWebViewClient(new WebViewClient() {
+        mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
@@ -344,9 +366,9 @@ public class MapShipBlueprintFragment extends Fragment {
             }
         });
 
-        myWebView.setWebChromeClient(new WebChromeClient());
-//        myWebView.loadUrl(LOCAL_SHIP_BLUEPRINT_DIRECTORY + prefs.getOverview());
-        myWebView.addJavascriptInterface(new WebAppInterface(this.getActivity(), prefs, tracker), "Android");
+        mWebView.setWebChromeClient(new WebChromeClient());
+//        mWebView.loadUrl(LOCAL_SHIP_BLUEPRINT_DIRECTORY + prefs.getOverview());
+        mWebView.addJavascriptInterface(new WebAppInterface(this.getActivity(), prefs, tracker), "Android");
 
 //        setupMessageQueue();
         setupFileSaver();
@@ -386,7 +408,7 @@ public class MapShipBlueprintFragment extends Fragment {
             new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    myWebView.loadUrl(getBlueprintDirectory() +
+                    mWebView.loadUrl(getBlueprintDirectory() +
                             mSpinnerFloorNameLinkList.get(position));
 
 //                    mSelectedFloorName = mSpinnerFloorNameLinkList.get(position);
@@ -397,7 +419,11 @@ public class MapShipBlueprintFragment extends Fragment {
                 }
             };
 
-    // Initialises Hazard and Deceased icon buttons UI and listeners
+    /**
+     * Initialises Hazard and Deceased icon buttons UI and listeners
+     *
+     * @param rootView
+     */
     private void initSideButtons(View rootView) {
         View layoutMainHazardImgBtn = rootView.findViewById(R.id.layout_map_ship_blueprint_hazard_icon);
         mRelativeLayoutHazardImgBtn = layoutMainHazardImgBtn.findViewById(R.id.relative_layout_img_with_img_btn);
@@ -419,6 +445,180 @@ public class MapShipBlueprintFragment extends Fragment {
 
         mHazardMsgList = new ArrayList<>();
         mDeceasedMsgList = new ArrayList<>();
+    }
+
+    /**
+     * Initialises test log buttons UI and listeners
+     *
+     * @param rootView
+     */
+    private void initTestLogButtons(View rootView) {
+        // Test log toggle button
+        View layoutTestLogToggleImgBtn = rootView.findViewById(R.id.layout_map_ship_blueprint_test_log_toggle_icon);
+        mRelativeLayoutTestLogToggleImgBtn = layoutTestLogToggleImgBtn.findViewById(R.id.relative_layout_img_with_img_btn);
+        mImgTestLogToggleIcon = layoutTestLogToggleImgBtn.findViewById(R.id.img_pic_within_img_btn);
+        mImgTestLogToggleIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+                R.drawable.icon_test_log_toggle, null));
+
+        mRelativeLayoutTestLogToggleImgBtn.setOnClickListener(onTestLogToggleIconClickListener);
+
+        // Actual test log button
+        mBtnNewTestLog = rootView.findViewById(R.id.btn_map_ship_blueprint_new_test_log);
+        mBtnAppendTestLog = rootView.findViewById(R.id.btn_map_ship_blueprint_append_test_log);
+
+        mEtvTestLogHistory = rootView.findViewById(R.id.etv_map_ship_blueprint_test_log);
+        mEtvTestLogHistory.setFocusableInTouchMode(false);
+        mEtvTestLogHistory.setScrollbarFadingEnabled(false);
+
+        mBtnNewTestLog.setOnClickListener(onNewTestLogIconClickListener);
+        mBtnAppendTestLog.setOnClickListener(onAppendTestLogIconClickListener);
+
+        // For test log input UI
+        initTestLogInput(rootView);
+
+        setTestLogToggleIconUnselectedStateUI();
+    }
+
+    /**
+     * Initialise Sit Rep input activity request UI
+     * <p>
+     * Suppression is to remove warning for overriding OnTouchListener which Android requires proper
+     * handling of the performClick() method thereafter, in which the standard UI views all set up to provide
+     * blind users with appropriate feedback through Accessibility services. However, in this use case,
+     * it is not crucial and does not affect targeted user experience.
+     *
+     * @param rootView
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void initTestLogInput(View rootView) {
+        mViewTestLogInput = rootView.findViewById(R.id.layout_map_ship_blueprint_input_test_log);
+        mLayoutTestLogInputOthers = mViewTestLogInput.findViewById(R.id.layout_spinner_edittext_input_others_icon);
+        mImgTestLogInputOthers = mViewTestLogInput.findViewById(R.id.img_spinner_edittext_input_others_icon);
+        mSpinnerTestLog = mViewTestLogInput.findViewById(R.id.spinner_broad);
+        mEtvTestLogOthers = mViewTestLogInput.findViewById(R.id.etv_spinner_edittext_others_info);
+        mEtvTestLogOthers.setOnTouchListener(onViewTouchListener);
+
+        List<String> motionLabelList = new ArrayList<>(Arrays.asList(SpinnerItemListDataBank.getInstance().
+                getMotionLabelStrArray()));
+
+        mLayoutTestLogInputOthers.setOnClickListener(onTestLogInputOthersClickListener);
+
+        mSpinnerTestLogAdapter = getSpinnerArrayAdapter(motionLabelList);
+        mSpinnerTestLog.setAdapter(mSpinnerTestLogAdapter);
+
+        mEtvTestLogOthers.setHint(MainApplication.getAppContext().
+                getString(R.string.map_blueprint_test_log_hint));
+    }
+
+    /**
+     * Enable internal vertical scrolling for edit text views where content exceed maximum height
+     */
+    private View.OnTouchListener onViewTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (view.hasFocus()) {
+                view.getParent().requestDisallowInterceptTouchEvent(true);
+                switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
+                    case MotionEvent.ACTION_SCROLL:
+                        view.getParent().requestDisallowInterceptTouchEvent(false);
+                        return true;
+                }
+            }
+            return false;
+        }
+    };
+
+    private View.OnClickListener onTestLogInputOthersClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+//            mIsActivityInputOthersSelected = !view.isSelected();
+//            view.setSelected(mIsActivityInputOthersSelected);
+
+            view.setSelected(!view.isSelected());
+
+            if (view.isSelected()) {
+                setInputOthersSelectedUI(view, mImgTestLogInputOthers, mSpinnerTestLog, mEtvTestLogOthers);
+            } else {
+                setInputOthersUnselectedUI(view, mImgTestLogInputOthers, mSpinnerTestLog, mEtvTestLogOthers);
+            }
+        }
+    };
+
+    private void setInputOthersSelectedUI(View view, AppCompatImageView inputOthersImageView,
+                                          Spinner spinner, C2OpenSansRegularEditTextView editTextView) {
+
+        view.setBackgroundColor(ResourcesCompat.getColor(getResources(),
+                R.color.primary_highlight_cyan, null));
+        inputOthersImageView.setColorFilter(ResourcesCompat.getColor(
+                getResources(), R.color.background_main_black, null));
+        spinner.setVisibility(View.GONE);
+        editTextView.setVisibility(View.VISIBLE);
+    }
+
+    private void setInputOthersUnselectedUI(View view, AppCompatImageView inputOthersImageView,
+                                            Spinner spinner, C2OpenSansRegularEditTextView editTextView) {
+
+        view.setBackgroundColor(ResourcesCompat.getColor(getResources(),
+                R.color.background_dark_grey, null));
+        inputOthersImageView.setColorFilter(null);
+        spinner.setVisibility(View.VISIBLE);
+        editTextView.setVisibility(View.GONE);
+    }
+
+    private ArrayAdapter<String> getSpinnerArrayAdapter(List<String> stringArray) {
+
+        return new ArrayAdapter<String>(getActivity(),
+                R.layout.spinner_row_item, R.id.tv_spinner_row_item_text, stringArray) {
+
+            @Override
+            public boolean isEnabled(int position) {
+                if (position == 0) {
+                    // Disable the first item from Spinner
+                    // First item will be used as hint
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                LinearLayout layoutSpinner = view.findViewById(R.id.layout_spinner_text_item);
+                layoutSpinner.setGravity(Gravity.END);
+                layoutSpinner.setPadding(0, 0,
+                        (int) getResources().getDimension(R.dimen.elements_large_margin_spacing), 0);
+
+                return view;
+            }
+
+            @Override
+            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+
+                // Set appropriate height for spinner items
+                DimensionUtil.setDimensions(view,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        (int) getResources().getDimension(R.dimen.spinner_broad_height),
+                        new LinearLayout(getContext()));
+
+                LinearLayout layoutSpinner = view.findViewById(R.id.layout_spinner_text_item);
+                layoutSpinner.setGravity(Gravity.END);
+                layoutSpinner.setPadding(0, 0,
+                        (int) getResources().getDimension(R.dimen.elements_large_margin_spacing), 0);
+
+                TextView tv = view.findViewById(R.id.tv_spinner_row_item_text);
+                if (position == 0) {
+                    // Set the hint text color gray
+                    tv.setTextColor(android.graphics.Color.GRAY);
+                } else {
+                    tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_white, null));
+                }
+
+                return view;
+            }
+        };
     }
 
     /**
@@ -475,6 +675,9 @@ public class MapShipBlueprintFragment extends Fragment {
 
         mImgHazardIcon.setColorFilter(ContextCompat.getColor(getContext(), R.color.dull_orange),
                 PorterDuff.Mode.SRC_ATOP);
+
+        mSelectedIconType = MainApplication.getAppContext().
+                getString(R.string.map_blueprint_other_type);
     }
 
     private void setHazardIconSelectedStateUI() {
@@ -485,6 +688,9 @@ public class MapShipBlueprintFragment extends Fragment {
         mRelativeLayoutHazardImgBtn.setBackground(layoutDrawable);
 
         mImgHazardIcon.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
+
+        mSelectedIconType = MainApplication.getAppContext().
+                getString(R.string.map_blueprint_hazard_type);
     }
 
     private View.OnClickListener onHazardIconClickListener = new View.OnClickListener() {
@@ -519,6 +725,9 @@ public class MapShipBlueprintFragment extends Fragment {
 
         mImgDeceasedIcon.setColorFilter(ContextCompat.getColor(getContext(), R.color.primary_text_grey),
                 PorterDuff.Mode.SRC_ATOP);
+
+        mSelectedIconType = MainApplication.getAppContext().
+                getString(R.string.map_blueprint_other_type);
     }
 
     private void setDeceasedIconSelectedStateUI() {
@@ -529,6 +738,9 @@ public class MapShipBlueprintFragment extends Fragment {
         mRelativeLayoutDeceasedImgBtn.setBackground(layoutDrawable);
 
         mImgDeceasedIcon.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
+
+        mSelectedIconType = MainApplication.getAppContext().
+                getString(R.string.map_blueprint_deceased_type);
     }
 
     private View.OnClickListener onDeceasedIconClickListener = new View.OnClickListener() {
@@ -546,6 +758,197 @@ public class MapShipBlueprintFragment extends Fragment {
 
             } else {
                 setDeceasedIconUnselectedStateUI();
+
+            }
+        }
+    };
+
+    /**
+     * -------------------- Test Log --------------------
+     **/
+
+    /**
+     * Set test log UI to invisible
+     */
+    private void setTestLogToggleIconUnselectedStateUI() {
+        Drawable layoutDrawable = mRelativeLayoutTestLogToggleImgBtn.getBackground();
+        layoutDrawable = DrawableCompat.wrap(layoutDrawable);
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+                R.color.primary_white));
+        mRelativeLayoutTestLogToggleImgBtn.setBackground(layoutDrawable);
+
+        mImgTestLogToggleIcon.setColorFilter(ContextCompat.getColor(getContext(), R.color.background_dark_grey),
+                PorterDuff.Mode.SRC_ATOP);
+
+        mBtnAppendTestLog.setVisibility(View.GONE);
+        mBtnNewTestLog.setVisibility(View.GONE);
+        mViewTestLogInput.setVisibility(View.GONE);
+        mEtvTestLogHistory.setVisibility(View.GONE);
+    }
+
+    /**
+     * Set test log UI to visible
+     */
+    private void setTestLogToggleIconSelectedStateUI() {
+        Drawable layoutDrawable = mRelativeLayoutTestLogToggleImgBtn.getBackground();
+        layoutDrawable = DrawableCompat.wrap(layoutDrawable);
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+                R.color.primary_highlight_cyan));
+        mRelativeLayoutTestLogToggleImgBtn.setBackground(layoutDrawable);
+
+        mImgTestLogToggleIcon.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
+
+        mBtnAppendTestLog.setVisibility(View.VISIBLE);
+        mBtnNewTestLog.setVisibility(View.VISIBLE);
+        mViewTestLogInput.setVisibility(View.VISIBLE);
+        mEtvTestLogHistory.setVisibility(View.VISIBLE);
+    }
+
+//    private void displayStopMotionDnaUiButton() {
+//        mImgNewTestLogIcon = mBtnNewTestLog.findViewById(R.id.img_pic_within_img_btn);
+//        mImgNewTestLogIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+//                R.drawable.icon_stop, null));
+//        mImgNewTestLogIcon.setColorFilter(ContextCompat.getColor(getContext(), R.color.dull_red),
+//                PorterDuff.Mode.SRC_ATOP);
+//    }
+
+//    private void displayAppendTestLogUiButton() {
+//        mImgAppendTestLogIcon = mBtnAppendTestLog.findViewById(R.id.img_pic_within_img_btn);
+//        mImgAppendTestLogIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+//                R.drawable.icon_append_test_log, null));
+//        mImgAppendTestLogIcon.setColorFilter(ContextCompat.getColor(getContext(), R.color.background_main_black),
+//                PorterDuff.Mode.SRC_ATOP);
+//    }
+//
+//    private void displayNewTestLogUiButton() {
+//        mImgNewTestLogIcon = mBtnNewTestLog.findViewById(R.id.img_pic_within_img_btn);
+//        mImgNewTestLogIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+//                R.drawable.icon_new_test_log, null));
+//        mImgNewTestLogIcon.setColorFilter(ContextCompat.getColor(getContext(), R.color.background_main_black),
+//                PorterDuff.Mode.SRC_ATOP);
+//    }
+
+    private View.OnClickListener onTestLogToggleIconClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            view.setSelected(!view.isSelected());
+
+            if (view.isSelected()) {
+                setTestLogToggleIconSelectedStateUI();
+            } else {
+                setTestLogToggleIconUnselectedStateUI();
+            }
+        }
+    };
+
+    /**
+     * OnClickListener to create new test log file
+     */
+    private View.OnClickListener onNewTestLogIconClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+
+            if (tracker != null) {
+
+                tracker.deactivate();
+                tracker.startMotionDnaAndCreateNewTestLogFile();
+
+                // Show snackbar message to indicate new test log header has been logged
+                if (getSnackbarView() != null) {
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                            MainApplication.getAppContext().
+                                    getString(R.string.snackbar_map_blueprint_new_test_log_file_saved_message));
+                }
+
+                mEtvTestLogHistory.setText(MainApplication.getAppContext().
+                        getString(R.string.map_blueprint_test_log_new_file_created));
+            }
+
+        }
+    };
+
+    /**
+     * OnClickListener to append a new header into existing test log file
+     */
+    private View.OnClickListener onAppendTestLogIconClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+
+            if (tracker != null) {
+
+                String motionLabel = "";
+                if (mLayoutTestLogInputOthers.isSelected()) {
+
+                    motionLabel = mEtvTestLogOthers.getText().toString().trim();
+
+                    // Valid entered motion label
+                    if (!TextUtils.isEmpty(motionLabel)) {
+
+                        // Show snackbar message to indicate new test log header has been logged
+                        if (getSnackbarView() != null) {
+                            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                    MainApplication.getAppContext().
+                                            getString(R.string.snackbar_map_blueprint_new_test_log_header_saved_message));
+                        }
+
+                        // Updates test log spinner data with newly added motion
+                        SpinnerItemListDataBank.getInstance().addItemToMotionLabelList(motionLabel);
+                        List<String> spinnerTestLogList = new ArrayList<>(Arrays.asList(SpinnerItemListDataBank.
+                                getInstance().getMotionLabelStrArray()));
+                        mSpinnerTestLogAdapter.clear();
+                        mSpinnerTestLogAdapter.addAll(spinnerTestLogList);
+
+                        tracker.appendHeaderToExistingTestLogFile(motionLabel);
+
+                        if (!TextUtils.isEmpty(mEtvTestLogHistory.getText().toString().trim())) {
+                            mEtvTestLogHistory.append(System.lineSeparator());
+                        }
+
+                        mEtvTestLogHistory.append(motionLabel);
+
+                    } else {
+
+                        // Show snackbar message to request user to enter test log header
+                        if (getSnackbarView() != null) {
+                            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                    MainApplication.getAppContext().
+                                            getString(R.string.snackbar_map_blueprint_no_test_log_header_message));
+                        }
+
+                    }
+
+                } else {
+
+                    // Valid selected spinner item
+                    if (mSpinnerTestLog.getSelectedItemPosition() != 0) {
+
+                        motionLabel = mSpinnerTestLog.getSelectedItem().toString();
+
+                        // Show snackbar message to indicate new test log header has been logged
+                        if (getSnackbarView() != null) {
+                            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                    MainApplication.getAppContext().
+                                            getString(R.string.snackbar_map_blueprint_new_test_log_header_saved_message));
+                        }
+
+                        tracker.appendHeaderToExistingTestLogFile(motionLabel);
+
+                        if (!TextUtils.isEmpty(mEtvTestLogHistory.getText().toString().trim())) {
+                            mEtvTestLogHistory.append(System.lineSeparator());
+                        }
+
+                        mEtvTestLogHistory.append(motionLabel);
+
+                    } else {
+                        // Show snackbar message to indicate invalid selected motion label
+                        if (getSnackbarView() != null) {
+                            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                    MainApplication.getAppContext().
+                                            getString(R.string.snackbar_map_blueprint_motion_label_not_selected));
+                        }
+                    }
+
+                }
 
             }
         }
@@ -759,15 +1162,15 @@ public class MapShipBlueprintFragment extends Fragment {
         accessDatabaseAndRefreshBftUI();
     }
 
-    protected static void androidToJsCreateObjectAtLocation(String message) {
-        if (myWebView != null) {
-            myWebView.evaluateJavascript("javascript: " + "androidToJScreateLocation(\""
+    private void androidToJsCreateObjectAtLocation(String message) {
+        if (mWebView != null) {
+            mWebView.evaluateJavascript("javascript: " + "androidToJScreateLocation(\""
                     + message + "\")", null);
         }
     }
 
     private void androidToJsUpdateObjectToLocation(BFTModel bftModel) {
-        if (myWebView != null) {
+        if (mWebView != null) {
             // Android to Javascript
             String message;
 
@@ -777,7 +1180,7 @@ public class MapShipBlueprintFragment extends Fragment {
 
             Timber.i("Calling JAVASCRIPT with %s", message);
 
-            myWebView.evaluateJavascript("javascript: " + "androidToJSupdateLocation(\""
+            mWebView.evaluateJavascript("javascript: " + "androidToJSupdateLocation(\""
                     + message + "\")", null);
         }
     }
@@ -972,7 +1375,7 @@ public class MapShipBlueprintFragment extends Fragment {
 ////
 ////        Log.d(TAG, "Calling JAVASCRIPT with " + message);
 ////
-////        myWebView.evaluateJavascript("javascript: " + "androidToJSupdateLocation(\"" + message + "\")", null);
+////        mWebView.evaluateJavascript("javascript: " + "androidToJSupdateLocation(\"" + message + "\")", null);
 ////    }
 
     /**
@@ -1166,7 +1569,7 @@ public class MapShipBlueprintFragment extends Fragment {
 //                            Timber.i("onNewBFTMessage (OWN Force) insert");
 //
 //                            if (!StringUtil.EMPTY_STRING.equalsIgnoreCase(messageContent)) {
-//                                myWebView.evaluateJavascript("javascript: " + "androidToJSupdateLocation(\"" +
+//                                mWebView.evaluateJavascript("javascript: " + "androidToJSupdateLocation(\"" +
 //                                        messageContent + "\")", null);
 //                            }
 //
@@ -1176,7 +1579,7 @@ public class MapShipBlueprintFragment extends Fragment {
 //                            Timber.i("onNewBFTMessage (Others) insert");
 //
 //                            if (!StringUtil.EMPTY_STRING.equalsIgnoreCase(messageContent)) {
-//                                myWebView.evaluateJavascript("javascript: " + "androidToJScreateLocation(\""
+//                                mWebView.evaluateJavascript("javascript: " + "androidToJScreateLocation(\""
 //                                        + messageContent + "\")", null);
 //                            }
 //
@@ -1259,40 +1662,7 @@ public class MapShipBlueprintFragment extends Fragment {
      * @return
      */
     public static String getIconTypeToMarker() {
-        String iconType;
-        if (mRelativeLayoutHazardImgBtn.isSelected()) {
-            iconType = MainApplication.getAppContext().
-                    getString(R.string.map_blueprint_hazard_type);
-        } else if (mRelativeLayoutDeceasedImgBtn.isSelected()) {
-            iconType = MainApplication.getAppContext().
-                    getString(R.string.map_blueprint_deceased_type);
-        } else {
-            iconType = MainApplication.getAppContext().
-                    getString(R.string.map_blueprint_other_type);
-        }
-
-        return iconType;
-    }
-
-    /**
-     * For javascript interface class to receive button selected state
-     *
-     * @return
-     */
-    public static String getJavascriptFolderName() {
-        String iconType;
-        if (mRelativeLayoutHazardImgBtn.isSelected()) {
-            iconType = MainApplication.getAppContext().
-                    getString(R.string.map_blueprint_hazard_type);
-        } else if (mRelativeLayoutDeceasedImgBtn.isSelected()) {
-            iconType = MainApplication.getAppContext().
-                    getString(R.string.map_blueprint_deceased_type);
-        } else {
-            iconType = MainApplication.getAppContext().
-                    getString(R.string.map_blueprint_other_type);
-        }
-
-        return iconType;
+        return mSelectedIconType;
     }
 
 //    public static String getSelectedFloorName() {
@@ -1467,7 +1837,7 @@ public class MapShipBlueprintFragment extends Fragment {
 
             // Automatically initialise location from database if user
             // has not initialise current location and database has this info
-            if (tracker != null && myWebView != null && !WebAppInterface.mIsLocationInitialised) {
+            if (tracker != null && mWebView != null && !WebAppInterface.mIsLocationInitialised) {
                 tracker.setManualLocation(new Coords(0, 0,
                         Double.parseDouble(bftModel.getAltitude()), Double.parseDouble(bftModel.getBearing()),
                         0, 0, 0, Double.parseDouble(bftModel.getXCoord()),
@@ -1492,8 +1862,8 @@ public class MapShipBlueprintFragment extends Fragment {
                     "," + bftModel.getBearing() + "," + bftModel.getUserId() +
                     "," + bftModel.getAction() + "," + bftModel.getType();
 
-            if (myWebView != null) {
-                myWebView.evaluateJavascript("javascript: " +
+            if (mWebView != null) {
+                mWebView.evaluateJavascript("javascript: " +
                         "androidToJSupdateLocation(\"" + message + "\")", null);
             }
         }
@@ -1659,7 +2029,7 @@ public class MapShipBlueprintFragment extends Fragment {
                             getBlueprintFloorHtmlLinkStrArray());
 
                     // Reload default (first) html link of web view for every new update
-                    myWebView.loadUrl(getBlueprintDirectory() +
+                    mWebView.loadUrl(getBlueprintDirectory() +
                             mSpinnerFloorNameLinkList.get(0));
 
                 }

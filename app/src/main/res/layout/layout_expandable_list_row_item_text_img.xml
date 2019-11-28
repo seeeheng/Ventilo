@@ -22,7 +22,7 @@
             android:text="@string/add_new_item_sitrep"
             android:textSize="@dimen/text_view_text_size" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/img_expandable_list_row_item_img"
             android:layout_width="@dimen/expandable_list_view_row_item_icon_width"
             android:layout_height="@dimen/expandable_list_view_row_item_icon_height"

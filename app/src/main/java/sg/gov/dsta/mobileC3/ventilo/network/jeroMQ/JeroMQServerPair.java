@@ -1,8 +1,6 @@
 package sg.gov.dsta.mobileC3.ventilo.network.jeroMQ;
 
 import android.app.Application;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.google.gson.Gson;
 

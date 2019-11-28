@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/spinner_row_item_height">
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/img_spinner_home_icon"
         android:layout_width="@dimen/video_stream_spinner_icon_width"
         android:layout_height="wrap_content"
