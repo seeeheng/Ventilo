@@ -66,12 +66,12 @@ public class ExcelSpreadsheetRepository {
             }
 
             // For BFT data
-//            shipConfigExcelFile = ExcelSpreadsheetUtil.getExcelFile(ExcelSpreadsheetUtil.EXCEL_FILE_SHIP_CONFIG_RELATIVE_PATH, false);
-////            ExcelSpreadsheetUtil.readXlsWorkBookDataAndStoreIntoDatabase(excelFile);
-//
-//            if (shipConfigExcelFile != null) {
-//                ExcelSpreadsheetUtil.readXlsxWorkBookDataAndStoreIntoDatabase(shipConfigExcelFile);
-//            }
+            shipConfigExcelFile = ExcelSpreadsheetUtil.getExcelFile(ExcelSpreadsheetUtil.EXCEL_FILE_SHIP_CONFIG_RELATIVE_PATH, false);
+//            ExcelSpreadsheetUtil.readXlsWorkBookDataAndStoreIntoDatabase(excelFile);
+
+            if (shipConfigExcelFile != null) {
+                ExcelSpreadsheetUtil.readXlsxWorkBookDataAndStoreIntoDatabase(shipConfigExcelFile);
+            }
 
             return null;
         }
@@ -89,14 +89,14 @@ public class ExcelSpreadsheetRepository {
 
             }
 
-//            if (shipConfigExcelFile != null) {
-//                notifyShipConfigExcelDataPulledBroadcastIntent();
-//                Timber.i(TAG, "Excel file - Ship Config data stored into database");
-//
-//            } else {
-//                notifyShipConfigExcelDataPullFailedBroadcastIntent();
-//
-//            }
+            if (shipConfigExcelFile != null) {
+                notifyShipConfigExcelDataPulledBroadcastIntent();
+                Timber.i(TAG, "Excel file - Ship Config data stored into database");
+
+            } else {
+                notifyShipConfigExcelDataPullFailedBroadcastIntent();
+
+            }
         }
     }
 
