@@ -150,16 +150,18 @@ public class JeroMQPublisher extends JeroMQParent {
 
             mPubSocket = mZContext.createSocket(SocketType.PUB);
             mPubSocket.setMaxMsgSize(-1);
+            mPubSocket.setMsgAllocationHeapThreshold(0);
+
             mPubSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
             mPubSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
             mPubSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
-//        mPubSocket.setMsgAllocationHeapThreshold(1024 * 1024);
+//            mPubSocket.setMsgAllocationHeapThreshold(5 * 1024 * 1024);
 //        mPubSocket.setSendBufferSize(1024 * 1024);
             mPubSocket.setLinger(0);
             mPubSocket.setRcvHWM(0);
             mPubSocket.setSndHWM(0);
             mPubSocket.setImmediate(true);
-            mPubSocket.setTCPKeepAlive(1);
+            mPubSocket.setTCPKeepAlive(0);
             mPubSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
             mPubSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
             mPubSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
@@ -203,6 +205,8 @@ public class JeroMQPublisher extends JeroMQParent {
                     Timber.i("message: %s", userMessageToSend);
 
                     mPubSocket.setMaxMsgSize(-1);
+                    mPubSocket.setMsgAllocationHeapThreshold(0);
+
                     mPubSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
                     mPubSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
                     mPubSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
@@ -210,7 +214,7 @@ public class JeroMQPublisher extends JeroMQParent {
                     mPubSocket.setRcvHWM(0);
                     mPubSocket.setSndHWM(0);
                     mPubSocket.setImmediate(true);
-                    mPubSocket.setTCPKeepAlive(1);
+                    mPubSocket.setTCPKeepAlive(0);
                     mPubSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
                     mPubSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
                     mPubSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
@@ -259,6 +263,8 @@ public class JeroMQPublisher extends JeroMQParent {
                     Timber.i("Publishing WaveRelay Radio message %s", message);
 
                     mPubSocket.setMaxMsgSize(-1);
+                    mPubSocket.setMsgAllocationHeapThreshold(0);
+
                     mPubSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
                     mPubSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
                     mPubSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
@@ -266,7 +272,7 @@ public class JeroMQPublisher extends JeroMQParent {
                     mPubSocket.setRcvHWM(0);
                     mPubSocket.setSndHWM(0);
                     mPubSocket.setImmediate(true);
-                    mPubSocket.setTCPKeepAlive(1);
+                    mPubSocket.setTCPKeepAlive(0);
                     mPubSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
                     mPubSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
                     mPubSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
@@ -319,6 +325,8 @@ public class JeroMQPublisher extends JeroMQParent {
                     Timber.i("Publishing BFT message: %s", message);
 
                     mPubSocket.setMaxMsgSize(-1);
+                    mPubSocket.setMsgAllocationHeapThreshold(0);
+
                     mPubSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
                     mPubSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
                     mPubSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
@@ -326,7 +334,7 @@ public class JeroMQPublisher extends JeroMQParent {
                     mPubSocket.setRcvHWM(0);
                     mPubSocket.setSndHWM(0);
                     mPubSocket.setImmediate(true);
-                    mPubSocket.setTCPKeepAlive(1);
+                    mPubSocket.setTCPKeepAlive(0);
                     mPubSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
                     mPubSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
                     mPubSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
@@ -378,6 +386,8 @@ public class JeroMQPublisher extends JeroMQParent {
                     Timber.i("Publishing SitRep %s %s", actionPrefix, message);
 
                     mPubSocket.setMaxMsgSize(-1);
+                    mPubSocket.setMsgAllocationHeapThreshold(0);
+
                     mPubSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
                     mPubSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
                     mPubSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
@@ -385,7 +395,7 @@ public class JeroMQPublisher extends JeroMQParent {
                     mPubSocket.setRcvHWM(0);
                     mPubSocket.setSndHWM(0);
                     mPubSocket.setImmediate(true);
-                    mPubSocket.setTCPKeepAlive(1);
+                    mPubSocket.setTCPKeepAlive(0);
                     mPubSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
                     mPubSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
                     mPubSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
@@ -438,6 +448,8 @@ public class JeroMQPublisher extends JeroMQParent {
                     Timber.i("Publishing Task %s  , messge: %s", actionPrefix, taskMessageToSend);
 
                     mPubSocket.setMaxMsgSize(-1);
+                    mPubSocket.setMsgAllocationHeapThreshold(0);
+
                     mPubSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
                     mPubSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
                     mPubSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
@@ -445,7 +457,7 @@ public class JeroMQPublisher extends JeroMQParent {
                     mPubSocket.setRcvHWM(0);
                     mPubSocket.setSndHWM(0);
                     mPubSocket.setImmediate(true);
-                    mPubSocket.setTCPKeepAlive(1);
+                    mPubSocket.setTCPKeepAlive(0);
                     mPubSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
                     mPubSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
                     mPubSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);

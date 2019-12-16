@@ -69,6 +69,8 @@
     <string name="snackbar_sitrep_file_saved_successfully">Sit Rep has been successfully saved into file.</string>
     <string name="snackbar_confirmation_action">OK</string>
 
+    <string name="snackbar_motion_log_file_saved_successfully">Motion log has been successfully saved into file.</string>
+
     <string name="snackbar_task_select_task_phase_no_option">All Task Phases have been assigned</string>
     <string name="snackbar_task_task_name_no_option"><![CDATA[There are no existing Task Names.\n\nPlease type one out instead.]]></string>
     <string name="snackbar_task_sent_message">Task has been sent</string>

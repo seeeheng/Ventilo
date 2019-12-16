@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -63,9 +64,11 @@ import java.util.ArrayList;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.helper.MqttHelper;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.eventbus.PageEvent;
 import sg.gov.dsta.mobileC3.ventilo.util.CustomMapTileProvider;
 import sg.gov.dsta.mobileC3.ventilo.util.CustomRasterDataSource;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.VoiceCommands;
 //import sg.gov.dh.utils.Coords;
@@ -93,7 +96,7 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
     private View mRootMapView;
     private Bundle mSavedInstanceState;
 
-//    private MqttHelper mMqttHelper;
+    //    private MqttHelper mMqttHelper;
     // Map
 //    private com.esri.arcgisruntime.mapping.view.MapView mArcGISMapView;
     private com.google.android.gms.maps.MapView mGoogleMapView;
@@ -145,8 +148,7 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
     }
 
     @Subscribe
-    public void onEvent(PageEvent pageEvent)
-    {
+    public void onEvent(PageEvent pageEvent) {
 //        if (MapShipBlueprintFragment.class.getSimpleName().equalsIgnoreCase(pageEvent.getPreviousFragmentName())) {
 //            System.out.println("MapFragment found!");
 //            onVisible();
@@ -237,9 +239,8 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
             public void onMapClick(LatLng arg0) {
                 // TODO Auto-generated method stub
                 System.out.println("MAP CLICK");
-                Timber.i("latit is %d", arg0.latitude );
-                Timber.i("- longitude is %d" , arg0.longitude);
-
+                Timber.i("latit is %d", arg0.latitude);
+                Timber.i("- longitude is %d", arg0.longitude);
 
 
             }
@@ -348,7 +349,7 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
     private void initVoiceRecognition(View rootMapView) {
         mBtnSpeak = rootMapView.findViewById(R.id.btn_mic_speak);
         mTvSpeakText = rootMapView.findViewById(R.id.tv_mic_text);
-        mBtnSpeak.setOnClickListener(micSpeakOnClickListener());
+        mBtnSpeak.setOnClickListener(micSpeakOnClickListener);
     }
 
     private void initButtons(View rootMapView) {
@@ -360,7 +361,7 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
         mBtnSubscribe = rootMapView.findViewById(R.id.btn_mqtt_subscribe);
 
 //        mBtnSubscribe.setVisibility(View.VISIBLE);
-        mBtnSubscribe.setOnClickListener(subscribeOnClickListener());
+        mBtnSubscribe.setOnClickListener(subscribeOnClickListener);
 
 //        mBtnPublish = rootMapView.findViewById(R.id.btn_mqtt_publish);
 //
@@ -375,28 +376,28 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
         mBtnShareLocation = rootMapView.findViewById(R.id.btn_mqtt_share_location);
 
 //        mBtnShareLocation.setVisibility(View.VISIBLE);
-        mBtnShareLocation.setOnClickListener(shareLocationOnClickListener());
+        mBtnShareLocation.setOnClickListener(shareLocationOnClickListener);
     }
 
     private void initMapButtons(View rootMapView) {
         mBtnTopView = rootMapView.findViewById(R.id.btn_map_top_view);
-        mBtnTopView.setOnClickListener(mapTopOnClickListener());
+        mBtnTopView.setOnClickListener(mapTopOnClickListener);
 
         mBtnPortView = rootMapView.findViewById(R.id.btn_map_port_view);
-        mBtnPortView.setOnClickListener(mapPortOnClickListener());
+        mBtnPortView.setOnClickListener(mapPortOnClickListener);
 
         mBtnSBView = rootMapView.findViewById(R.id.btn_map_sb_view);
-        mBtnSBView.setOnClickListener(mapSBOnClickListener());
+        mBtnSBView.setOnClickListener(mapSBOnClickListener);
     }
 
-    private View.OnClickListener subscribeOnClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                subscribeToMQTTTopic("Ventilo");
-            }
-        };
-    }
+    private DebounceOnClickListener subscribeOnClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
+                @Override
+                public void onDebouncedClick(View view) {
+                    subscribeToMQTTTopic("Ventilo");
+                }
+            };
 
 //    private View.OnClickListener publishOnClickListener() {
 //        return new View.OnClickListener() {
@@ -416,19 +417,20 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
 //        };
 //    }
 
-    private View.OnClickListener mapTopOnClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                navigateToMapShipBlueprintFragment();
-            }
-        };
-    }
+    private DebounceOnClickListener mapTopOnClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
 
-    private View.OnClickListener mapPortOnClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+                @Override
+                public void onDebouncedClick(View view) {
+                    navigateToMapShipBlueprintFragment();
+                }
+            };
+
+    private DebounceOnClickListener mapPortOnClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
+                @Override
+                public void onDebouncedClick(View view) {
 //                MapPos mapPos1 = mProj.fromWgs84(103.851959f, 1.290270f);
 //                MapPos mapPos = new MapPos(mapPos1.x, mapPos1.y, 0.1f);
 //                mNutiteqMapView.setFocusPoint(mapPos);
@@ -436,18 +438,18 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
 //                mNutiteqMapView.setTilt(0);
 //                mNutiteqMapView.setZoom(16.0f);
 
-                CameraPosition pos = CameraPosition.fromLatLngZoom(new LatLng(VESSEL_LAT_COORD, VESSEL_LON_COORD), 16);
-                CameraPosition posWithBearing = CameraPosition.builder(pos).bearing(180).tilt(90).build();
-                CameraUpdate upd = CameraUpdateFactory.newCameraPosition(posWithBearing);
-                mGoogleMap.moveCamera(upd);
-            }
-        };
-    }
+                    CameraPosition pos = CameraPosition.fromLatLngZoom(new LatLng(VESSEL_LAT_COORD, VESSEL_LON_COORD), 16);
+                    CameraPosition posWithBearing = CameraPosition.builder(pos).bearing(180).tilt(90).build();
+                    CameraUpdate upd = CameraUpdateFactory.newCameraPosition(posWithBearing);
+                    mGoogleMap.moveCamera(upd);
+                }
+            };
 
-    private View.OnClickListener mapSBOnClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+    private DebounceOnClickListener mapSBOnClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
+                @Override
+                public void onDebouncedClick(View view) {
 //                MapPos mapPos1 = mProj.fromWgs84(103.851959f, 1.290270f);
 //                MapPos mapPos = new MapPos(mapPos1.x, mapPos1.y, 0.1f);
 //                mNutiteqMapView.setFocusPoint(mapPos);
@@ -455,32 +457,31 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
 //                mNutiteqMapView.setTilt(0);
 //                mNutiteqMapView.setZoom(16.0f);
 
-                CameraPosition pos = CameraPosition.fromLatLngZoom(new LatLng(VESSEL_LAT_COORD, VESSEL_LON_COORD), 16);
-                CameraPosition posWithBearing = CameraPosition.builder(pos).bearing(0).tilt(90).build();
-                CameraUpdate upd = CameraUpdateFactory.newCameraPosition(posWithBearing);
-                mGoogleMap.moveCamera(upd);
-            }
-        };
-    }
+                    CameraPosition pos = CameraPosition.fromLatLngZoom(new LatLng(VESSEL_LAT_COORD, VESSEL_LON_COORD), 16);
+                    CameraPosition posWithBearing = CameraPosition.builder(pos).bearing(0).tilt(90).build();
+                    CameraUpdate upd = CameraUpdateFactory.newCameraPosition(posWithBearing);
+                    mGoogleMap.moveCamera(upd);
+                }
+            };
 
-    private View.OnClickListener shareLocationOnClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                System.out.println("isShareLocation to true");
-                isShareLocation = true;
-            }
-        };
-    }
+    private DebounceOnClickListener shareLocationOnClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
 
-    private View.OnClickListener micSpeakOnClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                activateMicrophone();
-            }
-        };
-    }
+                @Override
+                public void onDebouncedClick(View view) {
+                    System.out.println("isShareLocation to true");
+                    isShareLocation = true;
+                }
+            };
+
+    private DebounceOnClickListener micSpeakOnClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
+                @Override
+                public void onDebouncedClick(View view) {
+                    activateMicrophone();
+                }
+            };
 
 //    private void init2DBlueprint(View rootMapView) {
 //        mPinView = rootMapView.findViewById(R.id.img_map_main);
@@ -887,7 +888,7 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
 
         Timber.i("SPEAK %s", matches.toString());
 
-}
+    }
 
     @Override
     public void onRmsChanged(float rmsdB) {
@@ -1129,7 +1130,7 @@ public class MapFragment extends Fragment implements RecognitionListener, OnMapR
     /**
      * Accesses child base fragment of current selected view pager item and remove this fragment
      * from child base fragment's stack.
-     *
+     * <p>
      * Selected View Pager Item: Map
      * Child Base Fragment: MapShipBlueprintFragment
      */

@@ -27,11 +27,13 @@ import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.helper.SwipeHelper;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.TaskViewModel;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.DrawableUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
@@ -186,9 +188,10 @@ public class TaskFragment extends Fragment {
         if (EAccessRight.CCT.toString().equalsIgnoreCase(
                 SharedPreferenceUtil.getCurrentUserAccessRight())) {
             mFabAddTask.show();
-            mFabAddTask.setOnClickListener(new View.OnClickListener() {
+
+            mFabAddTask.setOnClickListener(new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
                 @Override
-                public void onClick(View view) {
+                public void onDebouncedClick(View view) {
                     mFabAddTask.setEnabled(false);
 
                     Fragment taskAddUpdateFragment = new TaskAddUpdateFragment();

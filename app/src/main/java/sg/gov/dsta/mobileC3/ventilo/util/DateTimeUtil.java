@@ -25,6 +25,7 @@ public class DateTimeUtil {
     private static final String CUSTOM_DATE_FORMAT = "dd MMM yyyy";
     private static final String CUSTOM_TIME_FORMAT = "HH:mm";
     private static final String CUSTOM_DATE_TIME_FILE_FORMAT = "ddMMMyyyy_HHmmss";
+    private static final String CUSTOM_DATE_FILE_FORMAT = "ddMMMyyyy";
 
     public static Date getSpecifiedDateBySecond(int second) {
         return getSpecifiedDate(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH),
@@ -244,5 +245,10 @@ public class DateTimeUtil {
     public static String dateToCustomDateTimeFileStringFormat(Date dateToConvert) {
         SimpleDateFormat dateTimeFormat = new SimpleDateFormat(CUSTOM_DATE_TIME_FILE_FORMAT);
         return dateTimeFormat.format(dateToConvert);
+    }
+
+    public static String dateToCustomDateFileStringFormat(Date dateToConvert) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(CUSTOM_DATE_FILE_FORMAT);
+        return dateFormat.format(dateToConvert);
     }
 }

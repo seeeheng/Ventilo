@@ -21,10 +21,12 @@ import java.util.List;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.SitRepViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.DrawableUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
@@ -339,9 +341,11 @@ public class SitRepDetailFragment extends Fragment {
         }
     }
 
-    private View.OnClickListener onBackClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onBackClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             Timber.i("Back button pressed.");
 
 
@@ -354,9 +358,11 @@ public class SitRepDetailFragment extends Fragment {
         }
     };
 
-    private View.OnClickListener onEditClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onEditClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             Timber.i("Edit button pressed.");
 
 

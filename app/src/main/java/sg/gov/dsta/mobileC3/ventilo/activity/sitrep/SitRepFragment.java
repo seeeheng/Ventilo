@@ -29,10 +29,12 @@ import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.helper.SwipeHelper;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.SitRepViewModel;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.util.FileUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
@@ -132,9 +134,10 @@ public class SitRepFragment extends Fragment {
         if (!EAccessRight.CCT.toString().equalsIgnoreCase(
                 SharedPreferenceUtil.getCurrentUserAccessRight())) {
             mFabAddSitRep.show();
-            mFabAddSitRep.setOnClickListener(new View.OnClickListener() {
+
+            mFabAddSitRep.setOnClickListener(new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
                 @Override
-                public void onClick(View view) {
+                public void onDebouncedClick(View view) {
                     mFabAddSitRep.setEnabled(false);
 
                     Fragment sitRepAddUpdateFragment = new SitRepAddUpdateFragment();

@@ -109,6 +109,8 @@ public class JeroMQServerPair extends JeroMQParent {
 
                 Socket serverPairSocket = zContext.createSocket(SocketType.PAIR);
                 serverPairSocket.setMaxMsgSize(-1);
+                serverPairSocket.setMsgAllocationHeapThreshold(0);
+
                 serverPairSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
                 serverPairSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
                 serverPairSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
@@ -116,7 +118,7 @@ public class JeroMQServerPair extends JeroMQParent {
                 serverPairSocket.setRcvHWM(0);
                 serverPairSocket.setSndHWM(0);
                 serverPairSocket.setImmediate(true);
-                serverPairSocket.setTCPKeepAlive(1);
+                serverPairSocket.setTCPKeepAlive(0);
                 serverPairSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
                 serverPairSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
                 serverPairSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);

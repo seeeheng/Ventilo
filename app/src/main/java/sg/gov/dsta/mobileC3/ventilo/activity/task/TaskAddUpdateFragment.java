@@ -31,6 +31,7 @@ import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserTaskJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
@@ -40,6 +41,7 @@ import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.ProgressBarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
@@ -572,9 +574,11 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
         mTaskNameExpandableListView.setAdapter(mTaskNameExpandableListAdapter);
     }
 
-    private View.OnClickListener onTaskNameInputOthersClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onTaskNameInputOthersClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mIsTaskNameInputOthersSelected = !view.isSelected();
             view.setSelected(mIsTaskNameInputOthersSelected);
 
@@ -876,10 +880,10 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
                             (int) getResources().getDimension(R.dimen.elements_margin_spacing), 0);
 
                     // Set highlight on button upon click
-                    viewBtnAssignToTeam.setOnClickListener(new View.OnClickListener() {
+                    viewBtnAssignToTeam.setOnClickListener(new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
 
                         @Override
-                        public void onClick(View view) {
+                        public void onDebouncedClick(View view) {
                             view.setSelected(!view.isSelected());
                             if (view.isSelected()) {
                                 setAssignToSelectedUI(viewBtnAssignToTeam, tvAssignToTeam, imgAssignToTeam);
@@ -969,17 +973,21 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
     };
 
     // ---------------------------------------- OnClickListeners ---------------------------------------- //
-    private View.OnClickListener onBackClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onBackClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             Timber.i("Back button pressed.");
             popChildBackStack();
         }
     };
 
-    private View.OnClickListener onCreateClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onCreateClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             Timber.i("Create button pressed.");
 
             if (isFormCompleteForFurtherAction()) {
@@ -992,9 +1000,11 @@ public class TaskAddUpdateFragment extends Fragment implements SnackbarUtil.Snac
         }
     };
 
-    private View.OnClickListener onUpdateClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onUpdateClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
 
             if (isFormCompleteForFurtherAction()) {
                 if (getSnackbarView() != null) {

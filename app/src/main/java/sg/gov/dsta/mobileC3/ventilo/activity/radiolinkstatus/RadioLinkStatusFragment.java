@@ -87,7 +87,7 @@ public class RadioLinkStatusFragment extends Fragment {
             mRadioLinkStatusUserListItems = new ArrayList<>();
         }
 
-        mRecyclerAdapterStatusOffline = new RadioLinkStatusOfflineRecyclerAdapter(getContext(),
+        mRecyclerAdapterStatusOffline = new RadioLinkStatusOfflineRecyclerAdapter(MainApplication.getAppContext(),
                 mRadioLinkStatusUserListItems, new ArrayList<>());
         mRecyclerViewStatusOffline.setAdapter(mRecyclerAdapterStatusOffline);
         mRecyclerViewStatusOffline.setItemAnimator(new DefaultItemAnimator());

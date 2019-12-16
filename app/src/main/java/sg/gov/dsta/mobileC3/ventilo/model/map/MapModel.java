@@ -14,7 +14,7 @@ public class MapModel {
     private String deckName;
     private String viewType;
     private String gaScale;
-    private String floorAltitudeInCm;
+    private String floorAltitudeInPixel;
     private String pixelWidth;
     private String lowerLeftX;
     private String lowerLeftY;
@@ -32,7 +32,7 @@ public class MapModel {
     public String getDeckName() { return deckName; }
     public String getViewType() { return viewType; }
     public String getGaScale() { return gaScale; }
-    public String getFloorAltitudeInCm() { return floorAltitudeInCm; }
+    public String getFloorAltitudeInPixel() { return floorAltitudeInPixel; }
     public String getPixelWidth() { return pixelWidth; }
     public String getLowerLeftX() { return lowerLeftX; }
     public String getLowerLeftY() { return lowerLeftY; }
@@ -45,7 +45,7 @@ public class MapModel {
     public void setDeckName(String deckName) { this.deckName = deckName; }
     public void setViewType(String viewType) { this.viewType = viewType; }
     public void setGaScale(String gaScale) { this.gaScale = gaScale; }
-    public void setFloorAltitudeInCm(String floorAltitudeInCm) { this.floorAltitudeInCm = floorAltitudeInCm; }
+    public void setFloorAltitudeInPixel(String floorAltitudeInPixel) { this.floorAltitudeInPixel = floorAltitudeInPixel; }
     public void setPixelWidth(String pixelWidth) { this.pixelWidth = pixelWidth; }
     public void setLowerLeftX(String lowerLeftX) { this.lowerLeftX = lowerLeftX; }
     public void setLowerLeftY(String lowerLeftY) { this.lowerLeftY = lowerLeftY; }

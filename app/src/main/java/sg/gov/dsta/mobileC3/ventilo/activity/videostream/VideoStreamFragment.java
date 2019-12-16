@@ -80,10 +80,12 @@ import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.activity.sitrep.SitRepAddUpdateFragment;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.PhotoCaptureUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
@@ -989,7 +991,8 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                             File compressedBitmapFile = new File(mScreenshotImageAbsolutePath);
 
                             // This refreshes the photo Gallery app in Android to display the updated list
-                            getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(compressedBitmapFile)));
+                            MainApplication.getAppContext().sendBroadcast(new
+                                    Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(compressedBitmapFile)));
 
                             StringBuilder screenshotStringBuilder = new StringBuilder();
                             screenshotStringBuilder.append(MainApplication.getAppContext().
@@ -1105,7 +1108,8 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
                         File compressedBitmapFile = new File(mScreenshotImageAbsolutePath);
 
                         // This refreshes the photo Gallery app in Android to display the updated list
-                        getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(compressedBitmapFile)));
+                        MainApplication.getAppContext().sendBroadcast(new
+                                Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(compressedBitmapFile)));
 
                         StringBuilder screenshotStringBuilder = new StringBuilder();
                         screenshotStringBuilder.append(MainApplication.getAppContext().
@@ -1669,9 +1673,11 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
         }
     }
 
-    private View.OnClickListener settingOnClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener settingOnClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             Fragment videoStreamAddFragment = new VideoStreamAddFragment();
             navigateToFragment(videoStreamAddFragment);
         }
@@ -1691,8 +1697,11 @@ public class VideoStreamFragment extends Fragment implements SnackbarUtil.Snackb
     private synchronized void setVideoVLCStreamURL(String media, ConstraintLayout constraintLayout,
                                                    VideoStreamControllerView videoStreamControllerView,
                                                    SimpleExoPlayer mediaPlayer) {
-        constraintLayout.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
+
+        constraintLayout.setOnClickListener(new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
+            @Override
+            public void onDebouncedClick(View v) {
                 videoStreamControllerView.show(MEDIA_CONTROLLER_SHOW_DURATION);
             }
         });

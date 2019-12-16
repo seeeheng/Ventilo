@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.google.android.material.snackbar.Snackbar;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
 
 /**
@@ -89,9 +90,9 @@ public class SnackbarUtil {
             // Action 'OK'
             if ("".equalsIgnoreCase(snackbarActionOkText)) {
                 imgSnackbarActionOk.setVisibility(View.VISIBLE);
-                imgSnackbarActionOk.setOnClickListener(new View.OnClickListener() {
+                imgSnackbarActionOk.setOnClickListener(new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
                     @Override
-                    public void onClick(View view) {
+                    public void onDebouncedClick(View view) {
                         if (snackbarActionClickListener != null) {
                             snackbar.dismiss();
                             snackbarActionClickListener.onSnackbarActionClick();
@@ -103,9 +104,9 @@ public class SnackbarUtil {
             } else {
                 tvSnackbarActionOk.setVisibility(View.VISIBLE);
                 tvSnackbarActionOk.setText(snackbarActionOkText);
-                tvSnackbarActionOk.setOnClickListener(new View.OnClickListener() {
+                tvSnackbarActionOk.setOnClickListener(new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
                     @Override
-                    public void onClick(View view) {
+                    public void onDebouncedClick(View view) {
                         if (snackbarActionClickListener != null) {
                             snackbar.dismiss();
                             snackbarActionClickListener.onSnackbarActionClick();
@@ -119,9 +120,9 @@ public class SnackbarUtil {
             // Action 'Cancel'
             if ("".equalsIgnoreCase(snackbarActionCancelText)) {
                 imgSnackbarActionCancel.setVisibility(View.VISIBLE);
-                imgSnackbarActionCancel.setOnClickListener(new View.OnClickListener() {
+                imgSnackbarActionCancel.setOnClickListener(new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
                     @Override
-                    public void onClick(View view) {
+                    public void onDebouncedClick(View view) {
                         snackbar.dismiss();
                     }
                 });
@@ -130,9 +131,9 @@ public class SnackbarUtil {
             } else {
                 tvSnackbarActionCancel.setVisibility(View.VISIBLE);
                 tvSnackbarActionCancel.setText(snackbarActionCancelText);
-                tvSnackbarActionCancel.setOnClickListener(new View.OnClickListener() {
+                tvSnackbarActionCancel.setOnClickListener(new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
                     @Override
-                    public void onClick(View view) {
+                    public void onDebouncedClick(View view) {
                         snackbar.dismiss();
                     }
                 });
@@ -146,9 +147,9 @@ public class SnackbarUtil {
             tvSnackbarActionCancel.setVisibility(View.GONE);
         }
 
-        layoutSnackbar.setOnClickListener(new View.OnClickListener() {
+        layoutSnackbar.setOnClickListener(new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
             @Override
-            public void onClick(View view) {
+            public void onDebouncedClick(View view) {
                 snackbar.dismiss();
             }
         });

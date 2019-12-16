@@ -29,11 +29,13 @@ import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.WaveRelayRadioViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.ProgressBarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
@@ -118,9 +120,9 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         mLoginBtn = findViewById(R.id.img_login_btn_login);
-        mLoginBtn.setOnClickListener(new View.OnClickListener() {
+        mLoginBtn.setOnClickListener(new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
             @Override
-            public void onClick(View view) {
+            public void onDebouncedClick(View view) {
                 mLoginBtn.setEnabled(false);
                 attemptLogin();
             }
@@ -245,7 +247,7 @@ public class LoginActivity extends AppCompatActivity {
                 DimensionUtil.setDimensions(view,
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         (int) getResources().getDimension(R.dimen.spinner_broad_height),
-                        new LinearLayout(getContext()));
+                        new LinearLayout(MainApplication.getAppContext()));
 
                 LinearLayout layoutSpinner = view.findViewById(R.id.layout_spinner_text_item);
                 layoutSpinner.setGravity(Gravity.CENTER);

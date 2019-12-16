@@ -33,6 +33,7 @@ import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.WaveRelayRadioViewModel;
@@ -40,6 +41,7 @@ import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQClientPairRunnable;
 import sg.gov.dsta.mobileC3.ventilo.repository.ExcelSpreadsheetRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
@@ -136,7 +138,7 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         List<UserModel> userListItems = new ArrayList<>();
 
         mRecyclerAdapter = new UserSettingsCallsignTeamProfileRecyclerAdapter(
-                getContext(), userListItems);
+                MainApplication.getAppContext(), userListItems);
         recyclerView.setAdapter(mRecyclerAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
@@ -241,12 +243,12 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                     teamProfileName.append(flatListOfDistinctTeamsProfileNames.get(i).toString().trim());
                     tvTeamProfileName.setText(teamProfileName.toString());
 
-                    if (getContext() != null) {
+                    if (MainApplication.getAppContext() != null) {
                         // Set fixed height for newly created button
                         DimensionUtil.setDimensions(viewBtnTeamProfileName,
                                 LinearLayout.LayoutParams.WRAP_CONTENT,
                                 (int) getResources().getDimension(R.dimen.img_btn_fixed_height),
-                                new LinearLayout(getContext()));
+                                new LinearLayout(MainApplication.getAppContext()));
 
                         // Set margin at the end of each button
                         DimensionUtil.setMargins(viewBtnTeamProfileName, 0, 0,
@@ -275,10 +277,10 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                     viewBtnTeamProfileName.setEnabled(false);
 
                     // Set highlight on button upon click
-                    viewBtnTeamProfileName.setOnClickListener(new View.OnClickListener() {
+                    viewBtnTeamProfileName.setOnClickListener(new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
 
                         @Override
-                        public void onClick(View view) {
+                        public void onDebouncedClick(View view) {
                             view.setSelected(!view.isSelected());
                             if (view.isSelected()) {
                                 setTeamProfileNameSelectedEditableUI(viewBtnTeamProfileName, tvTeamProfileName, imgTeamProfileName);
@@ -346,7 +348,7 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         tvPullFromExcel.setTextColor(ResourcesCompat.getColor(getResources(), R.color.dull_green, null));
         imgPullFromExcel.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
                 R.drawable.side_nav_menu_sitrep_btn, null));
-        imgPullFromExcel.setColorFilter(ContextCompat.getColor(getContext(), R.color.dull_green),
+        imgPullFromExcel.setColorFilter(ContextCompat.getColor(MainApplication.getAppContext(), R.color.dull_green),
                 PorterDuff.Mode.SRC_ATOP);
 
         mImgLayoutPullFromExcel.setOnClickListener(onPullFromExcelClickListener);
@@ -366,7 +368,7 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         tvPushToExcel.setTextColor(ResourcesCompat.getColor(getResources(), R.color.dull_green, null));
         imgPushToExcel.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
                 R.drawable.side_nav_menu_sitrep_btn, null));
-        imgPushToExcel.setColorFilter(ContextCompat.getColor(getContext(), R.color.dull_green),
+        imgPushToExcel.setColorFilter(ContextCompat.getColor(MainApplication.getAppContext(), R.color.dull_green),
                 PorterDuff.Mode.SRC_ATOP);
 
         mImgLayoutPushToExcel.setOnClickListener(onPushToExcelClickListener);
@@ -388,15 +390,17 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         tvLogout.setTextColor(ResourcesCompat.getColor(getResources(), R.color.dull_red, null));
         imgLogout.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
                 R.drawable.icon_logout, null));
-        imgLogout.setColorFilter(ContextCompat.getColor(getContext(), R.color.dull_red),
+        imgLogout.setColorFilter(ContextCompat.getColor(MainApplication.getAppContext(), R.color.dull_red),
                 PorterDuff.Mode.SRC_ATOP);
 
         imgLayoutLogout.setOnClickListener(onLogoutClickListener);
     }
 
-    private View.OnClickListener onEditOrSaveTeamProfileClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onEditOrSaveTeamProfileClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             view.setSelected(!view.isSelected());
 
             // Set UI for each of the following states:
@@ -469,9 +473,11 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         }
     };
 
-    private View.OnClickListener onPullFromExcelClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onPullFromExcelClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             if (getSnackbarView() != null) {
                 mSnackbarOption = SNACKBAR_PULL_FROM_EXCEL_ID;
                 SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
@@ -481,9 +487,11 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         }
     };
 
-    private View.OnClickListener onPushToExcelClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onPushToExcelClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             if (getSnackbarView() != null) {
                 mSnackbarOption = SNACKBAR_PUSH_TO_EXCEL_ID;
                 SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
@@ -493,9 +501,11 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
         }
     };
 
-    private View.OnClickListener onLogoutClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onLogoutClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             if (getSnackbarView() != null) {
                 mSnackbarOption = SNACKBAR_LOGOUT_ID;
                 SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
@@ -546,12 +556,12 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                                                       AppCompatImageView imgTeamProfileNameRadioBtn) {
         viewBtnTeamProfileName.setBackground(ResourcesCompat.getDrawable(
                 getResources(), R.drawable.img_btn_background_cyan_border, null));
-        tvTeamProfileName.setTextColor(ContextCompat.getColor(getContext(),
+        tvTeamProfileName.setTextColor(ContextCompat.getColor(MainApplication.getAppContext(),
                 R.color.primary_highlight_cyan));
         imgTeamProfileNameRadioBtn.setImageDrawable(ResourcesCompat.getDrawable(
                 getResources(), R.drawable.icon_checkbox_selected, null));
         imgTeamProfileNameRadioBtn.setColorFilter(ContextCompat.getColor(
-                getContext(), R.color.translucent), PorterDuff.Mode.SRC_ATOP);
+                MainApplication.getAppContext(), R.color.translucent), PorterDuff.Mode.SRC_ATOP);
     }
 
     /**
@@ -566,12 +576,12 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                                                         AppCompatImageView imgTeamProfileNameRadioBtn) {
         viewBtnTeamProfileName.setBackground(ResourcesCompat.getDrawable(
                 getResources(), R.drawable.img_btn_background_divider_grey_border, null));
-        tvTeamProfileName.setTextColor(ContextCompat.getColor(getContext(),
+        tvTeamProfileName.setTextColor(ContextCompat.getColor(MainApplication.getAppContext(),
                 R.color.divider_line_secondary_grey));
         imgTeamProfileNameRadioBtn.setImageDrawable(ResourcesCompat.getDrawable(
                 getResources(), R.drawable.icon_checkbox_selected_uneditable, null));
         imgTeamProfileNameRadioBtn.setColorFilter(ContextCompat.getColor(
-                getContext(), R.color.translucent), PorterDuff.Mode.SRC_ATOP);
+                MainApplication.getAppContext(), R.color.translucent), PorterDuff.Mode.SRC_ATOP);
     }
 
     /**
@@ -586,12 +596,12 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                                                         AppCompatImageView imgTeamProfileNameRadioBtn) {
         viewBtnTeamProfileName.setBackground(ResourcesCompat.getDrawable(
                 getResources(), R.drawable.img_btn_background_without_border, null));
-        tvTeamProfileName.setTextColor(ContextCompat.getColor(getContext(),
+        tvTeamProfileName.setTextColor(ContextCompat.getColor(MainApplication.getAppContext(),
                 R.color.primary_text_hint_dark_grey));
         imgTeamProfileNameRadioBtn.setImageDrawable(ResourcesCompat.getDrawable(
                 getResources(), R.drawable.icon_new_unselected, null));
         imgTeamProfileNameRadioBtn.setColorFilter(ContextCompat.getColor(
-                getContext(), R.color.translucent), PorterDuff.Mode.SRC_ATOP);
+                MainApplication.getAppContext(), R.color.translucent), PorterDuff.Mode.SRC_ATOP);
     }
 
     /**
@@ -606,12 +616,12 @@ public class UserSettingsFragment extends Fragment implements SnackbarUtil.Snack
                                                           AppCompatImageView imgTeamProfileNameRadioBtn) {
         viewBtnTeamProfileName.setBackground(ResourcesCompat.getDrawable(
                 getResources(), R.drawable.img_btn_background_divider_grey_border, null));
-        tvTeamProfileName.setTextColor(ContextCompat.getColor(getContext(),
+        tvTeamProfileName.setTextColor(ContextCompat.getColor(MainApplication.getAppContext(),
                 R.color.divider_line_secondary_grey));
         imgTeamProfileNameRadioBtn.setImageDrawable(ResourcesCompat.getDrawable(
                 getResources(), R.drawable.icon_new_unselected, null));
         imgTeamProfileNameRadioBtn.setColorFilter(ContextCompat.getColor(
-                getContext(), R.color.divider_line_secondary_grey), PorterDuff.Mode.SRC_ATOP);
+                MainApplication.getAppContext(), R.color.divider_line_secondary_grey), PorterDuff.Mode.SRC_ATOP);
     }
 
     /**

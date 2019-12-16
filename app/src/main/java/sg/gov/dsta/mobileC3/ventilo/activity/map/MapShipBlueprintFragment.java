@@ -72,6 +72,7 @@ import sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.taskPhaseStatus.Dashb
 import sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.videoStream.DashboardVideoStreamFragment;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
 import sg.gov.dsta.mobileC3.ventilo.model.map.MapModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
@@ -85,6 +86,7 @@ import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.FileUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SpinnerItemListDataBank;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
@@ -215,7 +217,7 @@ public class MapShipBlueprintFragment extends Fragment {
             mRootView = inflater.inflate(R.layout.fragment_map_ship_blueprint, container, false);
             initUI(mRootView);
 
-            prefs = new BFTLocalPreferences(this.getContext());
+            prefs = new BFTLocalPreferences(MainApplication.getAppContext());
 
             initTracker();
             initWebviewSettings();
@@ -332,7 +334,7 @@ public class MapShipBlueprintFragment extends Fragment {
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     (int) getResources().getDimension(
                             R.dimen.map_blueprint_recycler_personnel_link_status_height_for_TL),
-                    new LinearLayout(getContext()));
+                    new LinearLayout(MainApplication.getAppContext()));
         }
 
         mRecyclerLayoutManagerPersonnelLinkStatus = new LinearLayoutManager(getActivity());
@@ -342,7 +344,7 @@ public class MapShipBlueprintFragment extends Fragment {
             mPersonnelLinkStatusUserListItems = new ArrayList<>();
         }
 
-        mRecyclerAdapterPersonnelLinkStatus = new MapPersonnelLinkStatusRecyclerAdapter(getContext(),
+        mRecyclerAdapterPersonnelLinkStatus = new MapPersonnelLinkStatusRecyclerAdapter(MainApplication.getAppContext(),
                 mPersonnelLinkStatusUserListItems, new ArrayList<>());
         mRecyclerViewPersonnelLinkStatus.setAdapter(mRecyclerAdapterPersonnelLinkStatus);
         mRecyclerViewPersonnelLinkStatus.setItemAnimator(new DefaultItemAnimator());
@@ -528,9 +530,11 @@ public class MapShipBlueprintFragment extends Fragment {
         }
     };
 
-    private View.OnClickListener onTestLogInputOthersClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onTestLogInputOthersClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
 //            mIsActivityInputOthersSelected = !view.isSelected();
 //            view.setSelected(mIsActivityInputOthersSelected);
 
@@ -601,7 +605,7 @@ public class MapShipBlueprintFragment extends Fragment {
                 DimensionUtil.setDimensions(view,
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         (int) getResources().getDimension(R.dimen.spinner_broad_height),
-                        new LinearLayout(getContext()));
+                        new LinearLayout(MainApplication.getAppContext()));
 
                 LinearLayout layoutSpinner = view.findViewById(R.id.layout_spinner_text_item);
                 layoutSpinner.setGravity(Gravity.END);
@@ -628,7 +632,7 @@ public class MapShipBlueprintFragment extends Fragment {
     private void setPersonnelLinkStatusIconUnselectedStateUI() {
         Drawable layoutDrawable = mRelativeLayoutPersonnelLinkStatusImgBtn.getBackground();
         layoutDrawable = DrawableCompat.wrap(layoutDrawable);
-        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(MainApplication.getAppContext(),
                 R.color.primary_white));
         mRelativeLayoutPersonnelLinkStatusImgBtn.setBackground(layoutDrawable);
 
@@ -638,16 +642,18 @@ public class MapShipBlueprintFragment extends Fragment {
     private void setPersonnelLinkStatusIconSelectedStateUI() {
         Drawable layoutDrawable = mRelativeLayoutPersonnelLinkStatusImgBtn.getBackground();
         layoutDrawable = DrawableCompat.wrap(layoutDrawable);
-        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(MainApplication.getAppContext(),
                 R.color.primary_highlight_cyan));
         mRelativeLayoutPersonnelLinkStatusImgBtn.setBackground(layoutDrawable);
 
         mImgPersonnelLinkStatusIcon.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
     }
 
-    private View.OnClickListener onPersonnelLinkStatusIconClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onPersonnelLinkStatusIconClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             view.setSelected(!view.isSelected());
 
             if (view.isSelected()) {
@@ -669,12 +675,12 @@ public class MapShipBlueprintFragment extends Fragment {
     private void setHazardIconUnselectedStateUI() {
         Drawable layoutDrawable = mRelativeLayoutHazardImgBtn.getBackground();
         layoutDrawable = DrawableCompat.wrap(layoutDrawable);
-        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(MainApplication.getAppContext(),
                 R.color.primary_white));
         mRelativeLayoutHazardImgBtn.setBackground(layoutDrawable);
 
-        mImgHazardIcon.setColorFilter(ContextCompat.getColor(getContext(), R.color.dull_orange),
-                PorterDuff.Mode.SRC_ATOP);
+        mImgHazardIcon.setColorFilter(ContextCompat.getColor(MainApplication.getAppContext(),
+                R.color.dull_orange), PorterDuff.Mode.SRC_ATOP);
 
         mSelectedIconType = MainApplication.getAppContext().
                 getString(R.string.map_blueprint_other_type);
@@ -683,7 +689,7 @@ public class MapShipBlueprintFragment extends Fragment {
     private void setHazardIconSelectedStateUI() {
         Drawable layoutDrawable = mRelativeLayoutHazardImgBtn.getBackground();
         layoutDrawable = DrawableCompat.wrap(layoutDrawable);
-        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(MainApplication.getAppContext(),
                 R.color.primary_highlight_cyan));
         mRelativeLayoutHazardImgBtn.setBackground(layoutDrawable);
 
@@ -693,9 +699,11 @@ public class MapShipBlueprintFragment extends Fragment {
                 getString(R.string.map_blueprint_hazard_type);
     }
 
-    private View.OnClickListener onHazardIconClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onHazardIconClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
 //            closeWebSocketClient();
             view.setSelected(!view.isSelected());
 
@@ -719,12 +727,12 @@ public class MapShipBlueprintFragment extends Fragment {
     private void setDeceasedIconUnselectedStateUI() {
         Drawable layoutDrawable = mRelativeLayoutDeceasedImgBtn.getBackground();
         layoutDrawable = DrawableCompat.wrap(layoutDrawable);
-        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(MainApplication.getAppContext(),
                 R.color.primary_white));
         mRelativeLayoutDeceasedImgBtn.setBackground(layoutDrawable);
 
-        mImgDeceasedIcon.setColorFilter(ContextCompat.getColor(getContext(), R.color.primary_text_grey),
-                PorterDuff.Mode.SRC_ATOP);
+        mImgDeceasedIcon.setColorFilter(ContextCompat.getColor(MainApplication.getAppContext(),
+                R.color.primary_text_grey), PorterDuff.Mode.SRC_ATOP);
 
         mSelectedIconType = MainApplication.getAppContext().
                 getString(R.string.map_blueprint_other_type);
@@ -733,7 +741,7 @@ public class MapShipBlueprintFragment extends Fragment {
     private void setDeceasedIconSelectedStateUI() {
         Drawable layoutDrawable = mRelativeLayoutDeceasedImgBtn.getBackground();
         layoutDrawable = DrawableCompat.wrap(layoutDrawable);
-        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(MainApplication.getAppContext(),
                 R.color.primary_highlight_cyan));
         mRelativeLayoutDeceasedImgBtn.setBackground(layoutDrawable);
 
@@ -743,9 +751,11 @@ public class MapShipBlueprintFragment extends Fragment {
                 getString(R.string.map_blueprint_deceased_type);
     }
 
-    private View.OnClickListener onDeceasedIconClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onDeceasedIconClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             view.setSelected(!view.isSelected());
 
             if (view.isSelected()) {
@@ -773,11 +783,12 @@ public class MapShipBlueprintFragment extends Fragment {
     private void setTestLogToggleIconUnselectedStateUI() {
         Drawable layoutDrawable = mRelativeLayoutTestLogToggleImgBtn.getBackground();
         layoutDrawable = DrawableCompat.wrap(layoutDrawable);
-        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(MainApplication.getAppContext(),
                 R.color.primary_white));
         mRelativeLayoutTestLogToggleImgBtn.setBackground(layoutDrawable);
 
-        mImgTestLogToggleIcon.setColorFilter(ContextCompat.getColor(getContext(), R.color.background_dark_grey),
+        mImgTestLogToggleIcon.setColorFilter(ContextCompat.getColor(MainApplication.getAppContext(),
+                R.color.background_dark_grey),
                 PorterDuff.Mode.SRC_ATOP);
 
         mBtnAppendTestLog.setVisibility(View.GONE);
@@ -792,7 +803,7 @@ public class MapShipBlueprintFragment extends Fragment {
     private void setTestLogToggleIconSelectedStateUI() {
         Drawable layoutDrawable = mRelativeLayoutTestLogToggleImgBtn.getBackground();
         layoutDrawable = DrawableCompat.wrap(layoutDrawable);
-        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(getContext(),
+        DrawableCompat.setTint(layoutDrawable, ContextCompat.getColor(MainApplication.getAppContext(),
                 R.color.primary_highlight_cyan));
         mRelativeLayoutTestLogToggleImgBtn.setBackground(layoutDrawable);
 
@@ -828,9 +839,11 @@ public class MapShipBlueprintFragment extends Fragment {
 //                PorterDuff.Mode.SRC_ATOP);
 //    }
 
-    private View.OnClickListener onTestLogToggleIconClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onTestLogToggleIconClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             view.setSelected(!view.isSelected());
 
             if (view.isSelected()) {
@@ -844,11 +857,20 @@ public class MapShipBlueprintFragment extends Fragment {
     /**
      * OnClickListener to create new test log file
      */
-    private View.OnClickListener onNewTestLogIconClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onNewTestLogIconClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
 
             if (tracker != null) {
+
+                String motionLabel = mEtvTestLogHistory.getText().toString().trim();
+
+                // Valid entered motion label
+                if (!TextUtils.isEmpty(motionLabel)) {
+                    FileUtil.saveMotionLogIntoFile(motionLabel);
+                }
 
                 tracker.deactivate();
                 tracker.startMotionDnaAndCreateNewTestLogFile();
@@ -870,9 +892,11 @@ public class MapShipBlueprintFragment extends Fragment {
     /**
      * OnClickListener to append a new header into existing test log file
      */
-    private View.OnClickListener onAppendTestLogIconClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onAppendTestLogIconClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
 
             if (tracker != null) {
 

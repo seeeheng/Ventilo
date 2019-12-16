@@ -95,6 +95,8 @@ public class JeroMQClientPair extends JeroMQParent implements JeroMQClientPairRu
 
                     if (endpoint.equalsIgnoreCase(socket.getLastEndpoint())) {
                         socket.setMaxMsgSize(-1);
+                        socket.setMsgAllocationHeapThreshold(0);
+
                         socket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
                         socket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
                         socket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
@@ -102,7 +104,7 @@ public class JeroMQClientPair extends JeroMQParent implements JeroMQClientPairRu
                         socket.setRcvHWM(0);
                         socket.setSndHWM(0);
                         socket.setImmediate(true);
-                        socket.setTCPKeepAlive(1);
+                        socket.setTCPKeepAlive(0);
                         socket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
                         socket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
                         socket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
@@ -155,6 +157,8 @@ public class JeroMQClientPair extends JeroMQParent implements JeroMQClientPairRu
 
                 Socket socket = mZContext.createSocket(SocketType.PAIR);
                 socket.setMaxMsgSize(-1);
+                socket.setMsgAllocationHeapThreshold(0);
+
                 socket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
                 socket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
                 socket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
@@ -162,7 +166,7 @@ public class JeroMQClientPair extends JeroMQParent implements JeroMQClientPairRu
                 socket.setRcvHWM(0);
                 socket.setSndHWM(0);
                 socket.setImmediate(true);
-                socket.setTCPKeepAlive(1);
+                socket.setTCPKeepAlive(0);
                 socket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
                 socket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
                 socket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);

@@ -12,7 +12,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.eventbus.TaskEvent;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2FuturaBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
@@ -66,9 +68,11 @@ public class TaskViewHolder extends RecyclerView.ViewHolder {
         itemView.setOnClickListener(onMainForegroundLayoutClickListener);
     }
 
-    private View.OnClickListener onMainForegroundLayoutClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onMainForegroundLayoutClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             EventBus.getDefault().post(TaskEvent.getInstance().setItemPos(getAdapterPosition()));
         }
     };

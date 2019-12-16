@@ -33,12 +33,10 @@ import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.map.MapModel;
-import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.repository.MapRepository;
-import sg.gov.dsta.mobileC3.ventilo.repository.SitRepRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.TaskRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
@@ -532,7 +530,7 @@ public class ExcelSpreadsheetUtil {
 
                 userModel = new UserModel(userId);
                 userModel.setPassword(password);
-                userModel.setAccessToken(StringUtil.INVALID_STRING);
+                userModel.setAccessToken(StringUtil.EMPTY_STRING);
                 userModel.setTeam(team);
                 userModel.setRole(role);
                 userModel.setPhoneToRadioConnectionStatus(ERadioConnectionStatus.DISCONNECTED.toString());
@@ -673,12 +671,12 @@ public class ExcelSpreadsheetUtil {
                     mapModel.setViewType(StringUtil.INVALID_STRING);
                 }
 
-//                String floorAltitudeInCm = String.valueOf(DimensionUtil.
+//                String floorAltitudeInPixel = String.valueOf(DimensionUtil.
 //                        convertPixelToCm(Float.valueOf(floorAltitudeInPixel)));
-//                Double floorAltitudeInCm = DimensionUtil.
+//                Double floorAltitudeInPixel = DimensionUtil.
 //                        convertPixelToCm(Float.valueOf(floorAltitudeInPixel));
-//                Double onePixelToMetres = (floorAltitudeInCm / Double.valueOf(floorAltitudeInPixel)) * Double.valueOf(gaScale) / 100;
-//                String floorAltitudeInMetres = String.valueOf(floorAltitudeInCm * onePixelToMetres);
+//                Double onePixelToMetres = (floorAltitudeInPixel / Double.valueOf(floorAltitudeInPixel)) * Double.valueOf(gaScale) / 100;
+//                String floorAltitudeInMetres = String.valueOf(floorAltitudeInPixel * onePixelToMetres);
 
                 String lowerLeftXInCm = String.valueOf(DimensionUtil.
                         convertPixelToCm(Float.valueOf(lowerLeftXInPixel)));
@@ -697,7 +695,7 @@ public class ExcelSpreadsheetUtil {
 //                String upperRightXInMetres = String.valueOf(Float.valueOf(upperRightX) / 100);
 //                String upperRightYInMetres = String.valueOf(Float.valueOf(upperRightY) / 100);
 
-                mapModel.setFloorAltitudeInCm(floorAltitudeInPixel);
+                mapModel.setFloorAltitudeInPixel(floorAltitudeInPixel);
                 mapModel.setPixelWidth(pixelWidth);
                 mapModel.setLowerLeftX(lowerLeftXInCm);
                 mapModel.setLowerLeftY(lowerLeftYInCm);

@@ -11,8 +11,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.FragmentConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.MainNavigationConstants;
@@ -42,9 +44,11 @@ public class VideoStreamDeleteOrSaveViewHolder extends RecyclerView.ViewHolder {
         mAdapter = adapter;
     }
 
-    private View.OnClickListener onDeleteVideoStreamItemClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onDeleteVideoStreamItemClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             if (view.getContext() instanceof MainActivity) {
                 MainActivity mainActivity = ((MainActivity) view.getContext());
 
@@ -62,9 +66,11 @@ public class VideoStreamDeleteOrSaveViewHolder extends RecyclerView.ViewHolder {
         }
     };
 
-    private View.OnClickListener onEditOrSaveVideoStreamItemClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onEditOrSaveVideoStreamItemClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             boolean isFieldEmpty = false;
 
             if (TextUtils.isEmpty(etvVideoStreamName.getText().toString().trim())) {

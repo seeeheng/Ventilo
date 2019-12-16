@@ -180,6 +180,8 @@ public class JeroMQSubscriberRunnable implements Runnable {
 //                                mSocketIdentityCount++;
 
                                 socket.setMaxMsgSize(-1);
+                                socket.setMsgAllocationHeapThreshold(0);
+
                                 socket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
                                 socket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
                                 socket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
@@ -187,7 +189,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
                                 socket.setRcvHWM(0);
                                 socket.setSndHWM(0);
                                 socket.setImmediate(true);
-                                socket.setTCPKeepAlive(1);
+                                socket.setTCPKeepAlive(0);
                                 socket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
                                 socket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
                                 socket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
@@ -243,6 +245,8 @@ public class JeroMQSubscriberRunnable implements Runnable {
         try {
 
             socket.setMaxMsgSize(-1);
+            socket.setMsgAllocationHeapThreshold(0);
+
             socket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
             socket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
             socket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
@@ -250,7 +254,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
             socket.setRcvHWM(0);
             socket.setSndHWM(0);
             socket.setImmediate(true);
-            socket.setTCPKeepAlive(1);
+            socket.setTCPKeepAlive(0);
             socket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
             socket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
             socket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
@@ -266,7 +270,7 @@ public class JeroMQSubscriberRunnable implements Runnable {
                 String messageContent = StringUtil.removeFirstWord(message);
                 String[] messageTopicParts = messageTopic.split(StringUtil.HYPHEN);
 
-                // For e.g. PREFIX-USER, PREFIX-RADIO, PREFIX-BFT, PREFIX-SITREP, PREFIX-TASK
+                // For e.g. TOPIC-USER, TOPIC-RADIO, TOPIC-BFT, TOPIC-SITREP, TOPIC-TASK
                 String messageMainTopic = messageTopicParts[0].
                         concat(StringUtil.HYPHEN).concat(messageTopicParts[1]);
 

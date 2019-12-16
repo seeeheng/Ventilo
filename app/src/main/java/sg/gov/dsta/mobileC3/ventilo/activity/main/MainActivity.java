@@ -21,7 +21,6 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -43,6 +42,7 @@ import sg.gov.dsta.mobileC3.ventilo.activity.timeline.TimelineFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.user.UserSettingsFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.videostream.VideoStreamFragment;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
@@ -58,6 +58,7 @@ import sg.gov.dsta.mobileC3.ventilo.network.waveRelayRadio.WaveRelayRadioClient;
 import sg.gov.dsta.mobileC3.ventilo.repository.ExcelSpreadsheetRepository;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.FileUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansBoldTextView;
@@ -117,7 +118,8 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
     private BroadcastReceiver mRabbitMqBroadcastReceiver;
     private BroadcastReceiver mExcelBroadcastReceiver;
     private BroadcastReceiver mWaveRelayClientBroadcastReceiver;
-    private BroadcastReceiver mFileSaveBroadcastReceiver;
+    private BroadcastReceiver mSitRepFileSaveBroadcastReceiver;
+    private BroadcastReceiver mMotionLogFileSaveBroadcastReceiver;
 //    private BroadcastReceiver mUSBDetectionBroadcastReceiver;
 
     private IMQListener mIMQListener;
@@ -146,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
         mNoSwipeViewPager = findViewById(R.id.viewpager_main_nav);
         mNoSwipeViewPager.setAdapter(mainStatePagerAdapter);
         mNoSwipeViewPager.setPagingEnabled(false);
+        mNoSwipeViewPager.setOffscreenPageLimit(MainNavigationConstants.SIDE_MENU_TAB_TOTAL_COUNT - 1);
     }
 
     /**
@@ -277,66 +280,136 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
         return mViewSnackbar;
     }
 
-    private OnClickListener onMapTabClickListener = new OnClickListener() {
+    private DebounceOnClickListener onMapTabClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID,
                     true);
             setSelectedTabUIComponents();
+
+            while (true) {
+                if (!popChildFragmentBackStack(
+                        MainNavigationConstants.SIDE_MENU_TAB_MAP_POSITION_ID)) {
+                    break;
+                }
+            }
+
         }
     };
 
-    private OnClickListener onVideoStreamTabClickListener = new OnClickListener() {
+    private DebounceOnClickListener onVideoStreamTabClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID,
                     true);
             setSelectedTabUIComponents();
+
+            while (true) {
+                if (!popChildFragmentBackStack(
+                        MainNavigationConstants.SIDE_MENU_TAB_VIDEO_STREAM_POSITION_ID)) {
+                    break;
+                }
+            }
+
         }
     };
 
-    private OnClickListener onReportTabClickListener = new OnClickListener() {
+    private DebounceOnClickListener onReportTabClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID,
                     true);
             setSelectedTabUIComponents();
+
+//            while (true) {
+//                if (!resetChildFragmentBackStack(
+//                        MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID)) {
+//                    break;
+//                }
+//            }
+
         }
     };
 
-    private OnClickListener onTimelineTabClickListener = new OnClickListener() {
+    private DebounceOnClickListener onTimelineTabClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID,
                     true);
             setSelectedTabUIComponents();
+
+            while (true) {
+                if (!popChildFragmentBackStack(
+                        MainNavigationConstants.SIDE_MENU_TAB_TIMELINE_POSITION_ID)) {
+                    break;
+                }
+            }
+
         }
     };
 
-    private OnClickListener onTaskTabClickListener = new OnClickListener() {
+    private DebounceOnClickListener onTaskTabClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID,
                     true);
             setSelectedTabUIComponents();
+
+//            while (true) {
+//                if (!popChildFragmentBackStack(
+//                        MainNavigationConstants.SIDE_MENU_TAB_TASK_POSITION_ID)) {
+//                    break;
+//                }
+//            }
+
         }
     };
 
-    private OnClickListener onRadioLinkTabClickListener = new OnClickListener() {
+    private DebounceOnClickListener onRadioLinkTabClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID,
                     true);
             setSelectedTabUIComponents();
+
+            while (true) {
+                if (!popChildFragmentBackStack(
+                        MainNavigationConstants.SIDE_MENU_TAB_RADIO_LINK_STATUS_POSITION_ID)) {
+                    break;
+                }
+            }
+
         }
     };
 
-    private OnClickListener onSettingsClickListener = new OnClickListener() {
+    private DebounceOnClickListener onSettingsClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mNoSwipeViewPager.setCurrentItem(MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID,
                     true);
             setSelectedTabUIComponents();
+
+            while (true) {
+                if (!popChildFragmentBackStack(
+                        MainNavigationConstants.SIDE_MENU_TAB_USER_SETTINGS_POSITION_ID)) {
+                    break;
+                }
+            }
+
         }
     };
 
@@ -1255,16 +1328,16 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
     }
 
     /**
-     * Registers broadcast receiver notification after Sit Rep data into text / image files has been saved successfully
+     * Registers broadcast receiver notification after Sit Rep data into text / image files have been saved successfully
      */
-    private void registerFileSaveBroadcastReceiver() {
+    private void registerSitRepFileSaveBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(FileUtil.FILE_SAVED_SUCCESSFULLY_INTENT_ACTION);
+        filter.addAction(FileUtil.SIT_REP_FILE_SAVED_SUCCESSFULLY_INTENT_ACTION);
 
-        mFileSaveBroadcastReceiver = new BroadcastReceiver() {
+        mSitRepFileSaveBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (FileUtil.FILE_SAVED_SUCCESSFULLY_INTENT_ACTION.
+                if (FileUtil.SIT_REP_FILE_SAVED_SUCCESSFULLY_INTENT_ACTION.
                         equalsIgnoreCase(intent.getAction())) {
 
                     String directoryPath = intent.getExtras().getString(FileUtil.DIRECTORY_PATH_KEY);
@@ -1282,7 +1355,38 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
             }
         };
 
-        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mFileSaveBroadcastReceiver, filter);
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mSitRepFileSaveBroadcastReceiver, filter);
+    }
+
+    /**
+     * Registers broadcast receiver notification after motion log data into text file has been saved successfully
+     */
+    private void registerMotionLogFileSaveBroadcastReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(FileUtil.MOTION_LOG_FILE_SAVED_SUCCESSFULLY_INTENT_ACTION);
+
+        mMotionLogFileSaveBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (FileUtil.MOTION_LOG_FILE_SAVED_SUCCESSFULLY_INTENT_ACTION.
+                        equalsIgnoreCase(intent.getAction())) {
+
+                    String directoryPath = intent.getExtras().getString(FileUtil.DIRECTORY_PATH_KEY);
+
+                    String fileSavedMessage = MainApplication.getAppContext().
+                            getString(R.string.snackbar_motion_log_file_saved_successfully).
+                            concat(System.lineSeparator()).concat(System.lineSeparator()).
+                            concat(MainApplication.getAppContext().getString(R.string.directory)).
+                            concat(StringUtil.COLON).concat(directoryPath);
+
+                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                            fileSavedMessage);
+
+                }
+            }
+        };
+
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mMotionLogFileSaveBroadcastReceiver, filter);
     }
 
 //    /**
@@ -1403,6 +1507,7 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
 
         if (baseChildFragment != null && baseChildFragment.getChildFragmentManager().
                 getBackStackEntryCount() > 0) {
+
             baseChildFragment.getChildFragmentManager().popBackStack();
             return true;
         }
@@ -1449,7 +1554,6 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
     public void onBackPressed() {
 
         Timber.i("onBackPressed");
-
 
         if (getViewPagerAdapter() != null) {
             switch (mNoSwipeViewPager.getCurrentItem()) {
@@ -1515,7 +1619,8 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
 //        registerRabbitMQBroadcastReceiver();
         registerExcelBroadcastReceiver();
         registerWaveRelayClientBroadcastReceiver();
-        registerFileSaveBroadcastReceiver();
+        registerSitRepFileSaveBroadcastReceiver();
+        registerMotionLogFileSaveBroadcastReceiver();
 //        registerUSBDetectionBroadcastReceiver();
 
 //        IntentFilter filter = new IntentFilter();
@@ -1563,9 +1668,14 @@ public class MainActivity extends AppCompatActivity implements SnackbarUtil.Snac
             mWaveRelayClientBroadcastReceiver = null;
         }
 
-        if (mFileSaveBroadcastReceiver != null) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mFileSaveBroadcastReceiver);
-            mFileSaveBroadcastReceiver = null;
+        if (mSitRepFileSaveBroadcastReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mSitRepFileSaveBroadcastReceiver);
+            mSitRepFileSaveBroadcastReceiver = null;
+        }
+
+        if (mMotionLogFileSaveBroadcastReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mMotionLogFileSaveBroadcastReceiver);
+            mMotionLogFileSaveBroadcastReceiver = null;
         }
 
         // Resets access token of user

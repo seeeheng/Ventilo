@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.TaskViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularTextView;
@@ -147,11 +148,13 @@ public class TimelineFragment extends Fragment {
 
 //        setUpRecyclerData();
 
-        mRecyclerAdapterPlanned = new TimelinePlannedRecyclerAdapter(getContext(), mTimelinePhaseListItems);
+        mRecyclerAdapterPlanned = new TimelinePlannedRecyclerAdapter(MainApplication.getAppContext(),
+                mTimelinePhaseListItems);
         mRecyclerViewPlanned.setAdapter(mRecyclerAdapterPlanned);
         mRecyclerViewPlanned.setItemAnimator(new DefaultItemAnimator());
 
-        mRecyclerAdapterAdHoc = new TimelineAdHocRecyclerAdapter(getContext(), mTimelineAdHocListItems);
+        mRecyclerAdapterAdHoc = new TimelineAdHocRecyclerAdapter(MainApplication.getAppContext(),
+                mTimelineAdHocListItems);
         mRecyclerViewAdHoc.setAdapter(mRecyclerAdapterAdHoc);
         mRecyclerViewAdHoc.setItemAnimator(new DefaultItemAnimator());
     }

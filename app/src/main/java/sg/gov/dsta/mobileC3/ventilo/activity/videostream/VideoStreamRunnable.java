@@ -2,7 +2,6 @@ package sg.gov.dsta.mobileC3.ventilo.activity.videostream;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 
@@ -14,6 +13,8 @@ import org.videolan.libvlc.MediaPlayer;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import timber.log.Timber;
 
 public class VideoStreamRunnable implements Runnable {
@@ -84,8 +85,8 @@ public class VideoStreamRunnable implements Runnable {
 //            mSurfaceHolderOne.setKeepScreenOn(true);
 
             // Create media controller
-            mTextureView.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
+            mTextureView.setOnClickListener(new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+                public void onDebouncedClick(View v) {
                     mVideoStreamControllerView.show(MEDIA_CONTROLLER_SHOW_DURATION);
                 }
             });
@@ -104,6 +105,7 @@ public class VideoStreamRunnable implements Runnable {
             Media m = new Media(mLibVlc, Uri.parse(media));
             mMediaPlayer.setMedia(m);
             mMediaPlayer.play();
+
         } catch (Exception e) {
 //            Toast.makeText(getActivity(), "Error in creating player!", Toast
 //                    .LENGTH_LONG).show();

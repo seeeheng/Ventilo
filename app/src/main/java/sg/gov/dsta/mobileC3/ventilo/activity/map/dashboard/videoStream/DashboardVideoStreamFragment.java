@@ -63,10 +63,12 @@ import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.sitrep.SitRepAddUpdateFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.videostream.VideoStreamControllerView;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.PhotoCaptureUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
@@ -799,8 +801,11 @@ public class DashboardVideoStreamFragment extends Fragment implements SnackbarUt
     private synchronized void setVideoVLCStreamURL(String media, ConstraintLayout constraintLayout,
                                                    VideoStreamControllerView videoStreamControllerView,
                                                    SimpleExoPlayer mediaPlayer) {
-        constraintLayout.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
+
+        constraintLayout.setOnClickListener(new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
+            @Override
+            public void onDebouncedClick(View v) {
                 videoStreamControllerView.show(MEDIA_CONTROLLER_SHOW_DURATION);
             }
         });

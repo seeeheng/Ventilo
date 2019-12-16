@@ -33,8 +33,10 @@ import timber.log.Timber;
 
 public class FileUtil {
 
-    public static final String FILE_SAVED_SUCCESSFULLY_INTENT_ACTION =
+    public static final String SIT_REP_FILE_SAVED_SUCCESSFULLY_INTENT_ACTION =
             "Sit Rep Text File Content Saved Successfully";
+    public static final String MOTION_LOG_FILE_SAVED_SUCCESSFULLY_INTENT_ACTION =
+            "Motion Log Text File Content Saved Successfully";
     public static final String DIRECTORY_PATH_KEY = "Directory Path";
     public static final File PUBLIC_DIRECTORY = Environment.getExternalStorageDirectory();
     public static final String SUB_DIRECTORY_VEN = "Ven";
@@ -42,6 +44,7 @@ public class FileUtil {
 
     private static final String LEVEL_2_SUB_DIRECTORY_MAP_IMAGES = "Map Images";
     private static final String LEVEL_2_SUB_DIRECTORY_MAP_HTML = "Map Html";
+    private static final String LEVEL_2_SUB_DIRECTORY_MOTION_LOG = "Motion Log";
     private static final String LEVEL_2_SUB_DIRECTORY_JS_TO_COPY = "js";
     private static final String LEVEL_2_SUB_DIRECTORY_LEAFLET_TO_COPY = "leaflet";
     private static final String LEVEL_2_SUB_DIRECTORY_JS_TO_PASTE = "js";
@@ -50,6 +53,7 @@ public class FileUtil {
     private static final String PNG_FILE_SUFFIX = ".png";
     private static final String HTML_FILE_SUFFIX = ".html";
     private static final String SIT_REP = "SitRep";
+    private static final String MOTION_LOG = "Motion_Log";
 
     private static final String DECK_TEMPLATE_FILE_DIRECTORY = "ship/leaflet-deck-template.html";
     private static final String SIDE_PROFILE_TEMPLATE_FILE_DIRECTORY = "ship/leaflet-side-profile-template.html";
@@ -465,14 +469,117 @@ public class FileUtil {
         Intent broadcastIntent = new Intent();
         broadcastIntent.putExtra(DIRECTORY_PATH_KEY, fileAbsolutePath);
 
-        broadcastIntent.setAction(FILE_SAVED_SUCCESSFULLY_INTENT_ACTION);
+        broadcastIntent.setAction(SIT_REP_FILE_SAVED_SUCCESSFULLY_INTENT_ACTION);
         LocalBroadcastManager.getInstance(MainApplication.getAppContext()).sendBroadcast(broadcastIntent);
     }
 
-//    public Bitmap getBitmapFromImageFile() {
-//
-//        getBitmapFromFile();
-//    }
+
+    // **************************************** Test Log **************************************** //
+
+    /**
+     * Save Motion Log into file directory
+     *
+     * @param motionLog
+     */
+    public static void saveMotionLogIntoFile(String motionLog) {
+        
+        Timber.i("Finding motion log directory for file storage...");
+
+        if (motionLog != null) {
+            File venDirectory = getFileDirectory(PUBLIC_DIRECTORY, SUB_DIRECTORY_VEN);
+
+            File motionLogDirectory = getFileDirectory(venDirectory, LEVEL_2_SUB_DIRECTORY_MOTION_LOG);
+
+            String currentDayMonthYearDate = DateTimeUtil.
+                    dateToCustomDateStringFormat(DateTimeUtil.
+                            stringToDate(DateTimeUtil.getCurrentDateTime()));
+
+            File motionLogDirectoryByDate = getFileDirectory(motionLogDirectory, currentDayMonthYearDate);
+
+            Timber.i("Checking / Creating file name...");
+
+            // Text file name
+            StringBuilder textFileNameBuilder = new StringBuilder();
+            String currentDateInFileFormat = DateTimeUtil.dateToCustomDateFileStringFormat(
+                    DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime()));
+
+
+            textFileNameBuilder.append(MOTION_LOG);
+            textFileNameBuilder.append(StringUtil.UNDERSCORE);
+            textFileNameBuilder.append(currentDateInFileFormat);
+            textFileNameBuilder.append(TEXT_FILE_SUFFIX);
+
+            File motionLogTextFile = new File(motionLogDirectoryByDate, textFileNameBuilder.toString());
+
+            try {
+
+
+                FileWriter writer;
+
+                // Save text file
+                if (!motionLogTextFile.exists()) {
+
+                    writer = new FileWriter(motionLogTextFile);
+
+                } else {
+
+                    writer = new FileWriter(motionLogTextFile, true);
+                    writer.append(System.lineSeparator());
+                    writer.append(System.lineSeparator());
+                    writer.append(StringUtil.HYPHEN_DIVIDER);
+                    writer.append(System.lineSeparator());
+                    writer.append(System.lineSeparator());
+
+                }
+
+                Timber.i("Writing motion log content into text file...");
+
+                String currentDateTimeFormat = DateTimeUtil.dateToCustomDateTimeStringFormat(
+                        DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime()));
+
+                writer.append(currentDateTimeFormat);
+                writer.append(System.lineSeparator());
+                writer.append(System.lineSeparator());
+
+                String newFileHeader = MainApplication.getAppContext().
+                        getString(R.string.map_blueprint_test_log_new_file_created);
+
+                if (!motionLog.contains(newFileHeader)) {
+                    writer.append(newFileHeader);
+                    writer.append(System.lineSeparator());
+                }
+
+                writer.append(motionLog);
+
+                writer.flush();
+                writer.close();
+
+                Timber.i("Motion log file saved!");
+
+                notifyMotionLogTextFileSavedBroadcastIntent(motionLogDirectoryByDate.getAbsolutePath());
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Timber.d("Error writing motion log into file...");
+
+            }
+
+        } else {
+            Timber.d("Motion log is null. Unable to write into file...");
+        }
+    }
+
+    /**
+     * Notify motion log broadcast listener of file save status with provided file path
+     *
+     */
+    private static synchronized void notifyMotionLogTextFileSavedBroadcastIntent(String fileAbsolutePath) {
+        Intent broadcastIntent = new Intent();
+        broadcastIntent.putExtra(DIRECTORY_PATH_KEY, fileAbsolutePath);
+
+        broadcastIntent.setAction(MOTION_LOG_FILE_SAVED_SUCCESSFULLY_INTENT_ACTION);
+        LocalBroadcastManager.getInstance(MainApplication.getAppContext()).sendBroadcast(broadcastIntent);
+    }
 
     /**
      * Get Bit map from file filePath
@@ -633,15 +740,15 @@ public class FileUtil {
                     convertPixelToCm(Float.valueOf(pxWidth)));
 
 
-            //            String lowestHeight = mapModel.getFloorAltitudeInCm(); // String.valueOf((-1.45 * 300 * 142 / 105) / 100)
-//            String highestHeight = String.valueOf(Float.valueOf(mapModel.getFloorAltitudeInCm()) +
+            //            String lowestHeight = mapModel.getFloorAltitudeInPixel(); // String.valueOf((-1.45 * 300 * 142 / 105) / 100)
+//            String highestHeight = String.valueOf(Float.valueOf(mapModel.getFloorAltitudeInPixel()) +
 //                    DimensionUtil.AVERAGE_HUMAN_HEIGHT_IN_CM);
 
-//            String averageHeightInMetres = String.valueOf(Float.valueOf(mapModel.getFloorAltitudeInCm()) / 100);
-            String averageHeightInMetres = String.valueOf(BFTLocalPreferences.getMetresFromPixels(Double.valueOf(mapModel.getFloorAltitudeInCm())));
-//            String floorAltitudeInCm = mapModel.getFloorAltitudeInCm();
-//            Double onePixelToMetres = (Double.valueOf(floorAltitudeInCm) / Double.valueOf(pxWidth)) * Double.valueOf(gaScale) / 100;
-//            String averageHeightInMetres = String.valueOf(Double.valueOf(floorAltitudeInCm) * onePixelToMetres);
+//            String averageHeightInMetres = String.valueOf(Float.valueOf(mapModel.getFloorAltitudeInPixel()) / 100);
+            String averageHeightInMetres = String.valueOf(BFTLocalPreferences.getMetresFromPixels(Double.valueOf(mapModel.getFloorAltitudeInPixel())));
+//            String floorAltitudeInPixel = mapModel.getFloorAltitudeInPixel();
+//            Double onePixelToMetres = (Double.valueOf(floorAltitudeInPixel) / Double.valueOf(pxWidth)) * Double.valueOf(gaScale) / 100;
+//            String averageHeightInMetres = String.valueOf(Double.valueOf(floorAltitudeInPixel) * onePixelToMetres);
 
 
             String imageOverlayFilePath = StringUtil.SINGLE_QUOTATION.concat(StringUtil.BACK_ONE_LEVEL_DIRECTORY).

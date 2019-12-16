@@ -252,7 +252,22 @@ public class SpinnerItemListDataBank {
 
     public void addItemToMotionLabelList(String motionLabel) {
         if (motionLabelList != null) {
-            motionLabelList.add(motionLabel);
+
+            boolean isDuplicateLabel = false;
+
+            for (int i = 0; i < motionLabelList.size(); i++) {
+
+                if (motionLabel.equalsIgnoreCase(motionLabelList.get(i))) {
+                    isDuplicateLabel = true;
+                    break;
+                }
+
+            }
+
+            if (!isDuplicateLabel) {
+                motionLabelList.add(motionLabel);
+            }
+
             motionLabelStrArray = motionLabelList.toArray(new String[0]);
         }
     }

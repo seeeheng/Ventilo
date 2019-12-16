@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,8 +26,10 @@ import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.videostream.VideoStreamModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.VideoStreamViewModel;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
@@ -129,31 +130,38 @@ public class VideoStreamAddFragment extends Fragment {
         // Set data for recycler view for others
         setUpRecyclerDataForOthers();
 
-        mRecyclerAdapterForOthers = new VideoStreamDeleteOrSaveRecyclerAdapter(getContext(), this, mVideoStreamListItems);
+        mRecyclerAdapterForOthers = new VideoStreamDeleteOrSaveRecyclerAdapter(MainApplication.getAppContext(),
+                this, mVideoStreamListItems);
         recyclerViewForOthers.setAdapter(mRecyclerAdapterForOthers);
         recyclerViewForOthers.setItemAnimator(null);
     }
 
-    private View.OnClickListener onBackClickListener = new OnClickListener() {
+    private DebounceOnClickListener onBackClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             removeInvalidAndGetVideoStreamItems();
             popChildBackStack();
         }
     };
 
-    private View.OnClickListener onDoneClickListener = new OnClickListener() {
+    private DebounceOnClickListener onDoneClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             removeInvalidAndGetVideoStreamItems();
             popChildBackStack();
         }
     };
 
     // -------------------- OWN Video Stream onClick Listeners -------------------- //
-    private View.OnClickListener onDeleteOwnVideoStreamItemClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onDeleteOwnVideoStreamItemClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
 
             SingleObserver<List<VideoStreamModel>> singleObserverDeleteOwnVideoStream =
                     new SingleObserver<List<VideoStreamModel>>() {
@@ -200,9 +208,11 @@ public class VideoStreamAddFragment extends Fragment {
         }
     };
 
-    private View.OnClickListener onEditOrSaveOwnVideoStreamItemClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onEditOrSaveOwnVideoStreamItemClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             boolean isFieldEmpty = false;
 
             if (TextUtils.isEmpty(mEtvOwnVideoStreamName.getText().toString().trim())) {
@@ -289,9 +299,11 @@ public class VideoStreamAddFragment extends Fragment {
     };
 
     // -------------------- Other Video Streams onClick Listeners -------------------- //
-    private OnClickListener addOtherVideoStreamOnClickListener = new OnClickListener() {
+    private DebounceOnClickListener addOtherVideoStreamOnClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             addOtherVideoStream();
         }
     };
@@ -578,12 +590,12 @@ public class VideoStreamAddFragment extends Fragment {
                                 mEtvOwnVideoStreamName.setEnabled(false);
                                 mEtvOwnVideoStreamURL.setEnabled(false);
                                 mImgOwnVideoStreamEditOrSave.setImageDrawable(
-                                        getContext().getDrawable(R.drawable.btn_edit));
+                                        MainApplication.getAppContext().getDrawable(R.drawable.btn_edit));
                             } else {
                                 mEtvOwnVideoStreamName.setEnabled(true);
                                 mEtvOwnVideoStreamURL.setEnabled(true);
                                 mImgOwnVideoStreamEditOrSave.setImageDrawable(
-                                        getContext().getDrawable(R.drawable.btn_save));
+                                        MainApplication.getAppContext().getDrawable(R.drawable.btn_save));
                             }
                         }
 

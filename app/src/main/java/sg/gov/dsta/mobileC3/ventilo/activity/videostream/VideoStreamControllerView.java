@@ -33,6 +33,8 @@ import android.widget.FrameLayout;
 import java.lang.ref.WeakReference;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import timber.log.Timber;
 
 /**
@@ -425,22 +427,31 @@ public class VideoStreamControllerView extends FrameLayout {
         return super.dispatchKeyEvent(event);
     }
 
-    private View.OnClickListener mTakeScreenshotListener = new View.OnClickListener() {
-        public void onClick(View v) {
+    private DebounceOnClickListener mTakeScreenshotListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
+        @Override
+        public void onDebouncedClick(View v) {
             doScreenshot();
             show(sDefaultTimeout);
         }
     };
 
-    private View.OnClickListener mPauseListener = new View.OnClickListener() {
-        public void onClick(View v) {
+    private DebounceOnClickListener mPauseListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
+        @Override
+        public void onDebouncedClick(View v) {
             doPauseResume();
             show(sDefaultTimeout);
         }
     };
 
-    private View.OnClickListener mFullscreenListener = new View.OnClickListener() {
-        public void onClick(View v) {
+    private DebounceOnClickListener mFullscreenListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
+        @Override
+        public void onDebouncedClick(View v) {
             doToggleFullscreen();
             show(sDefaultTimeout);
         }
@@ -579,8 +590,11 @@ public class VideoStreamControllerView extends FrameLayout {
         super.setEnabled(enabled);
     }
 
-    private View.OnClickListener mRewListener = new View.OnClickListener() {
-        public void onClick(View v) {
+    private DebounceOnClickListener mRewListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
+        @Override
+        public void onDebouncedClick(View v) {
             if (mPlayer == null) {
                 return;
             }
@@ -594,8 +608,11 @@ public class VideoStreamControllerView extends FrameLayout {
         }
     };
 
-    private View.OnClickListener mFfwdListener = new View.OnClickListener() {
-        public void onClick(View v) {
+    private DebounceOnClickListener mFfwdListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
+        @Override
+        public void onDebouncedClick(View v) {
             if (mPlayer == null) {
                 return;
             }

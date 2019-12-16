@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import android.util.SparseArray;
+import android.view.ViewGroup;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
 //import sg.gov.dsta.mobileC3.ventilo.activity.map.MapShipBlueprintFragment;
@@ -25,7 +26,7 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
     private SparseArray<String> mPageNameReferenceHashMap;
 
     public MainStatePagerAdapter(FragmentManager fm, Context context) {
-        super(fm);
+        super(fm, FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         mContext = context;
         mPageFragmentReferenceHashMap = new SparseArray<>();
         mPageNameReferenceHashMap = new SparseArray<>();
@@ -90,11 +91,13 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
                         MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID) != null) {
                     fragment = mPageFragmentReferenceHashMap.get(
                             MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID);
+
                 } else {
                     fragment = new SitRepFragment();
 
                     mPageFragmentReferenceHashMap.put(MainNavigationConstants.SIDE_MENU_TAB_SITREP_POSITION_ID,
                             fragment);
+
                 }
 
                 break;
@@ -178,6 +181,10 @@ public class MainStatePagerAdapter extends FragmentStatePagerAdapter {
     public CharSequence getPageTitle(int position) {
         return mPageNameReferenceHashMap.get(position);
     }
+
+//    @Override
+//    public void destroyItem(ViewGroup container, int position, Object object) {
+//    }
 
     public SparseArray<Fragment> getPageReferenceMap() {
         return mPageFragmentReferenceHashMap;

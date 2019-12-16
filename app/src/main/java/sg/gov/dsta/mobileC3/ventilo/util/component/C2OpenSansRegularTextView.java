@@ -7,6 +7,7 @@ import androidx.appcompat.widget.AppCompatTextView;
 import android.util.AttributeSet;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 
 public class C2OpenSansRegularTextView extends AppCompatTextView {
 
@@ -25,7 +26,7 @@ public class C2OpenSansRegularTextView extends AppCompatTextView {
     }
 
     private void init() {
-        Typeface tf = ResourcesCompat.getFont(getContext(), R.font.open_sans_regular);
+        Typeface tf = ResourcesCompat.getFont(MainApplication.getAppContext(), R.font.open_sans_regular);
         setTypeface(tf);
     }
 

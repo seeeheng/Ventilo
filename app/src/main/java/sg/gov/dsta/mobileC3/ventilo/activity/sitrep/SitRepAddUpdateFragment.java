@@ -37,6 +37,7 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,7 @@ import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.activity.main.MainActivity;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.join.UserSitRepJoinModel;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
@@ -55,6 +57,7 @@ import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQBroadcastOperation;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.DrawableUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.PhotoCaptureUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SpinnerItemListDataBank;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
@@ -618,17 +621,22 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         initInputCargoUI(rootView);
     }
 
-    private View.OnClickListener onBackClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onBackClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             Timber.i("Back button pressed.");
             popChildBackStack();
         }
     };
 
-    private View.OnClickListener onSendClickListener = new View.OnClickListener() {
+
+    private DebounceOnClickListener onSendClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             if (isFormCompleteForFurtherAction()) {
                 if (getSnackbarView() != null) {
                     SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
@@ -640,9 +648,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         }
     };
 
-    private View.OnClickListener onUpdateClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onUpdateClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             if (isFormCompleteForFurtherAction()) {
                 if (getSnackbarView() != null) {
                     SnackbarUtil.showCustomAlertSnackbar(mMainLayout, getSnackbarView(),
@@ -674,25 +684,31 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 }
             };
 
-    private View.OnClickListener onPhotoGalleryClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onPhotoGalleryClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             Intent photoGalleryIntent = new Intent(Intent.ACTION_PICK,
                     android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(photoGalleryIntent, PhotoCaptureUtil.PHOTO_GALLERY_REQUEST_CODE);
         }
     };
 
-    private View.OnClickListener onOpenCameraClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onOpenCameraClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             openCameraIntent();
         }
     };
 
-    private View.OnClickListener onPictureCloseClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onPictureCloseClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             closeSelectedPictureUI();
         }
     };
@@ -719,7 +735,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             //Create a file to store the image
             File photoFile = null;
             try {
-                photoFile = PhotoCaptureUtil.createImageFile(getContext());
+                photoFile = PhotoCaptureUtil.createImageFile(MainApplication.getAppContext());
             } catch (IOException ex) {
                 // Error occurred while creating the File
                 Timber.e("onOpenCameraClickListener: Error creating file for captured camera shot");
@@ -743,9 +759,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         }
     }
 
-    private View.OnClickListener onAddTClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onAddTClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             if (mTvPersonnelNumberT.getText() != null && ValidationUtil.isNumberField(mTvPersonnelNumberT.getText().toString())) {
                 int newValue = Integer.valueOf(mTvPersonnelNumberT.getText().toString()) + 1;
                 mPersonnelNumberTValue = newValue;
@@ -754,9 +772,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         }
     };
 
-    private View.OnClickListener onReduceTClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onReduceTClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             if (mTvPersonnelNumberT.getText() != null && ValidationUtil.isNumberField(mTvPersonnelNumberT.getText().toString())
                     && Integer.valueOf(mTvPersonnelNumberT.getText().toString()) > 0) {
                 int newValue = Integer.valueOf(mTvPersonnelNumberT.getText().toString()) - 1;
@@ -766,9 +786,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         }
     };
 
-    private View.OnClickListener onAddSClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onAddSClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             if (mTvPersonnelNumberS.getText() != null && ValidationUtil.isNumberField(mTvPersonnelNumberS.getText().toString())) {
                 int newValue = Integer.valueOf(mTvPersonnelNumberS.getText().toString()) + 1;
                 mPersonnelNumberSValue = newValue;
@@ -777,9 +799,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         }
     };
 
-    private View.OnClickListener onReduceSClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onReduceSClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             if (mTvPersonnelNumberS.getText() != null && ValidationUtil.isNumberField(mTvPersonnelNumberS.getText().toString())
                     && Integer.valueOf(mTvPersonnelNumberS.getText().toString()) > 0) {
                 int newValue = Integer.valueOf(mTvPersonnelNumberS.getText().toString()) - 1;
@@ -789,9 +813,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         }
     };
 
-    private View.OnClickListener onAddDClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onAddDClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             if (mTvPersonnelNumberD.getText() != null && ValidationUtil.isNumberField(mTvPersonnelNumberD.getText().toString())) {
                 int newValue = Integer.valueOf(mTvPersonnelNumberD.getText().toString()) + 1;
                 mPersonnelNumberDValue = newValue;
@@ -800,9 +826,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
         }
     };
 
-    private View.OnClickListener onReduceDClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onReduceDClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             if (mTvPersonnelNumberD.getText() != null && ValidationUtil.isNumberField(mTvPersonnelNumberD.getText().toString())
                     && Integer.valueOf(mTvPersonnelNumberD.getText().toString()) > 0) {
                 int newValue = Integer.valueOf(mTvPersonnelNumberD.getText().toString()) - 1;
@@ -848,7 +876,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 DimensionUtil.setDimensions(view,
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         (int) getResources().getDimension(R.dimen.spinner_broad_height),
-                        new LinearLayout(getContext()));
+                        new LinearLayout(MainApplication.getAppContext()));
 
                 LinearLayout layoutSpinner = view.findViewById(R.id.layout_spinner_text_item);
                 layoutSpinner.setGravity(Gravity.END);
@@ -906,9 +934,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 getString(R.string.sitrep_location_hint));
     }
 
-    private View.OnClickListener onLocationInputOthersClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onLocationInputOthersClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mIsLocationInputOthersSelected = !view.isSelected();
             view.setSelected(mIsLocationInputOthersSelected);
 
@@ -990,9 +1020,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 getString(R.string.sitrep_activity_hint));
     }
 
-    private View.OnClickListener onActivityInputOthersClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onActivityInputOthersClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mIsActivityInputOthersSelected = !view.isSelected();
             view.setSelected(mIsActivityInputOthersSelected);
 
@@ -1035,9 +1067,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 getString(R.string.sitrep_next_coa_hint));
     }
 
-    private View.OnClickListener onNextCoaInputOthersClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onNextCoaInputOthersClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mIsNextCoaInputOthersSelected = !view.isSelected();
             view.setSelected(mIsNextCoaInputOthersSelected);
 
@@ -1080,9 +1114,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 getString(R.string.sitrep_request_hint));
     }
 
-    private View.OnClickListener onRequestInputOthersClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onRequestInputOthersClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mIsRequestInputOthersSelected = !view.isSelected();
             view.setSelected(mIsRequestInputOthersSelected);
 
@@ -1164,9 +1200,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 getString(R.string.sitrep_vessel_type_hint));
     }
 
-    private View.OnClickListener onVesselTypeInputOthersClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onVesselTypeInputOthersClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mIsVesselTypeInputOthersSelected = !view.isSelected();
             view.setSelected(mIsVesselTypeInputOthersSelected);
 
@@ -1209,9 +1247,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 getString(R.string.sitrep_vessel_name_hint));
     }
 
-    private View.OnClickListener onVesselNameInputOthersClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onVesselNameInputOthersClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mIsVesselNameInputOthersSelected = !view.isSelected();
             view.setSelected(mIsVesselNameInputOthersSelected);
 
@@ -1254,9 +1294,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 getString(R.string.sitrep_lpoc_hint));
     }
 
-    private View.OnClickListener onLpocInputOthersClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onLpocInputOthersClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mIsLpocInputOthersSelected = !view.isSelected();
             view.setSelected(mIsLpocInputOthersSelected);
 
@@ -1299,9 +1341,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 getString(R.string.sitrep_npoc_hint));
     }
 
-    private View.OnClickListener onNpocInputOthersClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onNpocInputOthersClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mIsNpocInputOthersSelected = !view.isSelected();
             view.setSelected(mIsNpocInputOthersSelected);
 
@@ -1378,9 +1422,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 getString(R.string.sitrep_cargo_hint));
     }
 
-    private View.OnClickListener onCargoInputOthersClickListener = new View.OnClickListener() {
+    private DebounceOnClickListener onCargoInputOthersClickListener =
+            new DebounceOnClickListener(ListenerUtil.SHORT_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
         @Override
-        public void onClick(View view) {
+        public void onDebouncedClick(View view) {
             mIsCargoInputOthersSelected = !view.isSelected();
             view.setSelected(mIsCargoInputOthersSelected);
 
@@ -2691,7 +2737,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 Timber.i("selectedImageAbsolutePath: %s", selectedImageAbsolutePath);
 
                 PhotoCaptureUtil.compressBitmapToFile(selectedImageAbsolutePath);
-                mCompressedFileBitmap = PhotoCaptureUtil.resizeImage(getContext(), selectedImageAbsolutePath);
+                mCompressedFileBitmap = PhotoCaptureUtil.resizeImage(MainApplication.getAppContext(), selectedImageAbsolutePath);
 
                 if (mCompressedFileBitmap != null) {
                     displayScaledBitmap(mCompressedFileBitmap);
@@ -2710,7 +2756,7 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
             File compressedBitmapFile = new File(compressedFilePathName);
 
             // This refreshes the photo Gallery app in Android to display the updated list
-            getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(compressedBitmapFile)));
+            MainApplication.getAppContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(compressedBitmapFile)));
         }
 
 //        performActionClick();
@@ -2735,15 +2781,15 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
                 mChosenRequestCode = requestCode;
 
                 Uri targetUri = data.getData();
-                String filePathName = PhotoCaptureUtil.getRealPathFromURI(getContext(),
+                String filePathName = PhotoCaptureUtil.getRealPathFromURI(MainApplication.getAppContext(),
                         targetUri, null, null);
                 PhotoCaptureUtil.compressBitmapToFile(filePathName);
-                mCompressedFileBitmap = PhotoCaptureUtil.resizeImage(getContext(), filePathName);
+                mCompressedFileBitmap = PhotoCaptureUtil.resizeImage(MainApplication.getAppContext(), filePathName);
                 displayScaledBitmap(mCompressedFileBitmap);
 
 
             } else if (resultCode == Activity.RESULT_CANCELED) {
-                Toast.makeText(getContext(), "Photo gallery picture selection operation cancelled",
+                Toast.makeText(MainApplication.getAppContext(), "Photo gallery picture selection operation cancelled",
                         Toast.LENGTH_SHORT).show();
             }
         }
@@ -2757,11 +2803,11 @@ public class SitRepAddUpdateFragment extends Fragment implements SnackbarUtil.Sn
 
                 Timber.i("mImageFileAbsolutePath: %s", mImageFileAbsolutePath);
                 PhotoCaptureUtil.compressBitmapToFile(mImageFileAbsolutePath);
-                mCompressedFileBitmap = PhotoCaptureUtil.resizeImage(getContext(), mImageFileAbsolutePath);
+                mCompressedFileBitmap = PhotoCaptureUtil.resizeImage(MainApplication.getAppContext(), mImageFileAbsolutePath);
                 displayScaledBitmap(mCompressedFileBitmap);
 
             } else if (resultCode == Activity.RESULT_CANCELED) {
-                Toast.makeText(getContext(), "Photo taking operation cancelled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainApplication.getAppContext(), "Photo taking operation cancelled", Toast.LENGTH_SHORT).show();
             }
         }
     }

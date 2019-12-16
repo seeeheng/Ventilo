@@ -22,6 +22,7 @@ public class StringUtil {
     public static final String TRAILING_SLASH = "/";
     public static final String BACKWARD_SLASH = "\\";
     public static final String DEFAULT_INT = "0";
+    public static final String HYPHEN_DIVIDER = "--------------------";
 
     // Regex
     public static final String REGEX_EVERYTHING = "*";

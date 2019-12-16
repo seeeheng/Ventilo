@@ -7,6 +7,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import android.util.AttributeSet;
 
 import sg.gov.dsta.mobileC3.ventilo.R;
+import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 
 public class C2OpenSansBlackButton extends AppCompatButton {
 
@@ -25,7 +26,7 @@ public class C2OpenSansBlackButton extends AppCompatButton {
     }
 
     private void init() {
-        Typeface tf = ResourcesCompat.getFont(getContext(), R.font.open_sans_extrabold);
+        Typeface tf = ResourcesCompat.getFont(MainApplication.getAppContext(), R.font.open_sans_extrabold);
         setTypeface(tf);
     }
 
