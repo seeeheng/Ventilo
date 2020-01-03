@@ -73,8 +73,18 @@ public class MainApplication extends Application {
     private void subscribeToNetwork() {
         mNetworkServiceIntent = new Intent(getApplicationContext(), NetworkService.class);
         mNetworkStopServiceIntent = new Intent(getApplicationContext(), NetworkStopService.class);
-        startService(mNetworkServiceIntent);
-        startService(mNetworkStopServiceIntent);
+//        startService(mNetworkServiceIntent);
+//        startService(mNetworkStopServiceIntent);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(mNetworkServiceIntent);
+            startForegroundService(mNetworkStopServiceIntent);
+        } else {
+            startService(mNetworkServiceIntent);
+            startService(mNetworkStopServiceIntent);
+        }
+
+//        startForegroundService(mNetworkServiceIntent);
     }
 
     /**

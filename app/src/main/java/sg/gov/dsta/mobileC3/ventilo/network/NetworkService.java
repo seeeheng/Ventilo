@@ -1,12 +1,16 @@
 package sg.gov.dsta.mobileC3.ventilo.network;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 
+import sg.gov.dsta.mobileC3.ventilo.R;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQSubscriber;
@@ -17,8 +21,8 @@ import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
 public class NetworkService extends IntentService {
 
     private static final String TAG = NetworkService.class.getSimpleName();
+    private static final String DEFAULT_NOTIFICATION_CHANNEL_ID = "1";
     private static final String NETWORK_INTERFACE_RNDIS = "RNDIS";
-
 
     // receiver that notifies the Service when the user changes data use preferences
 //    private static MqttHelper mqttHelper;
@@ -105,6 +109,29 @@ public class NetworkService extends IntentService {
     @Override
     public int onStartCommand(final Intent intent, int flags, final int startId) {
         super.onStartCommand(intent, flags, startId);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            Notification.Builder builder = new Notification.Builder(this, DEFAULT_NOTIFICATION_CHANNEL_ID)
+                    .setContentTitle(getString(R.string.notification_header))
+                    .setContentText(getString(R.string.notification_service_ended))
+                    .setAutoCancel(true);
+
+            Notification notification = builder.build();
+            startForeground(1, notification);
+
+        } else {
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, DEFAULT_NOTIFICATION_CHANNEL_ID)
+                    .setContentTitle(getString(R.string.notification_header))
+                    .setContentText(getString(R.string.notification_service_ended))
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setAutoCancel(true);
+
+            Notification notification = builder.build();
+
+            startForeground(1, notification);
+        }
 
         // START_NOT_STICKY - Service will NOT be left running after it has been killed
         return START_NOT_STICKY;
