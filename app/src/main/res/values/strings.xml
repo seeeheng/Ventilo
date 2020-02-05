@@ -170,11 +170,11 @@
     <string name="map_blueprint_loading_status">Loading status</string>
 
     <string-array name="map_ship_blueprint_floor_items">
-        <!--<item>Indoor Range</item>-->
-        <!--<item>Indoor Range 1m</item>-->
-        <!--<item>Indoor Range 2m</item>-->
-        <!--<item>Indoor Range 4m</item>-->
-        <!--<item>Indoor Range 6m</item>-->
+        <item>Indoor Range</item>
+        <item>Indoor Range 1m</item>
+        <item>Indoor Range 2m</item>
+        <item>Indoor Range 4m</item>
+        <item>Indoor Range 6m</item>
 
         <item>Lateral View</item>
         <item>Deck Platform</item>
@@ -200,11 +200,11 @@
         <!--<item>Tank Top</item>-->
     </string-array>
     <string-array name="map_ship_blueprint_floor_html_link_items">
-        <!--<item>leaflet-indoor-range.html</item>-->
-        <!--<item>leaflet-indoor-range-1m.html</item>-->
-        <!--<item>leaflet-indoor-range-2m.html</item>-->
-        <!--<item>leaflet-indoor-range-4m.html</item>-->
-        <!--<item>leaflet-indoor-range-6m.html</item>-->
+        <item>leaflet-indoor-range.html</item>
+        <item>leaflet-indoor-range-1m.html</item>
+        <item>leaflet-indoor-range-2m.html</item>
+        <item>leaflet-indoor-range-4m.html</item>
+        <item>leaflet-indoor-range-6m.html</item>
 
         <item>leaflet-avatar-lateral.html</item>
         <item>leaflet-avatar-deckplatform.html</item>

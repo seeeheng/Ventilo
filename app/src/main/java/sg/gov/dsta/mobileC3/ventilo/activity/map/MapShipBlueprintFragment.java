@@ -410,8 +410,14 @@ public class MapShipBlueprintFragment extends Fragment {
             new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
                     mWebView.loadUrl(getBlueprintDirectory() +
                             mSpinnerFloorNameLinkList.get(position));
+
+                    //TODO: Temporary Solution; Remove after demo
+                    if (prefs != null) {
+                        prefs.setOnePixelToMetresFromSelectedMapName(mSpinnerFloorNameLinkList.get(position));
+                    }
 
 //                    mSelectedFloorName = mSpinnerFloorNameLinkList.get(position);
                 }

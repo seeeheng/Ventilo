@@ -27,12 +27,12 @@ public class BFTLocalPreferences {
 
     private ArrayList<String> floors = new ArrayList();
     private int currentFloor = 0;
-    //    private double mapScale = 44.98599; // 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris)
-    private static double mapScale = 250; // 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris), 1cm to 29.52756 (Indoor Range)
-    //    private double mapScale = 300; // 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris), 1cm to 29.52756 (Indoor Range)
-//    private double onePixelToMetres = (82.07 / 3102 * mapScale / 100); // For Indoor Range; 0.021 (Avatar); 0.05291 (BW Paris)
-    private static double onePixelToMetres = (11.82 / 1400 * mapScale / 100); // For Avatar; 0.021 (Avatar); 0.05291 (BW Paris); 0.0078125 (Indoor Range)
-//    private double onePixelToMetres = (41.45 / 2350 * mapScale / 100); // For BW Paris; 0.021 (Avatar); 0.05291 (BW Paris); 0.0078125 (Indoor Range)
+    //    private double mapScale = 44.98599; // For Indoor Range; 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris), 1cm to 44.98599 (Indoor Range)
+    private static double mapScale = 250; // For Avatar; 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris), 1cm to 44.98599 (Indoor Range)
+    //    private double mapScale = 300; // For BW Paris; 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris), 1cm to 44.98599 (Indoor Range)
+//    private double onePixelToMetres = (82.07 / 3102 * mapScale / 100); // For Indoor Range; 0.021 (Avatar), 0.05291 (BW Paris), 0.011902 (Indoor Range)
+    private static double onePixelToMetres = (11.82 / 1400 * mapScale / 100); // For Avatar; 0.021 (Avatar), 0.05291 (BW Paris), 0.011902 (Indoor Range)
+//    private double onePixelToMetres = (41.45 / 2350 * mapScale / 100); // For BW Paris; 0.021 (Avatar), 0.05291 (BW Paris), 0.011902 (Indoor Range)
 
 //    private double onePixelToMetres;
 
@@ -164,6 +164,8 @@ public class BFTLocalPreferences {
 
     /**
      * Set one pixel to metres measurement factor based on map blueprint in external folder
+     *
+     * @param gaScale
      */
     public void setOnePixelToMetresFromExternalFolder(float gaScale) {
 
@@ -222,6 +224,36 @@ public class BFTLocalPreferences {
         };
 
         mapRepo.getAllMaps(singleObserverGetAllMaps);
+    }
+
+    /**
+     * TODO: Temporary solution to include Indoor Range and Avatar maps; Remove after demo
+     * Set one pixel to metres measurement factor based on map blueprint in external folder
+     *
+     * @param mapName
+     */
+    public void setOnePixelToMetresFromSelectedMapName(String mapName) {
+
+        String[] indoorRangeMapNamePrefixArray = {"indoor", "range"};
+
+        boolean allFound = true;
+        for (String s : indoorRangeMapNamePrefixArray)
+        {
+            if (!mapName.trim().contains(s))
+            {
+                allFound = false;
+                break;
+            }
+        }
+
+        if (allFound) {
+            mapScale = 44.98599;
+            onePixelToMetres = (82.07 / 3102 * mapScale / 100);
+
+        } else {
+            mapScale = 250;
+            onePixelToMetres = (11.82 / 1400 * mapScale / 100);
+        }
     }
 
     public static double getMetresFromPixels(double pixels) {
