@@ -3,14 +3,19 @@ package sg.gov.dsta.mobileC3.ventilo.activity.map;
 import android.annotation.SuppressLint;
 import android.app.Application;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
@@ -46,6 +51,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.navisens.motiondnaapi.MotionDnaApplication;
 import com.nutiteq.components.Color;
 
 import java.io.IOException;
@@ -96,6 +102,8 @@ import sg.gov.dsta.mobileC3.ventilo.util.enums.bft.EBftType;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 import timber.log.Timber;
+
+import static android.content.Context.LOCATION_SERVICE;
 
 public class MapShipBlueprintFragment extends Fragment {
 
@@ -181,7 +189,8 @@ public class MapShipBlueprintFragment extends Fragment {
     String SOUND_BEACON_DETECT = "to-the-point.mp3";
     String SOUND_BEACON_DROP = "drop.mp3";
     RabbitMQ mqRabbit;
-    private FileSaver fs;
+    private FileSaver fsInternalLogs; // Stores in device file explorer which is not accessible via phone
+    private FileSaver fsExternalLogs; // Stores in phone's file directory which is accessible via phone
     private NavisensLocalTracker tracker;
 
     private BFTLocalPreferences prefs;
@@ -219,6 +228,7 @@ public class MapShipBlueprintFragment extends Fragment {
 
             prefs = new BFTLocalPreferences(MainApplication.getAppContext());
 
+            checkForGPS();
             initTracker();
             initWebviewSettings();
             setupMQListener();
@@ -1099,8 +1109,45 @@ public class MapShipBlueprintFragment extends Fragment {
 //        mBFTViewModel.getAllBFTs(singleObserverBFTForUser);
 //    }
 
+    private void checkForGPS() {
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
+
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            Toast.makeText(getActivity(), "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
+        }else{
+            showGPSDisabledAlertToUser();
+        }
+    }
+
+    private void showGPSDisabledAlertToUser(){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setMessage("GPS is disabled in your device. Would you like to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Go to Settings Page To Enable GPS",
+                        new DialogInterface.OnClickListener(){
+                            public void onClick(DialogInterface dialog, int id){
+                                Intent callGPSSettingIntent = new Intent(
+                                        android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                startActivity(callGPSSettingIntent);
+                            }
+                        });
+        alertDialogBuilder.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface dialog, int id){
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
+    }
+
     private void initTracker() {
         this.tracker = new NavisensLocalTracker(this.getActivity());
+
+        // Requests app
+        ActivityCompat.requestPermissions(getActivity(), MotionDnaApplication.needsRequestingPermissions()
+                , 1);
+
         this.tracker.setTrackerListener(new TrackerListener() {
             @Override
             public synchronized void onNewCoords(Coords coords) {
@@ -1141,12 +1188,13 @@ public class MapShipBlueprintFragment extends Fragment {
     }
 
     private void saveCoords(Coords coords) {
-        if (fs != null) {
+        if (fsInternalLogs != null && fsExternalLogs != null) {
             String pattern = "yyyyMMddHHmmss";
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
             String date = simpleDateFormat.format(new Date());
             try {
-                fs.write(coords.getX() + "," + coords.getY() + "," + coords.getAltitude() + "," + coords.getBearing() + "," + prefs.getName() + "," + coords.getAction() + "," + coords.getLatitude() + "," + date);
+                fsExternalLogs.write(coords.getX() + "," + coords.getY() + "," + coords.getAltitude() + "," + coords.getBearing() + "," + prefs.getName() + "," + coords.getAction() + "," + coords.getLatitude() + "," + date);
+                fsInternalLogs.write(coords.getX() + "," + coords.getY() + "," + coords.getAltitude() + "," + coords.getBearing() + "," + prefs.getName() + "," + coords.getAction() + "," + coords.getLatitude() + "," + date);
             } catch (IOException e) {
                 e.printStackTrace();
                 Timber.e("FileSaver failed to save coords");
@@ -1440,10 +1488,18 @@ public class MapShipBlueprintFragment extends Fragment {
 
     private void setupFileSaver() {
         try {
-            fs = new FileSaver(this.getActivity().getApplicationContext(), prefs.getLogLocation());
-            if (fs != null) {
+
+            fsInternalLogs = new FileSaver(this.getActivity().getApplicationContext(), prefs.getLogLocation(), false);
+            fsExternalLogs = new FileSaver(this.getActivity().getApplicationContext(), FileUtil.getLocationLogFileName(), true);
+
+            if (fsInternalLogs != null) {
                 Toast.makeText(this.getActivity().getApplicationContext(), "Logging to " + prefs.getLogLocation(), Toast.LENGTH_LONG).show();
             }
+
+            if (fsExternalLogs != null) {
+                Toast.makeText(this.getActivity().getApplicationContext(), "Logging to " + prefs.getLogLocation(), Toast.LENGTH_LONG).show();
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
             Timber.e("FileSaver cannot initialise");
@@ -2118,9 +2174,17 @@ public class MapShipBlueprintFragment extends Fragment {
             tracker.deactivate();
         }
 
-        if (fs != null) {
+        if (fsInternalLogs != null) {
             try {
-                fs.close();
+                fsInternalLogs.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (fsExternalLogs != null) {
+            try {
+                fsExternalLogs.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -2374,9 +2438,9 @@ public class MapShipBlueprintFragment extends Fragment {
 //            tracker.deactivate();
 //        }
 //
-//        if (fs != null) {
+//        if (fsInternalLogs != null) {
 //            try {
-//                fs.close();
+//                fsInternalLogs.close();
 //            } catch (IOException e) {
 //                e.printStackTrace();
 //            }

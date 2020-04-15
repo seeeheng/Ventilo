@@ -228,6 +228,9 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
         motionDnaApp.setPowerMode(MotionDna.PowerConsumptionMode.PERFORMANCE);
         motionDnaApp.resetLocalEstimation();
         motionDnaApp.resetLocalHeading();
+        motionDnaApp.setLocationGPSOnly();
+        motionDnaApp.setGnssOrGpsStatusEnabled(true);
+        motionDnaApp.setExternalPositioningState(MotionDna.ExternalPositioningState.HIGH_ACCURACY);
         motionDnaApp.setBinaryFileLoggingEnabled(true);
 
     }
@@ -349,8 +352,11 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
         motionDnaApp.runMotionDna(DEVELOPER_KEY);
         motionDnaApp.setCallbackUpdateRateInMs(UPDATERATE_MS);
         motionDnaApp.setPowerMode(MotionDna.PowerConsumptionMode.PERFORMANCE);
-        motionDnaApp.resetLocalEstimation();
-        motionDnaApp.resetLocalHeading();
+//        motionDnaApp.resetLocalEstimation();
+        motionDnaApp.setLocationGPSOnly();
+        motionDnaApp.setGnssOrGpsStatusEnabled(true);
+        motionDnaApp.setExternalPositioningState(MotionDna.ExternalPositioningState.HIGH_ACCURACY);
+//        motionDnaApp.resetLocalHeading();
         motionDnaApp.setBinaryFileLoggingEnabled(true);
 
         motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_SENSOR_TIMING,

@@ -127,6 +127,17 @@
         <item>198.18.5.67</item>
         <item>198.18.5.68</item>
         <item>198.18.5.69</item>
+        <item>198.18.5.100</item>
+        <item>198.18.5.101</item>
+        <item>198.18.5.102</item>
+        <item>198.18.5.103</item>
+        <item>198.18.5.104</item>
+        <item>198.18.5.105</item>
+        <item>198.18.5.106</item>
+        <item>198.18.5.107</item>
+        <item>198.18.5.108</item>
+        <item>198.18.5.109</item>
+        <item>198.18.5.110</item>
     </string-array>
     <string-array name="login_user_mobile_ip_addresses">
         <item>198.18.2.1</item>
@@ -144,6 +155,17 @@
         <item>198.18.2.67</item>
         <item>198.18.2.68</item>
         <item>198.18.2.69</item>
+        <item>198.18.2.100</item>
+        <item>198.18.2.101</item>
+        <item>198.18.2.102</item>
+        <item>198.18.2.103</item>
+        <item>198.18.2.104</item>
+        <item>198.18.2.105</item>
+        <item>198.18.2.106</item>
+        <item>198.18.2.107</item>
+        <item>198.18.2.108</item>
+        <item>198.18.2.109</item>
+        <item>198.18.2.110</item>
         <!--<item>198.18.5.10</item>-->
         <!--<item>169.254.180.48</item>-->
         <!--<item>192.168.1.2</item>-->
@@ -170,24 +192,31 @@
     <string name="map_blueprint_loading_status">Loading status</string>
 
     <string-array name="map_ship_blueprint_floor_items">
-        <item>Indoor Range</item>
-        <item>Indoor Range 1m</item>
-        <item>Indoor Range 2m</item>
-        <item>Indoor Range 4m</item>
-        <item>Indoor Range 6m</item>
-
-        <item>Lateral View</item>
-        <item>Deck Platform</item>
-        <item>Deck 7</item>
-        <item>Deck 6</item>
-        <item>Deck 5</item>
-        <item>Deck 4</item>
-        <item>Deck 3</item>
+        <item>Deck 0</item>
+        <item>Deck 1</item>
         <item>Deck 2</item>
-        <item>Main Deck</item>
-        <item>Tween Deck</item>
-        <item>2nd Deck</item>
-        <item>3rd Deck</item>
+        <item>Deck 3</item>
+        <item>Deck 4</item>
+        <item>Deck 5</item>
+
+<!--        <item>Indoor Range</item>-->
+<!--        <item>Indoor Range 1m</item>-->
+<!--        <item>Indoor Range 2m</item>-->
+<!--        <item>Indoor Range 4m</item>-->
+<!--        <item>Indoor Range 6m</item>-->
+
+<!--        <item>Lateral View</item>-->
+<!--        <item>Deck Platform</item>-->
+<!--        <item>Deck 7</item>-->
+<!--        <item>Deck 6</item>-->
+<!--        <item>Deck 5</item>-->
+<!--        <item>Deck 4</item>-->
+<!--        <item>Deck 3</item>-->
+<!--        <item>Deck 2</item>-->
+<!--        <item>Main Deck</item>-->
+<!--        <item>Tween Deck</item>-->
+<!--        <item>2nd Deck</item>-->
+<!--        <item>3rd Deck</item>-->
 
         <!--<item>Profile View</item>-->
         <!--<item>Midship View</item>-->
@@ -200,24 +229,32 @@
         <!--<item>Tank Top</item>-->
     </string-array>
     <string-array name="map_ship_blueprint_floor_html_link_items">
-        <item>leaflet-indoor-range.html</item>
-        <item>leaflet-indoor-range-1m.html</item>
-        <item>leaflet-indoor-range-2m.html</item>
-        <item>leaflet-indoor-range-4m.html</item>
-        <item>leaflet-indoor-range-6m.html</item>
 
-        <item>leaflet-avatar-lateral.html</item>
-        <item>leaflet-avatar-deckplatform.html</item>
-        <item>leaflet-avatar-deck7.html</item>
-        <item>leaflet-avatar-deck6.html</item>
-        <item>leaflet-avatar-deck5.html</item>
-        <item>leaflet-avatar-deck4.html</item>
-        <item>leaflet-avatar-deck3.html</item>
-        <item>leaflet-avatar-deck2.html</item>
-        <item>leaflet-avatar-maindeck.html</item>
-        <item>leaflet-avatar-decktween.html</item>
-        <item>leaflet-avatar-deck2nd.html</item>
-        <item>leaflet-avatar-deck3rd.html</item>
+        <item>leaflet-avatar-fastmap-deck0.html</item>
+        <item>leaflet-avatar-fastmap-deck1.html</item>
+        <item>leaflet-avatar-fastmap-deck2.html</item>
+        <item>leaflet-avatar-fastmap-deck3.html</item>
+        <item>leaflet-avatar-fastmap-deck4.html</item>
+        <item>leaflet-avatar-fastmap-deck5.html</item>
+
+<!--        <item>leaflet-indoor-range.html</item>-->
+<!--        <item>leaflet-indoor-range-1m.html</item>-->
+<!--        <item>leaflet-indoor-range-2m.html</item>-->
+<!--        <item>leaflet-indoor-range-4m.html</item>-->
+<!--        <item>leaflet-indoor-range-6m.html</item>-->
+
+<!--        <item>leaflet-avatar-lateral.html</item>-->
+<!--        <item>leaflet-avatar-deckplatform.html</item>-->
+<!--        <item>leaflet-avatar-deck7.html</item>-->
+<!--        <item>leaflet-avatar-deck6.html</item>-->
+<!--        <item>leaflet-avatar-deck5.html</item>-->
+<!--        <item>leaflet-avatar-deck4.html</item>-->
+<!--        <item>leaflet-avatar-deck3.html</item>-->
+<!--        <item>leaflet-avatar-deck2.html</item>-->
+<!--        <item>leaflet-avatar-maindeck.html</item>-->
+<!--        <item>leaflet-avatar-decktween.html</item>-->
+<!--        <item>leaflet-avatar-deck2nd.html</item>-->
+<!--        <item>leaflet-avatar-deck3rd.html</item>-->
 
         <!--<item>leaflet-bw-paris-profile.html</item>-->
         <!--<item>leaflet-bw-paris-midship.html</item>-->

@@ -211,6 +211,28 @@ public abstract class VentiloDatabase extends RoomDatabase {
                 radioIpAddresses[13], StringUtil.INVALID_STRING, StringUtil.INVALID_STRING);
         WaveRelayRadioModel radioSixtyNine = createWaveRelayRadioModel(69, null,
                 radioIpAddresses[14], StringUtil.INVALID_STRING, StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioOneHundred = createWaveRelayRadioModel(100, null,
+                radioIpAddresses[15], StringUtil.INVALID_STRING, StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioOneHundredAndOne = createWaveRelayRadioModel(101, null,
+                radioIpAddresses[16], StringUtil.INVALID_STRING, StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioOneHundredAndTwo = createWaveRelayRadioModel(102, null,
+                radioIpAddresses[17], StringUtil.INVALID_STRING, StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioOneHundredAndThree = createWaveRelayRadioModel(103, null,
+                radioIpAddresses[18], StringUtil.INVALID_STRING, StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioOneHundredAndFour = createWaveRelayRadioModel(104, null,
+                radioIpAddresses[19], StringUtil.INVALID_STRING, StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioOneHundredAndFive = createWaveRelayRadioModel(105, null,
+                radioIpAddresses[20], StringUtil.INVALID_STRING, StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioOneHundredAndSix = createWaveRelayRadioModel(106, null,
+                radioIpAddresses[21], StringUtil.INVALID_STRING, StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioOneHundredAndSeven = createWaveRelayRadioModel(107, null,
+                radioIpAddresses[22], StringUtil.INVALID_STRING, StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioOneHundredAndEight = createWaveRelayRadioModel(108, null,
+                radioIpAddresses[23], StringUtil.INVALID_STRING, StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioOneHundredAndNine = createWaveRelayRadioModel(109, null,
+                radioIpAddresses[24], StringUtil.INVALID_STRING, StringUtil.INVALID_STRING);
+        WaveRelayRadioModel radioOneHundredAndTen = createWaveRelayRadioModel(110, null,
+                radioIpAddresses[25], StringUtil.INVALID_STRING, StringUtil.INVALID_STRING);
 
         SharedPreferenceUtil.setSharedPreference(SharedPreferenceConstants.USER_RADIO_LINK_STATUS,
                 ERadioConnectionStatus.OFFLINE.toString());
@@ -230,6 +252,17 @@ public abstract class VentiloDatabase extends RoomDatabase {
         waveRelayRadioDao().insertWaveRelayRadioModel(radioSixtySeven);
         waveRelayRadioDao().insertWaveRelayRadioModel(radioSixtyEight);
         waveRelayRadioDao().insertWaveRelayRadioModel(radioSixtyNine);
+        waveRelayRadioDao().insertWaveRelayRadioModel(radioOneHundred);
+        waveRelayRadioDao().insertWaveRelayRadioModel(radioOneHundredAndOne);
+        waveRelayRadioDao().insertWaveRelayRadioModel(radioOneHundredAndTwo);
+        waveRelayRadioDao().insertWaveRelayRadioModel(radioOneHundredAndThree);
+        waveRelayRadioDao().insertWaveRelayRadioModel(radioOneHundredAndFour);
+        waveRelayRadioDao().insertWaveRelayRadioModel(radioOneHundredAndFive);
+        waveRelayRadioDao().insertWaveRelayRadioModel(radioOneHundredAndSix);
+        waveRelayRadioDao().insertWaveRelayRadioModel(radioOneHundredAndSeven);
+        waveRelayRadioDao().insertWaveRelayRadioModel(radioOneHundredAndEight);
+        waveRelayRadioDao().insertWaveRelayRadioModel(radioOneHundredAndNine);
+        waveRelayRadioDao().insertWaveRelayRadioModel(radioOneHundredAndTen);
 
         // Video Streams; Add 'Camera-Radio' label to radio number for radio name
         VideoStreamModel videoOne = createVideoStreamModel(MainApplication.getAppContext().getResources().
@@ -277,6 +310,39 @@ public abstract class VentiloDatabase extends RoomDatabase {
         VideoStreamModel videoSixtyNine = createVideoStreamModel(MainApplication.getAppContext().getResources().
                         getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("69"),
                 EOwner.OTHERS.toString());
+        VideoStreamModel videoOneHundred = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                        getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("100"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoOneHundredAndOne = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                        getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("101"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoOneHundredAndTwo = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                        getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("102"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoOneHundredAndThree = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                        getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("103"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoOneHundredAndFour = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                        getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("104"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoOneHundredAndFive = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                        getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("105"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoOneHundredAndSix = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                        getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("106"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoOneHundredAndSeven = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                        getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("107"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoOneHundredAndEight = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                        getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("108"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoOneHundredAndNine = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                        getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("109"),
+                EOwner.OTHERS.toString());
+        VideoStreamModel videoOneHundredAndTen = createVideoStreamModel(MainApplication.getAppContext().getResources().
+                        getString(R.string.video_stream_video_name_camera_radio).concat(StringUtil.SPACE).concat("110"),
+                EOwner.OTHERS.toString());
 
         videoStreamDao().insertVideoStreamModel(videoOne);
         videoStreamDao().insertVideoStreamModel(videoTwo);
@@ -293,6 +359,17 @@ public abstract class VentiloDatabase extends RoomDatabase {
         videoStreamDao().insertVideoStreamModel(videoSixtySeven);
         videoStreamDao().insertVideoStreamModel(videoSixtyEight);
         videoStreamDao().insertVideoStreamModel(videoSixtyNine);
+        videoStreamDao().insertVideoStreamModel(videoOneHundred);
+        videoStreamDao().insertVideoStreamModel(videoOneHundredAndOne);
+        videoStreamDao().insertVideoStreamModel(videoOneHundredAndTwo);
+        videoStreamDao().insertVideoStreamModel(videoOneHundredAndThree);
+        videoStreamDao().insertVideoStreamModel(videoOneHundredAndFour);
+        videoStreamDao().insertVideoStreamModel(videoOneHundredAndFive);
+        videoStreamDao().insertVideoStreamModel(videoOneHundredAndSix);
+        videoStreamDao().insertVideoStreamModel(videoOneHundredAndSeven);
+        videoStreamDao().insertVideoStreamModel(videoOneHundredAndEight);
+        videoStreamDao().insertVideoStreamModel(videoOneHundredAndNine);
+        videoStreamDao().insertVideoStreamModel(videoOneHundredAndTen);
 
     }
 

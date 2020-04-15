@@ -31,8 +31,9 @@ public class BFTLocalPreferences {
     private static double mapScale = 250; // For Avatar; 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris), 1cm to 44.98599 (Indoor Range)
     //    private double mapScale = 300; // For BW Paris; 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris), 1cm to 44.98599 (Indoor Range)
 //    private double onePixelToMetres = (82.07 / 3102 * mapScale / 100); // For Indoor Range; 0.021 (Avatar), 0.05291 (BW Paris), 0.011902 (Indoor Range)
-    private static double onePixelToMetres = (11.82 / 1400 * mapScale / 100); // For Avatar; 0.021 (Avatar), 0.05291 (BW Paris), 0.011902 (Indoor Range)
+//    private static double onePixelToMetres = (11.82 / 1400 * mapScale / 100); // For Avatar; 0.021 (Avatar), 0.05291 (BW Paris), 0.011902 (Indoor Range)
 //    private double onePixelToMetres = (41.45 / 2350 * mapScale / 100); // For BW Paris; 0.021 (Avatar), 0.05291 (BW Paris), 0.011902 (Indoor Range)
+    private static double onePixelToMetres = (5.93 / 168 * mapScale / 100); // For Avatar-Fastmap; 0.021 (Avatar), 0.05291 (BW Paris), 0.011902 (Indoor Range)
 
 //    private double onePixelToMetres;
 
@@ -179,8 +180,9 @@ public class BFTLocalPreferences {
 
         } else {
             mapScale = 250;
-            onePixelToMetres = (11.82 / 1400 * mapScale / 100);
+//            onePixelToMetres = (11.82 / 1400 * mapScale / 100);
 
+            onePixelToMetres = (5.93 / 168 * mapScale / 100);
         }
     }
 
@@ -252,7 +254,9 @@ public class BFTLocalPreferences {
 
         } else {
             mapScale = 250;
-            onePixelToMetres = (11.82 / 1400 * mapScale / 100);
+//            onePixelToMetres = (11.82 / 1400 * mapScale / 100);
+
+            onePixelToMetres = (5.93 / 168 * mapScale / 100);
         }
     }
 

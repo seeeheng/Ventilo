@@ -10,17 +10,26 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import sg.gov.dsta.mobileC3.ventilo.util.FileUtil;
+
 public class FileSaver {
 
     String TAG = "FILESAVER";
 //    PrintWriter out;
     FileOutputStream out;
-    public FileSaver(Context context, String filepath) throws IOException {
-        File path = context.getFilesDir();
-        Log.d(TAG,"Abs path" + path.getAbsolutePath());
-        File file = new File(path, filepath);
-        out = new FileOutputStream(file, true);
+    public FileSaver(Context context, String filepath, boolean isExternalFileDirectory) throws IOException {
+
+        if (!isExternalFileDirectory) {
+            File path = context.getFilesDir();
+            Log.d(TAG, "Abs path" + path.getAbsolutePath());
+            File file = new File(path, filepath);
+            out = new FileOutputStream(file, true);
 //        this.out = new PrintWriter(new BufferedWriter(new FileWriter(filepath, true)));
+
+        } else {
+            File file = new File(FileUtil.getLocationLogParentFileDirectory(), filepath);
+            out = new FileOutputStream(file, true);
+        }
     }
 
     public void close() throws IOException {

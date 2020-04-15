@@ -42,6 +42,7 @@ public class FileUtil {
     public static final String SUB_DIRECTORY_VEN = "Ven";
 //    private static final File PUBLIC_DIRECTORY = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
 
+    private static final String LEVEL_2_SUB_DIRECTORY_LOCATION_LOG = "Location Log";
     private static final String LEVEL_2_SUB_DIRECTORY_MAP_IMAGES = "Map Images";
     private static final String LEVEL_2_SUB_DIRECTORY_MAP_HTML = "Map Html";
     private static final String LEVEL_2_SUB_DIRECTORY_MOTION_LOG = "Motion Log";
@@ -53,6 +54,7 @@ public class FileUtil {
     private static final String PNG_FILE_SUFFIX = ".png";
     private static final String HTML_FILE_SUFFIX = ".html";
     private static final String SIT_REP = "SitRep";
+    private static final String LOCATION_LOG = "Location_Log";
     private static final String MOTION_LOG = "Motion_Log";
 
     private static final String DECK_TEMPLATE_FILE_DIRECTORY = "ship/leaflet-deck-template.html";
@@ -181,6 +183,134 @@ public class FileUtil {
 
 //    private void createHtmlFilesFromMapBlueprintImages(File[] imageFiles) {
 //
+//    }
+
+    // **************************************** Location Logs **************************************** //
+
+    public static File getLocationLogParentFileDirectory() {
+
+        File venDirectory = getFileDirectory(PUBLIC_DIRECTORY, SUB_DIRECTORY_VEN);
+
+        File locationLogDirectory = getFileDirectory(venDirectory, LEVEL_2_SUB_DIRECTORY_LOCATION_LOG);
+
+        String currentDayMonthYearDate = DateTimeUtil.
+                dateToCustomDateStringFormat(DateTimeUtil.
+                        stringToDate(DateTimeUtil.getCurrentDateTime()));
+
+        File locationLogDirectoryByDate = getFileDirectory(locationLogDirectory, currentDayMonthYearDate);
+
+        return locationLogDirectoryByDate;
+    }
+
+    /**
+     * Get location log file name in parent file directory
+     *
+     * @return
+     */
+    public static String getLocationLogFileName() {
+        // Text file name
+        StringBuilder textFileNameBuilder = new StringBuilder();
+        String currentDateInFileFormat = DateTimeUtil.dateToCustomDateFileStringFormat(
+                DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime()));
+
+        textFileNameBuilder.append(LOCATION_LOG);
+        textFileNameBuilder.append(StringUtil.UNDERSCORE);
+        textFileNameBuilder.append(currentDateInFileFormat);
+        textFileNameBuilder.append(TEXT_FILE_SUFFIX);
+
+        return textFileNameBuilder.toString();
+    }
+
+//    /**
+//     * Save location data log into file directory
+//     *
+//     * @param locationLog
+//     */
+//    public static void saveLocationLogIntoFile(String locationLog) {
+//
+//        Timber.i("Finding location data log directory for file storage...");
+//
+//        if (locationLog != null) {
+//            File venDirectory = getFileDirectory(PUBLIC_DIRECTORY, SUB_DIRECTORY_VEN);
+//
+//            File locationLogDirectory = getFileDirectory(venDirectory, LEVEL_2_SUB_DIRECTORY_LOCATION_LOG);
+//
+//            String currentDayMonthYearDate = DateTimeUtil.
+//                    dateToCustomDateStringFormat(DateTimeUtil.
+//                            stringToDate(DateTimeUtil.getCurrentDateTime()));
+//
+//            File locationLogDirectoryByDate = getFileDirectory(locationLogDirectory, currentDayMonthYearDate);
+//
+//            Timber.i("Checking / Creating file name...");
+//
+//            // Text file name
+//            StringBuilder textFileNameBuilder = new StringBuilder();
+//            String currentDateInFileFormat = DateTimeUtil.dateToCustomDateFileStringFormat(
+//                    DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime()));
+//
+//            textFileNameBuilder.append(LOCATION_LOG);
+//            textFileNameBuilder.append(StringUtil.UNDERSCORE);
+//            textFileNameBuilder.append(currentDateInFileFormat);
+//            textFileNameBuilder.append(TEXT_FILE_SUFFIX);
+//
+//            File locationLogTextFile = new File(locationLogDirectoryByDate, textFileNameBuilder.toString());
+//
+//            try {
+//
+//
+//                FileWriter writer;
+//
+//                // Save text file
+//                if (!locationLogTextFile.exists()) {
+//
+//                    writer = new FileWriter(locationLogTextFile);
+//
+//                } else {
+//
+//                    writer = new FileWriter(locationLogTextFile, true);
+//                    writer.append(System.lineSeparator());
+//                    writer.append(System.lineSeparator());
+//                    writer.append(StringUtil.HYPHEN_DIVIDER);
+//                    writer.append(System.lineSeparator());
+//                    writer.append(System.lineSeparator());
+//
+//                }
+//
+//                Timber.i("Writing location data log content into text file...");
+//
+//                String currentDateTimeFormat = DateTimeUtil.dateToCustomDateTimeStringFormat(
+//                        DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime()));
+//
+//                writer.append(currentDateTimeFormat);
+//                writer.append(System.lineSeparator());
+//                writer.append(System.lineSeparator());
+//
+//                String newFileHeader = MainApplication.getAppContext().
+//                        getString(R.string.map_blueprint_test_log_new_file_created);
+//
+//                if (!locationLog.contains(newFileHeader)) {
+//                    writer.append(newFileHeader);
+//                    writer.append(System.lineSeparator());
+//                }
+//
+//                writer.append(locationLog);
+//
+//                writer.flush();
+//                writer.close();
+//
+//                Timber.i("Location log file saved!");
+//
+//                notifyMotionLogTextFileSavedBroadcastIntent(locationLogDirectoryByDate.getAbsolutePath());
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                Timber.d("Error writing location log into file...");
+//
+//            }
+//
+//        } else {
+//            Timber.d("Location log is null. Unable to write into file...");
+//        }
 //    }
 
     // **************************************** Sit Rep **************************************** //
