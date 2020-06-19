@@ -2,13 +2,6 @@ package sg.gov.dsta.mobileC3.ventilo.activity.map;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.core.app.ActivityCompat;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
@@ -18,19 +11,6 @@ import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -50,6 +30,23 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.navisens.motiondnaapi.MotionDnaApplication;
 import com.nutiteq.components.Color;
@@ -99,8 +96,8 @@ import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.bft.EBftType;
-import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
+import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import timber.log.Timber;
 
 import static android.content.Context.LOCATION_SERVICE;
@@ -2099,26 +2096,26 @@ public class MapShipBlueprintFragment extends Fragment {
             @Override
             public void onChanged(@Nullable List<MapModel> mapModelList) {
 
-                if (mapModelList != null && mapModelList.size() != 0) {
-
-                    FileUtil.createHtmlFilesFromImagesUsingAssetsTemplate(mapModelList);
-                    SpinnerItemListDataBank.getInstance().repopulateBlueprintDetails();
-
-                    // Update BFT pixel to metres conversion factor (Referencing the first map file's GA scale)
-                    prefs.setOnePixelToMetresFromExternalFolder(Float.valueOf(mapModelList.get(0).getGaScale()));
-
-                    List<String> spinnerFloorNameList = new ArrayList<>(Arrays.asList(SpinnerItemListDataBank.getInstance().
-                            getBlueprintFloorStrArray()));
-                    mSpinnerBlueprintAdapter.clear();
-                    mSpinnerBlueprintAdapter.addAll(spinnerFloorNameList);
-                    mSpinnerFloorNameLinkList = Arrays.asList(SpinnerItemListDataBank.getInstance().
-                            getBlueprintFloorHtmlLinkStrArray());
-
-                    // Reload default (first) html link of web view for every new update
-                    mWebView.loadUrl(getBlueprintDirectory() +
-                            mSpinnerFloorNameLinkList.get(0));
-
-                }
+//                if (mapModelList != null && mapModelList.size() != 0) {
+//
+//                    FileUtil.createHtmlFilesFromImagesUsingAssetsTemplate(mapModelList);
+//                    SpinnerItemListDataBank.getInstance().repopulateBlueprintDetails();
+//
+//                    // Update BFT pixel to metres conversion factor (Referencing the first map file's GA scale)
+//                    prefs.setOnePixelToMetresFromExternalFolder(Float.valueOf(mapModelList.get(0).getGaScale()));
+//
+//                    List<String> spinnerFloorNameList = new ArrayList<>(Arrays.asList(SpinnerItemListDataBank.getInstance().
+//                            getBlueprintFloorStrArray()));
+//                    mSpinnerBlueprintAdapter.clear();
+//                    mSpinnerBlueprintAdapter.addAll(spinnerFloorNameList);
+//                    mSpinnerFloorNameLinkList = Arrays.asList(SpinnerItemListDataBank.getInstance().
+//                            getBlueprintFloorHtmlLinkStrArray());
+//
+//                    // Reload default (first) html link of web view for every new update
+//                    mWebView.loadUrl(getBlueprintDirectory() +
+//                            mSpinnerFloorNameLinkList.get(0));
+//
+//                }
             }
         });
     }

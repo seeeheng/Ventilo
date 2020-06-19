@@ -192,12 +192,12 @@
     <string name="map_blueprint_loading_status">Loading status</string>
 
     <string-array name="map_ship_blueprint_floor_items">
-        <item>Deck 0</item>
-        <item>Deck 1</item>
-        <item>Deck 2</item>
-        <item>Deck 3</item>
-        <item>Deck 4</item>
-        <item>Deck 5</item>
+<!--        <item>Deck 0</item>-->
+<!--        <item>Deck 1</item>-->
+<!--        <item>Deck 2</item>-->
+<!--        <item>Deck 3</item>-->
+<!--        <item>Deck 4</item>-->
+<!--        <item>Deck 5</item>-->
 
 <!--        <item>Indoor Range</item>-->
 <!--        <item>Indoor Range 1m</item>-->
@@ -205,18 +205,18 @@
 <!--        <item>Indoor Range 4m</item>-->
 <!--        <item>Indoor Range 6m</item>-->
 
-<!--        <item>Lateral View</item>-->
-<!--        <item>Deck Platform</item>-->
-<!--        <item>Deck 7</item>-->
-<!--        <item>Deck 6</item>-->
-<!--        <item>Deck 5</item>-->
-<!--        <item>Deck 4</item>-->
-<!--        <item>Deck 3</item>-->
-<!--        <item>Deck 2</item>-->
-<!--        <item>Main Deck</item>-->
-<!--        <item>Tween Deck</item>-->
-<!--        <item>2nd Deck</item>-->
-<!--        <item>3rd Deck</item>-->
+        <item>Lateral View</item>
+        <item>Deck Platform</item>
+        <item>Deck 7</item>
+        <item>Deck 6</item>
+        <item>Deck 5</item>
+        <item>Deck 4</item>
+        <item>Deck 3</item>
+        <item>Deck 2</item>
+        <item>Main Deck</item>
+        <item>Tween Deck</item>
+        <item>2nd Deck</item>
+        <item>3rd Deck</item>
 
         <!--<item>Profile View</item>-->
         <!--<item>Midship View</item>-->
@@ -230,12 +230,12 @@
     </string-array>
     <string-array name="map_ship_blueprint_floor_html_link_items">
 
-        <item>leaflet-avatar-fastmap-deck0.html</item>
-        <item>leaflet-avatar-fastmap-deck1.html</item>
-        <item>leaflet-avatar-fastmap-deck2.html</item>
-        <item>leaflet-avatar-fastmap-deck3.html</item>
-        <item>leaflet-avatar-fastmap-deck4.html</item>
-        <item>leaflet-avatar-fastmap-deck5.html</item>
+<!--        <item>leaflet-avatar-fastmap-deck0.html</item>-->
+<!--        <item>leaflet-avatar-fastmap-deck1.html</item>-->
+<!--        <item>leaflet-avatar-fastmap-deck2.html</item>-->
+<!--        <item>leaflet-avatar-fastmap-deck3.html</item>-->
+<!--        <item>leaflet-avatar-fastmap-deck4.html</item>-->
+<!--        <item>leaflet-avatar-fastmap-deck5.html</item>-->
 
 <!--        <item>leaflet-indoor-range.html</item>-->
 <!--        <item>leaflet-indoor-range-1m.html</item>-->
@@ -243,18 +243,18 @@
 <!--        <item>leaflet-indoor-range-4m.html</item>-->
 <!--        <item>leaflet-indoor-range-6m.html</item>-->
 
-<!--        <item>leaflet-avatar-lateral.html</item>-->
-<!--        <item>leaflet-avatar-deckplatform.html</item>-->
-<!--        <item>leaflet-avatar-deck7.html</item>-->
-<!--        <item>leaflet-avatar-deck6.html</item>-->
-<!--        <item>leaflet-avatar-deck5.html</item>-->
-<!--        <item>leaflet-avatar-deck4.html</item>-->
-<!--        <item>leaflet-avatar-deck3.html</item>-->
-<!--        <item>leaflet-avatar-deck2.html</item>-->
-<!--        <item>leaflet-avatar-maindeck.html</item>-->
-<!--        <item>leaflet-avatar-decktween.html</item>-->
-<!--        <item>leaflet-avatar-deck2nd.html</item>-->
-<!--        <item>leaflet-avatar-deck3rd.html</item>-->
+        <item>leaflet-avatar-lateral.html</item>
+        <item>leaflet-avatar-deckplatform.html</item>
+        <item>leaflet-avatar-deck7.html</item>
+        <item>leaflet-avatar-deck6.html</item>
+        <item>leaflet-avatar-deck5.html</item>
+        <item>leaflet-avatar-deck4.html</item>
+        <item>leaflet-avatar-deck3.html</item>
+        <item>leaflet-avatar-deck2.html</item>
+        <item>leaflet-avatar-maindeck.html</item>
+        <item>leaflet-avatar-decktween.html</item>
+        <item>leaflet-avatar-deck2nd.html</item>
+        <item>leaflet-avatar-deck3rd.html</item>
 
         <!--<item>leaflet-bw-paris-profile.html</item>-->
         <!--<item>leaflet-bw-paris-midship.html</item>-->

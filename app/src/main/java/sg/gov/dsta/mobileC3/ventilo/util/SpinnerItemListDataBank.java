@@ -212,32 +212,42 @@ public class SpinnerItemListDataBank {
     }
 
     private void populateBlueprintFloors() {
-        blueprintFloorStrArray = FileUtil.getAllFileNamesWithoutExtensionInMapBlueprintHtmlFolder();
+//        blueprintFloorStrArray = FileUtil.getAllFileNamesWithoutExtensionInMapBlueprintHtmlFolder();
+//
+//        if (blueprintFloorStrArray.length == 0) {
+//            blueprintFloorStrArray = MainApplication.getAppContext().getResources().
+//                    getStringArray(R.array.map_ship_blueprint_floor_items);
+//            isLocalBlueprintDirectory = true;
+//
+//        } else {
+//            isLocalBlueprintDirectory = false;
+//
+//        }
 
-        if (blueprintFloorStrArray.length == 0) {
-            blueprintFloorStrArray = MainApplication.getAppContext().getResources().
-                    getStringArray(R.array.map_ship_blueprint_floor_items);
-            isLocalBlueprintDirectory = true;
+        blueprintFloorStrArray = MainApplication.getAppContext().getResources().
+                getStringArray(R.array.map_ship_blueprint_floor_items);
 
-        } else {
-            isLocalBlueprintDirectory = false;
-
-        }
+        isLocalBlueprintDirectory = true;
 
     }
 
     private void populateBlueprintFloorHtmlLinks() {
-        blueprintFloorHtmlLinkStrArray = FileUtil.getAllFileNamesInMapBlueprintHtmlFolder();
+//        blueprintFloorHtmlLinkStrArray = FileUtil.getAllFileNamesInMapBlueprintHtmlFolder();
+//
+//        if (blueprintFloorHtmlLinkStrArray == null || blueprintFloorHtmlLinkStrArray.length == 0) {
+//            blueprintFloorHtmlLinkStrArray = MainApplication.getAppContext().getResources().
+//                    getStringArray(R.array.map_ship_blueprint_floor_html_link_items);
+//            isLocalBlueprintDirectory = true;
+//
+//        } else {
+//            isLocalBlueprintDirectory = false;
+//
+//        }
 
-        if (blueprintFloorHtmlLinkStrArray == null || blueprintFloorHtmlLinkStrArray.length == 0) {
-            blueprintFloorHtmlLinkStrArray = MainApplication.getAppContext().getResources().
-                    getStringArray(R.array.map_ship_blueprint_floor_html_link_items);
-            isLocalBlueprintDirectory = true;
+        blueprintFloorHtmlLinkStrArray = MainApplication.getAppContext().getResources().
+                getStringArray(R.array.map_ship_blueprint_floor_html_link_items);
 
-        } else {
-            isLocalBlueprintDirectory = false;
-
-        }
+        isLocalBlueprintDirectory = true;
 
     }
 
