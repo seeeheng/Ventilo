@@ -198,6 +198,8 @@
         <item>Deck 3</item>
         <item>Deck 4</item>
         <item>Deck 5</item>
+        <item>Deck 6</item>
+        <item>Deck 7</item>
 
 <!--        <item>Indoor Range</item>-->
 <!--        <item>Indoor Range 1m</item>-->
@@ -236,6 +238,8 @@
         <item>leaflet-avatar-fastmap-deck3.html</item>
         <item>leaflet-avatar-fastmap-deck4.html</item>
         <item>leaflet-avatar-fastmap-deck5.html</item>
+        <item>leaflet-avatar-fastmap-deck6.html</item>
+        <item>leaflet-avatar-fastmap-deck7.html</item>
 
 <!--        <item>leaflet-indoor-range.html</item>-->
 <!--        <item>leaflet-indoor-range-1m.html</item>-->
@@ -267,6 +271,10 @@
         <!--<item>leaflet-bw-paris-tank-top.html</item>-->
     </string-array>
 
+    <string-array name="map_blueprint_bft_call_sign_label_items">
+        <item>-- Select Call Sign ID --</item>
+    </string-array>
+
     <string-array name="map_blueprint_test_log_motion_label_items">
         <item>-- Select Motion Label --</item>
 <!--        <item>Walk Forward</item>-->
@@ -280,6 +288,7 @@
         <item>Crab Walk (Face Right)</item>
     </string-array>
 
+    <string name="map_blueprint_simulate_walk">Simulate Walk</string>
     <string name="map_blueprint_test_log_create_file">Create File</string>
     <string name="map_blueprint_test_log_append_header">Append Header</string>
     <string name="map_blueprint_test_log_select_motion_label">-- Select Motion Label --</string>

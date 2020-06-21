@@ -17,6 +17,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -31,6 +32,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -51,8 +53,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.navisens.motiondnaapi.MotionDnaApplication;
 import com.nutiteq.components.Color;
+
+import org.apache.commons.io.FilenameUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -61,6 +68,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import io.reactivex.SingleObserver;
@@ -77,28 +87,38 @@ import sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.sitRepPersonnelStatus
 import sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.taskPhaseStatus.DashboardTaskPhaseStatusFragment;
 import sg.gov.dsta.mobileC3.ventilo.activity.map.dashboard.videoStream.DashboardVideoStreamFragment;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
+import sg.gov.dsta.mobileC3.ventilo.database.DatabaseOperation;
 import sg.gov.dsta.mobileC3.ventilo.helper.RabbitMQHelper;
 import sg.gov.dsta.mobileC3.ventilo.listener.DebounceOnClickListener;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
+import sg.gov.dsta.mobileC3.ventilo.model.bft.RawBFTModel;
 import sg.gov.dsta.mobileC3.ventilo.model.map.MapModel;
+import sg.gov.dsta.mobileC3.ventilo.model.map.RawFastMapModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.BFTViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.MapViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.viewmodel.UserViewModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
+import sg.gov.dsta.mobileC3.ventilo.network.jeroMQ.JeroMQPublisher;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.IMQListener;
 import sg.gov.dsta.mobileC3.ventilo.network.rabbitmq.RabbitMQ;
+import sg.gov.dsta.mobileC3.ventilo.repository.BFTRepository;
+import sg.gov.dsta.mobileC3.ventilo.repository.MapRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
+import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.DimensionUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.FileUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.GsonCreator;
 import sg.gov.dsta.mobileC3.ventilo.util.ListenerUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SnackbarUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.SpinnerItemListDataBank;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansRegularEditTextView;
 import sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.bft.EBftAction;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.bft.EBftType;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.map.EMapViewType;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.user.EAccessRight;
 import timber.log.Timber;
@@ -144,6 +164,8 @@ public class MapShipBlueprintFragment extends Fragment {
     private DashboardTaskPhaseStatusFragment mDashboardTaskPhaseStatusFragment;
     private DashboardRadioLinkStatusFragment mDashboardRadioLinkStatusFragment;
 
+    // Map Blueprint UI
+    private Spinner mSpinnerBlueprintList;
     private ArrayAdapter<String> mSpinnerBlueprintAdapter;
     private List<String> mSpinnerFloorNameLinkList;
 //    private ArrayList<String> mSpinnerFloorNameList;
@@ -164,6 +186,12 @@ public class MapShipBlueprintFragment extends Fragment {
     private RelativeLayout mRelativeLayoutDeceasedImgBtn;
     private AppCompatImageView mImgDeceasedIcon;
     private static String mSelectedIconType;
+
+    // BFT Pos UI
+    private AppCompatButton mBtnBftPosSimulateWalk;
+
+    private Spinner mSpinnerBftPosCallSignList;
+    private ArrayAdapter<String> mSpinnerBftPosCallSignAdapter;
 
     // Test Logs UI
     private RelativeLayout mRelativeLayoutTestLogToggleImgBtn;
@@ -213,6 +241,15 @@ public class MapShipBlueprintFragment extends Fragment {
     private boolean mIsDbTaskPhaseStatusFragmentRefreshed;
     private boolean mIsDbRadioLinkStatusFragmentRefreshed;
 //    private static String mSelectedFloorName;
+
+    private int mapCurrentIndex;
+
+    // TODO: Temp Solution
+    // Keeps track of the latest map update status of selected map level
+    // This is used to prevent multiple map refreshes on each interval
+//    private static boolean mIsMapRefreshed;
+    private static boolean mIsSimulatorOngoing;
+//    private String mostRecentMapLevelUpdate;
 
     @Nullable
     @Override
@@ -306,6 +343,7 @@ public class MapShipBlueprintFragment extends Fragment {
         mTextAction = rootView.findViewById(R.id.tv_map_blueprint_textAction);
 
         initSideButtons(rootView);
+        initSimulateWalkUI(rootView);
         initTestLogButtons(rootView);
         initFloorSpinner(rootView);
 
@@ -388,7 +426,7 @@ public class MapShipBlueprintFragment extends Fragment {
 
     private void initFloorSpinner(View rootView) {
         // Floor Spinner
-        Spinner spinnerBlueprintList = rootView.findViewById(R.id.spinner_ship_blueprint_floor_selector);
+        mSpinnerBlueprintList = rootView.findViewById(R.id.spinner_ship_blueprint_floor_selector);
         List<String> spinnerFloorNameList = new ArrayList<>(Arrays.asList(SpinnerItemListDataBank.getInstance().
                 getBlueprintFloorStrArray()));
         mSpinnerFloorNameLinkList = Arrays.asList(SpinnerItemListDataBank.getInstance().
@@ -412,8 +450,8 @@ public class MapShipBlueprintFragment extends Fragment {
             }
         };
 
-        spinnerBlueprintList.setAdapter(mSpinnerBlueprintAdapter);
-        spinnerBlueprintList.setOnItemSelectedListener(onMapBlueprintFloorItemSelectedListener);
+        mSpinnerBlueprintList.setAdapter(mSpinnerBlueprintAdapter);
+        mSpinnerBlueprintList.setOnItemSelectedListener(onMapBlueprintFloorItemSelectedListener);
     }
 
     private AdapterView.OnItemSelectedListener onMapBlueprintFloorItemSelectedListener =
@@ -421,8 +459,41 @@ public class MapShipBlueprintFragment extends Fragment {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-                    mWebView.loadUrl(getBlueprintDirectory() +
-                            mSpinnerFloorNameLinkList.get(position));
+//                    if (mSpinnerBftPosCallSignList.getSelectedItem() != null &&
+//                            mSpinnerBftPosCallSignList.getSelectedItemPosition() != 0) {
+//                        mWebView.loadUrl(getBlueprintDirectory() +
+//                                mSpinnerBftPosCallSignList.getSelectedItem().toString() + StringUtil.TRAILING_SLASH +
+//                                mSpinnerFloorNameLinkList.get(position));
+//                    } else {
+//                        mWebView.loadUrl(getBlueprintDirectory() +
+//                                mSpinnerFloorNameLinkList.get(position));
+//                    }
+
+                    if (mSpinnerBftPosCallSignList.getSelectedItem() != null &&
+                            mSpinnerBftPosCallSignList.getSelectedItemPosition() != 0) {
+
+//                        String[] floorNamesHtmlLinks = FileUtil.
+//                                getAllMapBlueprintHtmlFilesInFolder(mSpinnerBftPosCallSignList.getSelectedItem().toString(),
+//                                        mSpinnerFloorNameLinkList.get(position));
+//
+//                        // Get the most updated floor plan of the specified floor
+//                        String latestFloorNameHtmlLink = floorNamesHtmlLinks[floorNamesHtmlLinks.length - 1];
+//
+//                        mWebView.loadUrl(getBlueprintDirectory() +
+//                                mSpinnerBftPosCallSignList.getSelectedItem().toString() + StringUtil.TRAILING_SLASH +
+//                                mSpinnerFloorNameLinkList.get(position) + StringUtil.TRAILING_SLASH +
+//                                latestFloorNameHtmlLink);
+
+
+                        mWebView.loadUrl(getBlueprintDirectory() +
+                                mSpinnerBftPosCallSignList.getSelectedItem().toString() + StringUtil.TRAILING_SLASH +
+                                mSpinnerBlueprintList.getSelectedItem().toString() + StringUtil.TRAILING_SLASH +
+                                mSpinnerFloorNameLinkList.get(mSpinnerBlueprintList.getSelectedItemPosition()));
+
+                    } else {
+                        mWebView.loadUrl(getBlueprintDirectory() +
+                                mSpinnerFloorNameLinkList.get(position));
+                    }
 
                     //TODO: Temporary Solution; Remove after demo
                     if (prefs != null) {
@@ -463,6 +534,21 @@ public class MapShipBlueprintFragment extends Fragment {
 
         mHazardMsgList = new ArrayList<>();
         mDeceasedMsgList = new ArrayList<>();
+    }
+
+    /**
+     * Initialises walk path UI and listeners
+     *
+     * @param rootView
+     */
+    private void initSimulateWalkUI(View rootView) {
+        SpinnerItemListDataBank.getInstance().updateBftPosCallSignLabels();
+        mBtnBftPosSimulateWalk = rootView.findViewById(R.id.btn_map_ship_blueprint_bft_walk_path);
+
+        mBtnBftPosSimulateWalk.setOnClickListener(onBftPosSimulateWalkClickListener);
+
+        // For Bft Pos Call Sign Spinner UI
+        initBftPosCallSignSpinner(rootView);
     }
 
     /**
@@ -549,20 +635,20 @@ public class MapShipBlueprintFragment extends Fragment {
     private DebounceOnClickListener onTestLogInputOthersClickListener =
             new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
 
-        @Override
-        public void onDebouncedClick(View view) {
+                @Override
+                public void onDebouncedClick(View view) {
 //            mIsActivityInputOthersSelected = !view.isSelected();
 //            view.setSelected(mIsActivityInputOthersSelected);
 
-            view.setSelected(!view.isSelected());
+                    view.setSelected(!view.isSelected());
 
-            if (view.isSelected()) {
-                setInputOthersSelectedUI(view, mImgTestLogInputOthers, mSpinnerTestLog, mEtvTestLogOthers);
-            } else {
-                setInputOthersUnselectedUI(view, mImgTestLogInputOthers, mSpinnerTestLog, mEtvTestLogOthers);
-            }
-        }
-    };
+                    if (view.isSelected()) {
+                        setInputOthersSelectedUI(view, mImgTestLogInputOthers, mSpinnerTestLog, mEtvTestLogOthers);
+                    } else {
+                        setInputOthersUnselectedUI(view, mImgTestLogInputOthers, mSpinnerTestLog, mEtvTestLogOthers);
+                    }
+                }
+            };
 
     private void setInputOthersSelectedUI(View view, AppCompatImageView inputOthersImageView,
                                           Spinner spinner, C2OpenSansRegularEditTextView editTextView) {
@@ -668,21 +754,21 @@ public class MapShipBlueprintFragment extends Fragment {
     private DebounceOnClickListener onPersonnelLinkStatusIconClickListener =
             new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
 
-        @Override
-        public void onDebouncedClick(View view) {
-            view.setSelected(!view.isSelected());
+                @Override
+                public void onDebouncedClick(View view) {
+                    view.setSelected(!view.isSelected());
 
-            if (view.isSelected()) {
-                setPersonnelLinkStatusIconSelectedStateUI();
-                mImgPersonnelLinkStatusTriangleIcon.setVisibility(View.VISIBLE);
-                mRecyclerViewPersonnelLinkStatus.setVisibility(View.VISIBLE);
-            } else {
-                setPersonnelLinkStatusIconUnselectedStateUI();
-                mImgPersonnelLinkStatusTriangleIcon.setVisibility(View.GONE);
-                mRecyclerViewPersonnelLinkStatus.setVisibility(View.GONE);
-            }
-        }
-    };
+                    if (view.isSelected()) {
+                        setPersonnelLinkStatusIconSelectedStateUI();
+                        mImgPersonnelLinkStatusTriangleIcon.setVisibility(View.VISIBLE);
+                        mRecyclerViewPersonnelLinkStatus.setVisibility(View.VISIBLE);
+                    } else {
+                        setPersonnelLinkStatusIconUnselectedStateUI();
+                        mImgPersonnelLinkStatusTriangleIcon.setVisibility(View.GONE);
+                        mRecyclerViewPersonnelLinkStatus.setVisibility(View.GONE);
+                    }
+                }
+            };
 
     /**
      * -------------------- Hazard Personnel --------------------
@@ -718,23 +804,23 @@ public class MapShipBlueprintFragment extends Fragment {
     private DebounceOnClickListener onHazardIconClickListener =
             new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
 
-        @Override
-        public void onDebouncedClick(View view) {
+                @Override
+                public void onDebouncedClick(View view) {
 //            closeWebSocketClient();
-            view.setSelected(!view.isSelected());
+                    view.setSelected(!view.isSelected());
 
-            if (view.isSelected()) {
-                if (mRelativeLayoutDeceasedImgBtn.isSelected()) {
-                    mRelativeLayoutDeceasedImgBtn.setSelected(false);
-                    setDeceasedIconUnselectedStateUI();
+                    if (view.isSelected()) {
+                        if (mRelativeLayoutDeceasedImgBtn.isSelected()) {
+                            mRelativeLayoutDeceasedImgBtn.setSelected(false);
+                            setDeceasedIconUnselectedStateUI();
+                        }
+
+                        setHazardIconSelectedStateUI();
+                    } else {
+                        setHazardIconUnselectedStateUI();
+                    }
                 }
-
-                setHazardIconSelectedStateUI();
-            } else {
-                setHazardIconUnselectedStateUI();
-            }
-        }
-    };
+            };
 
     /**
      * -------------------- Deceased Personnel --------------------
@@ -770,28 +856,536 @@ public class MapShipBlueprintFragment extends Fragment {
     private DebounceOnClickListener onDeceasedIconClickListener =
             new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
 
-        @Override
-        public void onDebouncedClick(View view) {
-            view.setSelected(!view.isSelected());
+                @Override
+                public void onDebouncedClick(View view) {
+                    view.setSelected(!view.isSelected());
 
-            if (view.isSelected()) {
-                if (mRelativeLayoutHazardImgBtn.isSelected()) {
-                    mRelativeLayoutHazardImgBtn.setSelected(false);
-                    setHazardIconUnselectedStateUI();
+                    if (view.isSelected()) {
+                        if (mRelativeLayoutHazardImgBtn.isSelected()) {
+                            mRelativeLayoutHazardImgBtn.setSelected(false);
+                            setHazardIconUnselectedStateUI();
+                        }
+
+                        setDeceasedIconSelectedStateUI();
+
+                    } else {
+                        setDeceasedIconUnselectedStateUI();
+
+                    }
                 }
-
-                setDeceasedIconSelectedStateUI();
-
-            } else {
-                setDeceasedIconUnselectedStateUI();
-
-            }
-        }
-    };
+            };
 
     /**
-     * -------------------- Test Log --------------------
-     **/
+     * -------------------- BFT Position --------------------
+     */
+
+    private void initBftPosCallSignSpinner(View rootView) {
+        // BFT Pos Spinner
+        mSpinnerBftPosCallSignList = rootView.findViewById(R.id.spinner_ship_blueprint_bft_walk_path);
+        List<String> bftPosCallSignList = new ArrayList<>(Arrays.asList(SpinnerItemListDataBank.getInstance().
+                getBftCallSignStrArray()));
+//        mSpinnerBftPosLinkList = Arrays.asList(SpinnerItemListDataBank.getInstance().
+//                getBlueprintFloorHtmlLinkStrArray());
+
+
+//        mSpinnerTestLogAdapter = getSpinnerArrayAdapter(motionLabelList);
+
+        mSpinnerBftPosCallSignAdapter = getSpinnerArrayAdapter(bftPosCallSignList);
+
+
+//                new ArrayAdapter<String>(getActivity(),
+//                R.layout.spinner_row_item,
+//                R.id.tv_spinner_row_item_text, bftPosCallSignList) {
+//
+//            @Override
+//            public boolean isEnabled(int position) {
+//                return true;
+//            }
+//
+//            @Override
+//            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+//                View view = super.getDropDownView(position, convertView, parent);
+//                TextView tv = view.findViewById(R.id.tv_spinner_row_item_text);
+//                tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.primary_white, null));
+//                return view;
+//            }
+//        };
+
+        mSpinnerBftPosCallSignList.setAdapter(mSpinnerBftPosCallSignAdapter);
+//        spinnerBlueprintList.setOnItemSelectedListener(onMapBlueprintFloorItemSelectedListener);
+    }
+
+    private DebounceOnClickListener onBftPosSimulateWalkClickListener =
+            new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
+
+                @Override
+                public void onDebouncedClick(View view) {
+
+                    mIsSimulatorOngoing = true;
+
+                    if (mSpinnerBftPosCallSignList.getSelectedItemPosition() != 0) {
+
+                        ScheduledExecutorService schedulerBft = Executors.newSingleThreadScheduledExecutor();
+                        ScheduledExecutorService schedulerMap = Executors.newSingleThreadScheduledExecutor();
+
+                        String[] bftPosCallSignStrArray = FileUtil.getAllFolderNamesInBftPosFolder();
+
+                        List<RawFastMapModel> rawMapModelForLevelZeroList = FileUtil.getRawMapModelListFromJsonObjListInFolder(mSpinnerBftPosCallSignList.getSelectedItem().toString(), "map1_0");
+                        List<RawFastMapModel> rawMapModelForLevelNegOneList = FileUtil.getRawMapModelListFromJsonObjListInFolder(mSpinnerBftPosCallSignList.getSelectedItem().toString(), "map1_-1");
+                        List<RawFastMapModel> rawMapModelForLevelNegTwoList = FileUtil.getRawMapModelListFromJsonObjListInFolder(mSpinnerBftPosCallSignList.getSelectedItem().toString(), "map1_-2");
+                        List<RawFastMapModel> rawMapModelForLevelNegThreeList = FileUtil.getRawMapModelListFromJsonObjListInFolder(mSpinnerBftPosCallSignList.getSelectedItem().toString(), "map1_-3");
+                        List<RawFastMapModel> rawMapModelForLevelNegFourList = FileUtil.getRawMapModelListFromJsonObjListInFolder(mSpinnerBftPosCallSignList.getSelectedItem().toString(), "map1_-4");
+                        List<RawFastMapModel> rawMapModelForLevelNegFiveList = FileUtil.getRawMapModelListFromJsonObjListInFolder(mSpinnerBftPosCallSignList.getSelectedItem().toString(), "map1_-5");
+
+                        Handler handler = new Handler();
+
+                        // Pos Files
+                        Runnable bftMapRunnable = new Runnable() {
+
+                            int currentBftIndex;
+                            boolean isCurrentIndexExceeded;
+
+                            // Map Files
+                            double initialDelayForMapRefresh;
+                            int mapRefreshInterval = 5;
+//                            int currentMapIndex = 0;
+
+//                            List<RawFastMapModel> rawMapModelList = FileUtil.getRawMapModelListFromJsonObjListInFolder(mSpinnerBftPosCallSignList.getSelectedItem().toString());
+
+                            double initialDelayForMapLevelZeroRefresh;
+                            double initialDelayForMapLevelNegOneRefresh;
+                            double initialDelayForMapLevelNegTwoRefresh;
+                            double initialDelayForMapLevelNegThreeRefresh;
+                            double initialDelayForMapLevelNegFourRefresh;
+                            double initialDelayForMapLevelNegFiveRefresh;
+
+                            int currentMapIndexForLevelZero = 0;
+                            int currentMapIndexForLevelNegOne = 0;
+                            int currentMapIndexForLevelNegTwo = 0;
+                            int currentMapIndexForLevelNegThree = 0;
+                            int currentMapIndexForLevelNegFour = 0;
+                            int currentMapIndexForLevelNegFive = 0;
+
+                            List<RawFastMapModel> currentRawMapModelList = new ArrayList<>();
+
+                            @Override
+                            public void run() {
+
+                                // Map for trooper 1 & 2
+                                if (mSpinnerBftPosCallSignList.getSelectedItem().toString().equalsIgnoreCase("1")) {
+                                    initialDelayForMapRefresh = 5;
+                                    initialDelayForMapLevelZeroRefresh = 3;
+                                    initialDelayForMapLevelNegOneRefresh = 35;
+                                    initialDelayForMapLevelNegTwoRefresh = 75;
+                                    initialDelayForMapLevelNegThreeRefresh = 115;
+                                    initialDelayForMapLevelNegFourRefresh = 165;
+                                    initialDelayForMapLevelNegFiveRefresh = 210;
+
+                                } else {
+                                    initialDelayForMapRefresh = 8;
+                                }
+
+//                                if (initialDelayForMapRefresh <= currentBftIndex && (currentBftIndex - Math.ceil(initialDelayForMapRefresh)) % mapRefreshInterval == 0) {
+//
+//                                    if (currentMapIndex < rawMapModelList.size()) {
+//                                        mapCurrentIndex = currentMapIndex;
+//
+//
+////                                if (rawMapModelList.get(currentMapIndex).getFusedId().equalsIgnoreCase()) {
+////
+////                                }
+//
+//                                        currentRawMapModelList.clear();
+//                                        currentRawMapModelList.add(rawMapModelList.get(currentMapIndex));
+//                                        saveRawMapIntoMapModels(currentRawMapModelList);
+//
+//                                        currentMapIndex++;
+//                                    }
+//                                }
+
+                                currentRawMapModelList.clear();
+
+                                if (initialDelayForMapLevelZeroRefresh <= currentBftIndex && (currentBftIndex - Math.ceil(initialDelayForMapLevelZeroRefresh)) % mapRefreshInterval == 0) {
+
+                                    if (currentMapIndexForLevelZero < rawMapModelForLevelZeroList.size()) {
+                                        currentRawMapModelList.add(rawMapModelForLevelZeroList.get(currentMapIndexForLevelZero));
+                                        currentMapIndexForLevelZero++;
+                                    }
+
+                                }
+
+                                if (initialDelayForMapLevelNegOneRefresh <= currentBftIndex && (currentBftIndex - Math.ceil(initialDelayForMapLevelNegOneRefresh)) % mapRefreshInterval == 0) {
+
+                                    if (currentMapIndexForLevelNegOne < rawMapModelForLevelNegOneList.size()) {
+                                        currentRawMapModelList.add(rawMapModelForLevelNegOneList.get(currentMapIndexForLevelNegOne));
+                                        currentMapIndexForLevelNegOne++;
+                                    }
+
+                                }
+
+                                if (initialDelayForMapLevelNegTwoRefresh <= currentBftIndex && (currentBftIndex - Math.ceil(initialDelayForMapLevelNegTwoRefresh)) % mapRefreshInterval == 0) {
+
+                                    if (currentMapIndexForLevelNegTwo < rawMapModelForLevelNegTwoList.size()) {
+                                        currentRawMapModelList.add(rawMapModelForLevelNegTwoList.get(currentMapIndexForLevelNegTwo));
+                                        currentMapIndexForLevelNegTwo++;
+                                    }
+
+                                }
+
+                                if (initialDelayForMapLevelNegThreeRefresh <= currentBftIndex && (currentBftIndex - Math.ceil(initialDelayForMapLevelNegThreeRefresh)) % mapRefreshInterval == 0) {
+
+                                    if (currentMapIndexForLevelNegThree < rawMapModelForLevelNegThreeList.size()) {
+                                        currentRawMapModelList.add(rawMapModelForLevelNegThreeList.get(currentMapIndexForLevelNegThree));
+                                        currentMapIndexForLevelNegThree++;
+                                    }
+
+                                }
+
+                                if (initialDelayForMapLevelNegFourRefresh <= currentBftIndex && (currentBftIndex - Math.ceil(initialDelayForMapLevelNegFourRefresh)) % mapRefreshInterval == 0) {
+
+                                    if (currentMapIndexForLevelNegFour < rawMapModelForLevelNegFourList.size()) {
+                                        currentRawMapModelList.add(rawMapModelForLevelNegFourList.get(currentMapIndexForLevelNegFour));
+                                        currentMapIndexForLevelNegFour++;
+                                    }
+
+                                }
+
+                                if (initialDelayForMapLevelNegFiveRefresh <= currentBftIndex && (currentBftIndex - Math.ceil(initialDelayForMapLevelNegFiveRefresh)) % mapRefreshInterval == 0) {
+
+                                    if (currentMapIndexForLevelNegFive < rawMapModelForLevelNegFiveList.size()) {
+                                        currentRawMapModelList.add(rawMapModelForLevelNegFiveList.get(currentMapIndexForLevelNegFive));
+                                        currentMapIndexForLevelNegFive++;
+                                    }
+
+                                }
+
+                                saveRawMapIntoMapModels(currentRawMapModelList);
+
+
+                                // Get Fused Id to compare with other ids to decide whether to display trooper with matched fused id
+                                List<RawBFTModel> rawBftModelListOfSelectedId = FileUtil.getRawBftModelListFromJsonObjListInFolder(mSpinnerBftPosCallSignList.getSelectedItem().toString());
+
+                                String fusedId;
+
+                                if (currentBftIndex <= rawBftModelListOfSelectedId.size()) {
+                                    fusedId = rawBftModelListOfSelectedId.get(currentBftIndex).getFusedId();
+                                } else {
+                                    fusedId = "";
+                                }
+
+                                for (String bftPosCallSignStr : bftPosCallSignStrArray) {
+
+                                    List<JSONObject> rawBftJsonObjList = FileUtil.getJsonObjListInBftPosCallSignFolder(bftPosCallSignStr);
+                                    List<RawBFTModel> rawBftModelList = FileUtil.getRawBftModelListFromJsonObjListInFolder(bftPosCallSignStr);
+
+                                    if (currentBftIndex <= rawBftJsonObjList.size()) {
+
+                                        JSONObject rawBftJsonObj = rawBftJsonObjList.get(currentBftIndex);
+                                        RawBFTModel rawBftModel = rawBftModelList.get(currentBftIndex);
+
+//                            JeroMQBroadcastOperation.broadcastDataInsertionOverSocket(rawBftJsonObj);
+
+                                        if (String.valueOf(rawBftModel.getId()).equalsIgnoreCase(mSpinnerBftPosCallSignList.getSelectedItem().toString()) ||
+                                                (!"".equalsIgnoreCase(fusedId) && String.valueOf(rawBftModel.getId()).equalsIgnoreCase(fusedId)) ||
+                                                mSpinnerBftPosCallSignList.getSelectedItem().toString().equalsIgnoreCase(rawBftModel.getFusedId())) {
+
+                                            // -------------------- Simulate JeroMQ transmit and receive of message -------------------- //
+
+                                            System.out.println("rawBftModel.getTime():" + rawBftModel.getTime());
+                                            // Sending
+//                            Gson gson = GsonCreator.createGson();
+//                            String modelJson = gson.toJson(rawBftJsonObj);
+                                            String modelJson = rawBftJsonObj.toString();
+
+                                            String topicPrefix = getActionPrefix(JeroMQPublisher.TOPIC_PREFIX_FASTMAP_BFT, JeroMQPublisher.TOPIC_INSERT);
+
+                                            StringBuilder fastMapBftMessageToSend = new StringBuilder();
+                                            fastMapBftMessageToSend.append(topicPrefix);
+                                            fastMapBftMessageToSend.append(" ");
+                                            fastMapBftMessageToSend.append(modelJson);
+
+                                            // Receiving
+                                            String messageTopic = StringUtil.getFirstWord(fastMapBftMessageToSend.toString());
+                                            String messageContent = StringUtil.removeFirstWord(fastMapBftMessageToSend.toString());
+                                            String[] messageTopicParts = messageTopic.split(StringUtil.HYPHEN);
+
+                                            // For e.g. TOPIC-USER, TOPIC-RADIO, TOPIC-BFT, TOPIC-SITREP, TOPIC-TASK
+                                            String messageMainTopic = messageTopicParts[0].
+                                                    concat(StringUtil.HYPHEN).concat(messageTopicParts[1]);
+
+                                            String messageTopicAction = messageTopicParts[2];
+
+                                            if (messageMainTopic.equalsIgnoreCase(JeroMQPublisher.TOPIC_PREFIX_FASTMAP_BFT)) {
+                                                storeFastMapBftMessage(messageContent, messageTopicAction);
+                                            }
+
+                                        }
+
+                                        isCurrentIndexExceeded = false;
+
+                                    } else {
+
+                                        isCurrentIndexExceeded = true;
+                                    }
+                                }
+
+                                if (isCurrentIndexExceeded) {
+                                    schedulerBft.shutdown();
+                                    mIsSimulatorOngoing = false;
+                                }
+
+                                currentBftIndex++;
+
+                            }
+                        };
+
+
+                        schedulerBft.scheduleWithFixedDelay(new Runnable() {
+                            @Override
+                            public void run() {
+                                CustomThreadPoolManager.getInstance().addRunnable(bftMapRunnable);
+                            }
+
+                        }, 0, 1000, TimeUnit.MILLISECONDS);
+
+
+
+
+
+
+                    }
+                }
+            };
+
+//    class RunMapAndBFT extends AsyncTask<String, String, String> {
+//
+//        @Override
+//        protected String doInBackground(RawFastMapModel... rawFastMapModelArray) {
+//
+//
+//
+//
+//
+//            return null;
+//        }
+//    }
+
+
+    private void saveRawMapIntoMapModels(List<RawFastMapModel> rawMapModelList) {
+
+        List<MapModel> mapModelList = new ArrayList<>();
+
+        for (int i = 0; i < rawMapModelList.size(); i++) {
+
+            RawFastMapModel rawFastMapModel = rawMapModelList.get(i);
+
+            double factor = 1 / Double.valueOf(rawFastMapModel.getResolution());
+            String deckNameWithIndex = FilenameUtils.removeExtension(rawFastMapModel.getDeckName());
+            String gaScale = rawFastMapModel.getGaScale();
+            String floorAltitudeInPixel = String.valueOf(Double.valueOf(rawFastMapModel.getOriginZ()));
+            String level = rawFastMapModel.getLevel();
+            String pixelWidth = rawFastMapModel.getWidth();
+            String pixelHeight = rawFastMapModel.getHeight();
+            String lowerLeftX = String.valueOf(Double.valueOf(rawFastMapModel.getOriginX()) * factor);
+            String lowerLeftY = String.valueOf(Double.valueOf(rawFastMapModel.getOriginY()) * factor);
+            String upperRightX = String.valueOf(Double.valueOf(rawFastMapModel.getWidth()) + (Double.valueOf(rawFastMapModel.getOriginX()) * factor));
+            String upperRightY = String.valueOf(Double.valueOf(rawFastMapModel.getHeight()) + (Double.valueOf(rawFastMapModel.getOriginY()) * factor));
+
+//            Double lowerLeftX = new BigDecimal(Double.valueOf(rawFastMapModel.getOriginX()) * factor).setScale(2, RoundingMode.HALF_UP).doubleValue();
+//            Double lowerLeftY = new BigDecimal(Double.valueOf(rawFastMapModel.getOriginY()) * factor).setScale(2, RoundingMode.HALF_UP).doubleValue();
+//            Double upperRightX = new BigDecimal(Double.valueOf(rawFastMapModel.getWidth()) - Double.valueOf(rawFastMapModel.getOriginX()) * factor).setScale(2, RoundingMode.HALF_UP).doubleValue();
+//            Double upperRightY = new BigDecimal(Double.valueOf(rawFastMapModel.getHeight()) - Double.valueOf(rawFastMapModel.getOriginY()) * factor).setScale(2, RoundingMode.HALF_UP).doubleValue();
+
+            String[] mapNameGroup = StringUtil.removeUnderscores(deckNameWithIndex);
+            String mapShipNameWithLevel = mapNameGroup[0].concat(StringUtil.UNDERSCORE).concat(mapNameGroup[1]); // 0 - Ship Name with reference level, 1 - Map Index
+
+            System.out.println("filename: " + deckNameWithIndex);
+
+            MapModel mapModel = new MapModel(mapShipNameWithLevel);
+            mapModel.setDeckNameWithIndex(deckNameWithIndex);
+            mapModel.setViewType(EMapViewType.DECK.toString());
+            mapModel.setGaScale(gaScale);
+            mapModel.setFloorAltitudeInPixel(floorAltitudeInPixel);
+            mapModel.setLevel(level);
+            mapModel.setPixelWidth(pixelWidth);
+            mapModel.setPixelHeight(pixelHeight);
+            mapModel.setLowerLeftX(lowerLeftX);
+            mapModel.setLowerLeftY(lowerLeftY);
+            mapModel.setUpperRightX(upperRightX);
+            mapModel.setUpperRightY(upperRightY);
+            mapModel.setIsDisplayed(false);
+
+//            mostRecentMapLevelUpdate = mapShipNameWithLevel;
+
+            mapModelList.add(mapModel);
+//            mMapViewModel.insertMap(mapModel);
+        }
+
+        System.out.println("mapModelList.size(): " + mapModelList.size());
+
+        if (mapModelList.size() != 0) {
+            mMapViewModel.insertMapGroup(mapModelList.toArray(new MapModel[mapModelList.size()]));
+        }
+
+    }
+
+    /**
+     * Testing purpose
+     *
+     * @param jsonMsg
+     * @param messageTopicAction
+     */
+    private synchronized void storeFastMapBftMessage(String jsonMsg, String messageTopicAction) {
+
+        Timber.i("storeFastMapBftMessage jsonMsg: %s", jsonMsg);
+
+        if (MainApplication.getAppContext() instanceof Application) {
+            BFTRepository bftRepo = new BFTRepository((Application) MainApplication.getAppContext());
+
+            try {
+                JSONObject rawBftJsonObj = new JSONObject(jsonMsg);
+
+                RawBFTModel rawBftModel = FileUtil.getRawBftModelFromJsonObj(rawBftJsonObj);
+
+//                String currentDateTime = DateTimeUtil.dateToStandardIsoDateTimeStringFormat(
+//                        DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime()));
+//
+//                double xCoord = Double.parseDouble(rawBftModel.getX()) * 0.1;
+//                double yCoord = Double.parseDouble(rawBftModel.getY()) * 0.1;
+//                double bearing = Math.toDegrees(Double.valueOf(rawBftModel.getHeading()));
+
+
+//                BFTModel bftModel = new BFTModel();
+//                bftModel.setXCoord(String.valueOf(rawBftModel.getX()));
+//                bftModel.setYCoord(String.valueOf(rawBftModel.getY()));
+//                bftModel.setAltitude(String.valueOf(rawBftModel.getZ()));
+//                bftModel.setLevel(String.valueOf(rawBftModel.getLevel()));
+//                bftModel.setBearing(String.valueOf(rawBftModel.getHeading()));
+//                bftModel.setAction(EBftAction.FORWARD.toString());
+//                bftModel.setUserId(String.valueOf(rawBftModel.getId()));
+//                bftModel.setType(EBftType.OWN.toString());
+//                bftModel.setCreatedDateTime(DateTimeUtil.dateToStandardIsoDateTimeStringFormat(
+//                        DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime())));
+//
+//                if (!String.valueOf(rawBftModel.getId()).equalsIgnoreCase(SharedPreferenceUtil.getCurrentUserCallsignID())) {
+//                    bftModel.setMissingHeartBeatCount(0);
+//                }
+//
+//                addItemToLocalDatabase(bftModel);
+
+
+
+                insertOrUpdateOwnTypeBftInfo(String.valueOf(rawBftModel.getId()), rawBftModel);
+
+//                BFTModel bftModel = new BFTModel();
+//                bftModel.setUserId(String.valueOf(rawBftModel.getId()));
+//                bftModel.setXCoord(String.valueOf(xCoord));
+//                bftModel.setYCoord(String.valueOf(yCoord));
+//                bftModel.setAltitude(String.valueOf(rawBftModel.getZ()));
+////            bftModel.setBearing(String.valueOf(currentCoord.getBearing()));
+//                bftModel.setBearing(String.valueOf(bearing));
+//                bftModel.setAction(EBftAction.FORWARD.toString());
+//                bftModel.setType(EBftType.OWN.toString());
+//                bftModel.setCreatedDateTime(currentDateTime);
+//
+//                addItemToLocalDatabase(bftModel);
+
+//            if (!SharedPreferenceUtil.getCurrentUserCallsignID().equalsIgnoreCase(mapModel.getUserId())) {
+//                switch (messageTopicAction) {
+//                    case JeroMQPublisher.TOPIC_INSERT:
+//                        Timber.i("storeFastMapBftMessage insert");
+//
+//                        DatabaseOperation.getInstance().insertBftIntoDatabase(bftRepo, bftModel);
+//                        break;
+////                }
+//                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Sends incoming Map data messages from Fast Map module to listener in Map Ship Blueprint fragment
+     *
+     * @param jsonMsg
+     * @param messageTopicAction
+     */
+    private synchronized void storeMapMessage(String jsonMsg, String messageTopicAction) {
+
+        Timber.i("storeMapMessage jsonMsg: %s", jsonMsg);
+
+        if (MainApplication.getAppContext() instanceof Application) {
+            MapRepository mapRepo = new MapRepository((Application) MainApplication.getAppContext());
+            Gson gson = GsonCreator.createGson();
+            RawFastMapModel rawFastMapModel = gson.fromJson(jsonMsg, RawFastMapModel.class);
+
+            MapModel mapModel = new MapModel(rawFastMapModel.getDeckName());
+            mapModel.setViewType(EMapViewType.DECK.toString());
+            mapModel.setGaScale(rawFastMapModel.getGaScale());
+            mapModel.setFloorAltitudeInPixel(rawFastMapModel.getOriginX());
+            mapModel.setPixelWidth(rawFastMapModel.getWidth());
+//            mapModel.setLowerLeftX();
+//            mapModel.setLowerLeftY();
+//            mapModel.setUpperRightX();
+//            mapModel.setUpperRightY();
+            FileUtil.saveMapImageIntoFileDirectory(mapModel, rawFastMapModel.getMapImage());
+
+
+//            if (!SharedPreferenceUtil.getCurrentUserCallsignID().equalsIgnoreCase(mapModel.getUserId())) {
+            switch (messageTopicAction) {
+                case JeroMQPublisher.TOPIC_INSERT:
+                    Timber.i("storeMapMessage insert");
+
+                    DatabaseOperation.getInstance().insertMapIntoDatabase(mapRepo, mapModel);
+                    break;
+//                }
+            }
+        }
+    }
+
+    /**
+     * Testing Purpose
+     *
+     * @param initialPrefix
+     * @param actionPrefix
+     * @return
+     */
+    private String getActionPrefix(String initialPrefix, String actionPrefix) {
+        StringBuilder topicPrefix = new StringBuilder();
+        topicPrefix.append(initialPrefix);
+        topicPrefix.append(StringUtil.HYPHEN);
+        topicPrefix.append(actionPrefix);
+
+        return topicPrefix.toString();
+    }
+
+//    private AdapterView.OnItemSelectedListener onMapBlueprintFloorItemSelectedListener =
+//            new AdapterView.OnItemSelectedListener() {
+//                @Override
+//                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//
+//                    mWebView.loadUrl(getBlueprintDirectory() +
+//                            mSpinnerFloorNameLinkList.get(position));
+//
+//                    //TODO: Temporary Solution; Remove after demo
+//                    if (prefs != null) {
+//                        prefs.setOnePixelToMetresFromSelectedMapName(mSpinnerFloorNameLinkList.get(position));
+//                    }
+//
+////                    mSelectedFloorName = mSpinnerFloorNameLinkList.get(position);
+//                }
+//
+//                @Override
+//                public void onNothingSelected(AdapterView<?> adapterView) {
+//                }
+//            };
+
+
+/**
+ * -------------------- Test Log --------------------
+ **/
 
     /**
      * Set test log UI to invisible
@@ -858,17 +1452,17 @@ public class MapShipBlueprintFragment extends Fragment {
     private DebounceOnClickListener onTestLogToggleIconClickListener =
             new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
 
-        @Override
-        public void onDebouncedClick(View view) {
-            view.setSelected(!view.isSelected());
+                @Override
+                public void onDebouncedClick(View view) {
+                    view.setSelected(!view.isSelected());
 
-            if (view.isSelected()) {
-                setTestLogToggleIconSelectedStateUI();
-            } else {
-                setTestLogToggleIconUnselectedStateUI();
-            }
-        }
-    };
+                    if (view.isSelected()) {
+                        setTestLogToggleIconSelectedStateUI();
+                    } else {
+                        setTestLogToggleIconUnselectedStateUI();
+                    }
+                }
+            };
 
     /**
      * OnClickListener to create new test log file
@@ -876,34 +1470,34 @@ public class MapShipBlueprintFragment extends Fragment {
     private DebounceOnClickListener onNewTestLogIconClickListener =
             new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
 
-        @Override
-        public void onDebouncedClick(View view) {
+                @Override
+                public void onDebouncedClick(View view) {
 
-            if (tracker != null) {
+                    if (tracker != null) {
 
-                String motionLabel = mEtvTestLogHistory.getText().toString().trim();
+                        String motionLabel = mEtvTestLogHistory.getText().toString().trim();
 
-                // Valid entered motion label
-                if (!TextUtils.isEmpty(motionLabel)) {
-                    FileUtil.saveMotionLogIntoFile(motionLabel);
+                        // Valid entered motion label
+                        if (!TextUtils.isEmpty(motionLabel)) {
+                            FileUtil.saveMotionLogIntoFile(motionLabel);
+                        }
+
+                        tracker.deactivate();
+                        tracker.startMotionDnaAndCreateNewTestLogFile();
+
+                        // Show snackbar message to indicate new test log header has been logged
+                        if (getSnackbarView() != null) {
+                            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                    MainApplication.getAppContext().
+                                            getString(R.string.snackbar_map_blueprint_new_test_log_file_saved_message));
+                        }
+
+                        mEtvTestLogHistory.setText(MainApplication.getAppContext().
+                                getString(R.string.map_blueprint_test_log_new_file_created));
+                    }
+
                 }
-
-                tracker.deactivate();
-                tracker.startMotionDnaAndCreateNewTestLogFile();
-
-                // Show snackbar message to indicate new test log header has been logged
-                if (getSnackbarView() != null) {
-                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
-                            MainApplication.getAppContext().
-                                    getString(R.string.snackbar_map_blueprint_new_test_log_file_saved_message));
-                }
-
-                mEtvTestLogHistory.setText(MainApplication.getAppContext().
-                        getString(R.string.map_blueprint_test_log_new_file_created));
-            }
-
-        }
-    };
+            };
 
     /**
      * OnClickListener to append a new header into existing test log file
@@ -911,88 +1505,88 @@ public class MapShipBlueprintFragment extends Fragment {
     private DebounceOnClickListener onAppendTestLogIconClickListener =
             new DebounceOnClickListener(ListenerUtil.LONG_MINIMUM_ON_CLICK_INTERVAL_IN_MILLISEC) {
 
-        @Override
-        public void onDebouncedClick(View view) {
+                @Override
+                public void onDebouncedClick(View view) {
 
-            if (tracker != null) {
+                    if (tracker != null) {
 
-                String motionLabel = "";
-                if (mLayoutTestLogInputOthers.isSelected()) {
+                        String motionLabel = "";
+                        if (mLayoutTestLogInputOthers.isSelected()) {
 
-                    motionLabel = mEtvTestLogOthers.getText().toString().trim();
+                            motionLabel = mEtvTestLogOthers.getText().toString().trim();
 
-                    // Valid entered motion label
-                    if (!TextUtils.isEmpty(motionLabel)) {
+                            // Valid entered motion label
+                            if (!TextUtils.isEmpty(motionLabel)) {
 
-                        // Show snackbar message to indicate new test log header has been logged
-                        if (getSnackbarView() != null) {
-                            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
-                                    MainApplication.getAppContext().
-                                            getString(R.string.snackbar_map_blueprint_new_test_log_header_saved_message));
-                        }
+                                // Show snackbar message to indicate new test log header has been logged
+                                if (getSnackbarView() != null) {
+                                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                            MainApplication.getAppContext().
+                                                    getString(R.string.snackbar_map_blueprint_new_test_log_header_saved_message));
+                                }
 
-                        // Updates test log spinner data with newly added motion
-                        SpinnerItemListDataBank.getInstance().addItemToMotionLabelList(motionLabel);
-                        List<String> spinnerTestLogList = new ArrayList<>(Arrays.asList(SpinnerItemListDataBank.
-                                getInstance().getMotionLabelStrArray()));
-                        mSpinnerTestLogAdapter.clear();
-                        mSpinnerTestLogAdapter.addAll(spinnerTestLogList);
+                                // Updates test log spinner data with newly added motion
+                                SpinnerItemListDataBank.getInstance().addItemToMotionLabelList(motionLabel);
+                                List<String> spinnerTestLogList = new ArrayList<>(Arrays.asList(SpinnerItemListDataBank.
+                                        getInstance().getMotionLabelStrArray()));
+                                mSpinnerTestLogAdapter.clear();
+                                mSpinnerTestLogAdapter.addAll(spinnerTestLogList);
 
-                        tracker.appendHeaderToExistingTestLogFile(motionLabel);
+                                tracker.appendHeaderToExistingTestLogFile(motionLabel);
 
-                        if (!TextUtils.isEmpty(mEtvTestLogHistory.getText().toString().trim())) {
-                            mEtvTestLogHistory.append(System.lineSeparator());
-                        }
+                                if (!TextUtils.isEmpty(mEtvTestLogHistory.getText().toString().trim())) {
+                                    mEtvTestLogHistory.append(System.lineSeparator());
+                                }
 
-                        mEtvTestLogHistory.append(motionLabel);
+                                mEtvTestLogHistory.append(motionLabel);
 
-                    } else {
+                            } else {
 
-                        // Show snackbar message to request user to enter test log header
-                        if (getSnackbarView() != null) {
-                            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
-                                    MainApplication.getAppContext().
-                                            getString(R.string.snackbar_map_blueprint_no_test_log_header_message));
+                                // Show snackbar message to request user to enter test log header
+                                if (getSnackbarView() != null) {
+                                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                            MainApplication.getAppContext().
+                                                    getString(R.string.snackbar_map_blueprint_no_test_log_header_message));
+                                }
+
+                            }
+
+                        } else {
+
+                            // Valid selected spinner item
+                            if (mSpinnerTestLog.getSelectedItemPosition() != 0) {
+
+                                motionLabel = mSpinnerTestLog.getSelectedItem().toString();
+
+                                // Show snackbar message to indicate new test log header has been logged
+                                if (getSnackbarView() != null) {
+                                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                            MainApplication.getAppContext().
+                                                    getString(R.string.snackbar_map_blueprint_new_test_log_header_saved_message));
+                                }
+
+                                tracker.appendHeaderToExistingTestLogFile(motionLabel);
+
+                                if (!TextUtils.isEmpty(mEtvTestLogHistory.getText().toString().trim())) {
+                                    mEtvTestLogHistory.append(System.lineSeparator());
+                                }
+
+                                mEtvTestLogHistory.append(motionLabel);
+
+                            } else {
+                                // Show snackbar message to indicate invalid selected motion label
+                                if (getSnackbarView() != null) {
+                                    SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
+                                            MainApplication.getAppContext().
+                                                    getString(R.string.snackbar_map_blueprint_motion_label_not_selected));
+                                }
+                            }
+
                         }
 
                     }
-
-                } else {
-
-                    // Valid selected spinner item
-                    if (mSpinnerTestLog.getSelectedItemPosition() != 0) {
-
-                        motionLabel = mSpinnerTestLog.getSelectedItem().toString();
-
-                        // Show snackbar message to indicate new test log header has been logged
-                        if (getSnackbarView() != null) {
-                            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
-                                    MainApplication.getAppContext().
-                                            getString(R.string.snackbar_map_blueprint_new_test_log_header_saved_message));
-                        }
-
-                        tracker.appendHeaderToExistingTestLogFile(motionLabel);
-
-                        if (!TextUtils.isEmpty(mEtvTestLogHistory.getText().toString().trim())) {
-                            mEtvTestLogHistory.append(System.lineSeparator());
-                        }
-
-                        mEtvTestLogHistory.append(motionLabel);
-
-                    } else {
-                        // Show snackbar message to indicate invalid selected motion label
-                        if (getSnackbarView() != null) {
-                            SnackbarUtil.showCustomInfoSnackbar(mMainLayout, getSnackbarView(),
-                                    MainApplication.getAppContext().
-                                            getString(R.string.snackbar_map_blueprint_motion_label_not_selected));
-                        }
-                    }
-
                 }
-
-            }
-        }
-    };
+            };
 
     private String getBlueprintDirectory() {
         if (SpinnerItemListDataBank.getInstance().isLocalBlueprintDirectory()) {
@@ -1112,28 +1706,28 @@ public class MapShipBlueprintFragment extends Fragment {
     private void checkForGPS() {
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
 
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             Toast.makeText(getActivity(), "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
-        }else{
+        } else {
             showGPSDisabledAlertToUser();
         }
     }
 
-    private void showGPSDisabledAlertToUser(){
+    private void showGPSDisabledAlertToUser() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         alertDialogBuilder.setMessage("GPS is disabled in your device. Would you like to enable it?")
                 .setCancelable(false)
                 .setPositiveButton("Go to Settings Page To Enable GPS",
-                        new DialogInterface.OnClickListener(){
-                            public void onClick(DialogInterface dialog, int id){
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
                                 Intent callGPSSettingIntent = new Intent(
                                         android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                                 startActivity(callGPSSettingIntent);
                             }
                         });
         alertDialogBuilder.setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener(){
-                    public void onClick(DialogInterface dialog, int id){
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
                 });
@@ -1204,9 +1798,9 @@ public class MapShipBlueprintFragment extends Fragment {
 
     private void showCoords(Coords coords) {
         DecimalFormat df2dec = new DecimalFormat("###.##");
-        mTextXYZ.setText("XYZ: " + df2dec.format(coords.getX()) + "  ,  " + df2dec.format(coords.getY()) + "  ,  " + df2dec.format(coords.getAltitude()));
-        mTextBearing.setText("Bearing: " + df2dec.format(coords.getBearing()));
-        mTextAction.setText("Action: " + coords.getAction());
+//        mTextXYZ.setText("XYZ: " + df2dec.format(coords.getX()) + "  ,  " + df2dec.format(coords.getY()) + "  ,  " + df2dec.format(coords.getAltitude()));
+//        mTextBearing.setText("Bearing: " + df2dec.format(coords.getBearing()));
+//        mTextAction.setText("Action: " + coords.getAction());
     }
 
     private synchronized void updateMap(Coords coords) {
@@ -1236,8 +1830,8 @@ public class MapShipBlueprintFragment extends Fragment {
 //
 //        }
 
-        insertOrUpdateOwnTypeBftInfo(coords);
-        accessDatabaseAndRefreshBftUI();
+//        insertOrUpdateOwnTypeBftInfo(SharedPreferenceUtil.getCurrentUserCallsignID(), coords);
+//        accessDatabaseAndRefreshBftUI();
     }
 
     private void androidToJsCreateObjectAtLocation(String message) {
@@ -1254,7 +1848,7 @@ public class MapShipBlueprintFragment extends Fragment {
 
             message = bftModel.getRefId() + "," + bftModel.getXCoord() + "," + bftModel.getYCoord() + "," + bftModel.getAltitude() +
                     "," + bftModel.getBearing() + "," + bftModel.getUserId() +
-                    "," + bftModel.getAction() + "," + bftModel.getType();
+                    "," + bftModel.getAction() + "," + bftModel.getType() + "," + bftModel.getLevel();
 
             Timber.i("Calling JAVASCRIPT with %s", message);
 
@@ -1266,9 +1860,9 @@ public class MapShipBlueprintFragment extends Fragment {
     /**
      * Insert/Update 'Own' or 'Own-Stale' type BFT info into database
      *
-     * @param coords
+     * @param rawBftModel
      */
-    private synchronized void insertOrUpdateOwnTypeBftInfo(Coords coords) {
+    private synchronized void insertOrUpdateOwnTypeBftInfo(String userId, RawBFTModel rawBftModel) {
 
         // If available, there should only be ONE Bft model which has current user Id AND 'Own' or 'Own-Stale' Type.
         // If network causes multiple copies of such Bft models, get the latest one and delete the rest
@@ -1283,18 +1877,126 @@ public class MapShipBlueprintFragment extends Fragment {
                 Timber.i("onSuccess singleObserverGetOwnTypeBFT, insertOrUpdateOwnTypeBftInfo. bftModelToUpdateList.size(): %s", bftModelToUpdateList.size());
 
                 if (bftModelToUpdateList.size() == 0) {
-                    BFTModel ownBFTModel = new BFTModel();
-                    ownBFTModel.setXCoord(String.valueOf(coords.getX()));
-                    ownBFTModel.setYCoord(String.valueOf(coords.getY()));
-                    ownBFTModel.setAltitude(String.valueOf(coords.getAltitude()));
-                    ownBFTModel.setBearing(String.valueOf(coords.getBearing()));
-                    ownBFTModel.setAction(String.valueOf(coords.getAction()));
-                    ownBFTModel.setUserId(SharedPreferenceUtil.getCurrentUserCallsignID());
-                    ownBFTModel.setType(EBftType.OWN.toString());
-                    ownBFTModel.setCreatedDateTime(DateTimeUtil.dateToStandardIsoDateTimeStringFormat(
+                    BFTModel bftModel = new BFTModel();
+                    bftModel.setXCoord(String.valueOf(rawBftModel.getX()));
+                    bftModel.setYCoord(String.valueOf(rawBftModel.getY()));
+                    bftModel.setAltitude(String.valueOf(rawBftModel.getZ()));
+                    bftModel.setLevel(String.valueOf(rawBftModel.getLevel()));
+                    bftModel.setBearing(String.valueOf(rawBftModel.getHeading()));
+                    bftModel.setAction(EBftAction.FORWARD.toString());
+                    bftModel.setUserId(userId);
+                    bftModel.setType(EBftType.OWN.toString());
+                    bftModel.setCreatedDateTime(DateTimeUtil.dateToStandardIsoDateTimeStringFormat(
                             DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime())));
 
-                    addItemToLocalDatabase(ownBFTModel);
+                    if (!userId.equalsIgnoreCase(SharedPreferenceUtil.getCurrentUserCallsignID())) {
+                        bftModel.setMissingHeartBeatCount(0);
+                    }
+
+                    addItemToLocalDatabase(bftModel);
+                }
+
+                BFTModel bftModelToUpdate = null;
+
+                for (int i = 0; i < bftModelToUpdateList.size(); i++) {
+                    BFTModel currentBftModel = bftModelToUpdateList.get(i);
+
+                    if (i == 0) {
+                        bftModelToUpdate = currentBftModel;
+
+                    } else if (currentBftModel.getCreatedDateTime().
+                            compareTo(bftModelToUpdate.getCreatedDateTime()) >= 0) {
+
+                        mBFTViewModel.deleteBFT(bftModelToUpdate.getId());
+                        bftModelToUpdate = currentBftModel;
+
+                    }
+                }
+
+                // Update existing entry in database
+                if (bftModelToUpdate != null) {
+                    bftModelToUpdate.setXCoord(String.valueOf(rawBftModel.getX()));
+                    bftModelToUpdate.setYCoord(String.valueOf(rawBftModel.getY()));
+                    bftModelToUpdate.setAltitude(String.valueOf(rawBftModel.getZ()));
+                    bftModelToUpdate.setLevel(String.valueOf(rawBftModel.getLevel()));
+                    bftModelToUpdate.setBearing(String.valueOf(rawBftModel.getHeading()));
+                    bftModelToUpdate.setAction(EBftAction.FORWARD.toString());
+                    bftModelToUpdate.setType(EBftType.OWN.toString());
+
+                    if (!userId.equalsIgnoreCase(SharedPreferenceUtil.getCurrentUserCallsignID())) {
+                        bftModelToUpdate.setMissingHeartBeatCount(0);
+                    }
+
+                    mBFTViewModel.updateBFT(bftModelToUpdate);
+
+                    androidToJsUpdateObjectToLocation(bftModelToUpdate);
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e("onError singleObserverGetOwnTypeBFT, insertOrUpdateOwnTypeBftInfo. Error Msg: %s", e.toString());
+
+                BFTModel bftModel = new BFTModel();
+                bftModel.setXCoord(String.valueOf(rawBftModel.getX()));
+                bftModel.setYCoord(String.valueOf(rawBftModel.getY()));
+                bftModel.setAltitude(String.valueOf(rawBftModel.getZ()));
+                bftModel.setLevel(String.valueOf(rawBftModel.getLevel()));
+                bftModel.setBearing(String.valueOf(rawBftModel.getHeading()));
+                bftModel.setAction(EBftAction.FORWARD.toString());
+                bftModel.setUserId(userId);
+                bftModel.setType(EBftType.OWN.toString());
+                bftModel.setCreatedDateTime(DateTimeUtil.dateToStandardIsoDateTimeStringFormat(
+                        DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime())));
+
+                if (!userId.equalsIgnoreCase(SharedPreferenceUtil.getCurrentUserCallsignID())) {
+                    bftModel.setMissingHeartBeatCount(0);
+                }
+
+                addItemToLocalDatabase(bftModel);
+            }
+        };
+
+        mBFTViewModel.queryBFTByUserIdAndOwnType(userId,
+                singleObserverGetOwnTypeBFT);
+    }
+
+    /**
+     * Insert/Update 'Own' or 'Own-Stale' type BFT info into database
+     *
+     * @param coords
+     */
+    private synchronized void insertOrUpdateOwnTypeBftInfo(String userId, Coords coords) {
+
+        // If available, there should only be ONE Bft model which has current user Id AND 'Own' or 'Own-Stale' Type.
+        // If network causes multiple copies of such Bft models, get the latest one and delete the rest
+        SingleObserver<List<BFTModel>> singleObserverGetOwnTypeBFT = new SingleObserver<List<BFTModel>>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onSuccess(List<BFTModel> bftModelToUpdateList) {
+
+                Timber.i("onSuccess singleObserverGetOwnTypeBFT, insertOrUpdateOwnTypeBftInfo. bftModelToUpdateList.size(): %s", bftModelToUpdateList.size());
+
+                if (bftModelToUpdateList.size() == 0) {
+                    BFTModel bftModel = new BFTModel();
+                    bftModel.setXCoord(String.valueOf(coords.getX()));
+                    bftModel.setYCoord(String.valueOf(coords.getY()));
+                    bftModel.setAltitude(String.valueOf(coords.getAltitude()));
+                    bftModel.setBearing(String.valueOf(coords.getBearing()));
+                    bftModel.setAction(String.valueOf(coords.getAction()));
+                    bftModel.setUserId(userId);
+                    bftModel.setType(EBftType.OWN.toString());
+                    bftModel.setCreatedDateTime(DateTimeUtil.dateToStandardIsoDateTimeStringFormat(
+                            DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime())));
+
+                    if (!userId.equalsIgnoreCase(SharedPreferenceUtil.getCurrentUserCallsignID())) {
+                        bftModel.setMissingHeartBeatCount(0);
+                    }
+
+                    addItemToLocalDatabase(bftModel);
                 }
 
                 BFTModel bftModelToUpdate = null;
@@ -1323,6 +2025,10 @@ public class MapShipBlueprintFragment extends Fragment {
                     bftModelToUpdate.setAction(String.valueOf(coords.getAction()));
                     bftModelToUpdate.setType(EBftType.OWN.toString());
 
+                    if (!userId.equalsIgnoreCase(SharedPreferenceUtil.getCurrentUserCallsignID())) {
+                        bftModelToUpdate.setMissingHeartBeatCount(0);
+                    }
+
                     mBFTViewModel.updateBFT(bftModelToUpdate);
 
                     androidToJsUpdateObjectToLocation(bftModelToUpdate);
@@ -1333,22 +2039,26 @@ public class MapShipBlueprintFragment extends Fragment {
             public void onError(Throwable e) {
                 Timber.e("onError singleObserverGetOwnTypeBFT, insertOrUpdateOwnTypeBftInfo. Error Msg: %s", e.toString());
 
-                BFTModel ownBFTModel = new BFTModel();
-                ownBFTModel.setXCoord(String.valueOf(coords.getX()));
-                ownBFTModel.setYCoord(String.valueOf(coords.getY()));
-                ownBFTModel.setAltitude(String.valueOf(coords.getAltitude()));
-                ownBFTModel.setBearing(String.valueOf(coords.getBearing()));
-                ownBFTModel.setAction(String.valueOf(coords.getAction()));
-                ownBFTModel.setUserId(SharedPreferenceUtil.getCurrentUserCallsignID());
-                ownBFTModel.setType(EBftType.OWN.toString());
-                ownBFTModel.setCreatedDateTime(DateTimeUtil.dateToStandardIsoDateTimeStringFormat(
+                BFTModel bftModel = new BFTModel();
+                bftModel.setXCoord(String.valueOf(coords.getX()));
+                bftModel.setYCoord(String.valueOf(coords.getY()));
+                bftModel.setAltitude(String.valueOf(coords.getAltitude()));
+                bftModel.setBearing(String.valueOf(coords.getBearing()));
+                bftModel.setAction(String.valueOf(coords.getAction()));
+                bftModel.setUserId(userId);
+                bftModel.setType(EBftType.OWN.toString());
+                bftModel.setCreatedDateTime(DateTimeUtil.dateToStandardIsoDateTimeStringFormat(
                         DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime())));
 
-                addItemToLocalDatabase(ownBFTModel);
+                if (!userId.equalsIgnoreCase(SharedPreferenceUtil.getCurrentUserCallsignID())) {
+                    bftModel.setMissingHeartBeatCount(0);
+                }
+
+                addItemToLocalDatabase(bftModel);
             }
         };
 
-        mBFTViewModel.queryBFTByUserIdAndOwnType(SharedPreferenceUtil.getCurrentUserCallsignID(),
+        mBFTViewModel.queryBFTByUserIdAndOwnType(userId,
                 singleObserverGetOwnTypeBFT);
     }
 
@@ -1400,7 +2110,7 @@ public class MapShipBlueprintFragment extends Fragment {
                 bftModel.setRefId(bftId);
                 mBFTViewModel.updateBFT(bftModel);
 
-                androidToJsUpdateObjectToLocation(bftModel);
+//                androidToJsUpdateObjectToLocation(bftModel);
             }
 
             @Override
@@ -2101,11 +2811,20 @@ public class MapShipBlueprintFragment extends Fragment {
 
                 if (mapModelList != null && mapModelList.size() != 0) {
 
-                    FileUtil.createHtmlFilesFromImagesUsingAssetsTemplate(mapModelList);
-                    SpinnerItemListDataBank.getInstance().repopulateBlueprintDetails();
+                    if (mSpinnerBftPosCallSignList.getSelectedItem() != null &&
+                            mSpinnerBftPosCallSignList.getSelectedItemPosition() != 0) {
+                        FileUtil.createHtmlFilesFromImagesUsingAssetsTemplate(mSpinnerBftPosCallSignList.getSelectedItem().toString(),
+                                mapModelList);
+                        SpinnerItemListDataBank.getInstance().
+                                repopulateBlueprintDetails(mSpinnerBftPosCallSignList.getSelectedItem().toString());
+
+                    } else {
+                        FileUtil.createHtmlFilesFromImagesUsingAssetsTemplate(mapModelList);
+                        SpinnerItemListDataBank.getInstance().repopulateBlueprintDetails();
+                    }
 
                     // Update BFT pixel to metres conversion factor (Referencing the first map file's GA scale)
-                    prefs.setOnePixelToMetresFromExternalFolder(Float.valueOf(mapModelList.get(0).getGaScale()));
+//                    prefs.setOnePixelToMetresFromExternalFolder(Float.valueOf(mapModelList.get(0).getGaScale()));
 
                     List<String> spinnerFloorNameList = new ArrayList<>(Arrays.asList(SpinnerItemListDataBank.getInstance().
                             getBlueprintFloorStrArray()));
@@ -2114,9 +2833,53 @@ public class MapShipBlueprintFragment extends Fragment {
                     mSpinnerFloorNameLinkList = Arrays.asList(SpinnerItemListDataBank.getInstance().
                             getBlueprintFloorHtmlLinkStrArray());
 
-                    // Reload default (first) html link of web view for every new update
-                    mWebView.loadUrl(getBlueprintDirectory() +
-                            mSpinnerFloorNameLinkList.get(0));
+
+//                    // Reload default (first) html link of web view for every new update
+//                    mWebView.loadUrl(getBlueprintDirectory() +
+//                            mSpinnerFloorNameLinkList.get(0));
+
+                    // Reload latest html link of web view for every new update
+//                    String spinnerFloorName = FilenameUtils.removeExtension(mSpinnerFloorNameLinkList.get(mapCurrentIndex));
+//                    int spinnerBlueprintPos = mSpinnerBlueprintAdapter.getPosition(spinnerFloorName);
+//                    mSpinnerBlueprintList.setSelection(spinnerBlueprintPos);
+
+
+                    // Reload latest web view html link of selected level for every new update
+                    boolean isMapDisplayed = false;
+
+                    for (int i = 0; i < mapModelList.size(); i++) {
+
+                        if (mSpinnerBlueprintList.getSelectedItemPosition() < mSpinnerBlueprintAdapter.getCount() &&
+                                mapModelList.get(i).getDeckName().equalsIgnoreCase(mSpinnerBlueprintList.getSelectedItem().toString())) {
+
+                            if (!mapModelList.get(i).getIsDisplayed()) {
+
+                                mWebView.loadUrl(getBlueprintDirectory() +
+                                        mSpinnerBftPosCallSignList.getSelectedItem().toString() + StringUtil.TRAILING_SLASH +
+                                        mSpinnerBlueprintList.getSelectedItem().toString() + StringUtil.TRAILING_SLASH +
+                                        mSpinnerFloorNameLinkList.get(mSpinnerBlueprintList.getSelectedItemPosition()));
+
+
+                                MapModel mapModel = mapModelList.get(i);
+                                mapModel.setIsDisplayed(true);
+                                mMapViewModel.insertMap(mapModel);
+
+                            }
+
+                            isMapDisplayed = true;
+
+                            break;
+                        }
+                    }
+
+                    // By default, display first item
+                    if (!isMapDisplayed && !mIsSimulatorOngoing) {
+
+                        mWebView.loadUrl(getBlueprintDirectory() +
+                                mSpinnerBftPosCallSignList.getSelectedItem().toString() + StringUtil.TRAILING_SLASH +
+                                mSpinnerBlueprintList.getItemAtPosition(0).toString() + StringUtil.TRAILING_SLASH +
+                                mSpinnerFloorNameLinkList.get(0));
+                    }
 
                 }
             }

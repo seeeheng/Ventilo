@@ -69,6 +69,19 @@ public class MapRepository {
         CustomThreadPoolManager.getInstance().addRunnable(runnable);
     }
 
+    public synchronized void insertMapGroup(MapModel... mapModelGroup) {
+        InsertGroupAsyncTask task = new InsertGroupAsyncTask(mMapDao);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                task.execute(mapModelGroup);
+            }
+        };
+
+        CustomThreadPoolManager.getInstance().addRunnable(runnable);
+    }
+
     /**
      * Query all Map models in database
      *
@@ -117,6 +130,21 @@ public class MapRepository {
         @Override
         protected Void doInBackground(final MapModel... mapModel) {
             asyncTaskDao.createMap(mapModel[0]);
+            return null;
+        }
+    }
+
+    private static class InsertGroupAsyncTask extends AsyncTask<MapModel, Void, Void> {
+
+        private MapDao asyncTaskDao;
+
+        InsertGroupAsyncTask(MapDao dao) {
+            asyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(final MapModel... mapModel) {
+            asyncTaskDao.createMapGroup(mapModel);
             return null;
         }
     }

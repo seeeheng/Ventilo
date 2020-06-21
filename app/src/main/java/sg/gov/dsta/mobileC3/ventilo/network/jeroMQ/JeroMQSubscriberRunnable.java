@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import org.json.JSONObject;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
@@ -23,22 +24,30 @@ import io.reactivex.disposables.Disposable;
 import sg.gov.dsta.mobileC3.ventilo.application.MainApplication;
 import sg.gov.dsta.mobileC3.ventilo.database.DatabaseOperation;
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
+import sg.gov.dsta.mobileC3.ventilo.model.bft.RawBFTModel;
+import sg.gov.dsta.mobileC3.ventilo.model.map.MapModel;
+import sg.gov.dsta.mobileC3.ventilo.model.map.RawFastMapModel;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
 import sg.gov.dsta.mobileC3.ventilo.model.user.UserModel;
 import sg.gov.dsta.mobileC3.ventilo.model.waverelay.WaveRelayRadioModel;
 import sg.gov.dsta.mobileC3.ventilo.network.waveRelayRadio.WaveRelayRadioSocketClient;
 import sg.gov.dsta.mobileC3.ventilo.repository.BFTRepository;
+import sg.gov.dsta.mobileC3.ventilo.repository.MapRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.SitRepRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.TaskRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.UserRepository;
 import sg.gov.dsta.mobileC3.ventilo.repository.WaveRelayRadioRepository;
 import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 import sg.gov.dsta.mobileC3.ventilo.util.DateTimeUtil;
+import sg.gov.dsta.mobileC3.ventilo.util.FileUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.GsonCreator;
 import sg.gov.dsta.mobileC3.ventilo.util.StringUtil;
 import sg.gov.dsta.mobileC3.ventilo.util.constant.SharedPreferenceConstants;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.EIsValid;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.bft.EBftAction;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.bft.EBftType;
+import sg.gov.dsta.mobileC3.ventilo.util.enums.map.EMapViewType;
 import sg.gov.dsta.mobileC3.ventilo.util.enums.radioLinkStatus.ERadioConnectionStatus;
 import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
 import timber.log.Timber;
@@ -290,6 +299,12 @@ public class JeroMQSubscriberRunnable implements Runnable {
                     case JeroMQPublisher.TOPIC_PREFIX_RADIO:
                         storeRadioMessage(messageContent, messageTopicAction);
                         break;
+                    case JeroMQPublisher.TOPIC_PREFIX_MAP:
+                        storeMapMessage(messageContent, messageTopicAction);
+                        break;
+                    case JeroMQPublisher.TOPIC_PREFIX_FASTMAP_BFT:
+                        storeFastMapBftMessage(messageContent, messageTopicAction);
+                        break;
                     case JeroMQPublisher.TOPIC_PREFIX_BFT:
                         storeBftMessage(messageContent, messageTopicAction);
 //                    updateBftWithMessage(message);
@@ -320,6 +335,89 @@ public class JeroMQSubscriberRunnable implements Runnable {
 //            socket.close();
 //
 //            Timber.i("Sub socket closed..");
+        }
+    }
+
+    /**
+     * Sends incoming Map data messages from Fast Map module to listener in Map Ship Blueprint fragment
+     *
+     * @param jsonMsg
+     * @param messageTopicAction
+     */
+    private synchronized void storeMapMessage(String jsonMsg, String messageTopicAction) {
+
+        Timber.i("storeMapMessage jsonMsg: %s", jsonMsg);
+
+        if (MainApplication.getAppContext() instanceof Application) {
+            MapRepository mapRepo = new MapRepository((Application) MainApplication.getAppContext());
+            Gson gson = GsonCreator.createGson();
+            RawFastMapModel rawFastMapModel = gson.fromJson(jsonMsg, RawFastMapModel.class);
+
+            MapModel mapModel = new MapModel(rawFastMapModel.getDeckName());
+            mapModel.setViewType(EMapViewType.DECK.toString());
+            mapModel.setGaScale(rawFastMapModel.getGaScale());
+            mapModel.setFloorAltitudeInPixel(rawFastMapModel.getOriginX());
+            mapModel.setPixelWidth(rawFastMapModel.getWidth());
+//            mapModel.setLowerLeftX();
+//            mapModel.setLowerLeftY();
+//            mapModel.setUpperRightX();
+//            mapModel.setUpperRightY();
+            FileUtil.saveMapImageIntoFileDirectory(mapModel, rawFastMapModel.getMapImage());
+
+
+//            if (!SharedPreferenceUtil.getCurrentUserCallsignID().equalsIgnoreCase(mapModel.getUserId())) {
+                switch (messageTopicAction) {
+                    case JeroMQPublisher.TOPIC_INSERT:
+                        Timber.i("storeMapMessage insert");
+
+                        DatabaseOperation.getInstance().insertMapIntoDatabase(mapRepo, mapModel);
+                        break;
+//                }
+            }
+        }
+    }
+
+    /**
+     * Sends incoming Fast Map Bft data messages from Fast Map module to listener in Map Ship Blueprint fragment
+     *
+     * @param jsonMsg
+     * @param messageTopicAction
+     */
+    private synchronized void storeFastMapBftMessage(String jsonMsg, String messageTopicAction) {
+
+        Timber.i("storeFastMapBftMessage jsonMsg: %s", jsonMsg);
+
+        if (MainApplication.getAppContext() instanceof Application) {
+            BFTRepository bftRepo = new BFTRepository((Application) MainApplication.getAppContext());
+            Gson gson = GsonCreator.createGson();
+            JSONObject rawBFTJsonObj = gson.fromJson(jsonMsg, JSONObject.class);
+            RawBFTModel rawBFTModel = FileUtil.getRawBftModelFromJsonObj(rawBFTJsonObj);
+
+            String currentDateTime = DateTimeUtil.dateToStandardIsoDateTimeStringFormat(
+                    DateTimeUtil.stringToDate(DateTimeUtil.getCurrentDateTime()));
+
+            BFTModel bftModel = new BFTModel();
+            bftModel.setUserId(String.valueOf(rawBFTModel.getId()));
+            bftModel.setXCoord(String.valueOf(rawBFTModel.getX()));
+            bftModel.setYCoord(String.valueOf(rawBFTModel.getY()));
+            bftModel.setAltitude(String.valueOf(rawBFTModel.getZ()));
+//            bftModel.setBearing(String.valueOf(currentCoord.getBearing()));
+            bftModel.setBearing(String.valueOf(rawBFTModel.getHeading()));
+            bftModel.setAction(EBftAction.FORWARD.toString());
+            bftModel.setType(EBftType.OWN.toString());
+            bftModel.setCreatedDateTime(currentDateTime);
+
+            addItemToLocalDatabase(bftModel);
+
+//            if (!SharedPreferenceUtil.getCurrentUserCallsignID().equalsIgnoreCase(mapModel.getUserId())) {
+            switch (messageTopicAction) {
+                case JeroMQPublisher.TOPIC_INSERT:
+                    Timber.i("storeFastMapBftMessage insert");
+
+                    DatabaseOperation.getInstance().insertBftIntoDatabase(bftRepo, bftModel);
+                    break;
+//                }
+            }
         }
     }
 
@@ -972,6 +1070,9 @@ public class JeroMQSubscriberRunnable implements Runnable {
 
     /**
      * Broadcasts wave relay radio detail of user to other devices
+     *
+     * @param userId
+     * @param isConnected
      */
     private synchronized void broadcastWaveRelayRadioDetailsOfUser(String userId, boolean isConnected) {
         WaveRelayRadioRepository waveRelayRadioRepository = new WaveRelayRadioRepository((Application) MainApplication.getAppContext());
@@ -1017,6 +1118,9 @@ public class JeroMQSubscriberRunnable implements Runnable {
 
     /**
      * Updates and broadcast radio connection status of specific user in local database
+     *
+     * @param userId
+     * @param isConnected
      */
     private synchronized void updateAndBroadcastUserRadioConnectionStatus(String userId, boolean isConnected) {
         UserRepository userRepository = new UserRepository((Application) MainApplication.getAppContext());
@@ -1131,6 +1235,9 @@ public class JeroMQSubscriberRunnable implements Runnable {
      * Updates Wave Relay database table of connected user and remove User Id those who are not connected
      * excluding current user (as this method is called with neighbours' IP addresses as input argument).
      * Radio IP address list contains those who are connected to the network
+     *
+     * @param ipAddress
+     * @param isConnected
      */
     private synchronized void updateWaveRelayDatabaseOfOtherUserId(String ipAddress, boolean isConnected) {
         WaveRelayRadioRepository waveRelayRadioRepository = new
@@ -1190,6 +1297,66 @@ public class JeroMQSubscriberRunnable implements Runnable {
                 };
 
         waveRelayRadioRepository.getAllWaveRelayRadios(singleObserverAllWaveRelayRadio);
+    }
+
+    /**
+     * Stores Bft data locally with updated Ref Id
+     *
+     * @param bftModel
+     */
+    private void addItemToLocalDatabase(BFTModel bftModel) {
+
+        BFTRepository bFTRepository = new BFTRepository((Application) MainApplication.getAppContext());
+
+        SingleObserver<Long> singleObserverAddBft = new SingleObserver<Long>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                // add it to a CompositeDisposable
+            }
+
+            @Override
+            public void onSuccess(Long bftId) {
+                Timber.i("onSuccess singleObserverAddBft,addItemToLocalDatabase. SitRepId: %d", bftId);
+
+                updateBftModelRefId(bFTRepository, bftId);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e("onError singleObserverAddBft, addItemToLocalDatabase.Error Msg: %s ", e.toString());
+            }
+        };
+
+        bFTRepository.insertBFTWithObserver(bftModel, singleObserverAddBft);
+    }
+
+    /**
+     * Updates Ref Id of newly inserted BFT model
+     *
+     * @param bftId
+     */
+    private void updateBftModelRefId(BFTRepository bFTRepository, Long bftId) {
+        SingleObserver<BFTModel> singleObserverUpdateBftRefId = new SingleObserver<BFTModel>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                // add it to a CompositeDisposable
+            }
+
+            @Override
+            public void onSuccess(BFTModel bftModel) {
+                Timber.i("onSuccess singleObserverUpdateBftRefId, updateBftModelRefId. SitRepId: %d", bftId);
+
+                bftModel.setRefId(bftId);
+                bFTRepository.updateBFT(bftModel);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e("onError singleObserverUpdateBftRefId, updateBftModelRefId. Error Msg: %s ", e.toString());
+            }
+        };
+
+        bFTRepository.queryBFTById(bftId, singleObserverUpdateBftRefId);
     }
 
     /**

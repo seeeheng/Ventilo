@@ -209,13 +209,14 @@ public class DatabaseOperation {
                     BFTModel bftModelToUpdate = null;
 
                     if (bftModelToUpdateList.size() == 0) {
-                        Timber.i("Inserting BFTTT");
+                        Timber.i("Inserting new BFT model");
                         BFTModel bftModelToInsert = new BFTModel();
                         bftModelToInsert.setRefId(bftModel.getRefId());
                         bftModelToInsert.setUserId(bftModel.getUserId());
                         bftModelToInsert.setXCoord(bftModel.getXCoord());
                         bftModelToInsert.setYCoord(bftModel.getYCoord());
                         bftModelToInsert.setAltitude(bftModel.getAltitude());
+                        bftModelToInsert.setLevel(bftModel.getLevel());
                         bftModelToInsert.setBearing(bftModel.getBearing());
                         bftModelToInsert.setAction(bftModel.getAction());
                         bftModelToInsert.setType(bftModel.getType());
@@ -227,7 +228,6 @@ public class DatabaseOperation {
 
                     if (bftModelToUpdateList.size() == 1) {
                         bftModelToUpdate = bftModelToUpdateList.get(0);
-                        Timber.i("Only ONE other BFTTT");
                     }
 
                     // Update existing entry in database
@@ -241,10 +241,11 @@ public class DatabaseOperation {
                                 bftModelToUpdate.setCreatedDateTime(bftModel.getCreatedDateTime());
                             }
 
-                            Timber.i("Updating BFTTT");
+                            Timber.i("Updating existing BFT model");
                             bftModelToUpdate.setXCoord(bftModel.getXCoord());
                             bftModelToUpdate.setYCoord(bftModel.getYCoord());
                             bftModelToUpdate.setAltitude(bftModel.getAltitude());
+                            bftModelToUpdate.setLevel(bftModel.getLevel());
                             bftModelToUpdate.setBearing(bftModel.getBearing());
                             bftModelToUpdate.setAction(bftModel.getAction());
                             bftModelToUpdate.setType(bftModel.getType());
@@ -266,6 +267,7 @@ public class DatabaseOperation {
                     bftModelToInsert.setXCoord(bftModel.getXCoord());
                     bftModelToInsert.setYCoord(bftModel.getYCoord());
                     bftModelToInsert.setAltitude(bftModel.getAltitude());
+                    bftModelToInsert.setLevel(bftModel.getLevel());
                     bftModelToInsert.setBearing(bftModel.getBearing());
                     bftModelToInsert.setAction(bftModel.getAction());
                     bftModelToInsert.setType(bftModel.getType());
@@ -297,6 +299,7 @@ public class DatabaseOperation {
                         bftModelToUpdate.setXCoord(bftModel.getXCoord());
                         bftModelToUpdate.setYCoord(bftModel.getYCoord());
                         bftModelToUpdate.setAltitude(bftModel.getAltitude());
+                        bftModelToUpdate.setLevel(bftModel.getLevel());
                         bftModelToUpdate.setBearing(bftModel.getBearing());
                         bftModelToUpdate.setAction(bftModel.getAction());
                         bftModelToUpdate.setType(bftModel.getType());
@@ -317,6 +320,7 @@ public class DatabaseOperation {
                     bftModelToInsert.setXCoord(bftModel.getXCoord());
                     bftModelToInsert.setYCoord(bftModel.getYCoord());
                     bftModelToInsert.setAltitude(bftModel.getAltitude());
+                    bftModelToInsert.setLevel(bftModel.getLevel());
                     bftModelToInsert.setBearing(bftModel.getBearing());
                     bftModelToInsert.setAction(bftModel.getAction());
                     bftModelToInsert.setType(bftModel.getType());

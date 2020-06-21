@@ -28,12 +28,14 @@ public class BFTLocalPreferences {
     private ArrayList<String> floors = new ArrayList();
     private int currentFloor = 0;
     //    private double mapScale = 44.98599; // For Indoor Range; 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris), 1cm to 44.98599 (Indoor Range)
-    private static double mapScale = 250; // For Avatar; 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris), 1cm to 44.98599 (Indoor Range)
+//    private static double mapScale = 250; // For Avatar; 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris), 1cm to 44.98599 (Indoor Range)
+    private static double mapScale = 100; // For Avatar; 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris), 1cm to 44.98599 (Indoor Range), 1cm to 100cm (Fast Map)
     //    private double mapScale = 300; // For BW Paris; 1cm to 250cm (Avatar), 1cm to 300cm (BW Paris), 1cm to 44.98599 (Indoor Range)
 //    private double onePixelToMetres = (82.07 / 3102 * mapScale / 100); // For Indoor Range; 0.021 (Avatar), 0.05291 (BW Paris), 0.011902 (Indoor Range)
 //    private static double onePixelToMetres = (11.82 / 1400 * mapScale / 100); // For Avatar; 0.021 (Avatar), 0.05291 (BW Paris), 0.011902 (Indoor Range)
 //    private double onePixelToMetres = (41.45 / 2350 * mapScale / 100); // For BW Paris; 0.021 (Avatar), 0.05291 (BW Paris), 0.011902 (Indoor Range)
-    private static double onePixelToMetres = (5.93 / 168 * mapScale / 100); // For Avatar-Fastmap; 0.021 (Avatar), 0.05291 (BW Paris), 0.011902 (Indoor Range)
+//    private static double onePixelToMetres = (5.93 / 168 * mapScale / 100); // For Avatar-Fastmap; 0.021 (Avatar), 0.05291 (BW Paris), 0.011902 (Indoor Range)
+    private static double onePixelToMetres = 0.1; // For Avatar-Fastmap; 0.021 (Avatar), 0.05291 (BW Paris), 0.011902 (Indoor Range)
 
 //    private double onePixelToMetres;
 
@@ -179,10 +181,14 @@ public class BFTLocalPreferences {
             onePixelToMetres = (referenceMapHeightInCm / referenceMapHeightInPixel) * mapScale / 100;
 
         } else {
-            mapScale = 250;
+//            mapScale = 250;
 //            onePixelToMetres = (11.82 / 1400 * mapScale / 100);
 
-            onePixelToMetres = (5.93 / 168 * mapScale / 100);
+//            mapScale = 100;
+//            onePixelToMetres = (5.93 / 168 * mapScale / 100);
+
+            mapScale = 0.1;
+            onePixelToMetres = 0.1;
         }
     }
 
@@ -253,10 +259,14 @@ public class BFTLocalPreferences {
             onePixelToMetres = (82.07 / 3102 * mapScale / 100);
 
         } else {
-            mapScale = 250;
+//            mapScale = 250;
 //            onePixelToMetres = (11.82 / 1400 * mapScale / 100);
 
-            onePixelToMetres = (5.93 / 168 * mapScale / 100);
+//            mapScale = 100;
+//            onePixelToMetres = (5.93 / 168 * mapScale / 100);
+
+            mapScale = 0.1;
+            onePixelToMetres = 0.1;
         }
     }
 

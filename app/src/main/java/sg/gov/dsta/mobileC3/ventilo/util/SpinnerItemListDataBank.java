@@ -41,6 +41,10 @@ public class SpinnerItemListDataBank {
     private String[] blueprintFloorHtmlLinkStrArray;
     private boolean isLocalBlueprintDirectory;
 
+    // Map Blueprint BFT Position
+    private List<String> bftPosCallSignList;
+    private String[] bftCallSignStrArray;
+
     // Map Blueprint Test Log (motion label)
     private List<String> motionLabelList;
     private String[] motionLabelStrArray;
@@ -80,12 +84,17 @@ public class SpinnerItemListDataBank {
         populateCargo();
 
         // Map Blueprint
+        blueprintFloorStrArray = FileUtil.getAllFileNamesWithoutExtensionInMapBlueprintHtmlFolder();
+        blueprintFloorHtmlLinkStrArray = FileUtil.getAllFileNamesInMapBlueprintHtmlFolder();
         populateBlueprintFloors();
         populateBlueprintFloorHtmlLinks();
 
+        // Map Blueprint BFT Pos Call Sign
+        bftPosCallSignList = new ArrayList<>();
+        populateBftPosCallSignLabels();
+
         // Map Blueprint Test Log
         motionLabelList = new ArrayList<>();
-
         populateMotionLabels();
     }
 
@@ -206,14 +215,58 @@ public class SpinnerItemListDataBank {
     }
 
     /** -------------------- Map Blueprint -------------------- **/
+
     public void repopulateBlueprintDetails() {
+        blueprintFloorStrArray = FileUtil.getAllFileNamesWithoutExtensionInMapBlueprintHtmlFolder();
+        blueprintFloorHtmlLinkStrArray = FileUtil.getAllFileNamesInMapBlueprintHtmlFolder();
+
+        populateBlueprintFloors();
+        populateBlueprintFloorHtmlLinks();
+    }
+
+//    public void repopulateBlueprintDetails(String userId) {
+//        blueprintFloorStrArray = FileUtil.getAllFileNamesWithoutExtensionInMapBlueprintHtmlFolder(userId);
+//        blueprintFloorHtmlLinkStrArray = FileUtil.getAllMapBlueprintHtmlFilesInFolder(userId);
+//
+//        System.out.println("blueprintFloorStrArray: " + blueprintFloorStrArray);
+//
+//        populateBlueprintFloors();
+//        populateBlueprintFloorHtmlLinks();
+//    }
+
+    public void repopulateBlueprintDetails(String userId) {
+        blueprintFloorStrArray = FileUtil.getAllFolderNamesInMapBlueprintHtmlFolder(userId);
+
+        List<String> blueprintFloorList = new ArrayList<>(Arrays.asList(blueprintFloorStrArray));
+        List<String> blueprintFloorHtmlLinkList = new ArrayList<>();
+
+        // Get most recently updated map images from each level (folder)
+        for (int i = 0; i < blueprintFloorList.size(); i++) {
+            String[] floorNamesHtmlLinks = FileUtil.getAllMapBlueprintHtmlFilesInFolder(userId, blueprintFloorList.get(i));
+
+            // Remove floor name from list if corresponding html file does not exist for this floor
+            if (floorNamesHtmlLinks.length == 0) {
+                blueprintFloorList.remove(i);
+                i--;
+            } else {
+                blueprintFloorHtmlLinkList.add(floorNamesHtmlLinks[floorNamesHtmlLinks.length - 1]);
+            }
+
+        }
+
+        blueprintFloorStrArray = new String[blueprintFloorList.size()];
+        blueprintFloorList.toArray(blueprintFloorStrArray);
+
+        blueprintFloorHtmlLinkStrArray = new String[blueprintFloorHtmlLinkList.size()];
+        blueprintFloorHtmlLinkList.toArray(blueprintFloorHtmlLinkStrArray);
+
+        System.out.println("blueprintFloorStrArray: " + blueprintFloorStrArray);
+
         populateBlueprintFloors();
         populateBlueprintFloorHtmlLinks();
     }
 
     private void populateBlueprintFloors() {
-        blueprintFloorStrArray = FileUtil.getAllFileNamesWithoutExtensionInMapBlueprintHtmlFolder();
-
         if (blueprintFloorStrArray.length == 0) {
             blueprintFloorStrArray = MainApplication.getAppContext().getResources().
                     getStringArray(R.array.map_ship_blueprint_floor_items);
@@ -227,8 +280,6 @@ public class SpinnerItemListDataBank {
     }
 
     private void populateBlueprintFloorHtmlLinks() {
-        blueprintFloorHtmlLinkStrArray = FileUtil.getAllFileNamesInMapBlueprintHtmlFolder();
-
         if (blueprintFloorHtmlLinkStrArray == null || blueprintFloorHtmlLinkStrArray.length == 0) {
             blueprintFloorHtmlLinkStrArray = MainApplication.getAppContext().getResources().
                     getStringArray(R.array.map_ship_blueprint_floor_html_link_items);
@@ -241,6 +292,52 @@ public class SpinnerItemListDataBank {
 
     }
 
+    /** -------------------- Map Blueprint BFT Call Sign Position -------------------- **/
+
+    private void populateBftPosCallSignLabels() {
+        bftCallSignStrArray = FileUtil.getAllFolderNamesInBftPosFolder();
+
+        bftCallSignStrArray = MainApplication.getAppContext().getResources().
+                getStringArray(R.array.map_blueprint_bft_call_sign_label_items);
+
+        List<String> bftCallSignStrList = new ArrayList<>(Arrays.asList(bftCallSignStrArray));
+        bftPosCallSignList.addAll(bftCallSignStrList);
+
+        updateBftPosCallSignLabels();
+    }
+
+    public void updateBftPosCallSignLabels() {
+        if (bftCallSignStrArray != null) {
+            String[] bftPosCallSignStrArray = FileUtil.getAllFolderNamesInBftPosFolder();
+
+            for (String bftPosCallSign : bftPosCallSignStrArray) {
+                addItemToBftPosCallSignLabelList(bftPosCallSign);
+            }
+        }
+    }
+
+    private void addItemToBftPosCallSignLabelList(String label) {
+        if (bftPosCallSignList != null) {
+
+            boolean isDuplicateLabel = false;
+
+            for (int i = 0; i < bftPosCallSignList.size(); i++) {
+
+                if (label.equalsIgnoreCase(bftPosCallSignList.get(i))) {
+                    isDuplicateLabel = true;
+                    break;
+                }
+
+            }
+
+            if (!isDuplicateLabel) {
+                bftPosCallSignList.add(label);
+            }
+
+            bftCallSignStrArray = bftPosCallSignList.toArray(new String[0]);
+        }
+    }
+
     /** -------------------- Map Blueprint Motion Label -------------------- **/
     private void populateMotionLabels() {
         motionLabelStrArray = MainApplication.getAppContext().getResources().
@@ -250,14 +347,14 @@ public class SpinnerItemListDataBank {
         motionLabelList.addAll(motionLabelStrList);
     }
 
-    public void addItemToMotionLabelList(String motionLabel) {
+    public void addItemToMotionLabelList(String label) {
         if (motionLabelList != null) {
 
             boolean isDuplicateLabel = false;
 
             for (int i = 0; i < motionLabelList.size(); i++) {
 
-                if (motionLabel.equalsIgnoreCase(motionLabelList.get(i))) {
+                if (label.equalsIgnoreCase(motionLabelList.get(i))) {
                     isDuplicateLabel = true;
                     break;
                 }
@@ -265,7 +362,7 @@ public class SpinnerItemListDataBank {
             }
 
             if (!isDuplicateLabel) {
-                motionLabelList.add(motionLabel);
+                motionLabelList.add(label);
             }
 
             motionLabelStrArray = motionLabelList.toArray(new String[0]);

@@ -60,6 +60,39 @@
 
                     </RelativeLayout>
 
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/elements_margin_spacing"
+                        android:orientation="vertical">
+
+                        <Spinner
+                            android:id="@+id/spinner_ship_blueprint_bft_walk_path"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/spinner_rect"
+                            android:gravity="center_vertical"
+                            android:spinnerMode="dropdown" />
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btn_map_ship_blueprint_bft_walk_path"
+                            android:layout_width="wrap_content"
+                            android:layout_height="@dimen/spinner_height"
+                            android:background="@drawable/btn_type_selector"
+                            android:button="@android:color/transparent"
+                            android:layout_gravity="center|end"
+                            android:layout_marginStart="@dimen/elements_margin_spacing"
+                            android:padding="@dimen/elements_small_margin_spacing"
+                            android:text="@string/map_blueprint_simulate_walk"
+                            android:textAllCaps="false"
+                            android:textColor="@drawable/btn_text_selector"
+                            android:textSize="@dimen/text_view_small_text_size"/>
+
+<!--                        android:gravity="center"-->
+<!--                        android:layout_toEndOf="@+id/spinner_ship_blueprint_bft_walk_path"-->
+
+                    </LinearLayout>
+
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -160,9 +193,10 @@
                         android:layout_height="wrap_content"
                         android:layout_above="@+id/tv_map_blueprint_textBearing"
                         android:layout_marginBottom="@dimen/thin_line_margin"
-                        android:text="@string/map_blueprint_loading_coord"
                         android:textColor="@color/primary_white"
                         android:textSize="@dimen/text_view_text_size" />
+
+<!--                    android:text="@string/map_blueprint_loading_coord"-->
 
                     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
                         android:id="@+id/tv_map_blueprint_textBearing"
@@ -170,18 +204,20 @@
                         android:layout_height="wrap_content"
                         android:layout_above="@+id/tv_map_blueprint_textAction"
                         android:layout_marginBottom="@dimen/thin_line_margin"
-                        android:text="@string/map_blueprint_loading_bearing"
                         android:textColor="@color/primary_white"
                         android:textSize="@dimen/text_view_text_size" />
+
+<!--                    android:text="@string/map_blueprint_loading_bearing"-->
 
                     <sg.gov.dsta.mobileC3.ventilo.util.component.C2OpenSansSemiBoldTextView
                         android:id="@+id/tv_map_blueprint_textAction"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/elements_margin_spacing"
-                        android:text="@string/map_blueprint_loading_status"
                         android:textColor="@color/primary_white"
                         android:textSize="@dimen/text_view_text_size" />
+
+<!--                    android:text="@string/map_blueprint_loading_status"-->
 
                 </RelativeLayout>
 

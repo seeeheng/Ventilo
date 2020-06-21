@@ -23,14 +23,15 @@ public abstract class JeroMQParent {
     protected static final int PAIR_PORT = 5557;
 
     // Topics
-    protected static final String TOPIC_PREFIX_MAP = "TOPIC-MAP";
+    public static final String TOPIC_PREFIX_MAP = "TOPIC-FASTMAP_MAP";
+    public static final String TOPIC_PREFIX_FASTMAP_BFT = "TOPIC-FASTMAP_BFT";
     protected static final String TOPIC_PREFIX_BFT = "TOPIC-BFT";
     protected static final String TOPIC_PREFIX_USER = "TOPIC-USER";
     protected static final String TOPIC_PREFIX_RADIO = "TOPIC-RADIO";
     protected static final String TOPIC_PREFIX_SITREP = "TOPIC-SITREP";
     protected static final String TOPIC_PREFIX_TASK = "TOPIC-TASK";
     protected static final String TOPIC_SYNC = "SYNC";
-    protected static final String TOPIC_INSERT = "INSERT";
+    public static final String TOPIC_INSERT = "INSERT";
     protected static final String TOPIC_UPDATE = "UPDATE";
     protected static final String TOPIC_DELETE = "DELETE";
     public static final String TOPIC_OWN_FORCE = "OWN_FORCE";

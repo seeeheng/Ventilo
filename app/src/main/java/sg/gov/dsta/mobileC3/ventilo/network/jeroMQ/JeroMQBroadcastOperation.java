@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import org.json.JSONObject;
+
 import sg.gov.dsta.mobileC3.ventilo.model.bft.BFTModel;
 import sg.gov.dsta.mobileC3.ventilo.model.sitrep.SitRepModel;
 import sg.gov.dsta.mobileC3.ventilo.model.task.TaskModel;
@@ -25,7 +27,14 @@ public class JeroMQBroadcastOperation {
         Timber.i("broadcastDataInsertionOverSocket");
 
         Gson gson = GsonCreator.createGson();
-        String modelJson = gson.toJson(model);
+
+        String modelJson;
+
+        if (!(model instanceof JSONObject)) {
+            modelJson = gson.toJson(model);
+        } else {
+            modelJson = model.toString();
+        }
 
         if (model instanceof UserModel) {
             JeroMQPublisher.getInstance().sendUserMessage(modelJson, JeroMQPublisher.TOPIC_INSERT);
@@ -37,6 +46,8 @@ public class JeroMQBroadcastOperation {
             JeroMQPublisher.getInstance().sendSitRepMessage(modelJson, JeroMQPublisher.TOPIC_INSERT);
         } else if (model instanceof TaskModel) {
             JeroMQPublisher.getInstance().sendTaskMessage(modelJson, JeroMQPublisher.TOPIC_INSERT);
+        } else if (model instanceof JSONObject) {
+            JeroMQPublisher.getInstance().sendFastMapBftMessage(modelJson, JeroMQPublisher.TOPIC_INSERT);
         }
     }
 

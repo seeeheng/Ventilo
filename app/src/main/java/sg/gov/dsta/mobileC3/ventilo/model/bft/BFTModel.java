@@ -23,6 +23,8 @@ public class BFTModel {
     private String xCoord;
     private String yCoord;
     private String altitude;
+    private String level;
+
     private String bearing;
     private String action;              // For e.g. Fidgeting, Standing, BeaconDrop
     private String type;                // For e.g. Hazard, Deceased
@@ -36,6 +38,7 @@ public class BFTModel {
     public String getXCoord() { return xCoord; }
     public String getYCoord() { return yCoord; }
     public String getAltitude() { return altitude; }
+    public String getLevel() { return level; }
     public String getBearing() { return bearing; }
     public String getAction() { return action; }
     public String getType() { return type; }
@@ -49,6 +52,7 @@ public class BFTModel {
     public void setXCoord(String xCoord) { this.xCoord = xCoord; }
     public void setYCoord(String yCoord) { this.yCoord = yCoord; }
     public void setAltitude(String altitude) { this.altitude = altitude; }
+    public void setLevel(String level) { this.level = level; }
     public void setBearing(String bearing) { this.bearing = bearing; }
     public void setAction(String action) { this.action = action; }
     public void setType(String type) { this.type = type; }

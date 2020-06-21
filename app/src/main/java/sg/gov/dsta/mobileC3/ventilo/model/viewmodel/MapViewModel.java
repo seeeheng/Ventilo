@@ -33,6 +33,10 @@ public class MapViewModel extends AndroidViewModel {
         repository.insertMap(mapModel);
     }
 
+    public void insertMapGroup(MapModel... mapModelGroup) {
+        repository.insertMapGroup(mapModelGroup);
+    }
+
     public void deleteAllMaps() {
         repository.deleteAllMaps();
     }

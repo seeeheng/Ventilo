@@ -43,6 +43,12 @@ import sg.gov.dsta.mobileC3.ventilo.util.sharedPreference.SharedPreferenceUtil;
         version = 1, exportSchema = false)
 public abstract class VentiloDatabase extends RoomDatabase {
 
+    private static final String FASTMAP_USERNAME_ONE = "1";
+    private static final String FASTMAP_USERNAME_TWO = "2";
+    private static final String FASTMAP_USERNAME_THREE = "3";
+    private static final String FASTMAP_USERNAME_FOUR = "4";
+    private static final String FASTMAP_USERNAME_FIVE = "5";
+
     private static final String USERNAME_ONE = "111";
     private static final String USERNAME_TWO = "222";
     private static final String USERNAME_THREE = "333";
@@ -163,6 +169,18 @@ public abstract class VentiloDatabase extends RoomDatabase {
         UserModel userTen = createUserModel(CCT_TWO_USERNAME, CCT_TWO_USERNAME, StringUtil.EMPTY_STRING,
                 "Alpha, Bravo, Charlie, Delta, Echo, Foxtrot", EAccessRight.CCT.toString());
 
+        // FastMap Users
+        UserModel userEleven = createUserModel(FASTMAP_USERNAME_ONE, FASTMAP_USERNAME_ONE, StringUtil.EMPTY_STRING,
+                "Alpha, Bravo", EAccessRight.TEAM_LEAD.toString());
+        UserModel userTwelve = createUserModel(FASTMAP_USERNAME_TWO, FASTMAP_USERNAME_TWO, StringUtil.EMPTY_STRING,
+                "Alpha, Bravo, Charlie", EAccessRight.TEAM_LEAD.toString());
+        UserModel userThirteen = createUserModel(FASTMAP_USERNAME_THREE, FASTMAP_USERNAME_THREE, StringUtil.EMPTY_STRING,
+                "Alpha, Bravo, Charlie, Delta", EAccessRight.TEAM_LEAD.toString());
+        UserModel userForteen = createUserModel(FASTMAP_USERNAME_FOUR, FASTMAP_USERNAME_FOUR, StringUtil.EMPTY_STRING,
+                "Alpha, Bravo, Charlie, Delta, Echo", EAccessRight.TEAM_LEAD.toString());
+        UserModel userFifteen = createUserModel(FASTMAP_USERNAME_FIVE, FASTMAP_USERNAME_FIVE, StringUtil.EMPTY_STRING,
+                "Alpha, Bravo, Charlie, Delta, Echo, Foxtrot", EAccessRight.TEAM_LEAD.toString());
+
         userDao().createUser(userOne);
         userDao().createUser(userTwo);
         userDao().createUser(userThree);
@@ -173,6 +191,12 @@ public abstract class VentiloDatabase extends RoomDatabase {
         userDao().createUser(userEight);
         userDao().createUser(userNine);
         userDao().createUser(userTen);
+        userDao().createUser(userEleven);
+        userDao().createUser(userTwelve);
+        userDao().createUser(userThirteen);
+        userDao().createUser(userForteen);
+        userDao().createUser(userFifteen);
+
 
         // User Radio/Phone IP Addresses
         String[] radioIpAddresses = MainApplication.getAppContext().getResources().

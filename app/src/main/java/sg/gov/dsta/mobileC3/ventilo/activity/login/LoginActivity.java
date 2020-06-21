@@ -174,10 +174,6 @@ public class LoginActivity extends AppCompatActivity {
                                     "populateRadioNoList. " +
                                     "waveRelayRadioModelList.size(): %d" , waveRelayRadioModelList.size());
 
-
-
-
-
                             mWaveRelayRadioModelList = waveRelayRadioModelList;
 
                             List<Integer> radioNoList = waveRelayRadioModelList.stream().map(

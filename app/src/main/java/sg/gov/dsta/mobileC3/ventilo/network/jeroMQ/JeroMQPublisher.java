@@ -295,6 +295,66 @@ public class JeroMQPublisher extends JeroMQParent {
     }
 
     /**
+     * Broadcasts raw FastMap JSON message to all relevant devices for data storage
+     *
+     * @param message
+     */
+    public synchronized void sendFastMapBftMessage(String message, String actionPrefix) {
+
+        String topicPrefix = getActionPrefix(TOPIC_PREFIX_FASTMAP_BFT, actionPrefix);
+
+        if (StringUtil.EMPTY_STRING.equalsIgnoreCase(topicPrefix)) {
+            return;
+        }
+
+        PowerManagerUtil.acquirePartialWakeLock();
+
+        mCustomThreadPoolManager.addRunnable(new Runnable() {
+            @Override
+            public void run() {
+
+                if (mPubSocket != null) {
+                    StringBuilder fastMapBftMessageToSend = new StringBuilder();
+                    fastMapBftMessageToSend.append(topicPrefix);
+                    fastMapBftMessageToSend.append(" ");
+                    fastMapBftMessageToSend.append(message);
+
+                    Timber.i("Publishing FastMap BFT message: %s", message);
+
+                    mPubSocket.setMaxMsgSize(-1);
+                    mPubSocket.setMsgAllocationHeapThreshold(0);
+
+                    mPubSocket.setHeartbeatIvl(JeroMQParent.HEARTBEAT_INTERVAL_IN_MILLISEC);
+                    mPubSocket.setHeartbeatTimeout(JeroMQParent.HEARTBEAT_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.setHeartbeatTtl(JeroMQParent.HEARTBEAT_TTL_IN_MILLISEC);
+                    mPubSocket.setLinger(0);
+                    mPubSocket.setRcvHWM(0);
+                    mPubSocket.setSndHWM(0);
+                    mPubSocket.setImmediate(true);
+                    mPubSocket.setTCPKeepAlive(0);
+                    mPubSocket.setTCPKeepAliveCount(JeroMQParent.TCP_KEEP_ALIVE_COUNT);
+                    mPubSocket.setTCPKeepAliveIdle(JeroMQParent.TCP_KEEP_ALIVE_IDLE_IN_MILLISEC);
+                    mPubSocket.setTCPKeepAliveInterval(JeroMQParent.TCP_KEEP_ALIVE_INTERVAL_IN_MILLISEC);
+                    mPubSocket.setSendTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.setReceiveTimeOut(SOCKET_TIMEOUT_IN_MILLISEC);
+                    mPubSocket.send(fastMapBftMessageToSend.toString());
+
+                    Timber.i("Fast Map BFT message sent");
+
+                    try {
+                        Thread.sleep(CustomThreadPoolManager.THREAD_SLEEP_DURATION_NONE);
+                    } catch (InterruptedException e) {
+                        Timber.e("Interrupted while sleeping:  %s", e);
+                        return;
+                    }
+                }
+            }
+        });
+
+        PowerManagerUtil.releasePartialWakeLock();
+    }
+
+    /**
      * Broadcasts BFT JSON message to all relevant devices for data storage
      *
      * @param message

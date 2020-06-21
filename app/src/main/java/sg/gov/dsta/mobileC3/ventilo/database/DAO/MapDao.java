@@ -15,7 +15,10 @@ import sg.gov.dsta.mobileC3.ventilo.model.map.MapModel;
 public interface MapDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void createMap(MapModel user);
+    void createMap(MapModel mapModel);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void createMapGroup(MapModel... mapModelGroup);
 
 //    @Update
 //    void updateUserModel(UserModel user);
