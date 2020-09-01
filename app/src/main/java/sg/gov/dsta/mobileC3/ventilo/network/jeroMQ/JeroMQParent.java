@@ -1,5 +1,7 @@
 package sg.gov.dsta.mobileC3.ventilo.network.jeroMQ;
 
+import org.zeromq.ZContext;
+
 import sg.gov.dsta.mobileC3.ventilo.thread.CustomThreadPoolManager;
 import timber.log.Timber;
 
@@ -7,6 +9,7 @@ public abstract class JeroMQParent {
 
     //    private static final Logger LOGGER = LoggerFactory.getLogger(JeroMQParent.class);
     private static final String TAG = JeroMQParent.class.getSimpleName();
+    private static ZContext mZContext = new ZContext();
 
     // Time Interval
     protected static final int MISSING_ZERO_MQ_HEARTBEAT_CONNECTION_THRESHOLD = 3;
@@ -52,12 +55,19 @@ public abstract class JeroMQParent {
 
     protected JeroMQParent(CustomThreadPoolManager customThreadPoolManager) {
         this.mCustomThreadPoolManager = customThreadPoolManager;
+        mZContext.setLinger(0);
+        mZContext.setRcvHWM(0);
+        mZContext.setSndHWM(0);
     }
 
     protected void initCustomThreadPoolManagerService() {
         if (mCustomThreadPoolManager == null) {
             mCustomThreadPoolManager = CustomThreadPoolManager.getInstance();
         }
+    }
+
+    public ZContext getZContext(){
+        return mZContext;
     }
 
     public void start() {

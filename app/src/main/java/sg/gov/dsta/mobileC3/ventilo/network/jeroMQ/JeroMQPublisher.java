@@ -48,7 +48,7 @@ public class JeroMQPublisher extends JeroMQParent {
 
     private static volatile JeroMQPublisher instance;
     //    private Socket mSocket;
-    private ZContext mZContext;
+//    private ZContext mZContext;
     private Socket mPubSocket;
 
     private List<String> mServerSubEndpointList;
@@ -143,12 +143,13 @@ public class JeroMQPublisher extends JeroMQParent {
             Timber.i("Start server pub sockets connection");
             Timber.i("OWN IP address is: %s", NetworkUtil.getOwnIPAddressThroughWiFiOrEthernet(true));
 
-            mZContext = new ZContext();
-            mZContext.setLinger(0);
-            mZContext.setRcvHWM(0);
-            mZContext.setSndHWM(0);
+//            mZContext = new ZContext();
+//            mZContext.setLinger(0);
+//            mZContext.setRcvHWM(0);
+//            mZContext.setSndHWM(0);
 
-            mPubSocket = mZContext.createSocket(SocketType.PUB);
+//            mPubSocket = mZContext.createSocket(SocketType.PUB);
+            mPubSocket = this.getZContext().createSocket(SocketType.PUB);
             mPubSocket.setMaxMsgSize(-1);
             mPubSocket.setMsgAllocationHeapThreshold(0);
 
@@ -665,10 +666,12 @@ public class JeroMQPublisher extends JeroMQParent {
 //
 //            }
 
-            if (mZContext != null && !mZContext.isClosed()) {
+//            if (mZContext != null && !mZContext.isClosed()) {
+            if(this.getZContext() != null && !this.getZContext().isClosed()){
                 Timber.i("Destroying ZContext.");
 
-                mZContext.destroy();
+//                mZContext.destroy();
+                this.getZContext().destroy();
                 Timber.i("ZContext destroyed.");
             }
 

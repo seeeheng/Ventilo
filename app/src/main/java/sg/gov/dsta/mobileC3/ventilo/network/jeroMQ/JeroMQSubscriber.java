@@ -31,7 +31,7 @@ public class JeroMQSubscriber extends JeroMQParent implements JeroMQSubscriberRu
     private List<String> mClientSubEndpointList;
     private List<Socket> mSocketList;
 
-    private ZContext mZContext;
+//    private ZContext mZContext;
     private JeroMQSubscriberRunnable mJeroMQSubscriberRunnable;
 //    private Socket mSubSocket;
 
@@ -41,10 +41,10 @@ public class JeroMQSubscriber extends JeroMQParent implements JeroMQSubscriberRu
     private JeroMQSubscriber() {
 //        super(Executors.newSingleThreadExecutor());
         super(CustomThreadPoolManager.getInstance());
-        mZContext = new ZContext();
-        mZContext.setLinger(0);
-        mZContext.setRcvHWM(0);
-        mZContext.setSndHWM(0);
+//        mZContext = new ZContext();
+//        mZContext.setLinger(0);
+//        mZContext.setRcvHWM(0);
+//        mZContext.setSndHWM(0);
 
         mClientSubEndpointList = new ArrayList<>();
         mSocketList = new ArrayList<>();
@@ -143,8 +143,9 @@ public class JeroMQSubscriber extends JeroMQParent implements JeroMQSubscriberRu
 
             Timber.i("socketIdentityCount: %s", socketIdentityCount);
 
-            Socket socket = mZContext.createSocket(SocketType.SUB);
-//            socket.setHWM(5000);
+//            Socket socket = mZContext.createSocket(SocketType.SUB);
+            Socket socket = this.getZContext().createSocket(SocketType.SUB);
+            //            socket.setHWM(5000);
             BigInteger identity = BigInteger.valueOf(socketIdentityCount);
             socket.setIdentity(identity.toByteArray());
 //            socketIdentityCount++;
@@ -174,12 +175,15 @@ public class JeroMQSubscriber extends JeroMQParent implements JeroMQSubscriberRu
         Timber.i("Client SUB sockets connected");
 
         //  Initialize poll set
-        ZMQ.Poller items = mZContext.createPoller(mSocketList.size());
+//        ZMQ.Poller items = mZContext.createPoller(mSocketList.size());
+        ZMQ.Poller items = this.getZContext().createPoller(mSocketList.size());
         for (int i = 0; i < mSocketList.size(); i++) {
             items.register(mSocketList.get(i), ZMQ.Poller.POLLIN);
         }
 
-        mJeroMQSubscriberRunnable = new JeroMQSubscriberRunnable(mZContext,
+//        mJeroMQSubscriberRunnable = new JeroMQSubscriberRunnable(mZContext,
+//                mSocketList, items,JeroMQSubscriber.this);
+        mJeroMQSubscriberRunnable = new JeroMQSubscriberRunnable(this.getZContext(),
                 mSocketList, items,JeroMQSubscriber.this);
 
         mCustomThreadPoolManager.addRunnable(mJeroMQSubscriberRunnable);
