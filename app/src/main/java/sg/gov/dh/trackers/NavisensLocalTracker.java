@@ -6,8 +6,10 @@ import android.content.pm.PackageManager;
 import android.os.StrictMode;
 import android.util.Log;
 import com.navisens.motiondnaapi.MotionDna;
-import com.navisens.motiondnaapi.MotionDnaApplication;
-import com.navisens.motiondnaapi.MotionDnaInterface;
+import com.navisens.motiondnaapi.MotionDnaSDK;
+import com.navisens.motiondnaapi.MotionDnaSDKListener;
+
+import java.util.HashMap;
 import java.util.Map;
 
 import sg.gov.dh.utils.Coords;
@@ -25,12 +27,10 @@ import static com.navisens.motiondnaapi.MotionDna.ErrorCode.ERROR_SENSOR_TIMING;
  * @see Tracker
  */
 
-public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
-
+public class NavisensLocalTracker implements MotionDnaSDKListener, Tracker {
     //Somehow need to think of a way to make these 2 variables eternal
     double currentHeight=0.0;
     double mapHeight=0.0;
-    double newHeight=0.0;
     double currentOffset=0.0;
     double currentX = 0.0;
     double currentY = 0.0;
@@ -40,7 +40,6 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
     /**
      * Do not change this.
      */
-//    private static final String DEVELOPER_KEY = "r1NHUejpHZSyf2tXHaTLzcfxJ1nFpWh12QRvxV9XaDVHVs8l0BqzYHJjYPyYFIKh";
     private static final String DEVELOPER_KEY = "zcNcv8YYUYgvhgNrMZZzPNEQbcV9nAxlHhNPA9i9yNQyOmnBiveny6ZVJs6Hgsnr";
 
     /**
@@ -58,31 +57,25 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
      */
     private static final double UPDATERATE_MS= 500.00;
 
-
     /**
      * Activity passed by the parent class (E.g. Map Provider's LocationDataSource)
      */
     private Activity context=null;
 
-
-
     public void setActive(boolean active) {
         isActive = active;
     }
-
-
     private boolean isActive = false;
 
     /**
      * Navisens core API that the Navisens Tracker depends on
      */
-    MotionDnaApplication motionDnaApp;
+    MotionDnaSDK motionDnaApp;
 
     /**
      * The listener which would be assigned when setTrackerListener(TrackerListener listener) is called by parent class(E.g. Map Provider's LocationDataSource)
      */
     private TrackerListener listener;
-
 
     @Override
     public boolean isActive() {
@@ -112,7 +105,6 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
             Log.e(TAG,e.getMessage());
         }
         setActive(false);
-
     }
 
     /**
@@ -131,36 +123,12 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
         
         double heading = convertLeftToRightHeading(coords.getBearing());
 
-//        motionDnaApp.setCartesianPositionXY(coords.getX(),coords.getY());
-//        motionDnaApp.setLocalHeading(coords.getBearing());
-
-        motionDnaApp.setCartesianPositionXY(x,y);
-        motionDnaApp.setLocalHeading(heading);
+        motionDnaApp.setCartesianPosition(x,y);
+        motionDnaApp.setCartesianHeading(heading);
     }
 
-    private double convertLeftToRightX(double x, double y) {
-        double tempx = y;
-        return tempx;
-    }
-
-    private double convertLeftToRightY(double x, double y) {
-        double tempy=x;
-        tempy=-1*tempy;
-        return  tempy;
-    }
-
-    private double convertLeftToRightHeading(double bearing) {
-        return (bearing*-1);
-    }
-
-    /**
-     * Enable regular GPS updates<br>
-     * {@inheritDoc}
-     */
     @Override
-    public void setGPSLocation() {
-
-    }
+    public void setGPSLocation() {}
 
     /**
      * This feature is unnecessary in Navisens<br>
@@ -172,15 +140,18 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
     }
 
     @Override
-    public void stopGPSUpdate() {
-
-    }
+    public void stopGPSUpdate() {}
 
     @Override
-    public void startGPSUpdate() {
+    public void startGPSUpdate() {}
 
-    }
-
+    // Conversion functions tidied up.
+    private double convertLeftToRightX(double x, double y) { return y; }
+    private double convertLeftToRightY(double x, double y) { return -1*x; }
+    private double convertLeftToRightHeading(double bearing) { return (bearing*-1); }
+    private double convertRightToLeftY(double righthandx, double righthandy) { return righthandx; }
+    private double convertRightToLeftX(double righthandx, double righthandy) { return (righthandy*-1); }
+    private double convertRightToLeftHeading(double righthandlocalHeading) { return righthandlocalHeading*-1; }
 
     /**
      * WARNING: NAVISENS uses the Right Hand Coordinate System. Meaning
@@ -205,7 +176,6 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
      * @param context
      */
     public NavisensLocalTracker(Activity context){
-
         Log.d(TAG,"Initialising Navisens Integrator");
         this.listener = null;
         this.context=context;
@@ -217,24 +187,22 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
             StrictMode.setThreadPolicy(policy);
         }
         Log.d(TAG,"Loading Navisens");
-        motionDnaApp = new MotionDnaApplication(this);
+        HashMap<String, Object> configuration = new HashMap<>();
+        configuration.put("model","dsta");
+        configuration.put("gps",true);
+        configuration.put("callback",UPDATERATE_MS);
+        configuration.put("logging",true);
 
-        motionDnaApp.runMotionDna(DEVELOPER_KEY);
+        motionDnaApp = new MotionDnaSDK(context,this);
+        motionDnaApp.start(DEVELOPER_KEY,configuration);
+
         Log.d(TAG,"DEVELOPER_KEY: " + DEVELOPER_KEY);
-        Log.i(TAG,"Running Navisens SDK version " + MotionDnaApplication.checkSDKVersion() + " on " + motionDnaApp.getDeviceModel());
+        Log.i(TAG,"Running Navisens SDK version " + MotionDnaSDK.SDKVersion() + " on " + motionDnaApp.getDeviceModel());
         Log.d(TAG,"Setting update rate to " + UPDATERATE_MS + " ms");
-        motionDnaApp.setCallbackUpdateRateInMs(UPDATERATE_MS);
-        Log.d(TAG,"Setting power consumption to performance");
-        motionDnaApp.setPowerMode(MotionDna.PowerConsumptionMode.PERFORMANCE);
-        motionDnaApp.resetLocalEstimation();
-        motionDnaApp.resetLocalHeading();
-        motionDnaApp.setLocationGPSOnly();
-        motionDnaApp.setGnssOrGpsStatusEnabled(true);
-        motionDnaApp.setExternalPositioningState(MotionDna.ExternalPositioningState.HIGH_ACCURACY);
-        motionDnaApp.setBinaryFileLoggingEnabled(true);
 
+        // motionDnaApp.setGnssOrGpsStatusEnabled(true);
+        // motionDnaApp.setExternalPositioningState(MotionDna.ExternalPositioningState.HIGH_ACCURACY);
     }
-
 
     /**
      * This is called whenever NAVISENS API core receives a new location update.<br>
@@ -246,17 +214,15 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
      */
     @Override
     public void receiveMotionDna(MotionDna motionDna) {
-
         Log.d(TAG,"Received update from Navisens Tracker");
         MotionDna.Location loc = motionDna.getLocation();
-        String motionType=motionDna.getMotion().motionType.name();
-        String locStatus=loc.locationStatus.name();
-        MotionDna.XYZ localLocation=loc.localLocation;
+        String motionType=motionDna.getClassifiers().get("motion").prediction.label;
+
+        MotionDna.CartesianLocation localLocation= motionDna.getLocation().cartesian;
         double righthandx = localLocation.x;
         double righthandy = localLocation.y;
         double z = localLocation.z;
-        double righthandlocalHeading = loc.localHeading;
-        String verticalMotion = loc.verticalMotionStatus.name();
+        double righthandlocalHeading = motionDna.getLocation().global.heading;
 
         double x=convertRightToLeftX(righthandx,righthandy);
         double y=convertRightToLeftY(righthandx, righthandy);
@@ -266,9 +232,9 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
         this.currentBearing=localHeading;
         this.currentZ=this.mapHeight;
         performTrackingHeightOffsetAdjustment(z);
-        Log.i(TAG,"X:"+x + " Y:"+y + " Z:"+z + " Heading:" + localHeading + " locStatus:"+ locStatus + "VerticalMotion:" + verticalMotion + " EstimatedMotion:" + motionType);
-        listener.onNewCoords(new Coords(z,z,this.mapHeight,localHeading,(float)loc.uncertainty.x,(float)loc.uncertainty.y, (float)loc.absoluteAltitudeUncertainty, x, y, motionType));
-
+        Log.i(TAG,"X:"+x + " Y:"+y + " Z:"+z + " Heading:" + localHeading + " EstimatedMotion:" + motionType);
+        // TODO: Nav 2.0.1 appears to have removed accuracy + tracking of status. Confirm, and if this is not the case, add it back in.
+        listener.onNewCoords(new Coords(z,z,this.mapHeight,localHeading,(float)0.0,(float)0.0, (float)0.0, x, y, motionType));
     }
 
     private void performTrackingHeightOffsetAdjustment(double z) {
@@ -277,64 +243,10 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
         this.currentHeight=z;
     }
 
-    private double convertRightToLeftHeading(double righthandlocalHeading) {
-        double tempheading=righthandlocalHeading*-1;
-        return tempheading;
-
-    }
-
-    private double convertRightToLeftY(double righthandx, double righthandy) {
-        double tempy = righthandx;
-        return tempy;
-    }
-
-    private double convertRightToLeftX(double righthandx, double righthandy) {
-        double tempx = righthandy;
-        tempx=tempx*-1;
-        return (tempx);
-    }
-
-
     /**
-     * Optional: Only if using NAVISENS network mode.
+     * Enable regular GPS updates<br>
+     * {@inheritDoc}
      */
-    @Override
-    public void receiveNetworkData(MotionDna motionDna) {
-
-    }
-
-    /**
-     * Optional: Only if using NAVISENS network mode.
-     */
-    @Override
-    public void receiveNetworkData(MotionDna.NetworkCode networkCode, Map<String, ?> map) {
-
-    }
-
-    /**
-     * Optional: if implement, please add Events.
-     */
-    @Override
-    public void reportError(MotionDna.ErrorCode errorCode, String s) {
-        Log.d(TAG, "reportError: " + s);
-    }
-
-    /**
-     * Required to pass Activity context to NAVISENS
-     */
-    @Override
-    public Context getAppContext() {
-        return this.context;
-    }
-
-    /**
-     * Optional
-     */
-    @Override
-    public PackageManager getPkgManager() {
-        return this.getPkgManager();
-    }
-
     public Coords getCurrentXYZLocation()
     {
         Coords coord = new Coords(0.0, 0.0, this.currentZ, this.currentBearing, 0,0, 0, this.currentX, this.currentY, "");
@@ -347,30 +259,59 @@ public class NavisensLocalTracker implements MotionDnaInterface, Tracker {
      */
     public void startMotionDnaAndCreateNewTestLogFile() {
         motionDnaApp = null;
-        motionDnaApp = new MotionDnaApplication(this);
+        HashMap<String, Object> configuration = new HashMap<>();
+        configuration.put("model","dsta");
+        configuration.put("gps",true);
+        configuration.put("callback",UPDATERATE_MS);
+        configuration.put("logging",true);
 
-        motionDnaApp.runMotionDna(DEVELOPER_KEY);
-        motionDnaApp.setCallbackUpdateRateInMs(UPDATERATE_MS);
-        motionDnaApp.setPowerMode(MotionDna.PowerConsumptionMode.PERFORMANCE);
-//        motionDnaApp.resetLocalEstimation();
-        motionDnaApp.setLocationGPSOnly();
-        motionDnaApp.setGnssOrGpsStatusEnabled(true);
-        motionDnaApp.setExternalPositioningState(MotionDna.ExternalPositioningState.HIGH_ACCURACY);
-//        motionDnaApp.resetLocalHeading();
-        motionDnaApp.setBinaryFileLoggingEnabled(true);
+        motionDnaApp = new MotionDnaSDK(this.context,this);
+        motionDnaApp.start(DEVELOPER_KEY, configuration);
 
-        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_SENSOR_TIMING,
-                "Error: Sensor Timing");
-        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_AUTHENTICATION_FAILED,
-                "Error: Authentication Failed");
-        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_SENSOR_MISSING,
-                "Error: Sensor Missing");
-        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_SDK_EXPIRED,
-                "Error: SDK Expired");
-        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_WRONG_FLOOR_INPUT,
-                "Error: Wrong Floor Input");
-        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_PERMISSIONS,
-                "Error: Permissions");
+//        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_SENSOR_TIMING,
+//                "Error: Sensor Timing");
+//        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_AUTHENTICATION_FAILED,
+//                "Error: Authentication Failed");
+//        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_SENSOR_MISSING,
+//                "Error: Sensor Missing");
+//        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_SDK_EXPIRED,
+//                "Error: SDK Expired");
+//        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_WRONG_FLOOR_INPUT,
+//                "Error: Wrong Floor Input");
+//        motionDnaApp.reportError(MotionDna.ErrorCode.ERROR_PERMISSIONS,
+//                "Error: Permissions");
+    }
+
+    @Override
+    public void reportStatus(MotionDnaSDK.Status status, String s) {
+        switch (status) {
+            case AuthenticationFailure:
+                System.out.println("Error: Authentication Failed " + s);
+                break;
+            case AuthenticationSuccess:
+                System.out.println("Status: Authentication Successful " + s);
+                break;
+            case ExpiredSDK:
+                System.out.println("Status: SDK expired " + s);
+                break;
+            case PermissionsFailure:
+                System.out.println("Status: permissions not granted " + s);
+                break;
+            case MissingSensor:
+                System.out.println("Status: sensor missing " + s);
+                break;
+            case SensorTimingIssue:
+                System.out.println("Status: sensor timing " + s);
+                break;
+            case Configuration:
+                System.out.println("Status: configuration " + s);
+                break;
+            case None:
+                System.out.println("Status: None " + s);
+                break;
+            default:
+                System.out.println("Status: Unknown " + s);
+        }
     }
 
     /**
